@@ -30,7 +30,7 @@ struct FDMainMenuView: View {
                         .foregroundStyle(Color.accentColor)
 
                     VStack(spacing: 0) {
-                        Text("FOOTBALL")
+                        Text("FCS")
                             .font(.system(size: 40, weight: .heavy, design: .rounded))
                             .foregroundStyle(Color.primary)
                         Text("DESTINY")
@@ -102,7 +102,7 @@ struct FDAboutSheet: View {
         NavigationView {
             List {
                 Section {
-                    Text("Football Destiny est un prototype de simulateur de carrière de footballeur : formation (2 saisons maximum en U16/U18), entraînements, vestiaire, contrats, blessures, sélection nationale, transferts, jusqu'à la retraite — forcée à 43 ans, ou à tout moment de ton choix depuis l'onglet Options.")
+                    Text("FCS-Destiny est un prototype de simulateur de carrière de footballeur : formation (2 saisons maximum en U16/U18), entraînements, vestiaire, contrats, blessures, sélection nationale, transferts, jusqu'à la retraite — forcée à 43 ans, ou à tout moment de ton choix depuis l'onglet Options.")
                 }
                 Section("Deux styles de carrière") {
                     Label("Narratif — tu vis chaque évènement", systemImage: "book.fill")
