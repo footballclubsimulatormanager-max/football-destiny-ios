@@ -6,6 +6,9 @@ workflows:
       app_store_connect: FCSMANAGER
     environment:
       xcode: latest
+      ios_signing:
+        distribution_type: app_store
+        bundle_identifier: fr.fcsmanager.destiny
     scripts:
       - name: Set up signing
         script: |
