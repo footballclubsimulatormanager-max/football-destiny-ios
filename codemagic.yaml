@@ -7,6 +7,9 @@ workflows:
     environment:
       xcode: latest
     scripts:
+      - name: Set up keychain
+        script: |
+          keychain initialize
       - name: Fetch signing files
         script: |
           app-store-connect fetch-signing-files "fr.fcsmanager.destiny" \
@@ -14,7 +17,6 @@ workflows:
             --create
       - name: Set up signing
         script: |
-          keychain initialize
           keychain add-certificates
           xcode-project use-profiles
       - name: Build IPA
