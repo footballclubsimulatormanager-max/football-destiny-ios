@@ -1,23 +1,41 @@
 workflows:
-  ios-debug-build:
-    name: Football Destiny — Debug build
+  ios-workflow:
+    name: Football Destiny iOS
     max_build_duration: 60
+    integrations:
+      app_store_connect: FCSMANAGER
     environment:
       xcode: latest
+      ios_signing:
+        distribution_type: app_store
+        bundle_identifier: com.footballdestiny.ios
     scripts:
-      - name: Build (Debug, simulator)
+      - name: Set up profiles
+        script: |
+          xcode-project use-profiles
+      - name: Build IPA
         script: |
           xcodebuild \
             -project "FootballDestiny.xcodeproj" \
             -scheme "FootballDestiny" \
-            -configuration Debug \
-            -sdk iphonesimulator \
-            -destination "generic/platform=iOS Simulator" \
-            build 2>&1
+            -configuration Release \
+            -archivePath "$CM_BUILD_DIR/FootballDestiny.xcarchive" \
+            -destination "generic/platform=iOS" \
+            CODE_SIGN_IDENTITY="Apple Distribution" \
+            CODE_SIGN_STYLE=Manual \
+            DEVELOPMENT_TEAM=7B535ZNRSR \
+            CURRENT_PROJECT_VERSION=$BUILD_NUMBER \
+            archive 2>&1
 
-  # Once you're ready to distribute via TestFlight/App Store, add:
-  # - an `app_store_connect` integration under `integrations:`
-  # - `ios_signing` (distribution_type + your real bundle identifier) under `environment:`
-  # - an archive + export + publishing block, same shape as the ios-workflow in
-  #   the FCS Manager repo's codemagic.yaml, but pointed at this project/scheme.
-  # Left out for now so a build here can never accidentally reach TestFlight.
+          xcodebuild \
+            -exportArchive \
+            -archivePath "$CM_BUILD_DIR/FootballDestiny.xcarchive" \
+            -exportOptionsPlist ExportOptions.plist \
+            -exportPath "$CM_BUILD_DIR/ios/ipa" \
+            2>&1
+    artifacts:
+      - $CM_BUILD_DIR/ios/ipa/*.ipa
+    publishing:
+      app_store_connect:
+        auth: integration
+        submit_to_testflight: true
