@@ -1,0 +1,23 @@
+workflows:
+  ios-debug-build:
+    name: Football Destiny — Debug build
+    max_build_duration: 60
+    environment:
+      xcode: latest
+    scripts:
+      - name: Build (Debug, simulator)
+        script: |
+          xcodebuild \
+            -project "FootballDestiny.xcodeproj" \
+            -scheme "FootballDestiny" \
+            -configuration Debug \
+            -sdk iphonesimulator \
+            -destination "generic/platform=iOS Simulator" \
+            build 2>&1
+
+  # Once you're ready to distribute via TestFlight/App Store, add:
+  # - an `app_store_connect` integration under `integrations:`
+  # - `ios_signing` (distribution_type + your real bundle identifier) under `environment:`
+  # - an archive + export + publishing block, same shape as the ios-workflow in
+  #   the FCS Manager repo's codemagic.yaml, but pointed at this project/scheme.
+  # Left out for now so a build here can never accidentally reach TestFlight.

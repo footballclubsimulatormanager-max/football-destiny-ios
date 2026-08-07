@@ -1,0 +1,351 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 56;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		1E631B7AF608C6EC7C5FF34F /* FootballDestinyApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8C311EE47218750DDB1017A9 /* FootballDestinyApp.swift */; };
+		F65821FB97F5BAA0848C57E3 /* FDModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA496F3C37568F4A9BCC5BE5 /* FDModels.swift */; };
+		F729E6A372212C36C6878D0C /* FDClubDatabase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 66F8B9EE94EEC3792F64E39F /* FDClubDatabase.swift */; };
+		9AC231E266F261F36909CAC8 /* FDScenes.swift in Sources */ = {isa = PBXBuildFile; fileRef = E07F5F57F2174B3D1FBE7A16 /* FDScenes.swift */; };
+		5899C5BC12E9434105A58E19 /* FDGameEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34A154E8DF5D01A2D1B908BD /* FDGameEngine.swift */; };
+		7AC4E67CAA376FFC4FC1730F /* FDMainMenuView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AD7F36E9CB9CBAE13F1A1F0B /* FDMainMenuView.swift */; };
+		36D52AAF14B7ABC32C9E1C1D /* FDCareerCreationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BFDC2A528F03616FAB1F01D8 /* FDCareerCreationView.swift */; };
+		75896B96948AAB2C3DD295D8 /* FDGameShellView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 43AD0F2A69BF9E9CEE6B451B /* FDGameShellView.swift */; };
+		0C4A232674BEB82B4F68E088 /* FDRootView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AFAA89E06DBEADE8D26477A6 /* FDRootView.swift */; };
+		1030E28BDE5B7D66E7F6D503 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = E004B83FE32328616E724A8D /* Assets.xcassets */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		8C311EE47218750DDB1017A9 /* FootballDestinyApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FootballDestinyApp.swift; sourceTree = "<group>"; };
+		FA496F3C37568F4A9BCC5BE5 /* FDModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FDModels.swift; sourceTree = "<group>"; };
+		66F8B9EE94EEC3792F64E39F /* FDClubDatabase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FDClubDatabase.swift; sourceTree = "<group>"; };
+		E07F5F57F2174B3D1FBE7A16 /* FDScenes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FDScenes.swift; sourceTree = "<group>"; };
+		34A154E8DF5D01A2D1B908BD /* FDGameEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FDGameEngine.swift; sourceTree = "<group>"; };
+		AD7F36E9CB9CBAE13F1A1F0B /* FDMainMenuView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FDMainMenuView.swift; sourceTree = "<group>"; };
+		BFDC2A528F03616FAB1F01D8 /* FDCareerCreationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FDCareerCreationView.swift; sourceTree = "<group>"; };
+		43AD0F2A69BF9E9CEE6B451B /* FDGameShellView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FDGameShellView.swift; sourceTree = "<group>"; };
+		AFAA89E06DBEADE8D26477A6 /* FDRootView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FDRootView.swift; sourceTree = "<group>"; };
+		E004B83FE32328616E724A8D /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		7C017E7E907753D06692224B /* FootballDestiny.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = FootballDestiny.app; sourceTree = BUILT_PRODUCTS_DIR; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		6C84BF8C2969C41924BAD015 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		9C2D3B7AC1224C11F3785427 = {
+			isa = PBXGroup;
+			children = (
+				8C311EE47218750DDB1017A9 /* FootballDestinyApp.swift */,
+				FA496F3C37568F4A9BCC5BE5 /* FDModels.swift */,
+				66F8B9EE94EEC3792F64E39F /* FDClubDatabase.swift */,
+				E07F5F57F2174B3D1FBE7A16 /* FDScenes.swift */,
+				34A154E8DF5D01A2D1B908BD /* FDGameEngine.swift */,
+				AD7F36E9CB9CBAE13F1A1F0B /* FDMainMenuView.swift */,
+				BFDC2A528F03616FAB1F01D8 /* FDCareerCreationView.swift */,
+				43AD0F2A69BF9E9CEE6B451B /* FDGameShellView.swift */,
+				AFAA89E06DBEADE8D26477A6 /* FDRootView.swift */,
+				E004B83FE32328616E724A8D /* Assets.xcassets */,
+				A6AB6E04A074B03E0A33CB91 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		A6AB6E04A074B03E0A33CB91 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				7C017E7E907753D06692224B /* FootballDestiny.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		FB2A0A7AFA94C4938EECF912 /* FootballDestiny */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 8A05CB3867A6995FB8A879D0 /* Build configuration list for PBXNativeTarget "FootballDestiny" */;
+			buildPhases = (
+				26508D25D1077DB328CA48D7 /* Sources */,
+				6C84BF8C2969C41924BAD015 /* Frameworks */,
+				A060757E1018BDE31B6D49C8 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = FootballDestiny;
+			productName = FootballDestiny;
+			productReference = 7C017E7E907753D06692224B /* FootballDestiny.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		4C960504F1D309B0FD7045CF /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastSwiftUpdateCheck = 1600;
+				LastUpgradeCheck = 1600;
+				ORGANIZATIONNAME = "";
+				TargetAttributes = {
+					FB2A0A7AFA94C4938EECF912 = {
+						CreatedOnToolsVersion = 16.0;
+					};
+				};
+			};
+			buildConfigurationList = 0095DAA74E3C2AAC7AD4F0C8 /* Build configuration list for PBXProject "FootballDestiny" */;
+			compatibilityVersion = "Xcode 14.0";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = 9C2D3B7AC1224C11F3785427;
+			productRefGroup = A6AB6E04A074B03E0A33CB91 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				FB2A0A7AFA94C4938EECF912 /* FootballDestiny */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		A060757E1018BDE31B6D49C8 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				1030E28BDE5B7D66E7F6D503 /* Assets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		26508D25D1077DB328CA48D7 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				1E631B7AF608C6EC7C5FF34F /* FootballDestinyApp.swift in Sources */,
+				F65821FB97F5BAA0848C57E3 /* FDModels.swift in Sources */,
+				F729E6A372212C36C6878D0C /* FDClubDatabase.swift in Sources */,
+				9AC231E266F261F36909CAC8 /* FDScenes.swift in Sources */,
+				5899C5BC12E9434105A58E19 /* FDGameEngine.swift in Sources */,
+				7AC4E67CAA376FFC4FC1730F /* FDMainMenuView.swift in Sources */,
+				36D52AAF14B7ABC32C9E1C1D /* FDCareerCreationView.swift in Sources */,
+				75896B96948AAB2C3DD295D8 /* FDGameShellView.swift in Sources */,
+				0C4A232674BEB82B4F68E088 /* FDRootView.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		429BDA316CCA71A546CD3EFD /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		4F59CAA4A3D25F433E55C63F /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		D6DB1D084859DE860B2F6924 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = "Football Destiny";
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.footballdestiny.ios;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		890B44B877D54C0953F3A114 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = "Football Destiny";
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.footballdestiny.ios;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		0095DAA74E3C2AAC7AD4F0C8 /* Build configuration list for PBXProject "FootballDestiny" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				429BDA316CCA71A546CD3EFD /* Debug */,
+				4F59CAA4A3D25F433E55C63F /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		8A05CB3867A6995FB8A879D0 /* Build configuration list for PBXNativeTarget "FootballDestiny" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				D6DB1D084859DE860B2F6924 /* Debug */,
+				890B44B877D54C0953F3A114 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 4C960504F1D309B0FD7045CF /* Project object */;
+}
