@@ -20,16 +20,16 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		8C311EE47218750DDB1017A9 /* FootballDestinyApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FootballDestinyApp.swift; sourceTree = "<group>"; };
-		FA496F3C37568F4A9BCC5BE5 /* FDModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FDModels.swift; sourceTree = "<group>"; };
-		66F8B9EE94EEC3792F64E39F /* FDClubDatabase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FDClubDatabase.swift; sourceTree = "<group>"; };
-		E07F5F57F2174B3D1FBE7A16 /* FDScenes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FDScenes.swift; sourceTree = "<group>"; };
-		34A154E8DF5D01A2D1B908BD /* FDGameEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FDGameEngine.swift; sourceTree = "<group>"; };
-		AD7F36E9CB9CBAE13F1A1F0B /* FDMainMenuView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FDMainMenuView.swift; sourceTree = "<group>"; };
-		BFDC2A528F03616FAB1F01D8 /* FDCareerCreationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FDCareerCreationView.swift; sourceTree = "<group>"; };
-		43AD0F2A69BF9E9CEE6B451B /* FDGameShellView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FDGameShellView.swift; sourceTree = "<group>"; };
-		AFAA89E06DBEADE8D26477A6 /* FDRootView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FDRootView.swift; sourceTree = "<group>"; };
-		E004B83FE32328616E724A8D /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		8C311EE47218750DDB1017A9 /* FootballDestinyApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "FootballDestiny/FootballDestinyApp.swift"; sourceTree = "<group>"; };
+		FA496F3C37568F4A9BCC5BE5 /* FDModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "FootballDestiny/FDModels.swift"; sourceTree = "<group>"; };
+		66F8B9EE94EEC3792F64E39F /* FDClubDatabase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "FootballDestiny/FDClubDatabase.swift"; sourceTree = "<group>"; };
+		E07F5F57F2174B3D1FBE7A16 /* FDScenes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "FootballDestiny/FDScenes.swift"; sourceTree = "<group>"; };
+		34A154E8DF5D01A2D1B908BD /* FDGameEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "FootballDestiny/FDGameEngine.swift"; sourceTree = "<group>"; };
+		AD7F36E9CB9CBAE13F1A1F0B /* FDMainMenuView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "FootballDestiny/FDMainMenuView.swift"; sourceTree = "<group>"; };
+		BFDC2A528F03616FAB1F01D8 /* FDCareerCreationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "FootballDestiny/FDCareerCreationView.swift"; sourceTree = "<group>"; };
+		43AD0F2A69BF9E9CEE6B451B /* FDGameShellView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "FootballDestiny/FDGameShellView.swift"; sourceTree = "<group>"; };
+		AFAA89E06DBEADE8D26477A6 /* FDRootView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "FootballDestiny/FDRootView.swift"; sourceTree = "<group>"; };
+		E004B83FE32328616E724A8D /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "FootballDestiny/Assets.xcassets"; sourceTree = "<group>"; };
 		7C017E7E907753D06692224B /* FootballDestiny.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = FootballDestiny.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
