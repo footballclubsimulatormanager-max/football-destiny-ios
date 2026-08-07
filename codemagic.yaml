@@ -22,6 +22,7 @@ workflows:
             -destination "generic/platform=iOS" \
             CODE_SIGN_IDENTITY="Apple Distribution" \
             CODE_SIGN_STYLE=Manual \
+            PROVISIONING_PROFILE_SPECIFIER="Destiny Distribution" \
             DEVELOPMENT_TEAM=7B535ZNRSR \
             CURRENT_PROJECT_VERSION=$BUILD_NUMBER \
             archive 2>&1
