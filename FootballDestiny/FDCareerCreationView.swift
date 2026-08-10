@@ -6,45 +6,71 @@ struct FDClubGroup: Identifiable {
     let clubs: [FDClub]
 }
 
+private enum FDCreationStep: Int, CaseIterable {
+    case identity, nationality, position, foot, style, personality, background, difficulty, mode, club
+}
+
 struct FDCareerCreationView: View {
     @ObservedObject var engine: FDGameEngine
     @Binding var screen: FDScreen
 
-    @State private var step = 1
+    @State private var stepIndex = 0
     @State private var draft = FDCreationDraft()
     @State private var clubSearch = ""
+
+    private let steps = FDCreationStep.allCases
+    private var currentStep: FDCreationStep { steps[stepIndex] }
 
     private var identityValid: Bool {
         !draft.firstName.trimmingCharacters(in: .whitespaces).isEmpty
             && !draft.lastName.trimmingCharacters(in: .whitespaces).isEmpty
     }
 
+    private var showsReroll: Bool {
+        switch currentStep {
+        case .nationality, .position, .foot, .style, .personality, .background: return true
+        default: return false
+        }
+    }
+
     var body: some View {
         NavigationView {
             Group {
-                switch step {
-                case 1: identityStep
-                case 2: profileStep
-                default: clubStep
+                switch currentStep {
+                case .identity: identityStep
+                case .nationality: nationalityStep
+                case .position: positionStep
+                case .foot: footStep
+                case .style: styleStep
+                case .personality: personalityStep
+                case .background: backgroundStep
+                case .difficulty: difficultyStep
+                case .mode: modeStep
+                case .club: clubStep
                 }
             }
             .background(Color(.systemGroupedBackground))
-            .navigationTitle("Nouvelle carrière")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
-                    Button {
-                        if step > 1 { step -= 1 } else { screen = .menu }
-                    } label: {
-                        Image(systemName: step > 1 ? "chevron.left" : "xmark")
+                    Button(action: goBack) {
+                        Image(systemName: stepIndex > 0 ? "chevron.left" : "xmark")
                     }
                 }
                 ToolbarItem(placement: .principal) {
-                    HStack(spacing: 5) {
-                        ForEach(1...3, id: \.self) { i in
-                            Circle()
-                                .fill(i <= step ? FDTheme.gold : Color(.systemGray4))
-                                .frame(width: 6, height: 6)
+                    HStack(spacing: 4) {
+                        ForEach(0..<steps.count, id: \.self) { i in
+                            Capsule()
+                                .fill(i == stepIndex ? FDTheme.gold : (i < stepIndex ? FDTheme.gold.opacity(0.4) : Color(.systemGray4)))
+                                .frame(width: i == stepIndex ? 14 : 5, height: 5)
+                        }
+                    }
+                }
+                if showsReroll {
+                    ToolbarItem(placement: .confirmationAction) {
+                        Button(action: rerollCurrent) {
+                            Image(systemName: "dice.fill")
+                                .foregroundStyle(FDTheme.gold)
                         }
                     }
                 }
@@ -53,63 +79,61 @@ struct FDCareerCreationView: View {
         .navigationViewStyle(.stack)
     }
 
-    // MARK: Step 1 — identity
+    // MARK: Navigation
+
+    private func goBack() {
+        if stepIndex > 0 {
+            withAnimation(.easeInOut(duration: 0.25)) { stepIndex -= 1 }
+        } else {
+            screen = .menu
+        }
+    }
+
+    private func advance() {
+        if stepIndex < steps.count - 1 {
+            withAnimation(.easeInOut(duration: 0.25)) { stepIndex += 1 }
+        }
+    }
+
+    private func selectAndAdvance(_ assign: @escaping () -> Void) {
+        FDHaptics.tap()
+        assign()
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.28) {
+            advance()
+        }
+    }
+
+    private func rerollCurrent() {
+        FDHaptics.tap()
+        switch currentStep {
+        case .nationality: draft.nationality = FDNations.randomElement() ?? draft.nationality
+        case .position: draft.position = FDPosition.allCases.randomElement() ?? draft.position
+        case .foot: draft.foot = FDFoot.allCases.randomElement() ?? draft.foot
+        case .style: draft.style = FDStyle.allCases.randomElement() ?? draft.style
+        case .personality: draft.personality = FDPersonality.allCases.randomElement() ?? draft.personality
+        case .background: draft.background = FDBackground.allCases.randomElement() ?? draft.background
+        default: break
+        }
+    }
+
+    // MARK: Step 0 — identity
 
     private var identityStep: some View {
         ScrollView {
             VStack(spacing: 16) {
-                VStack(alignment: .leading, spacing: 12) {
-                    FDSectionLabel("Identité")
-                    TextField("Prénom", text: $draft.firstName)
-                        .fdField()
-                    TextField("Nom", text: $draft.lastName)
-                        .fdField()
-                    Picker("Nationalité", selection: $draft.nationality) {
-                        ForEach(FDNations, id: \.self) { nation in Text(nation).tag(nation) }
-                    }
-                    .pickerStyle(.menu)
-                    .fdField()
-                    TextField("Ville natale", text: $draft.birthCity)
-                        .fdField()
-                }
-                .fdCard()
-
-                VStack(alignment: .leading, spacing: 12) {
-                    FDSectionLabel("Milieu familial")
-                    Picker("Milieu familial", selection: $draft.background) {
-                        ForEach(FDBackground.allCases) { b in Text(b.rawValue).tag(b) }
-                    }
-                    .pickerStyle(.menu)
-                    .fdField()
-                }
-                .fdCard()
-
-                VStack(alignment: .leading, spacing: 12) {
-                    FDSectionLabel("Difficulté")
-                    Picker("Difficulté", selection: $draft.difficulty) {
-                        ForEach(FDDifficulty.allCases) { d in Text(d.rawValue).tag(d) }
-                    }
-                    .pickerStyle(.segmented)
-                }
-                .fdCard()
-
-                VStack(alignment: .leading, spacing: 10) {
-                    FDSectionLabel("Style de carrière")
-                    Picker("Style de carrière", selection: $draft.mode) {
-                        ForEach(FDMode.allCases) { m in Text(m.rawValue).tag(m) }
-                    }
-                    .pickerStyle(.segmented)
-                    Text(draft.mode.hint)
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
+                FDStepHeader(title: "Ton identité", subtitle: "Le point de départ de ta légende.")
+                VStack(spacing: 12) {
+                    TextField("Prénom", text: $draft.firstName).fdField()
+                    TextField("Nom", text: $draft.lastName).fdField()
+                    TextField("Ville natale", text: $draft.birthCity).fdField()
                 }
                 .fdCard()
 
                 Button {
                     FDHaptics.tap()
-                    step = 2
+                    advance()
                 } label: {
-                    Text("Suivant")
+                    Text("Continuer")
                 }
                 .buttonStyle(FDPrimaryButtonStyle())
                 .disabled(!identityValid)
@@ -119,63 +143,151 @@ struct FDCareerCreationView: View {
         }
     }
 
-    // MARK: Step 2 — position, foot, style, personality
+    // MARK: Step 1 — nationality
 
-    private var profileStep: some View {
+    private var nationalityStep: some View {
         ScrollView {
             VStack(spacing: 16) {
-                VStack(alignment: .leading, spacing: 12) {
-                    FDSectionLabel("Poste principal")
-                    Picker("Poste", selection: $draft.position) {
-                        ForEach(FDPosition.allCases) { p in Text(p.rawValue).tag(p) }
+                FDStepHeader(title: "Ta nationalité", subtitle: "Le pays qui te verra grandir sur les terrains.")
+                LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible()), GridItem(.flexible())], spacing: 12) {
+                    ForEach(FDNations, id: \.self) { nation in
+                        FDFlagCard(flag: fdFlag(for: nation), name: nation, selected: draft.nationality == nation) {
+                            selectAndAdvance { draft.nationality = nation }
+                        }
                     }
-                    .pickerStyle(.menu)
-                    .fdField()
                 }
-                .fdCard()
-
-                VStack(alignment: .leading, spacing: 12) {
-                    FDSectionLabel("Pied fort")
-                    Picker("Pied fort", selection: $draft.foot) {
-                        ForEach(FDFoot.allCases) { f in Text(f.rawValue).tag(f) }
-                    }
-                    .pickerStyle(.segmented)
-                }
-                .fdCard()
-
-                VStack(alignment: .leading, spacing: 12) {
-                    FDSectionLabel("Style de jeu")
-                    Picker("Style de jeu", selection: $draft.style) {
-                        ForEach(FDStyle.allCases) { s in Text(s.rawValue).tag(s) }
-                    }
-                    .pickerStyle(.menu)
-                    .fdField()
-                }
-                .fdCard()
-
-                VStack(alignment: .leading, spacing: 12) {
-                    FDSectionLabel("Personnalité")
-                    Picker("Personnalité", selection: $draft.personality) {
-                        ForEach(FDPersonality.allCases) { p in Text(p.rawValue).tag(p) }
-                    }
-                    .pickerStyle(.menu)
-                    .fdField()
-                }
-                .fdCard()
-
-                Button {
-                    FDHaptics.tap()
-                    step = 3
-                } label: {
-                    Text("Choisir un club")
-                }
-                .buttonStyle(FDPrimaryButtonStyle())
             }
             .padding()
         }
     }
 
-    // MARK: Step 3 — club
+    // MARK: Step 2 — position
+
+    private var positionStep: some View {
+        ScrollView {
+            VStack(spacing: 16) {
+                FDStepHeader(title: "Ton poste", subtitle: "Il façonnera tes statistiques, tes évènements et ta légende.")
+                VStack(spacing: 12) {
+                    ForEach(FDPosition.allCases) { p in
+                        FDChoiceCard(icon: p.flavorIcon, title: p.rawValue, subtitle: p.flavorText, selected: draft.position == p) {
+                            selectAndAdvance { draft.position = p }
+                        }
+                    }
+                }
+            }
+            .padding()
+        }
+    }
+
+    // MARK: Step 3 — foot
+
+    private var footStep: some View {
+        ScrollView {
+            VStack(spacing: 16) {
+                FDStepHeader(title: "Ton pied fort", subtitle: "Celui qui guide tes gestes décisifs.")
+                VStack(spacing: 12) {
+                    ForEach(FDFoot.allCases) { f in
+                        FDChoiceCard(icon: f.flavorIcon, title: f.rawValue, subtitle: f.flavorText, selected: draft.foot == f) {
+                            selectAndAdvance { draft.foot = f }
+                        }
+                    }
+                }
+            }
+            .padding()
+        }
+    }
+
+    // MARK: Step 4 — style
+
+    private var styleStep: some View {
+        ScrollView {
+            VStack(spacing: 16) {
+                FDStepHeader(title: "Ton style de jeu", subtitle: "Ce qui te rend reconnaissable sur le terrain.")
+                VStack(spacing: 12) {
+                    ForEach(FDStyle.allCases) { s in
+                        FDChoiceCard(icon: s.flavorIcon, title: s.rawValue, subtitle: s.flavorText, selected: draft.style == s) {
+                            selectAndAdvance { draft.style = s }
+                        }
+                    }
+                }
+            }
+            .padding()
+        }
+    }
+
+    // MARK: Step 5 — personality
+
+    private var personalityStep: some View {
+        ScrollView {
+            VStack(spacing: 16) {
+                FDStepHeader(title: "Ta personnalité", subtitle: "Ton caractère, dans le vestiaire comme face aux médias.")
+                VStack(spacing: 12) {
+                    ForEach(FDPersonality.allCases) { p in
+                        FDChoiceCard(icon: p.flavorIcon, title: p.rawValue, subtitle: p.flavorText, selected: draft.personality == p) {
+                            selectAndAdvance { draft.personality = p }
+                        }
+                    }
+                }
+            }
+            .padding()
+        }
+    }
+
+    // MARK: Step 6 — background
+
+    private var backgroundStep: some View {
+        ScrollView {
+            VStack(spacing: 16) {
+                FDStepHeader(title: "Ton milieu familial", subtitle: "D'où tu viens, avant les projecteurs.")
+                VStack(spacing: 12) {
+                    ForEach(FDBackground.allCases) { b in
+                        FDChoiceCard(icon: b.flavorIcon, title: b.rawValue, subtitle: b.flavorText, selected: draft.background == b) {
+                            selectAndAdvance { draft.background = b }
+                        }
+                    }
+                }
+            }
+            .padding()
+        }
+    }
+
+    // MARK: Step 7 — difficulty
+
+    private var difficultyStep: some View {
+        ScrollView {
+            VStack(spacing: 16) {
+                FDStepHeader(title: "La difficulté", subtitle: "À quel point la carrière sera exigeante avec toi.")
+                VStack(spacing: 12) {
+                    ForEach(FDDifficulty.allCases) { d in
+                        FDChoiceCard(icon: d.flavorIcon, title: d.rawValue, subtitle: d.flavorText, selected: draft.difficulty == d) {
+                            selectAndAdvance { draft.difficulty = d }
+                        }
+                    }
+                }
+            }
+            .padding()
+        }
+    }
+
+    // MARK: Step 8 — mode
+
+    private var modeStep: some View {
+        ScrollView {
+            VStack(spacing: 16) {
+                FDStepHeader(title: "Ton style de carrière", subtitle: "Comment tu veux vivre ton histoire.")
+                VStack(spacing: 12) {
+                    ForEach(FDMode.allCases) { m in
+                        FDChoiceCard(icon: m.flavorIcon, title: m.rawValue, subtitle: m.hint, selected: draft.mode == m) {
+                            selectAndAdvance { draft.mode = m }
+                        }
+                    }
+                }
+            }
+            .padding()
+        }
+    }
+
+    // MARK: Step 9 — club
 
     private var filteredClubs: [FDClub] {
         if clubSearch.trimmingCharacters(in: .whitespaces).isEmpty { return FDAllClubs }
@@ -185,23 +297,37 @@ struct FDCareerCreationView: View {
         }
     }
 
+    /// The continent tied to the player's chosen nationality, when at least one club exists there.
+    private var homeContinent: String? {
+        FDAllClubs.first(where: { $0.country == draft.nationality })?.continent
+    }
+
     private var clubsByContinent: [FDClubGroup] {
         let groups = Dictionary(grouping: filteredClubs, by: { $0.continent })
-        let order = ["Europe", "Amérique du Sud", "Amérique du Nord", "Asie", "Afrique", "Océanie"]
+        var order = ["Europe", "Amérique du Sud", "Amérique du Nord", "Asie", "Afrique", "Océanie"]
+        if let home = homeContinent, let idx = order.firstIndex(of: home), idx != 0 {
+            order.remove(at: idx)
+            order.insert(home, at: 0)
+        }
         return order.compactMap { c in
             guard let list = groups[c], !list.isEmpty else { return nil }
-            return FDClubGroup(id: c, clubs: list.sorted { $0.reputation > $1.reputation })
+            let sorted = list.sorted { a, b in
+                let aHome = a.country == draft.nationality
+                let bHome = b.country == draft.nationality
+                if aHome != bHome { return aHome }
+                return a.reputation > b.reputation
+            }
+            return FDClubGroup(id: c, clubs: sorted)
         }
     }
 
     private var clubStep: some View {
         VStack(spacing: 0) {
-            Text("Choisis le club de jeunes qui lancera ta carrière à 15 ans.")
-                .font(.footnote)
-                .foregroundStyle(.secondary)
-                .padding(.horizontal)
-                .padding(.top, 10)
-                .padding(.bottom, 4)
+            FDStepHeader(
+                title: "Ton club de jeunes",
+                subtitle: "Celui qui lancera ta carrière à 15 ans. Les clubs de \(draft.nationality) apparaissent en premier, pour rester réaliste — mais tu peux jouer n'importe où dans le monde."
+            )
+            .padding(.bottom, 8)
 
             List {
                 ForEach(clubsByContinent) { group in
@@ -236,6 +362,93 @@ struct FDCareerCreationView: View {
             .opacity(draft.club == nil ? 0.5 : 1)
             .padding()
         }
+    }
+}
+
+// MARK: - Shared step UI
+
+private struct FDStepHeader: View {
+    let title: String
+    let subtitle: String
+
+    var body: some View {
+        VStack(spacing: 8) {
+            Text(title.uppercased())
+                .font(.system(size: 24, weight: .heavy, design: .rounded))
+                .multilineTextAlignment(.center)
+            Text(subtitle)
+                .font(.subheadline)
+                .foregroundStyle(.secondary)
+                .multilineTextAlignment(.center)
+        }
+        .padding(.horizontal)
+        .padding(.top, 8)
+    }
+}
+
+private struct FDChoiceCard: View {
+    let icon: String
+    let title: String
+    let subtitle: String
+    let selected: Bool
+    let action: () -> Void
+
+    var body: some View {
+        Button(action: action) {
+            HStack(alignment: .top, spacing: 12) {
+                Text(icon).font(.title2)
+                VStack(alignment: .leading, spacing: 4) {
+                    Text(title).font(.headline)
+                    Text(subtitle).font(.subheadline).foregroundStyle(.secondary)
+                }
+                Spacer(minLength: 0)
+                if selected {
+                    Image(systemName: "checkmark.circle.fill").foregroundStyle(FDTheme.gold)
+                }
+            }
+            .padding(16)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .background(
+                RoundedRectangle(cornerRadius: 18, style: .continuous)
+                    .fill(Color(.secondarySystemBackground))
+            )
+            .overlay(
+                RoundedRectangle(cornerRadius: 18, style: .continuous)
+                    .stroke(selected ? FDTheme.gold : Color.primary.opacity(0.06), lineWidth: selected ? 1.5 : 1)
+            )
+        }
+        .buttonStyle(.plain)
+    }
+}
+
+private struct FDFlagCard: View {
+    let flag: String
+    let name: String
+    let selected: Bool
+    let action: () -> Void
+
+    var body: some View {
+        Button(action: action) {
+            VStack(spacing: 8) {
+                Text(flag).font(.system(size: 32))
+                Text(name)
+                    .font(.subheadline.weight(.semibold))
+                    .multilineTextAlignment(.center)
+                    .lineLimit(2)
+                    .minimumScaleFactor(0.8)
+            }
+            .frame(maxWidth: .infinity)
+            .padding(.vertical, 16)
+            .background(
+                RoundedRectangle(cornerRadius: 16, style: .continuous)
+                    .fill(Color(.secondarySystemBackground))
+            )
+            .overlay(
+                RoundedRectangle(cornerRadius: 16, style: .continuous)
+                    .stroke(selected ? FDTheme.gold : Color.primary.opacity(0.06), lineWidth: selected ? 1.5 : 1)
+            )
+        }
+        .buttonStyle(.plain)
     }
 }
 
@@ -288,6 +501,162 @@ struct FDMiniStat: View {
             Text("\(label) \(value)").font(.caption2).foregroundStyle(.secondary)
             ProgressView(value: Double(value), total: 100)
                 .frame(width: 56)
+        }
+    }
+}
+
+// MARK: - Flavor content (own wording, not sourced from any other app)
+
+private func fdFlag(for nation: String) -> String {
+    let flags: [String: String] = [
+        "France": "🇫🇷", "Angleterre": "🇬🇧", "Espagne": "🇪🇸", "Allemagne": "🇩🇪",
+        "Italie": "🇮🇹", "Portugal": "🇵🇹", "Pays-Bas": "🇳🇱", "Belgique": "🇧🇪",
+        "Brésil": "🇧🇷", "Argentine": "🇦🇷", "Uruguay": "🇺🇾", "Colombie": "🇨🇴",
+        "États-Unis": "🇺🇸", "Canada": "🇨🇦", "Mexique": "🇲🇽", "Sénégal": "🇸🇳",
+        "Côte d'Ivoire": "🇨🇮", "Cameroun": "🇨🇲", "Nigeria": "🇳🇬", "Maroc": "🇲🇦",
+        "Algérie": "🇩🇿", "Tunisie": "🇹🇳", "Égypte": "🇪🇬", "Japon": "🇯🇵",
+        "Corée du Sud": "🇰🇷", "Australie": "🇦🇺", "Émirats Arabes Unis": "🇦🇪",
+        "Arabie Saoudite": "🇸🇦", "Turquie": "🇹🇷", "Croatie": "🇭🇷", "Suède": "🇸🇪",
+        "Norvège": "🇳🇴", "Danemark": "🇩🇰"
+    ]
+    return flags[nation] ?? "🏳️"
+}
+
+private extension FDPosition {
+    var flavorIcon: String {
+        switch self {
+        case .gardien: return "🧤"
+        case .defenseurCentral: return "🛡️"
+        case .lateral: return "🏃"
+        case .milieuDefensif: return "🧭"
+        case .milieuRelayeur: return "🔁"
+        case .milieuOffensif: return "🎯"
+        case .ailier: return "💨"
+        case .avantCentre: return "⚽"
+        }
+    }
+    var flavorText: String {
+        switch self {
+        case .gardien: return "Le dernier rempart. Un sang-froid d'acier quand tout se joue sur un ballon."
+        case .defenseurCentral: return "Le roc de la défense. Par ici, on ne passe pas."
+        case .lateral: return "Les couloirs sont à toi, entre courses défensives et centres décisifs."
+        case .milieuDefensif: return "L'équilibre de l'équipe repose sur tes épaules, discret mais indispensable."
+        case .milieuRelayeur: return "Le lien entre défense et attaque, celui qui fait tourner le jeu."
+        case .milieuOffensif: return "Le dernier geste avant le but, celui qui invente le jeu."
+        case .ailier: return "Vitesse et dribbles, la terreur des défenses sur les côtés."
+        case .avantCentre: return "Le finisseur. Ton nom s'écrit dans la feuille de match à coups de buts."
+        }
+    }
+}
+
+private extension FDFoot {
+    var flavorIcon: String {
+        switch self {
+        case .droit: return "🦵"
+        case .gauche: return "🦶"
+        case .ambidextre: return "🔀"
+        }
+    }
+    var flavorText: String {
+        switch self {
+        case .droit: return "Pied droit, ton arme naturelle pour percuter et frapper."
+        case .gauche: return "Pied gauche, rare et précieux sur un terrain."
+        case .ambidextre: return "Les deux pieds à l'aise — un atout que peu de joueurs possèdent."
+        }
+    }
+}
+
+private extension FDStyle {
+    var flavorIcon: String {
+        switch self {
+        case .technicien: return "🎩"
+        case .rapide: return "💨"
+        case .puissant: return "💪"
+        case .createur: return "🎨"
+        case .finisseur: return "🎯"
+        case .recuperateur: return "🧹"
+        case .leader: return "📣"
+        }
+    }
+    var flavorText: String {
+        switch self {
+        case .technicien: return "Un ballon collé au pied, la technique avant tout."
+        case .rapide: return "Personne ne te rattrape sur les trente derniers mètres."
+        case .puissant: return "Impossible à bouger, un rapport de force toujours à ton avantage."
+        case .createur: return "Tu vois la passe avant même que les autres ne l'imaginent."
+        case .finisseur: return "Une occasion, un but. Voilà ta réputation qui se construit."
+        case .recuperateur: return "Le ballon te revient toujours, par n'importe quel moyen nécessaire."
+        case .leader: return "Le vestiaire t'écoute, le terrain te suit."
+        }
+    }
+}
+
+private extension FDPersonality {
+    var flavorIcon: String {
+        switch self {
+        case .ambitieux: return "🔥"
+        case .discipline: return "📋"
+        case .charismatique: return "✨"
+        case .reserve: return "🤫"
+        case .provocateur: return "😈"
+        case .travailleur: return "⚒️"
+        case .irregulier: return "🎢"
+        }
+    }
+    var flavorText: String {
+        switch self {
+        case .ambitieux: return "Rien ne t'arrête, chaque saison doit dépasser la précédente."
+        case .discipline: return "Rigueur et sérieux, tu ne laisses rien au hasard."
+        case .charismatique: return "Les projecteurs t'aiment, et toi aussi."
+        case .reserve: return "Tu laisses parler ton jeu plutôt que les mots."
+        case .provocateur: return "Chambreur sur le terrain, tu adores jouer avec les nerfs adverses."
+        case .travailleur: return "Le talent ne suffit pas, tu travailles plus dur que les autres."
+        case .irregulier: return "Des étincelles de génie, et des soirs sans éclat. Un pari à chaque match."
+        }
+    }
+}
+
+private extension FDBackground {
+    var flavorIcon: String {
+        switch self {
+        case .modeste: return "🏠"
+        case .stable: return "⚖️"
+        case .aisee: return "💼"
+        case .footballeur: return "👨‍👦"
+        }
+    }
+    var flavorText: String {
+        switch self {
+        case .modeste: return "Rien n'a été donné, tout a été gagné à la sueur."
+        case .stable: return "Un cadre solide, ni trop dur ni trop facile, pour grandir sereinement."
+        case .aisee: return "Les meilleures conditions dès le départ, mais des attentes à la hauteur."
+        case .footballeur: return "Le foot coule dans tes veines. Un nom à porter, une légende à égaler."
+        }
+    }
+}
+
+private extension FDDifficulty {
+    var flavorIcon: String {
+        switch self {
+        case .facile: return "🌤️"
+        case .normal: return "⚖️"
+        case .difficile: return "⛈️"
+        }
+    }
+    var flavorText: String {
+        switch self {
+        case .facile: return "Une carrière plus clémente, pour profiter de l'histoire sans trop de pression."
+        case .normal: return "L'expérience équilibrée, entre défis réalistes et progression juste."
+        case .difficile: return "Chaque détail compte. Une carrière exigeante, réservée aux plus courageux."
+        }
+    }
+}
+
+private extension FDMode {
+    var flavorIcon: String {
+        switch self {
+        case .narratif: return "📖"
+        case .express: return "⏩"
         }
     }
 }
