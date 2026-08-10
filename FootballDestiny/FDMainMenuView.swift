@@ -130,6 +130,19 @@ struct FDMainMenuView: View {
             Text("Écris ta carrière. Vis ta légende.")
                 .font(.subheadline.weight(.medium))
                 .foregroundStyle(.white.opacity(0.65))
+
+            if engine.lifetimePoints > 0 {
+                HStack(spacing: 5) {
+                    Text("🏆")
+                    Text("\(engine.lifetimePoints) points de carrière cumulés")
+                        .font(.fdRounded(.caption, weight: .semibold))
+                }
+                .foregroundStyle(FDTheme.gold)
+                .padding(.horizontal, 12)
+                .padding(.vertical, 6)
+                .background(Capsule().fill(FDTheme.gold.opacity(0.14)))
+                .padding(.top, 4)
+            }
         }
         .padding(.vertical, 28)
         .frame(maxWidth: .infinity)
@@ -155,17 +168,10 @@ private struct FDMenuRow: View {
     var body: some View {
         Button(action: action) {
             HStack(spacing: 14) {
-                ZStack {
-                    RoundedRectangle(cornerRadius: 12, style: .continuous)
-                        .fill(iconTint.opacity(0.18))
-                    Image(systemName: icon)
-                        .font(.system(size: 18, weight: .semibold))
-                        .foregroundStyle(iconTint)
-                }
-                .frame(width: 44, height: 44)
+                FDIconBadge(symbol: icon, tint: iconTint, size: 44, isSystemImage: true)
 
                 VStack(alignment: .leading, spacing: 2) {
-                    Text(title).font(.headline).foregroundStyle(.white)
+                    Text(title).font(.fdRounded(.headline)).foregroundStyle(.white)
                     Text(subtitle).font(.caption).foregroundStyle(.white.opacity(0.55))
                 }
 

@@ -6,12 +6,17 @@ final class FDGameEngine: ObservableObject {
     @Published var currentScene: FDCurrentScene = .none
     @Published var toast: String? = nil
 
+    /// Persists across careers (survives resetSave): every retirement banks points here,
+    /// and new careers get a small starting-potential boost based on the running total.
+    @Published var lifetimePoints: Int = UserDefaults.standard.integer(forKey: "footballDestinyLifetimePoints_v1")
+
     private var usedSceneIds: Set<String> = []
     private var sceneCooldown: [String: Int] = [:]
     private var suppressToast = false
     private var toastDismissWorkItem: DispatchWorkItem?
 
     private static let storageKey = "footballDestinySave_v1_native"
+    private static let lifetimePointsKey = "footballDestinyLifetimePoints_v1"
 
     // MARK: - Save / load
 
@@ -74,14 +79,22 @@ final class FDGameEngine: ObservableObject {
     // MARK: - Career creation
 
     func startCareer(draft: FDCreationDraft, club: FDClub) {
-        let potBias = draft.difficulty == .facile ? 20 : (draft.difficulty == .difficile ? 8 : 14)
+        // Lifetime points banked from previous retired careers nudge the potential ceiling
+        // upward, capped so a long play history helps without breaking the game.
+        let metaBonus = min(10, lifetimePoints / 25)
+        let potBias = (draft.difficulty == .facile ? 20 : (draft.difficulty == .difficile ? 8 : 14)) + metaBonus
         let talentSeed = Int.random(in: -6...10)
         let weights = draft.position.weights
+        let jitterRange: ClosedRange<Int> = draft.personality == .irregulier ? -14...17 : -8...9
 
         var attrs: [String: Int] = [:]
         for a in FDAttribute.allCases {
             let catW = weights.value(for: a.category)
-            var v = 22 + Int((catW * 26).rounded()) + Int((Double(talentSeed) * 0.6).rounded()) + Int.random(in: -8...9)
+            var v = 22 + Int((catW * 26).rounded()) + Int((Double(talentSeed) * 0.6).rounded()) + Int.random(in: jitterRange)
+            v += styleBonus(draft.style, category: a.category)
+            v += personalityBonus(draft.personality, category: a.category)
+            v += backgroundBonus(draft.background, category: a.category)
+            v += footBonus(draft.foot, category: a.category)
             if Double.random(in: 0...1) < 0.14 { v += Int.random(in: 6...13) }
             attrs[a.rawValue] = min(max(v, 10), 62)
         }
@@ -119,6 +132,62 @@ final class FDGameEngine: ObservableObject {
         currentScene = generateNextEvent()
         autoResolveExpress()
         saveGame()
+    }
+
+    // MARK: - Creation-choice attribute bonuses
+    // Every card picked during creation nudges the starting roll in a small, thematic way,
+    // on top of the position weights that already shape the bulk of the distribution.
+
+    private func styleBonus(_ style: FDStyle, category: FDAttrCategory) -> Int {
+        switch (style, category) {
+        case (.technicien, .tech), (.createur, .tech), (.finisseur, .tech): return 4
+        case (.rapide, .phys), (.puissant, .phys): return 4
+        case (.recuperateur, .def): return 4
+        case (.leader, .ment): return 4
+        case (.createur, .ment): return 2
+        default: return 0
+        }
+    }
+
+    private func personalityBonus(_ personality: FDPersonality, category: FDAttrCategory) -> Int {
+        guard category == .ment else { return 0 }
+        switch personality {
+        case .ambitieux, .travailleur, .discipline: return 3
+        case .reserve: return 2
+        case .charismatique, .provocateur: return 1
+        case .irregulier: return 0
+        }
+    }
+
+    private func backgroundBonus(_ background: FDBackground, category: FDAttrCategory) -> Int {
+        switch background {
+        case .footballeur: return (category == .tech || category == .ment) ? 3 : 0
+        case .aisee: return category == .phys ? 2 : 0
+        case .modeste: return category == .ment ? 2 : 0
+        case .stable: return 0
+        }
+    }
+
+    private func footBonus(_ foot: FDFoot, category: FDAttrCategory) -> Int {
+        guard category == .tech else { return 0 }
+        switch foot {
+        case .droit, .gauche: return 1
+        case .ambidextre: return 3
+        }
+    }
+
+    // MARK: - Lifetime meta-progression
+
+    @discardableResult
+    private func awardLifetimePoints(for p: FDPlayer) -> Int {
+        let earned = max(
+            5,
+            p.careerGoals * 2 + p.careerAssists + p.careerApps / 3
+                + p.cond.reputation / 5 + max(0, p.calendar.season - 1) * 3
+        )
+        lifetimePoints += earned
+        UserDefaults.standard.set(lifetimePoints, forKey: Self.lifetimePointsKey)
+        return earned
     }
 
     // MARK: - Derived stats
@@ -526,7 +595,8 @@ final class FDGameEngine: ObservableObject {
 
         if p.age >= 43 {
             p.retired = true
-            summary.append("Fin de carrière officielle. Merci pour cette aventure !")
+            let earned = awardLifetimePoints(for: p)
+            summary.append("Fin de carrière officielle. Merci pour cette aventure ! +\(earned) points de carrière (total cumulé : \(lifetimePoints)).")
         }
 
         player = p
@@ -545,8 +615,9 @@ final class FDGameEngine: ObservableObject {
     func voluntaryRetire() {
         guard var p = player, !p.retired else { return }
         p.retired = true
+        let earned = awardLifetimePoints(for: p)
         player = p
-        pushJournal("Retraite anticipée à \(p.age) ans, décision personnelle.", icon: "🏁")
+        pushJournal("Retraite anticipée à \(p.age) ans, décision personnelle. +\(earned) points de carrière (total cumulé : \(lifetimePoints)).", icon: "🏁")
         currentScene = .none
         saveGame()
     }

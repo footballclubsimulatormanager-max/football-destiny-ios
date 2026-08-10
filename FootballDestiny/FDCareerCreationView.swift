@@ -255,6 +255,14 @@ struct FDCareerCreationView: View {
                 }
                 .fdCard()
 
+                if engine.lifetimePoints > 0 {
+                    Text("🏆 \(engine.lifetimePoints) points de carrière cumulés : ton potentiel de départ démarre un peu plus haut grâce à ton expérience.")
+                        .font(.caption)
+                        .foregroundStyle(FDTheme.gold)
+                        .multilineTextAlignment(.center)
+                        .padding(.horizontal)
+                }
+
                 Button {
                     FDHaptics.tap()
                     advance()
@@ -376,9 +384,9 @@ private struct FDChoiceCard: View {
     var body: some View {
         Button(action: action) {
             HStack(alignment: .top, spacing: 12) {
-                Text(icon).font(.title2)
+                FDIconBadge(symbol: icon, tint: FDTheme.gold, size: 40)
                 VStack(alignment: .leading, spacing: 4) {
-                    Text(title).font(.headline)
+                    Text(title).font(.fdRounded(.headline))
                     Text(subtitle).font(.subheadline).foregroundStyle(.secondary)
                 }
                 Spacer(minLength: 0)
@@ -410,9 +418,9 @@ private struct FDFlagCard: View {
     var body: some View {
         Button(action: action) {
             VStack(spacing: 8) {
-                Text(flag).font(.system(size: 32))
+                FDIconBadge(symbol: flag, tint: .primary, size: 44)
                 Text(name)
-                    .font(.subheadline.weight(.semibold))
+                    .font(.fdRounded(.subheadline))
                     .multilineTextAlignment(.center)
                     .lineLimit(2)
                     .minimumScaleFactor(0.8)
@@ -450,7 +458,7 @@ private struct FDChipScrollRow<T: Hashable>: View {
                     } label: {
                         HStack(spacing: 6) {
                             Text(icon(item))
-                            Text(label(item)).font(.subheadline.weight(.semibold))
+                            Text(label(item)).font(.fdRounded(.subheadline))
                         }
                         .padding(.horizontal, 14)
                         .padding(.vertical, 10)
@@ -479,7 +487,7 @@ struct FDClubRow: View {
         VStack(alignment: .leading, spacing: 8) {
             HStack {
                 VStack(alignment: .leading, spacing: 2) {
-                    Text(club.name).font(.subheadline.weight(.semibold))
+                    Text(club.name).font(.fdRounded(.subheadline))
                     Text("\(club.city), \(club.country)").font(.caption).foregroundStyle(.secondary)
                 }
                 Spacer()

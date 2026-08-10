@@ -79,6 +79,39 @@ struct FDSectionLabel: View {
     }
 }
 
+/// A symbol (emoji or SF Symbol) contained in a tinted rounded badge, used everywhere an
+/// icon appears next to a title so it reads as a designed element rather than a loose glyph.
+struct FDIconBadge: View {
+    let symbol: String
+    var tint: Color = FDTheme.gold
+    var size: CGFloat = 44
+    var isSystemImage: Bool = false
+
+    var body: some View {
+        ZStack {
+            RoundedRectangle(cornerRadius: size * 0.32, style: .continuous)
+                .fill(tint.opacity(0.16))
+            if isSystemImage {
+                Image(systemName: symbol)
+                    .font(.system(size: size * 0.42, weight: .semibold))
+                    .foregroundStyle(tint)
+            } else {
+                Text(symbol)
+                    .font(.system(size: size * 0.46))
+            }
+        }
+        .frame(width: size, height: size)
+    }
+}
+
+extension Font {
+    /// The app's branded title/label voice: rounded design, used everywhere instead of the
+    /// plain system font so headings and card titles read as one consistent typeface family.
+    static func fdRounded(_ style: Font.TextStyle, weight: Font.Weight = .semibold) -> Font {
+        .system(style, design: .rounded).weight(weight)
+    }
+}
+
 // MARK: - Buttons
 
 /// Gold gradient pill, used for the one primary action on a screen.
