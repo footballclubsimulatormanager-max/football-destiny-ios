@@ -16,6 +16,7 @@
 		36D52AAF14B7ABC32C9E1C1D /* FDCareerCreationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BFDC2A528F03616FAB1F01D8 /* FDCareerCreationView.swift */; };
 		75896B96948AAB2C3DD295D8 /* FDGameShellView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 43AD0F2A69BF9E9CEE6B451B /* FDGameShellView.swift */; };
 		0C4A232674BEB82B4F68E088 /* FDRootView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AFAA89E06DBEADE8D26477A6 /* FDRootView.swift */; };
+		3BEE85AB5B9449CD93189461 /* FDTheme.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99AB8A7477524277946745B6 /* FDTheme.swift */; };
 		1030E28BDE5B7D66E7F6D503 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = E004B83FE32328616E724A8D /* Assets.xcassets */; };
 /* End PBXBuildFile section */
 
@@ -29,6 +30,7 @@
 		BFDC2A528F03616FAB1F01D8 /* FDCareerCreationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "FootballDestiny/FDCareerCreationView.swift"; sourceTree = "<group>"; };
 		43AD0F2A69BF9E9CEE6B451B /* FDGameShellView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "FootballDestiny/FDGameShellView.swift"; sourceTree = "<group>"; };
 		AFAA89E06DBEADE8D26477A6 /* FDRootView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "FootballDestiny/FDRootView.swift"; sourceTree = "<group>"; };
+		99AB8A7477524277946745B6 /* FDTheme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "FootballDestiny/FDTheme.swift"; sourceTree = "<group>"; };
 		E004B83FE32328616E724A8D /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "FootballDestiny/Assets.xcassets"; sourceTree = "<group>"; };
 		7C017E7E907753D06692224B /* FootballDestiny.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = FootballDestiny.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
@@ -56,6 +58,7 @@
 				BFDC2A528F03616FAB1F01D8 /* FDCareerCreationView.swift */,
 				43AD0F2A69BF9E9CEE6B451B /* FDGameShellView.swift */,
 				AFAA89E06DBEADE8D26477A6 /* FDRootView.swift */,
+				99AB8A7477524277946745B6 /* FDTheme.swift */,
 				E004B83FE32328616E724A8D /* Assets.xcassets */,
 				A6AB6E04A074B03E0A33CB91 /* Products */,
 			);
@@ -148,6 +151,7 @@
 				36D52AAF14B7ABC32C9E1C1D /* FDCareerCreationView.swift in Sources */,
 				75896B96948AAB2C3DD295D8 /* FDGameShellView.swift in Sources */,
 				0C4A232674BEB82B4F68E088 /* FDRootView.swift in Sources */,
+				3BEE85AB5B9449CD93189461 /* FDTheme.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

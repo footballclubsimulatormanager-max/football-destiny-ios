@@ -14,6 +14,11 @@ struct FDCareerCreationView: View {
     @State private var draft = FDCreationDraft()
     @State private var clubSearch = ""
 
+    private var identityValid: Bool {
+        !draft.firstName.trimmingCharacters(in: .whitespaces).isEmpty
+            && !draft.lastName.trimmingCharacters(in: .whitespaces).isEmpty
+    }
+
     var body: some View {
         NavigationView {
             Group {
@@ -23,6 +28,7 @@ struct FDCareerCreationView: View {
                 default: clubStep
                 }
             }
+            .background(Color(.systemGroupedBackground))
             .navigationTitle("Nouvelle carrière")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
@@ -37,7 +43,7 @@ struct FDCareerCreationView: View {
                     HStack(spacing: 5) {
                         ForEach(1...3, id: \.self) { i in
                             Circle()
-                                .fill(i <= step ? Color.accentColor : Color(.systemGray4))
+                                .fill(i <= step ? FDTheme.gold : Color(.systemGray4))
                                 .frame(width: 6, height: 6)
                         }
                     }
@@ -50,92 +56,122 @@ struct FDCareerCreationView: View {
     // MARK: Step 1 — identity
 
     private var identityStep: some View {
-        Form {
-            Section("Identité") {
-                TextField("Prénom", text: $draft.firstName)
-                TextField("Nom", text: $draft.lastName)
-                Picker("Nationalité", selection: $draft.nationality) {
-                    ForEach(FDNations, id: \.self) { nation in Text(nation).tag(nation) }
+        ScrollView {
+            VStack(spacing: 16) {
+                VStack(alignment: .leading, spacing: 12) {
+                    FDSectionLabel("Identité")
+                    TextField("Prénom", text: $draft.firstName)
+                        .fdField()
+                    TextField("Nom", text: $draft.lastName)
+                        .fdField()
+                    Picker("Nationalité", selection: $draft.nationality) {
+                        ForEach(FDNations, id: \.self) { nation in Text(nation).tag(nation) }
+                    }
+                    .pickerStyle(.menu)
+                    .fdField()
+                    TextField("Ville natale", text: $draft.birthCity)
+                        .fdField()
                 }
-                TextField("Ville natale", text: $draft.birthCity)
-            }
-            Section("Milieu familial") {
-                Picker("Milieu familial", selection: $draft.background) {
-                    ForEach(FDBackground.allCases) { b in Text(b.rawValue).tag(b) }
+                .fdCard()
+
+                VStack(alignment: .leading, spacing: 12) {
+                    FDSectionLabel("Milieu familial")
+                    Picker("Milieu familial", selection: $draft.background) {
+                        ForEach(FDBackground.allCases) { b in Text(b.rawValue).tag(b) }
+                    }
+                    .pickerStyle(.menu)
+                    .fdField()
                 }
-                .pickerStyle(.menu)
-            }
-            Section("Difficulté") {
-                Picker("Difficulté", selection: $draft.difficulty) {
-                    ForEach(FDDifficulty.allCases) { d in Text(d.rawValue).tag(d) }
+                .fdCard()
+
+                VStack(alignment: .leading, spacing: 12) {
+                    FDSectionLabel("Difficulté")
+                    Picker("Difficulté", selection: $draft.difficulty) {
+                        ForEach(FDDifficulty.allCases) { d in Text(d.rawValue).tag(d) }
+                    }
+                    .pickerStyle(.segmented)
                 }
-                .pickerStyle(.segmented)
-            }
-            Section {
-                Picker("Style de carrière", selection: $draft.mode) {
-                    ForEach(FDMode.allCases) { m in Text(m.rawValue).tag(m) }
+                .fdCard()
+
+                VStack(alignment: .leading, spacing: 10) {
+                    FDSectionLabel("Style de carrière")
+                    Picker("Style de carrière", selection: $draft.mode) {
+                        ForEach(FDMode.allCases) { m in Text(m.rawValue).tag(m) }
+                    }
+                    .pickerStyle(.segmented)
+                    Text(draft.mode.hint)
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
                 }
-                .pickerStyle(.segmented)
-                Text(draft.mode.hint)
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-            } header: {
-                Text("Style de carrière")
-            }
-            Section {
+                .fdCard()
+
                 Button {
                     FDHaptics.tap()
                     step = 2
                 } label: {
                     Text("Suivant")
-                        .frame(maxWidth: .infinity)
                 }
-                .buttonStyle(.borderedProminent)
-                .disabled(draft.firstName.trimmingCharacters(in: .whitespaces).isEmpty || draft.lastName.trimmingCharacters(in: .whitespaces).isEmpty)
+                .buttonStyle(FDPrimaryButtonStyle())
+                .disabled(!identityValid)
+                .opacity(identityValid ? 1 : 0.5)
             }
-            .listRowBackground(Color.clear)
+            .padding()
         }
     }
 
     // MARK: Step 2 — position, foot, style, personality
 
     private var profileStep: some View {
-        Form {
-            Section("Poste principal") {
-                Picker("Poste", selection: $draft.position) {
-                    ForEach(FDPosition.allCases) { p in Text(p.rawValue).tag(p) }
+        ScrollView {
+            VStack(spacing: 16) {
+                VStack(alignment: .leading, spacing: 12) {
+                    FDSectionLabel("Poste principal")
+                    Picker("Poste", selection: $draft.position) {
+                        ForEach(FDPosition.allCases) { p in Text(p.rawValue).tag(p) }
+                    }
+                    .pickerStyle(.menu)
+                    .fdField()
                 }
-                .pickerStyle(.menu)
-            }
-            Section("Pied fort") {
-                Picker("Pied fort", selection: $draft.foot) {
-                    ForEach(FDFoot.allCases) { f in Text(f.rawValue).tag(f) }
+                .fdCard()
+
+                VStack(alignment: .leading, spacing: 12) {
+                    FDSectionLabel("Pied fort")
+                    Picker("Pied fort", selection: $draft.foot) {
+                        ForEach(FDFoot.allCases) { f in Text(f.rawValue).tag(f) }
+                    }
+                    .pickerStyle(.segmented)
                 }
-                .pickerStyle(.segmented)
-            }
-            Section("Style de jeu") {
-                Picker("Style de jeu", selection: $draft.style) {
-                    ForEach(FDStyle.allCases) { s in Text(s.rawValue).tag(s) }
+                .fdCard()
+
+                VStack(alignment: .leading, spacing: 12) {
+                    FDSectionLabel("Style de jeu")
+                    Picker("Style de jeu", selection: $draft.style) {
+                        ForEach(FDStyle.allCases) { s in Text(s.rawValue).tag(s) }
+                    }
+                    .pickerStyle(.menu)
+                    .fdField()
                 }
-                .pickerStyle(.menu)
-            }
-            Section("Personnalité") {
-                Picker("Personnalité", selection: $draft.personality) {
-                    ForEach(FDPersonality.allCases) { p in Text(p.rawValue).tag(p) }
+                .fdCard()
+
+                VStack(alignment: .leading, spacing: 12) {
+                    FDSectionLabel("Personnalité")
+                    Picker("Personnalité", selection: $draft.personality) {
+                        ForEach(FDPersonality.allCases) { p in Text(p.rawValue).tag(p) }
+                    }
+                    .pickerStyle(.menu)
+                    .fdField()
                 }
-                .pickerStyle(.menu)
-            }
-            Section {
+                .fdCard()
+
                 Button {
                     FDHaptics.tap()
                     step = 3
                 } label: {
                     Text("Choisir un club")
-                        .frame(maxWidth: .infinity)
                 }
-                .buttonStyle(.borderedProminent)
+                .buttonStyle(FDPrimaryButtonStyle())
             }
-            .listRowBackground(Color.clear)
+            .padding()
         }
     }
 
@@ -164,11 +200,12 @@ struct FDCareerCreationView: View {
                 .font(.footnote)
                 .foregroundStyle(.secondary)
                 .padding(.horizontal)
-                .padding(.top, 8)
+                .padding(.top, 10)
+                .padding(.bottom, 4)
 
             List {
                 ForEach(clubsByContinent) { group in
-                    Section(header: Text(group.id)) {
+                    Section(header: Text(group.id).font(.caption.weight(.bold))) {
                         ForEach(group.clubs) { club in
                             FDClubRow(club: club, selected: draft.club?.id == club.id)
                                 .contentShape(Rectangle())
@@ -176,11 +213,14 @@ struct FDCareerCreationView: View {
                                     FDHaptics.tap()
                                     draft.club = club
                                 }
+                                .listRowBackground(Color.clear)
+                                .listRowSeparator(.hidden)
+                                .listRowInsets(EdgeInsets(top: 4, leading: 16, bottom: 4, trailing: 16))
                         }
                     }
                 }
             }
-            .listStyle(.insetGrouped)
+            .listStyle(.plain)
             .searchable(text: $clubSearch, prompt: "Rechercher un club, une ville…")
 
             Button {
@@ -190,11 +230,10 @@ struct FDCareerCreationView: View {
                 screen = .game
             } label: {
                 Text("Démarrer la carrière")
-                    .frame(maxWidth: .infinity)
-                    .padding(.vertical, 4)
             }
-            .buttonStyle(.borderedProminent)
+            .buttonStyle(FDPrimaryButtonStyle())
             .disabled(draft.club == nil)
+            .opacity(draft.club == nil ? 0.5 : 1)
             .padding()
         }
     }
@@ -205,7 +244,7 @@ struct FDClubRow: View {
     let selected: Bool
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 6) {
+        VStack(alignment: .leading, spacing: 8) {
             HStack {
                 VStack(alignment: .leading, spacing: 2) {
                     Text(club.name).font(.subheadline.weight(.semibold))
@@ -228,7 +267,15 @@ struct FDClubRow: View {
                 FDMiniStat(label: "Jeu jeunes", value: club.youthMinutes)
             }
         }
-        .padding(.vertical, 4)
+        .padding(12)
+        .background(
+            RoundedRectangle(cornerRadius: 14, style: .continuous)
+                .fill(Color(.secondarySystemBackground))
+        )
+        .overlay(
+            RoundedRectangle(cornerRadius: 14, style: .continuous)
+                .stroke(selected ? Color.accentColor.opacity(0.6) : Color.primary.opacity(0.05), lineWidth: selected ? 1.5 : 1)
+        )
     }
 }
 

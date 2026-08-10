@@ -25,6 +25,7 @@ struct FDGameShellView: View {
                 .tabItem { Label("Options", systemImage: "gearshape.fill") }
                 .tag(4)
         }
+        .tint(FDTheme.gold)
         .safeAreaInset(edge: .top, spacing: 0) {
             FDStatusHeader(engine: engine)
         }
@@ -47,7 +48,7 @@ struct FDStatusHeader: View {
 
     var body: some View {
         if let p = engine.player {
-            VStack(spacing: 6) {
+            VStack(spacing: 8) {
                 HStack {
                     VStack(alignment: .leading, spacing: 1) {
                         Text("\(p.firstName) \(p.lastName)").font(.subheadline.weight(.bold))
@@ -57,15 +58,16 @@ struct FDStatusHeader: View {
                             .lineLimit(1)
                     }
                     Spacer()
-                    Label(fdFormatMoney(p.money), systemImage: "eurosign.circle.fill")
-                        .font(.caption.weight(.semibold))
-                        .foregroundStyle(.orange)
-                    Label("\(p.cond.forme)", systemImage: "waveform.path.ecg")
-                        .font(.caption.weight(.semibold))
-                        .foregroundStyle(.green)
+                    HStack(spacing: 12) {
+                        Label(fdFormatMoney(p.money), systemImage: "eurosign.circle.fill")
+                            .foregroundStyle(FDTheme.gold)
+                        Label("\(p.cond.forme)", systemImage: "waveform.path.ecg")
+                            .foregroundStyle(.green)
+                    }
+                    .font(.caption.weight(.semibold))
                 }
                 ProgressView(value: Double(p.calendar.week), total: Double(p.calendar.seasonWeeks))
-                    .tint(Color.accentColor)
+                    .tint(FDTheme.gold)
                 HStack {
                     Text("Saison \(p.calendar.season) · \(p.age) ans · \(p.status.rawValue)")
                     Spacer()
@@ -76,8 +78,11 @@ struct FDStatusHeader: View {
             }
             .padding(.horizontal)
             .padding(.top, 8)
-            .padding(.bottom, 10)
+            .padding(.bottom, 12)
             .background(.thinMaterial)
+            .overlay(alignment: .bottom) {
+                Rectangle().fill(Color.primary.opacity(0.06)).frame(height: 1)
+            }
         }
     }
 }
@@ -89,7 +94,7 @@ struct FDToastView: View {
             .font(.caption.weight(.semibold))
             .padding(.horizontal, 12).padding(.vertical, 8)
             .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 10))
-            .overlay(RoundedRectangle(cornerRadius: 10).stroke(Color.accentColor.opacity(0.4), lineWidth: 1))
+            .overlay(RoundedRectangle(cornerRadius: 10).stroke(FDTheme.gold.opacity(0.4), lineWidth: 1))
             .shadow(radius: 8)
             .padding(.horizontal, 24)
     }
@@ -159,7 +164,7 @@ private func fdSceneColor(_ category: String) -> Color {
     case "Argent", "Sponsor": return .orange
     case "Presse": return .purple
     case "Sélection", "Transfert": return .pink
-    case "Trophée": return .yellow
+    case "Trophée": return FDTheme.gold
     default: return .accentColor
     }
 }
@@ -217,15 +222,13 @@ struct FDStoryCard: View {
                         }
                         .frame(maxWidth: .infinity, alignment: .leading)
                         .padding(12)
-                        .background(Color(.secondarySystemGroupedBackground), in: RoundedRectangle(cornerRadius: 12))
+                        .background(Color(.tertiarySystemBackground), in: RoundedRectangle(cornerRadius: 12))
                     }
                     .buttonStyle(.plain)
                 }
             }
         }
-        .padding(16)
-        .background(Color(.systemBackground), in: RoundedRectangle(cornerRadius: 20, style: .continuous))
-        .shadow(color: .black.opacity(0.06), radius: 12, y: 4)
+        .fdCard()
     }
 }
 
@@ -272,13 +275,11 @@ struct FDMatchCard: View {
                 FDHaptics.tap()
                 engine.advanceWeek()
             } label: {
-                Text("Continuer").frame(maxWidth: .infinity).padding(.vertical, 4)
+                Text("Continuer")
             }
-            .buttonStyle(.borderedProminent)
+            .buttonStyle(FDPrimaryButtonStyle())
         }
-        .padding(16)
-        .background(Color(.systemBackground), in: RoundedRectangle(cornerRadius: 20, style: .continuous))
-        .shadow(color: .black.opacity(0.06), radius: 12, y: 4)
+        .fdCard()
     }
 }
 
@@ -292,7 +293,7 @@ struct FDMatchStat: View {
         }
         .frame(maxWidth: .infinity)
         .padding(.vertical, 8)
-        .background(Color(.secondarySystemGroupedBackground), in: RoundedRectangle(cornerRadius: 10))
+        .background(Color(.tertiarySystemBackground), in: RoundedRectangle(cornerRadius: 10))
     }
 }
 
@@ -302,7 +303,7 @@ struct FDSeasonCard: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 14) {
-            FDCardVisual(symbol: "trophy.fill", color: .yellow, loc: "Bilan de saison", char: "Saison \((engine.player?.calendar.season ?? 1) - 1)")
+            FDCardVisual(symbol: "trophy.fill", color: FDTheme.gold, loc: "Bilan de saison", char: "Saison \((engine.player?.calendar.season ?? 1) - 1)")
             Text("RÉSUMÉ").font(.caption2.weight(.bold)).foregroundStyle(Color.accentColor)
             VStack(alignment: .leading, spacing: 6) {
                 ForEach(lines, id: \.self) { Text($0).font(.subheadline) }
@@ -312,13 +313,10 @@ struct FDSeasonCard: View {
                 engine.continueAfterSeason()
             } label: {
                 Text(engine.player?.retired == true ? "Voir le résumé" : "Nouvelle saison")
-                    .frame(maxWidth: .infinity).padding(.vertical, 4)
             }
-            .buttonStyle(.borderedProminent)
+            .buttonStyle(FDPrimaryButtonStyle())
         }
-        .padding(16)
-        .background(Color(.systemBackground), in: RoundedRectangle(cornerRadius: 20, style: .continuous))
-        .shadow(color: .black.opacity(0.06), radius: 12, y: 4)
+        .fdCard()
     }
 }
 
@@ -334,13 +332,11 @@ struct FDRetiredCard: View {
                 Button {
                     engine.resetSave()
                 } label: {
-                    Text("Commencer une nouvelle carrière").frame(maxWidth: .infinity).padding(.vertical, 4)
+                    Text("Commencer une nouvelle carrière")
                 }
-                .buttonStyle(.borderedProminent)
+                .buttonStyle(FDPrimaryButtonStyle())
             }
-            .padding(16)
-            .background(Color(.systemBackground), in: RoundedRectangle(cornerRadius: 20, style: .continuous))
-            .shadow(color: .black.opacity(0.06), radius: 12, y: 4)
+            .fdCard()
         }
     }
 }
@@ -364,11 +360,11 @@ struct FDCarriereTab: View {
                                 }
                                 Spacer()
                                 VStack {
-                                    Text("\(engine.overall(p))").font(.title2.weight(.bold)).foregroundStyle(Color.accentColor)
-                                    Text("NOTE").font(.caption2.weight(.bold)).foregroundStyle(Color.accentColor)
+                                    Text("\(engine.overall(p))").font(.title2.weight(.bold)).foregroundStyle(FDTheme.gold)
+                                    Text("NOTE").font(.caption2.weight(.bold)).foregroundStyle(FDTheme.gold)
                                 }
                                 .padding(.horizontal, 12).padding(.vertical, 6)
-                                .background(Color.accentColor.opacity(0.12), in: RoundedRectangle(cornerRadius: 12))
+                                .background(FDTheme.gold.opacity(0.14), in: RoundedRectangle(cornerRadius: 12))
                             }
                             LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible()), GridItem(.flexible())], spacing: 8) {
                                 FDMetaTile(value: "\(engine.potentialOverall(p))", label: "Potentiel")
@@ -405,7 +401,7 @@ struct FDCarriereTab: View {
                         FDConditionRow(label: "Famille", value: p.rel.famille, color: .pink)
                         FDConditionRow(label: "Agent", value: p.rel.agent, color: .purple)
                         FDConditionRow(label: "Média", value: p.rel.media, color: .purple)
-                        FDConditionRow(label: "Supporters", value: p.rel.fans, color: .yellow)
+                        FDConditionRow(label: "Supporters", value: p.rel.fans, color: FDTheme.gold)
                     }
                 }
                 .listStyle(.insetGrouped)
@@ -602,7 +598,7 @@ struct FDOptionsTab: View {
                 } header: { Text("Nouvelle carrière") } footer: { Text("Cela effacera définitivement la carrière actuelle sur cet appareil.") }
 
                 Section {
-                    Text("Football Destiny — prototype natif. Aucune donnée n'est envoyée sur un serveur.")
+                    Text("FCS-Destiny — prototype natif. Aucune donnée n'est envoyée sur un serveur.")
                         .font(.footnote).foregroundStyle(.secondary)
                 } header: { Text("À propos") }
             }
