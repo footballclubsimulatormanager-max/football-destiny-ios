@@ -62,13 +62,14 @@ struct FDCareerCreationView: View {
                         }
                     }
                 }
-                if showsReroll {
-                    ToolbarItem(placement: .confirmationAction) {
-                        Button(action: rerollCurrent) {
-                            Image(systemName: "dice.fill")
-                                .foregroundStyle(FDTheme.gold)
-                        }
+                ToolbarItem(placement: .confirmationAction) {
+                    Button(action: rerollCurrent) {
+                        Image(systemName: "dice.fill")
+                            .foregroundStyle(FDTheme.gold)
                     }
+                    .opacity(showsReroll ? 1 : 0)
+                    .disabled(!showsReroll)
+                    .allowsHitTesting(showsReroll)
                 }
             }
         }
