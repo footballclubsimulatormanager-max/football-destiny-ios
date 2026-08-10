@@ -4,8 +4,9 @@ import SwiftUI
 enum FDTheme {
     static let gold = Color(red: 0.83, green: 0.68, blue: 0.21)
     static let goldLight = Color(red: 0.96, green: 0.84, blue: 0.52)
-    static let ink = Color(red: 0.05, green: 0.07, blue: 0.12)
-    static let inkElevated = Color(red: 0.10, green: 0.13, blue: 0.20)
+    static let ink = Color(red: 0.07, green: 0.05, blue: 0.14)
+    static let inkElevated = Color(red: 0.18, green: 0.10, blue: 0.32)
+    static let violetGlow = Color(red: 0.58, green: 0.26, blue: 0.86)
 
     static var backgroundGradient: LinearGradient {
         LinearGradient(colors: [ink, inkElevated], startPoint: .top, endPoint: .bottom)

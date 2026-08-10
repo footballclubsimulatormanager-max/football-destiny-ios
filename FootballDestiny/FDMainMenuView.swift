@@ -13,90 +13,181 @@ struct FDMainMenuView: View {
                 .ignoresSafeArea()
 
             Circle()
-                .fill(FDTheme.gold.opacity(0.22))
-                .frame(width: 320, height: 320)
+                .fill(FDTheme.gold.opacity(0.20))
+                .frame(width: 300, height: 300)
                 .blur(radius: 70)
-                .offset(x: 140, y: -300)
+                .offset(x: 140, y: -280)
 
             Circle()
-                .fill(Color.accentColor.opacity(0.18))
-                .frame(width: 260, height: 260)
-                .blur(radius: 60)
-                .offset(x: -150, y: 280)
+                .fill(FDTheme.violetGlow.opacity(0.30))
+                .frame(width: 280, height: 280)
+                .blur(radius: 70)
+                .offset(x: -150, y: 300)
 
             VStack(spacing: 0) {
-                Spacer(minLength: 64)
+                topBar
 
-                VStack(spacing: 14) {
-                    Text("SIMULATEUR DE CARRIÈRE")
-                        .font(.caption.weight(.bold))
-                        .tracking(4)
-                        .foregroundStyle(FDTheme.gold)
+                ScrollView {
+                    VStack(spacing: 20) {
+                        heroCard
+                            .scaleEffect(appear ? 1 : 0.94)
+                            .opacity(appear ? 1 : 0)
 
-                    VStack(spacing: 2) {
-                        Text("FCS")
-                            .font(.system(size: 46, weight: .heavy, design: .rounded))
-                            .foregroundStyle(.white)
-                        Text("DESTINY")
-                            .font(.system(size: 46, weight: .heavy, design: .rounded))
-                            .foregroundStyle(FDTheme.goldTextGradient)
+                        VStack(spacing: 12) {
+                            FDMenuRow(
+                                icon: "sportscourt.fill",
+                                iconTint: .mint,
+                                title: "Nouvelle carrière",
+                                subtitle: "Commencer une nouvelle histoire",
+                                disabled: false
+                            ) {
+                                FDHaptics.tap()
+                                screen = .creation
+                            }
+
+                            FDMenuRow(
+                                icon: "play.fill",
+                                iconTint: FDTheme.gold,
+                                title: "Continuer",
+                                subtitle: engine.hasSave() ? "Reprendre ta carrière en cours" : "Aucune carrière en cours",
+                                disabled: !engine.hasSave()
+                            ) {
+                                FDHaptics.tap()
+                                if engine.loadGame() { screen = .game }
+                            }
+                        }
+                        .opacity(appear ? 1 : 0)
+                        .offset(y: appear ? 0 : 16)
                     }
-                    .multilineTextAlignment(.center)
-                    .shadow(color: .black.opacity(0.3), radius: 14, y: 6)
-
-                    Text("Écris ta carrière. Vis ta légende.")
-                        .font(.subheadline.weight(.medium))
-                        .foregroundStyle(.white.opacity(0.65))
+                    .padding(.horizontal, 20)
+                    .padding(.top, 24)
+                    .padding(.bottom, 12)
                 }
-                .scaleEffect(appear ? 1 : 0.92)
-                .opacity(appear ? 1 : 0)
-
-                Spacer()
-
-                VStack(spacing: 14) {
-                    Button {
-                        FDHaptics.tap()
-                        screen = .creation
-                    } label: {
-                        Label("Nouvelle carrière", systemImage: "sportscourt.fill")
-                    }
-                    .buttonStyle(FDPrimaryButtonStyle())
-
-                    Button {
-                        FDHaptics.tap()
-                        if engine.loadGame() { screen = .game }
-                    } label: {
-                        Label("Continuer", systemImage: "play.fill")
-                    }
-                    .buttonStyle(FDSecondaryDarkButtonStyle())
-                    .disabled(!engine.hasSave())
-                    .opacity(engine.hasSave() ? 1 : 0.4)
-
-                    Button {
-                        showAbout = true
-                    } label: {
-                        Label("À propos", systemImage: "info.circle")
-                            .font(.subheadline)
-                    }
-                    .buttonStyle(FDGhostButtonStyle())
-                    .foregroundStyle(.white.opacity(0.55))
-                    .padding(.top, 4)
-                }
-                .padding(.horizontal, 28)
-                .opacity(appear ? 1 : 0)
-                .offset(y: appear ? 0 : 16)
 
                 Text("Aucune inscription · Aucun compte · Sauvegarde locale")
                     .font(.caption2)
                     .foregroundStyle(.white.opacity(0.35))
-                    .padding(.top, 20)
-                    .padding(.bottom, 28)
+                    .padding(.bottom, 20)
             }
         }
         .onAppear {
             withAnimation(.easeOut(duration: 0.6)) { appear = true }
         }
         .sheet(isPresented: $showAbout) { FDAboutSheet() }
+    }
+
+    private var topBar: some View {
+        HStack {
+            HStack(spacing: 8) {
+                ZStack {
+                    RoundedRectangle(cornerRadius: 10, style: .continuous)
+                        .fill(FDTheme.goldTextGradient)
+                    Image(systemName: "soccerball")
+                        .font(.system(size: 16, weight: .bold))
+                        .foregroundStyle(FDTheme.ink)
+                }
+                .frame(width: 34, height: 34)
+
+                Text("FCS-DESTINY")
+                    .font(.caption.weight(.heavy))
+                    .tracking(1)
+                    .foregroundStyle(.white.opacity(0.8))
+            }
+
+            Spacer()
+
+            Button {
+                showAbout = true
+            } label: {
+                Image(systemName: "info.circle")
+                    .font(.system(size: 18, weight: .semibold))
+                    .foregroundStyle(.white.opacity(0.7))
+                    .frame(width: 34, height: 34)
+                    .background(Color.white.opacity(0.06), in: Circle())
+            }
+        }
+        .padding(.horizontal, 20)
+        .padding(.top, 8)
+    }
+
+    private var heroCard: some View {
+        VStack(spacing: 10) {
+            Text("SIMULATEUR DE CARRIÈRE")
+                .font(.caption.weight(.bold))
+                .tracking(4)
+                .foregroundStyle(FDTheme.gold)
+
+            VStack(spacing: 2) {
+                Text("FCS")
+                    .font(.system(size: 40, weight: .heavy, design: .rounded))
+                    .foregroundStyle(.white)
+                Text("DESTINY")
+                    .font(.system(size: 40, weight: .heavy, design: .rounded))
+                    .foregroundStyle(FDTheme.goldTextGradient)
+            }
+            .shadow(color: .black.opacity(0.3), radius: 14, y: 6)
+
+            Text("Écris ta carrière. Vis ta légende.")
+                .font(.subheadline.weight(.medium))
+                .foregroundStyle(.white.opacity(0.65))
+        }
+        .padding(.vertical, 28)
+        .frame(maxWidth: .infinity)
+        .background(
+            RoundedRectangle(cornerRadius: 24, style: .continuous)
+                .fill(Color.white.opacity(0.05))
+        )
+        .overlay(
+            RoundedRectangle(cornerRadius: 24, style: .continuous)
+                .stroke(Color.white.opacity(0.10), lineWidth: 1)
+        )
+    }
+}
+
+private struct FDMenuRow: View {
+    let icon: String
+    let iconTint: Color
+    let title: String
+    let subtitle: String
+    let disabled: Bool
+    let action: () -> Void
+
+    var body: some View {
+        Button(action: action) {
+            HStack(spacing: 14) {
+                ZStack {
+                    RoundedRectangle(cornerRadius: 12, style: .continuous)
+                        .fill(iconTint.opacity(0.18))
+                    Image(systemName: icon)
+                        .font(.system(size: 18, weight: .semibold))
+                        .foregroundStyle(iconTint)
+                }
+                .frame(width: 44, height: 44)
+
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(title).font(.headline).foregroundStyle(.white)
+                    Text(subtitle).font(.caption).foregroundStyle(.white.opacity(0.55))
+                }
+
+                Spacer()
+
+                Image(systemName: "chevron.right")
+                    .font(.caption.weight(.bold))
+                    .foregroundStyle(.white.opacity(0.35))
+            }
+            .padding(14)
+            .background(
+                RoundedRectangle(cornerRadius: 18, style: .continuous)
+                    .fill(Color.white.opacity(0.06))
+            )
+            .overlay(
+                RoundedRectangle(cornerRadius: 18, style: .continuous)
+                    .stroke(Color.white.opacity(0.10), lineWidth: 1)
+            )
+        }
+        .buttonStyle(.plain)
+        .disabled(disabled)
+        .opacity(disabled ? 0.45 : 1)
     }
 }
 
