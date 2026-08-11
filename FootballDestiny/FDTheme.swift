@@ -1,23 +1,23 @@
 import SwiftUI
 
-/// Shared visual language for FCS-Destiny: a dark, EA-FC-style sports SaaS palette
-/// (navy background, neon-green primary, amber for premium/achievement moments),
-/// with one deliberate deviation from the reference: the ambient background glow
-/// is blue-violet instead of green/teal.
+/// Shared visual language for FCS-Destiny: a dark, premium sports SaaS palette built on a
+/// blue-violet / bordeaux tone (not the green/teal of the original EA-FC-style reference),
+/// with amber reserved for premium/achievement moments and a dedicated green kept only for
+/// positive stat deltas, where the +/- convention is expected regardless of brand color.
 enum FDTheme {
     // MARK: Core palette (HSL values converted to RGB)
     static let bg = Color(red: 0.065, green: 0.1733, blue: 0.195)            // hsl(190 50% 13%)
     static let card = Color(red: 0.1044, green: 0.2052, blue: 0.2556)        // hsl(200 42% 18%)
-    static let primary = Color(red: 0.0, green: 0.94, blue: 0.47)            // hsl(150 100% 47%) neon green
-    static let accentTeal = Color(red: 0.09, green: 0.81, blue: 0.81)        // hsl(180 80% 45%)
+    static let primary = Color(red: 0.5376, green: 0.354, blue: 0.966)       // hsl(258 90% 66%) blue-violet
+    static let accentTeal = Color(red: 0.775, green: 0.225, blue: 0.3625)    // hsl(345 55% 50%) bordeaux
     static let textPrimary = Color(red: 0.9664, green: 0.9718, blue: 0.9736)
     static let textMuted = Color(red: 0.894, green: 0.899, blue: 0.906)
     static let destructive = Color(red: 0.9388, green: 0.3812, blue: 0.4184) // hsl(356 82% 66%)
     static let amber = Color(red: 0.984, green: 0.749, blue: 0.141)          // #fbbf24 — premium/crown
     static let warning = Color(red: 0.8852, green: 0.7179, blue: 0.2948)     // hsl(43 72% 59%)
-    static let success = primary
+    static let success = Color(red: 0.0, green: 0.94, blue: 0.47)            // hsl(150 100% 47%) — kept green for +/- deltas only
 
-    // Deliberate exception to the reference: ambient glow is blue-violet, not green/teal.
+    // Ambient background glow, part of the same blue-violet/bordeaux family as primary.
     static let violetGlow = Color(red: 0.46, green: 0.28, blue: 0.95)
     static let blueGlow = Color(red: 0.20, green: 0.35, blue: 0.95)
 

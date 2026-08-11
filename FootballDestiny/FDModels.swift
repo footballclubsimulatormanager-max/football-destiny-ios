@@ -329,6 +329,7 @@ struct FDPlayer: Codable {
     var seasonMatches = 0
     var seasonGoals = 0
     var seasonAssists = 0
+    var seasonStoryEvents = 0
     var careerApps = 0
     var careerGoals = 0
     var careerAssists = 0
@@ -435,6 +436,22 @@ enum FDCurrentScene {
     case match(FDMatchResult)
     case season([String])
     case tournament(FDTournamentSummary)
+    case outcome(FDChoiceOutcome)
+}
+
+/// The result of a choice, revealed only AFTER the player picks — never shown on the choice
+/// buttons themselves, so nothing is spoiled before deciding (Destiny Eleven-style reveal).
+struct FDEffectPill: Identifiable {
+    let id = UUID()
+    var label: String
+    var valueText: String
+    var positive: Bool
+}
+
+struct FDChoiceOutcome {
+    var category: String
+    var narrative: String
+    var pills: [FDEffectPill]
 }
 
 // MARK: - Creation draft (transient, used during onboarding)

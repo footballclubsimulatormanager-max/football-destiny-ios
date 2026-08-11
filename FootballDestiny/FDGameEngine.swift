@@ -270,16 +270,32 @@ final class FDGameEngine: ObservableObject {
 
     // MARK: - Effects
 
-    private func applyEffects(_ effects: [FDEffect]) {
-        guard var p = player else { return }
-        var notes: [String] = []
+    private func condLabel(_ key: String) -> String {
+        switch key {
+        case "forme": return "Forme"
+        case "moral": return "Moral"
+        case "fatigue": return "Fatigue"
+        case "confiance": return "Confiance"
+        case "reputation": return "Réputation"
+        default: return key.capitalized
+        }
+    }
+
+    /// Applies stat/condition/relation/money deltas and returns them as display-ready pills —
+    /// the caller decides whether/how to reveal them (never before a choice is made).
+    @discardableResult
+    private func applyEffects(_ effects: [FDEffect]) -> [FDEffectPill] {
+        guard var p = player else { return [] }
+        var pills: [FDEffectPill] = []
         for e in effects {
             if let attr = e.attr {
                 let before = p.attr(attr)
                 let cap = p.potential(attr) + 2
                 let newVal = min(max(before + e.delta, 0), cap)
                 p.attrs[attr.rawValue] = newVal
-                if e.delta != 0 { notes.append("\(attr.label) \(e.delta > 0 ? "+" : "")\(e.delta)") }
+                if e.delta != 0 {
+                    pills.append(FDEffectPill(label: attr.label, valueText: "\(e.delta > 0 ? "+" : "")\(e.delta)", positive: e.delta > 0))
+                }
             }
             if let condKey = e.cond {
                 let before = p.condition(condKey)
@@ -292,7 +308,9 @@ final class FDGameEngine: ObservableObject {
                 case "reputation": p.cond.reputation = newVal
                 default: break
                 }
-                if e.delta != 0 { notes.append("\(condKey) \(e.delta > 0 ? "+" : "")\(e.delta)") }
+                if e.delta != 0 {
+                    pills.append(FDEffectPill(label: condLabel(condKey), valueText: "\(e.delta > 0 ? "+" : "")\(e.delta)", positive: e.delta > 0))
+                }
             }
             if let relKey = e.rel {
                 let before = p.relation(relKey)
@@ -314,11 +332,13 @@ final class FDGameEngine: ObservableObject {
             }
             if let money = e.money {
                 p.money = max(0, p.money + money)
-                if money != 0 { notes.append("\(money > 0 ? "+" : "")\(fdFormatMoney(abs(money)))") }
+                if money != 0 {
+                    pills.append(FDEffectPill(label: "Argent", valueText: "\(money > 0 ? "+" : "-")\(fdFormatMoney(abs(money)))", positive: money > 0))
+                }
             }
         }
         player = p
-        if !notes.isEmpty { showToast(notes.prefix(3).joined(separator: " · ")) }
+        return pills
     }
 
     // MARK: - Match simulation
@@ -438,11 +458,6 @@ final class FDGameEngine: ObservableObject {
 
     private func generateNextEvent() -> FDCurrentScene {
         guard let p = player else { return .none }
-        let target = matchesTargetThisSeason(p)
-        let wantMatch = p.seasonMatches < target && p.calendar.week > 0 && p.calendar.week % max(1, 16 / target) == 0
-        if wantMatch {
-            return .match(simulateMatch())
-        }
         if let hw = pickHandwrittenScene(p) {
             usedSceneIds.insert(hw.id)
             sceneCooldown[hw.id] = p.calendar.week + p.calendar.season * 16 + 10
@@ -451,20 +466,35 @@ final class FDGameEngine: ObservableObject {
         return genericEvent(p)
     }
 
+    /// A season only surfaces a handful of narrative choices — the rest of the weeks pass
+    /// quietly in the background (matches are simulated silently, folded into the season recap).
+    private let targetStoryEventsPerSeason = 5
+
+    private func shouldFireStoryEvent(_ p: FDPlayer) -> Bool {
+        let remainingQuota = targetStoryEventsPerSeason - p.seasonStoryEvents
+        guard remainingQuota > 0 else { return false }
+        let weeksLeft = max(1, p.calendar.seasonWeeks - p.calendar.week + 1)
+        if remainingQuota >= weeksLeft { return true }
+        return Double.random(in: 0...1) < Double(remainingQuota) / Double(weeksLeft)
+    }
+
     // MARK: - Choice resolution
 
-    func resolveChoice(_ choice: FDChoice) {
-        applyEffects(choice.effects)
+    /// Resolves a choice and, unless nothing changed, shows a dedicated outcome screen with the
+    /// effects revealed as pills — the choice buttons themselves never show +/- beforehand.
+    func resolveChoice(_ choice: FDChoice, category: String) {
+        var pills = applyEffects(choice.effects)
+        var narrative = choice.hint
+
         if let chance = choice.riskChance, Double.random(in: 0...1) < chance, let riskEffects = choice.riskEffects, let riskText = choice.riskText {
-            applyEffects(riskEffects)
+            pills += applyEffects(riskEffects)
+            narrative = riskText
             pushJournal(riskText, icon: "⚠️")
-            showToast(riskText)
         }
         if let trait = choice.trait, var p = player, !p.traits.contains(trait) {
             p.traits.append(trait)
             player = p
             pushJournal("Trait débloqué : \(trait.icon) \(trait.rawValue).", icon: "🎭")
-            showToast("Trait débloqué : \(trait.rawValue)")
         }
         if let weeks = choice.delayedWeeks, let effects = choice.delayedEffects, let text = choice.delayedText, var p = player {
             let due = p.calendar.week + p.calendar.season * 16 + weeks
@@ -481,6 +511,16 @@ final class FDGameEngine: ObservableObject {
             player = p
             pushJournal("Contrat professionnel signé : \(fdFormatMoney(salary))/semaine.", icon: "📄")
         }
+
+        if pills.isEmpty && narrative.isEmpty {
+            advanceWeek()
+        } else {
+            currentScene = .outcome(FDChoiceOutcome(category: category, narrative: narrative, pills: pills))
+        }
+    }
+
+    /// Called when the player taps "Continuer" on the outcome screen, moving the story forward.
+    func continueAfterOutcome() {
         advanceWeek()
     }
 
@@ -509,16 +549,38 @@ final class FDGameEngine: ObservableObject {
         checkDelayed()
     }
 
+    /// Advances week by week, simulating matches silently in the background and only stopping
+    /// the player on the handful of narrative choices a season actually surfaces.
     func advanceWeek() {
-        weeklyTick()
-        guard let p = player else { return }
-        if p.calendar.week >= p.calendar.seasonWeeks {
-            endSeason()
-        } else {
-            currentScene = generateNextEvent()
-            autoResolveExpress()
+        while true {
+            weeklyTick()
+            guard let p = player else { return }
+            if p.calendar.week >= p.calendar.seasonWeeks {
+                endSeason()
+                saveGame()
+                return
+            }
+
+            let target = matchesTargetThisSeason(p)
+            let matchWeeksLeft = target - p.seasonMatches
+            let weeksLeft = max(1, p.calendar.seasonWeeks - p.calendar.week + 1)
+            if matchWeeksLeft > 0 {
+                let mustPlayNow = matchWeeksLeft >= weeksLeft
+                if mustPlayNow || Double.random(in: 0...1) < Double(matchWeeksLeft) / Double(weeksLeft) {
+                    _ = simulateMatch()
+                    continue
+                }
+            }
+
+            if shouldFireStoryEvent(p) {
+                currentScene = generateNextEvent()
+                if var pp = player { pp.seasonStoryEvents += 1; player = pp }
+                autoResolveExpress()
+                saveGame()
+                return
+            }
+            // Quiet week: nothing notable happens, keep advancing.
         }
-        saveGame()
     }
 
     /// Express mode: auto-resolve minor filler events, always stop on matches / written scenes / season summaries.
@@ -590,7 +652,7 @@ final class FDGameEngine: ObservableObject {
         }
 
         p.age += 1
-        p.seasonMatches = 0; p.seasonGoals = 0; p.seasonAssists = 0; p.seasonForm = []
+        p.seasonMatches = 0; p.seasonGoals = 0; p.seasonAssists = 0; p.seasonForm = []; p.seasonStoryEvents = 0
         p.calendar.season += 1; p.calendar.week = 0
 
         // Growth pass — weighted toward the attributes that matter for this position

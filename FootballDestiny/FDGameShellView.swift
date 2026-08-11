@@ -124,6 +124,8 @@ struct FDHistoireTab: View {
                             FDSeasonCard(engine: engine, lines: lines)
                         case .tournament(let summary):
                             FDTournamentCard(engine: engine, summary: summary)
+                        case .outcome(let outcome):
+                            FDOutcomeCard(engine: engine, outcome: outcome)
                         }
                     }
                 }
@@ -217,7 +219,7 @@ struct FDStoryCard: View {
                 ForEach(Array(scene.choices.enumerated()), id: \.offset) { _, choice in
                     Button {
                         FDHaptics.tap()
-                        engine.resolveChoice(choice)
+                        engine.resolveChoice(choice, category: scene.category)
                     } label: {
                         VStack(alignment: .leading, spacing: 3) {
                             if let trait = choice.trait {
@@ -228,9 +230,6 @@ struct FDStoryCard: View {
                                     .foregroundStyle(FDTheme.primary)
                             }
                             Text(choice.label).font(.subheadline.weight(.semibold))
-                            if !choice.hint.isEmpty {
-                                Text(choice.hint).font(.caption).foregroundStyle(.secondary)
-                            }
                         }
                         .frame(maxWidth: .infinity, alignment: .leading)
                         .padding(12)
@@ -239,6 +238,45 @@ struct FDStoryCard: View {
                     .buttonStyle(.plain)
                 }
             }
+        }
+        .fdCard()
+    }
+}
+
+/// Shown right after a choice: the effects are revealed here, never on the choice buttons.
+struct FDOutcomeCard: View {
+    @ObservedObject var engine: FDGameEngine
+    let outcome: FDChoiceOutcome
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 14) {
+            FDCardVisual(symbol: fdSceneSymbol(outcome.category), color: fdSceneColor(outcome.category), loc: outcome.category, char: engine.player?.club.name ?? "")
+            if !outcome.narrative.isEmpty {
+                Text(outcome.narrative)
+                    .font(.subheadline)
+                    .foregroundStyle(.primary)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+            if !outcome.pills.isEmpty {
+                ScrollView(.horizontal, showsIndicators: false) {
+                    HStack(spacing: 8) {
+                        ForEach(outcome.pills) { pill in
+                            Text("\(pill.valueText) \(pill.label)")
+                                .font(.caption.weight(.bold))
+                                .padding(.horizontal, 10).padding(.vertical, 5)
+                                .background(Capsule().fill((pill.positive ? FDTheme.success : FDTheme.destructive).opacity(0.18)))
+                                .foregroundStyle(pill.positive ? FDTheme.success : FDTheme.destructive)
+                        }
+                    }
+                }
+            }
+            Button {
+                FDHaptics.tap()
+                engine.continueAfterOutcome()
+            } label: {
+                Text("Continuer")
+            }
+            .buttonStyle(FDPrimaryButtonStyle())
         }
         .fdCard()
     }
