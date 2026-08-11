@@ -348,68 +348,79 @@ struct FDCarriereTab: View {
 
     var body: some View {
         NavigationView {
-            if let p = engine.player {
-                List {
-                    Section {
-                        VStack(spacing: 14) {
-                            HStack(alignment: .top) {
-                                VStack(alignment: .leading, spacing: 2) {
-                                    Text("\(p.firstName) \(p.lastName)").font(.title3.weight(.bold))
-                                    Text("\(p.nationality) · \(p.age) ans · \(p.position.rawValue)").font(.caption).foregroundStyle(.secondary)
-                                    Text("\(p.club.name) (\(p.club.city), \(p.club.country))").font(.caption).foregroundStyle(.secondary)
+            Group {
+                if let p = engine.player {
+                    ScrollView {
+                        VStack(spacing: 16) {
+                            VStack(spacing: 14) {
+                                HStack(alignment: .top) {
+                                    VStack(alignment: .leading, spacing: 2) {
+                                        Text("\(p.firstName) \(p.lastName)").font(FDFont.display(22))
+                                        Text("\(p.nationality) · \(p.age) ans · \(p.position.rawValue)").font(FDFont.body(12)).foregroundStyle(.secondary)
+                                        Text("\(p.club.name) (\(p.club.city), \(p.club.country))").font(FDFont.body(12)).foregroundStyle(.secondary)
+                                    }
+                                    Spacer()
+                                    VStack {
+                                        Text("\(engine.overall(p))").font(FDFont.mono(20, bold: true)).foregroundStyle(FDTheme.primary)
+                                        Text("NOTE").font(.caption2.weight(.bold)).foregroundStyle(FDTheme.primary)
+                                    }
+                                    .padding(.horizontal, 12).padding(.vertical, 6)
+                                    .background(FDTheme.primary.opacity(0.14), in: RoundedRectangle(cornerRadius: 12))
                                 }
-                                Spacer()
-                                VStack {
-                                    Text("\(engine.overall(p))").font(FDFont.mono(20, bold: true)).foregroundStyle(FDTheme.primary)
-                                    Text("NOTE").font(.caption2.weight(.bold)).foregroundStyle(FDTheme.primary)
+                                LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible()), GridItem(.flexible())], spacing: 8) {
+                                    FDMetaTile(value: "\(engine.potentialOverall(p))", label: "Potentiel")
+                                    FDMetaTile(value: fdFormatMoney(engine.marketValue(p)), label: "Valeur")
+                                    FDMetaTile(value: fdFormatMoney(p.contract.salary), label: "Salaire/sem")
+                                    FDMetaTile(value: p.status.rawValue, label: "Statut")
+                                    FDMetaTile(value: p.style.rawValue, label: "Style")
+                                    FDMetaTile(value: p.mode.rawValue, label: "Mode")
                                 }
-                                .padding(.horizontal, 12).padding(.vertical, 6)
-                                .background(FDTheme.primary.opacity(0.14), in: RoundedRectangle(cornerRadius: 12))
                             }
-                            LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible()), GridItem(.flexible())], spacing: 8) {
-                                FDMetaTile(value: "\(engine.potentialOverall(p))", label: "Potentiel")
-                                FDMetaTile(value: fdFormatMoney(engine.marketValue(p)), label: "Valeur")
-                                FDMetaTile(value: fdFormatMoney(p.contract.salary), label: "Salaire/sem")
-                                FDMetaTile(value: p.status.rawValue, label: "Statut")
-                                FDMetaTile(value: p.style.rawValue, label: "Style")
-                                FDMetaTile(value: p.mode.rawValue, label: "Mode")
+                            .fdCard()
+
+                            VStack(alignment: .leading, spacing: 12) {
+                                FDSectionLabel("Condition")
+                                FDConditionRow(label: "Forme", value: p.cond.forme, color: FDTheme.primary)
+                                FDConditionRow(label: "Moral", value: p.cond.moral, color: .blue)
+                                FDConditionRow(label: "Fatigue", value: p.cond.fatigue, color: .orange)
+                                FDConditionRow(label: "Confiance", value: p.cond.confiance, color: FDTheme.accentTeal)
                             }
+                            .fdCard()
+
+                            ForEach([FDAttrCategory.tech, .phys, .ment, .def], id: \.self) { cat in
+                                VStack(alignment: .leading, spacing: 12) {
+                                    FDSectionLabel("Attributs — \(cat.label)")
+                                    ForEach(FDAttribute.allCases.filter { $0.category == cat }, id: \.self) { attr in
+                                        FDAttributeRow(label: attr.label, value: p.attr(attr))
+                                    }
+                                }
+                                .fdCard()
+                            }
+
+                            VStack(alignment: .leading, spacing: 12) {
+                                FDSectionLabel("Relations")
+                                FDConditionRow(label: "Entraîneur", value: p.rel.coach, color: FDTheme.accentTeal)
+                                FDConditionRow(label: "Président", value: p.rel.president, color: FDTheme.accentTeal)
+                                FDConditionRow(label: "Vestiaire", value: p.rel.vestiaire, color: FDTheme.primary)
+                                FDConditionRow(label: "Capitaine", value: p.rel.capitaine, color: FDTheme.primary)
+                                FDConditionRow(label: "Famille", value: p.rel.famille, color: .pink)
+                                FDConditionRow(label: "Agent", value: p.rel.agent, color: .purple)
+                                FDConditionRow(label: "Média", value: p.rel.media, color: .purple)
+                                FDConditionRow(label: "Supporters", value: p.rel.fans, color: FDTheme.amber)
+                            }
+                            .fdCard()
                         }
-                        .padding(.vertical, 6)
+                        .padding()
                     }
-
-                    Section("Condition") {
-                        FDConditionRow(label: "Forme", value: p.cond.forme, color: FDTheme.primary)
-                        FDConditionRow(label: "Moral", value: p.cond.moral, color: .blue)
-                        FDConditionRow(label: "Fatigue", value: p.cond.fatigue, color: .orange)
-                        FDConditionRow(label: "Confiance", value: p.cond.confiance, color: FDTheme.accentTeal)
-                    }
-
-                    ForEach([FDAttrCategory.tech, .phys, .ment, .def], id: \.self) { cat in
-                        Section("Attributs — \(cat.label)") {
-                            ForEach(FDAttribute.allCases.filter { $0.category == cat }, id: \.self) { attr in
-                                FDAttributeRow(label: attr.label, value: p.attr(attr))
-                            }
-                        }
-                    }
-
-                    Section("Relations") {
-                        FDConditionRow(label: "Entraîneur", value: p.rel.coach, color: FDTheme.accentTeal)
-                        FDConditionRow(label: "Président", value: p.rel.president, color: FDTheme.accentTeal)
-                        FDConditionRow(label: "Vestiaire", value: p.rel.vestiaire, color: FDTheme.primary)
-                        FDConditionRow(label: "Capitaine", value: p.rel.capitaine, color: FDTheme.primary)
-                        FDConditionRow(label: "Famille", value: p.rel.famille, color: .pink)
-                        FDConditionRow(label: "Agent", value: p.rel.agent, color: .purple)
-                        FDConditionRow(label: "Média", value: p.rel.media, color: .purple)
-                        FDConditionRow(label: "Supporters", value: p.rel.fans, color: FDTheme.amber)
-                    }
+                } else {
+                    Text("Aucune carrière en cours")
+                        .foregroundStyle(.secondary)
+                        .frame(maxWidth: .infinity, maxHeight: .infinity)
                 }
-                .listStyle(.insetGrouped)
-                .navigationTitle("Carrière")
-                .navigationBarTitleDisplayMode(.inline)
-            } else {
-                Text("Aucune carrière en cours").foregroundStyle(.secondary)
             }
+            .background(FDTheme.bg)
+            .navigationTitle("Carrière")
+            .navigationBarTitleDisplayMode(.inline)
         }
         .navigationViewStyle(.stack)
     }
@@ -420,7 +431,7 @@ struct FDMetaTile: View {
     let label: String
     var body: some View {
         VStack(spacing: 2) {
-            Text(value).font(.subheadline.weight(.bold)).lineLimit(1).minimumScaleFactor(0.7)
+            Text(value).font(FDFont.body(13, black: true)).lineLimit(1).minimumScaleFactor(0.7)
             Text(label.uppercased()).font(.caption2).foregroundStyle(.secondary)
         }
         .frame(maxWidth: .infinity)
@@ -435,10 +446,10 @@ struct FDConditionRow: View {
     let color: Color
     var body: some View {
         HStack {
-            Text(label).font(.subheadline)
+            Text(label).font(FDFont.body(14))
             Spacer()
             ProgressView(value: Double(value), total: 100).tint(color).frame(width: 100)
-            Text("\(value)").font(.caption.monospacedDigit()).foregroundStyle(.secondary).frame(width: 26, alignment: .trailing)
+            Text("\(value)").font(FDFont.mono(11)).foregroundStyle(.secondary).frame(width: 26, alignment: .trailing)
         }
     }
 }
@@ -448,9 +459,9 @@ struct FDAttributeRow: View {
     let value: Int
     var body: some View {
         HStack {
-            Text(label).font(.subheadline).frame(width: 100, alignment: .leading)
-            ProgressView(value: Double(value), total: 100)
-            Text("\(value)").font(.caption.weight(.semibold).monospacedDigit()).frame(width: 26, alignment: .trailing)
+            Text(label).font(FDFont.body(14)).frame(width: 100, alignment: .leading)
+            ProgressView(value: Double(value), total: 100).tint(FDTheme.primary)
+            Text("\(value)").font(FDFont.mono(11, bold: true)).frame(width: 26, alignment: .trailing)
         }
     }
 }
@@ -462,45 +473,52 @@ struct FDStatsTab: View {
 
     var body: some View {
         NavigationView {
-            if let p = engine.player {
-                List {
-                    Section {
-                        LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 10) {
-                            FDStatTile(value: "\(p.careerApps)", label: "Matchs joués")
-                            FDStatTile(value: "\(p.careerGoals)", label: "Buts carrière")
-                            FDStatTile(value: "\(p.careerAssists)", label: "Passes décisives")
-                            FDStatTile(value: p.history.isEmpty ? "—" : String(format: "%.1f", p.history.map(\.avgRating).reduce(0, +) / Double(p.history.count)), label: "Note moy. carrière")
-                        }
-                        .padding(.vertical, 4)
-                    }
+            Group {
+                if let p = engine.player {
+                    ScrollView {
+                        VStack(spacing: 16) {
+                            LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 10) {
+                                FDStatTile(value: "\(p.careerApps)", label: "Matchs joués")
+                                FDStatTile(value: "\(p.careerGoals)", label: "Buts carrière")
+                                FDStatTile(value: "\(p.careerAssists)", label: "Passes décisives")
+                                FDStatTile(value: p.history.isEmpty ? "—" : String(format: "%.1f", p.history.map(\.avgRating).reduce(0, +) / Double(p.history.count)), label: "Note moy. carrière")
+                            }
 
-                    if !p.history.isEmpty {
-                        Section("Historique des saisons") {
-                            ForEach(p.history) { h in
-                                HStack {
-                                    VStack(alignment: .leading) {
-                                        Text("Saison \(h.season) · \(h.age) ans").font(.subheadline.weight(.semibold))
-                                        Text(h.status.rawValue).font(.caption).foregroundStyle(.secondary)
-                                    }
-                                    Spacer()
-                                    VStack(alignment: .trailing) {
-                                        Text("\(h.apps) MJ · \(h.goals) B · \(h.assists) PD").font(.caption)
-                                        Text(h.avgRating > 0 ? String(format: "Note %.1f", h.avgRating) : "—").font(.caption).foregroundStyle(.secondary)
+                            VStack(alignment: .leading, spacing: 12) {
+                                FDSectionLabel("Historique des saisons")
+                                if p.history.isEmpty {
+                                    Text("Ta première saison est en cours — reviens ici après quelques matchs.")
+                                        .font(FDFont.body(13))
+                                        .foregroundStyle(.secondary)
+                                } else {
+                                    VStack(spacing: 0) {
+                                        ForEach(Array(p.history.enumerated()), id: \.element.id) { index, h in
+                                            HStack {
+                                                VStack(alignment: .leading) {
+                                                    Text("Saison \(h.season) · \(h.age) ans").font(FDFont.body(14, black: true))
+                                                    Text(h.status.rawValue).font(FDFont.body(11)).foregroundStyle(.secondary)
+                                                }
+                                                Spacer()
+                                                VStack(alignment: .trailing) {
+                                                    Text("\(h.apps) MJ · \(h.goals) B · \(h.assists) PD").font(FDFont.mono(11))
+                                                    Text(h.avgRating > 0 ? String(format: "Note %.1f", h.avgRating) : "—").font(FDFont.mono(11)).foregroundStyle(.secondary)
+                                                }
+                                            }
+                                            .padding(.vertical, 10)
+                                            if index < p.history.count - 1 { Divider() }
+                                        }
                                     }
                                 }
                             }
+                            .fdCard()
                         }
-                    } else {
-                        Section {
-                            Text("Ta première saison est en cours — reviens ici après quelques matchs.")
-                                .font(.footnote).foregroundStyle(.secondary)
-                        }
+                        .padding()
                     }
                 }
-                .listStyle(.insetGrouped)
-                .navigationTitle("Stats")
-                .navigationBarTitleDisplayMode(.inline)
             }
+            .background(FDTheme.bg)
+            .navigationTitle("Stats")
+            .navigationBarTitleDisplayMode(.inline)
         }
         .navigationViewStyle(.stack)
     }
@@ -527,26 +545,37 @@ struct FDJournalTab: View {
 
     var body: some View {
         NavigationView {
-            if let p = engine.player {
-                if p.journal.isEmpty {
-                    Text("Ton journal de carrière est vide pour l'instant.")
-                        .foregroundStyle(.secondary)
-                        .navigationTitle("Journal")
-                } else {
-                    List(p.journal.prefix(150)) { entry in
-                        HStack(alignment: .top, spacing: 10) {
-                            Text(entry.icon).font(.title3)
-                            VStack(alignment: .leading, spacing: 2) {
-                                Text("S\(entry.season) · \(entry.age) ans").font(.caption.weight(.bold)).foregroundStyle(.secondary)
-                                Text(entry.text).font(.subheadline)
+            Group {
+                if let p = engine.player {
+                    if p.journal.isEmpty {
+                        Text("Ton journal de carrière est vide pour l'instant.")
+                            .foregroundStyle(.secondary)
+                            .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    } else {
+                        ScrollView {
+                            VStack(alignment: .leading, spacing: 0) {
+                                let entries = Array(p.journal.prefix(150))
+                                ForEach(Array(entries.enumerated()), id: \.element.id) { index, entry in
+                                    HStack(alignment: .top, spacing: 10) {
+                                        Text(entry.icon).font(.title3)
+                                        VStack(alignment: .leading, spacing: 2) {
+                                            Text("S\(entry.season) · \(entry.age) ans").font(.caption.weight(.bold)).foregroundStyle(.secondary)
+                                            Text(entry.text).font(FDFont.body(14))
+                                        }
+                                    }
+                                    .padding(.vertical, 10)
+                                    if index < entries.count - 1 { Divider() }
+                                }
                             }
+                            .fdCard()
+                            .padding()
                         }
                     }
-                    .listStyle(.plain)
-                    .navigationTitle("Journal")
-                    .navigationBarTitleDisplayMode(.inline)
                 }
             }
+            .background(FDTheme.bg)
+            .navigationTitle("Journal")
+            .navigationBarTitleDisplayMode(.inline)
         }
         .navigationViewStyle(.stack)
     }
@@ -564,45 +593,63 @@ struct FDOptionsTab: View {
     @State private var showRetireConfirm = false
     @State private var showResetConfirm = false
 
+    private var canRetire: Bool { !(engine.player?.retired ?? true) }
+
     var body: some View {
         NavigationView {
-            List {
-                Section {
-                    Text("Ta carrière est enregistrée automatiquement sur cet appareil, sans compte ni inscription.")
-                        .font(.footnote).foregroundStyle(.secondary)
-                    Button("Exporter la sauvegarde") {
-                        exportText = engine.exportSave() ?? ""
-                        showExport = true
+            ScrollView {
+                VStack(spacing: 16) {
+                    VStack(alignment: .leading, spacing: 12) {
+                        FDSectionLabel("Sauvegarde")
+                        Text("Ta carrière est enregistrée automatiquement sur cet appareil, sans compte ni inscription.")
+                            .font(FDFont.body(13)).foregroundStyle(.secondary)
+                        Button("Exporter la sauvegarde") {
+                            exportText = engine.exportSave() ?? ""
+                            showExport = true
+                        }
+                        .buttonStyle(FDSecondaryButtonStyle())
+                        Button("Importer une sauvegarde") {
+                            importText = ""
+                            showImport = true
+                        }
+                        .buttonStyle(FDSecondaryButtonStyle())
                     }
-                    Button("Importer une sauvegarde") {
-                        importText = ""
-                        showImport = true
-                    }
-                } header: { Text("Sauvegarde") }
+                    .fdCard()
 
-                Section {
-                    Button(role: .destructive) {
-                        showRetireConfirm = true
-                    } label: {
-                        Text("Prendre sa retraite maintenant")
+                    VStack(alignment: .leading, spacing: 12) {
+                        FDSectionLabel("Retraite")
+                        Button("Prendre sa retraite maintenant") {
+                            showRetireConfirm = true
+                        }
+                        .buttonStyle(FDDestructiveButtonStyle())
+                        .disabled(!canRetire)
+                        .opacity(canRetire ? 1 : 0.4)
+                        Text("Tu peux mettre fin à ta carrière quand tu le souhaites, à n'importe quel âge.")
+                            .font(FDFont.body(12)).foregroundStyle(.secondary)
                     }
-                    .disabled(engine.player?.retired ?? true)
-                } header: { Text("Retraite") } footer: { Text("Tu peux mettre fin à ta carrière quand tu le souhaites, à n'importe quel âge.") }
+                    .fdCard()
 
-                Section {
-                    Button(role: .destructive) {
-                        showResetConfirm = true
-                    } label: {
-                        Text("Réinitialiser la carrière")
+                    VStack(alignment: .leading, spacing: 12) {
+                        FDSectionLabel("Nouvelle carrière")
+                        Button("Réinitialiser la carrière") {
+                            showResetConfirm = true
+                        }
+                        .buttonStyle(FDDestructiveButtonStyle())
+                        Text("Cela effacera définitivement la carrière actuelle sur cet appareil.")
+                            .font(FDFont.body(12)).foregroundStyle(.secondary)
                     }
-                } header: { Text("Nouvelle carrière") } footer: { Text("Cela effacera définitivement la carrière actuelle sur cet appareil.") }
+                    .fdCard()
 
-                Section {
-                    Text("FCS-Destiny — prototype natif. Aucune donnée n'est envoyée sur un serveur.")
-                        .font(.footnote).foregroundStyle(.secondary)
-                } header: { Text("À propos") }
+                    VStack(alignment: .leading, spacing: 8) {
+                        FDSectionLabel("À propos")
+                        Text("FCS-Destiny — prototype natif. Aucune donnée n'est envoyée sur un serveur.")
+                            .font(FDFont.body(13)).foregroundStyle(.secondary)
+                    }
+                    .fdCard()
+                }
+                .padding()
             }
-            .listStyle(.insetGrouped)
+            .background(FDTheme.bg)
             .navigationTitle("Options")
             .navigationBarTitleDisplayMode(.inline)
             .confirmationDialog("Prendre ta retraite maintenant ?", isPresented: $showRetireConfirm, titleVisibility: .visible) {
@@ -628,6 +675,7 @@ struct FDOptionsTab: View {
                             .textSelection(.enabled)
                             .padding()
                     }
+                    .background(FDTheme.bg)
                     .navigationTitle("Exporter")
                     .navigationBarTitleDisplayMode(.inline)
                     .toolbar {
@@ -654,8 +702,9 @@ struct FDOptionsTab: View {
                             .clipShape(RoundedRectangle(cornerRadius: 10))
                             .padding()
                         Text("Colle ici le texte de sauvegarde exporté.")
-                            .font(.caption).foregroundStyle(.secondary)
+                            .font(FDFont.body(12)).foregroundStyle(.secondary)
                     }
+                    .background(FDTheme.bg)
                     .navigationTitle("Importer")
                     .navigationBarTitleDisplayMode(.inline)
                     .toolbar {

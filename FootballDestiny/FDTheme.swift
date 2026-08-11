@@ -263,3 +263,24 @@ struct FDGhostButtonStyle: ButtonStyle {
             .opacity(configuration.isPressed ? 0.5 : 1)
     }
 }
+
+/// Red-pink outline button, used for destructive actions (retire, reset a career).
+struct FDDestructiveButtonStyle: ButtonStyle {
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .font(FDFont.body(16, black: true))
+            .foregroundStyle(FDTheme.destructive)
+            .frame(maxWidth: .infinity)
+            .padding(.vertical, 14)
+            .background(
+                RoundedRectangle(cornerRadius: FDTheme.radiusCard, style: .continuous)
+                    .fill(FDTheme.destructive.opacity(0.12))
+            )
+            .overlay(
+                RoundedRectangle(cornerRadius: FDTheme.radiusCard, style: .continuous)
+                    .stroke(FDTheme.destructive.opacity(0.35), lineWidth: 1)
+            )
+            .scaleEffect(configuration.isPressed ? 0.97 : 1)
+            .animation(.spring(response: 0.3, dampingFraction: 0.7), value: configuration.isPressed)
+    }
+}
