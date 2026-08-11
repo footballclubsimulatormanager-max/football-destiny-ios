@@ -21,11 +21,6 @@ struct FDCareerCreationView: View {
     private let steps = FDCreationStep.allCases
     private var currentStep: FDCreationStep { steps[stepIndex] }
 
-    private var identityValid: Bool {
-        !draft.firstName.trimmingCharacters(in: .whitespaces).isEmpty
-            && !draft.lastName.trimmingCharacters(in: .whitespaces).isEmpty
-    }
-
     private var showsReroll: Bool {
         switch currentStep {
         case .identityNationality, .position, .background, .profile, .settings: return true
@@ -103,7 +98,9 @@ struct FDCareerCreationView: View {
     private func rerollCurrent() {
         FDHaptics.tap()
         switch currentStep {
-        case .identityNationality: draft.nationality = FDNations.randomElement() ?? draft.nationality
+        case .identityNationality:
+            draft.nationality = FDNations.randomElement() ?? draft.nationality
+            regenerateName()
         case .position: draft.position = FDPosition.allCases.randomElement() ?? draft.position
         case .background: draft.background = FDBackground.allCases.randomElement() ?? draft.background
         case .profile:
@@ -116,34 +113,56 @@ struct FDCareerCreationView: View {
         }
     }
 
-    // MARK: Step 0 — identity + nationality
+    // MARK: Step 0 — nationality (name is generated automatically, never typed)
+
+    private func regenerateName() {
+        let generated = FDNameBank.random(for: draft.nationality)
+        draft.firstName = generated.first
+        draft.lastName = generated.last
+    }
 
     private var identityNationalityStep: some View {
         ScrollView {
             VStack(spacing: 16) {
-                FDStepHeader(title: "Toi", subtitle: "Ton nom, et le pays qui te verra grandir sur les terrains.")
-
-                VStack(spacing: 10) {
-                    TextField("Prénom", text: $draft.firstName).fdField()
-                    TextField("Nom", text: $draft.lastName).fdField()
-                }
-                .fdCard()
-
-                if !identityValid {
-                    Text("Renseigne ton prénom et ton nom pour choisir ta nationalité.")
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-                }
+                FDStepHeader(title: "Ta nationalité", subtitle: "Le pays qui te verra grandir sur les terrains. Ton nom en découlera, généré automatiquement.")
 
                 LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible()), GridItem(.flexible())], spacing: 12) {
                     ForEach(FDNations, id: \.self) { nation in
                         FDFlagCard(flag: fdFlag(for: nation), name: nation, selected: draft.nationality == nation) {
-                            selectAndAdvance { draft.nationality = nation }
+                            FDHaptics.tap()
+                            draft.nationality = nation
+                            regenerateName()
                         }
                     }
                 }
-                .disabled(!identityValid)
-                .opacity(identityValid ? 1 : 0.35)
+
+                if !draft.firstName.isEmpty {
+                    HStack(spacing: 14) {
+                        FDIconBadge(symbol: fdFlag(for: draft.nationality), tint: .white, size: 44)
+                        VStack(alignment: .leading, spacing: 2) {
+                            FDSectionLabel("Ton identité")
+                            Text("\(draft.firstName) \(draft.lastName)")
+                                .font(FDFont.display(20))
+                        }
+                        Spacer(minLength: 0)
+                        Button {
+                            FDHaptics.tap()
+                            regenerateName()
+                        } label: {
+                            Image(systemName: "arrow.triangle.2.circlepath")
+                                .foregroundStyle(FDTheme.amber)
+                        }
+                    }
+                    .fdCard()
+
+                    Button {
+                        FDHaptics.tap()
+                        advance()
+                    } label: {
+                        Text("Continuer")
+                    }
+                    .buttonStyle(FDPrimaryButtonStyle())
+                }
             }
             .padding()
         }

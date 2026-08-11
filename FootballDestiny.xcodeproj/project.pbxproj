@@ -17,6 +17,7 @@
 		75896B96948AAB2C3DD295D8 /* FDGameShellView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 43AD0F2A69BF9E9CEE6B451B /* FDGameShellView.swift */; };
 		0C4A232674BEB82B4F68E088 /* FDRootView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AFAA89E06DBEADE8D26477A6 /* FDRootView.swift */; };
 		3BEE85AB5B9449CD93189461 /* FDTheme.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99AB8A7477524277946745B6 /* FDTheme.swift */; };
+		4F3CD8CC9A97AC076C39FA14 /* FDNameBank.swift in Sources */ = {isa = PBXBuildFile; fileRef = AC45734A20FBDE333C482D1E /* FDNameBank.swift */; };
 		1030E28BDE5B7D66E7F6D503 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = E004B83FE32328616E724A8D /* Assets.xcassets */; };
 		AC4906096EA042C9B1518A53 /* Barlow-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 5293567490F44819B2B3E49C /* Barlow-Regular.ttf */; };
 		E5C3ABF343C440EA861E34FB /* Barlow-Black.ttf in Resources */ = {isa = PBXBuildFile; fileRef = E330A646A5B74E47AA0B671C /* Barlow-Black.ttf */; };
@@ -37,6 +38,7 @@
 		43AD0F2A69BF9E9CEE6B451B /* FDGameShellView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "FootballDestiny/FDGameShellView.swift"; sourceTree = "<group>"; };
 		AFAA89E06DBEADE8D26477A6 /* FDRootView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "FootballDestiny/FDRootView.swift"; sourceTree = "<group>"; };
 		99AB8A7477524277946745B6 /* FDTheme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "FootballDestiny/FDTheme.swift"; sourceTree = "<group>"; };
+		AC45734A20FBDE333C482D1E /* FDNameBank.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "FootballDestiny/FDNameBank.swift"; sourceTree = "<group>"; };
 		E004B83FE32328616E724A8D /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "FootballDestiny/Assets.xcassets"; sourceTree = "<group>"; };
 		5293567490F44819B2B3E49C /* Barlow-Regular.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "FootballDestiny/Fonts/Barlow-Regular.ttf"; sourceTree = "<group>"; };
 		E330A646A5B74E47AA0B671C /* Barlow-Black.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "FootballDestiny/Fonts/Barlow-Black.ttf"; sourceTree = "<group>"; };
@@ -72,6 +74,7 @@
 				43AD0F2A69BF9E9CEE6B451B /* FDGameShellView.swift */,
 				AFAA89E06DBEADE8D26477A6 /* FDRootView.swift */,
 				99AB8A7477524277946745B6 /* FDTheme.swift */,
+				AC45734A20FBDE333C482D1E /* FDNameBank.swift */,
 				E004B83FE32328616E724A8D /* Assets.xcassets */,
 				651C1E2004B246ACB061E3C0 /* Info-Fonts.plist */,
 				005B1604CE23404A86A6C50C /* Fonts */,
@@ -186,6 +189,7 @@
 				75896B96948AAB2C3DD295D8 /* FDGameShellView.swift in Sources */,
 				0C4A232674BEB82B4F68E088 /* FDRootView.swift in Sources */,
 				3BEE85AB5B9449CD93189461 /* FDTheme.swift in Sources */,
+				4F3CD8CC9A97AC076C39FA14 /* FDNameBank.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
