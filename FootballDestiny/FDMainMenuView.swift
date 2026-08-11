@@ -13,16 +13,21 @@ struct FDMainMenuView: View {
                 .ignoresSafeArea()
 
             Circle()
-                .fill(FDTheme.gold.opacity(0.20))
-                .frame(width: 300, height: 300)
-                .blur(radius: 70)
+                .fill(FDTheme.violetGlow.opacity(0.30))
+                .frame(width: 320, height: 320)
+                .blur(radius: 75)
                 .offset(x: 140, y: -280)
 
             Circle()
-                .fill(FDTheme.violetGlow.opacity(0.30))
+                .fill(FDTheme.blueGlow.opacity(0.26))
                 .frame(width: 280, height: 280)
-                .blur(radius: 70)
+                .blur(radius: 75)
                 .offset(x: -150, y: 300)
+
+            Circle()
+                .fill(FDTheme.violetGlow.opacity(0.12))
+                .frame(width: 420, height: 420)
+                .blur(radius: 90)
 
             VStack(spacing: 0) {
                 topBar
@@ -36,7 +41,7 @@ struct FDMainMenuView: View {
                         VStack(spacing: 12) {
                             FDMenuRow(
                                 icon: "sportscourt.fill",
-                                iconTint: .mint,
+                                iconTint: FDTheme.primary,
                                 title: "Nouvelle carrière",
                                 subtitle: "Commencer une nouvelle histoire",
                                 disabled: false
@@ -47,7 +52,7 @@ struct FDMainMenuView: View {
 
                             FDMenuRow(
                                 icon: "play.fill",
-                                iconTint: FDTheme.gold,
+                                iconTint: FDTheme.accentTeal,
                                 title: "Continuer",
                                 subtitle: engine.hasSave() ? "Reprendre ta carrière en cours" : "Aucune carrière en cours",
                                 disabled: !engine.hasSave()
@@ -79,14 +84,7 @@ struct FDMainMenuView: View {
     private var topBar: some View {
         HStack {
             HStack(spacing: 8) {
-                ZStack {
-                    RoundedRectangle(cornerRadius: 10, style: .continuous)
-                        .fill(FDTheme.goldTextGradient)
-                    Image(systemName: "soccerball")
-                        .font(.system(size: 16, weight: .bold))
-                        .foregroundStyle(FDTheme.ink)
-                }
-                .frame(width: 34, height: 34)
+                FDLogoBadge(size: 34, corner: 9)
 
                 Text("FCS-DESTINY")
                     .font(.caption.weight(.heavy))
@@ -111,24 +109,25 @@ struct FDMainMenuView: View {
     }
 
     private var heroCard: some View {
-        VStack(spacing: 10) {
+        VStack(spacing: 14) {
+            Image("AppLogo")
+                .resizable()
+                .aspectRatio(contentMode: .fit)
+                .frame(width: 168, height: 168)
+                .clipShape(RoundedRectangle(cornerRadius: 28, style: .continuous))
+                .overlay(
+                    RoundedRectangle(cornerRadius: 28, style: .continuous)
+                        .stroke(Color.white.opacity(0.12), lineWidth: 1)
+                )
+                .shadow(color: .black.opacity(0.4), radius: 20, y: 10)
+
             Text("SIMULATEUR DE CARRIÈRE")
                 .font(.caption.weight(.bold))
                 .tracking(4)
-                .foregroundStyle(FDTheme.gold)
-
-            VStack(spacing: 2) {
-                Text("FCS")
-                    .font(.system(size: 40, weight: .heavy, design: .rounded))
-                    .foregroundStyle(.white)
-                Text("DESTINY")
-                    .font(.system(size: 40, weight: .heavy, design: .rounded))
-                    .foregroundStyle(FDTheme.goldTextGradient)
-            }
-            .shadow(color: .black.opacity(0.3), radius: 14, y: 6)
+                .foregroundStyle(FDTheme.primary)
 
             Text("Écris ta carrière. Vis ta légende.")
-                .font(.subheadline.weight(.medium))
+                .font(FDFont.body(15))
                 .foregroundStyle(.white.opacity(0.65))
 
             if engine.lifetimePoints > 0 {
@@ -171,7 +170,7 @@ private struct FDMenuRow: View {
                 FDIconBadge(symbol: icon, tint: iconTint, size: 44, isSystemImage: true)
 
                 VStack(alignment: .leading, spacing: 2) {
-                    Text(title).font(.fdRounded(.headline)).foregroundStyle(.white)
+                    Text(title).font(FDFont.display(19)).foregroundStyle(.white)
                     Text(subtitle).font(.caption).foregroundStyle(.white.opacity(0.55))
                 }
 
@@ -226,7 +225,7 @@ struct FDAboutSheet: View {
                 }
                 .padding()
             }
-            .background(Color(.systemGroupedBackground))
+            .background(FDTheme.bg)
             .navigationTitle("À propos")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {

@@ -18,6 +18,12 @@
 		0C4A232674BEB82B4F68E088 /* FDRootView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AFAA89E06DBEADE8D26477A6 /* FDRootView.swift */; };
 		3BEE85AB5B9449CD93189461 /* FDTheme.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99AB8A7477524277946745B6 /* FDTheme.swift */; };
 		1030E28BDE5B7D66E7F6D503 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = E004B83FE32328616E724A8D /* Assets.xcassets */; };
+		AC4906096EA042C9B1518A53 /* Barlow-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 5293567490F44819B2B3E49C /* Barlow-Regular.ttf */; };
+		E5C3ABF343C440EA861E34FB /* Barlow-Black.ttf in Resources */ = {isa = PBXBuildFile; fileRef = E330A646A5B74E47AA0B671C /* Barlow-Black.ttf */; };
+		3ABBC05094494D91A2EF8D23 /* BarlowSemiCondensed-Black.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 260A2604AB974E7488E28F5C /* BarlowSemiCondensed-Black.ttf */; };
+		94C6F45EFCAE4C96BF169B6A /* BarlowSemiCondensed-BlackItalic.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 9D45FB0BEAF14D64A8FEB73F /* BarlowSemiCondensed-BlackItalic.ttf */; };
+		9A989C98E6B141F0881E0A83 /* JetBrainsMono-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 12C45E36FEFD4E7FA5690748 /* JetBrainsMono-Regular.ttf */; };
+		73DD806922DE4B2394A80292 /* JetBrainsMono-Bold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 01880DC3C13544029D3CF726 /* JetBrainsMono-Bold.ttf */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -32,6 +38,13 @@
 		AFAA89E06DBEADE8D26477A6 /* FDRootView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "FootballDestiny/FDRootView.swift"; sourceTree = "<group>"; };
 		99AB8A7477524277946745B6 /* FDTheme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "FootballDestiny/FDTheme.swift"; sourceTree = "<group>"; };
 		E004B83FE32328616E724A8D /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "FootballDestiny/Assets.xcassets"; sourceTree = "<group>"; };
+		5293567490F44819B2B3E49C /* Barlow-Regular.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "FootballDestiny/Fonts/Barlow-Regular.ttf"; sourceTree = "<group>"; };
+		E330A646A5B74E47AA0B671C /* Barlow-Black.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "FootballDestiny/Fonts/Barlow-Black.ttf"; sourceTree = "<group>"; };
+		260A2604AB974E7488E28F5C /* BarlowSemiCondensed-Black.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "FootballDestiny/Fonts/BarlowSemiCondensed-Black.ttf"; sourceTree = "<group>"; };
+		9D45FB0BEAF14D64A8FEB73F /* BarlowSemiCondensed-BlackItalic.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "FootballDestiny/Fonts/BarlowSemiCondensed-BlackItalic.ttf"; sourceTree = "<group>"; };
+		12C45E36FEFD4E7FA5690748 /* JetBrainsMono-Regular.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "FootballDestiny/Fonts/JetBrainsMono-Regular.ttf"; sourceTree = "<group>"; };
+		01880DC3C13544029D3CF726 /* JetBrainsMono-Bold.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "FootballDestiny/Fonts/JetBrainsMono-Bold.ttf"; sourceTree = "<group>"; };
+		651C1E2004B246ACB061E3C0 /* Info-Fonts.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "FootballDestiny/Info-Fonts.plist"; sourceTree = "<group>"; };
 		7C017E7E907753D06692224B /* FootballDestiny.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = FootballDestiny.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
@@ -60,8 +73,23 @@
 				AFAA89E06DBEADE8D26477A6 /* FDRootView.swift */,
 				99AB8A7477524277946745B6 /* FDTheme.swift */,
 				E004B83FE32328616E724A8D /* Assets.xcassets */,
+				651C1E2004B246ACB061E3C0 /* Info-Fonts.plist */,
+				005B1604CE23404A86A6C50C /* Fonts */,
 				A6AB6E04A074B03E0A33CB91 /* Products */,
 			);
+			sourceTree = "<group>";
+		};
+		005B1604CE23404A86A6C50C /* Fonts */ = {
+			isa = PBXGroup;
+			children = (
+				5293567490F44819B2B3E49C /* Barlow-Regular.ttf */,
+				E330A646A5B74E47AA0B671C /* Barlow-Black.ttf */,
+				260A2604AB974E7488E28F5C /* BarlowSemiCondensed-Black.ttf */,
+				9D45FB0BEAF14D64A8FEB73F /* BarlowSemiCondensed-BlackItalic.ttf */,
+				12C45E36FEFD4E7FA5690748 /* JetBrainsMono-Regular.ttf */,
+				01880DC3C13544029D3CF726 /* JetBrainsMono-Bold.ttf */,
+			);
+			name = Fonts;
 			sourceTree = "<group>";
 		};
 		A6AB6E04A074B03E0A33CB91 /* Products */ = {
@@ -132,6 +160,12 @@
 			buildActionMask = 2147483647;
 			files = (
 				1030E28BDE5B7D66E7F6D503 /* Assets.xcassets in Resources */,
+				AC4906096EA042C9B1518A53 /* Barlow-Regular.ttf in Resources */,
+				E5C3ABF343C440EA861E34FB /* Barlow-Black.ttf in Resources */,
+				3ABBC05094494D91A2EF8D23 /* BarlowSemiCondensed-Black.ttf in Resources */,
+				94C6F45EFCAE4C96BF169B6A /* BarlowSemiCondensed-BlackItalic.ttf in Resources */,
+				9A989C98E6B141F0881E0A83 /* JetBrainsMono-Regular.ttf in Resources */,
+				73DD806922DE4B2394A80292 /* JetBrainsMono-Bold.ttf in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -284,6 +318,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "FootballDestiny/Info-Fonts.plist";
 				INFOPLIST_KEY_CFBundleDisplayName = "FCS-Destiny";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -310,6 +345,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "FootballDestiny/Info-Fonts.plist";
 				INFOPLIST_KEY_CFBundleDisplayName = "FCS-Destiny";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;

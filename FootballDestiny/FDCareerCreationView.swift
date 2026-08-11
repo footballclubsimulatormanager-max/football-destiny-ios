@@ -45,7 +45,7 @@ struct FDCareerCreationView: View {
                 case .club: clubStep
                 }
             }
-            .background(Color(.systemGroupedBackground))
+            .background(FDTheme.bg)
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
@@ -57,7 +57,7 @@ struct FDCareerCreationView: View {
                     HStack(spacing: 5) {
                         ForEach(0..<steps.count, id: \.self) { i in
                             Capsule()
-                                .fill(i == stepIndex ? FDTheme.gold : (i < stepIndex ? FDTheme.gold.opacity(0.4) : Color(.systemGray4)))
+                                .fill(i == stepIndex ? FDTheme.primary : (i < stepIndex ? FDTheme.primary.opacity(0.4) : Color.white.opacity(0.18)))
                                 .frame(width: i == stepIndex ? 16 : 6, height: 6)
                         }
                     }
@@ -65,7 +65,7 @@ struct FDCareerCreationView: View {
                 ToolbarItem(placement: .confirmationAction) {
                     Button(action: rerollCurrent) {
                         Image(systemName: "dice.fill")
-                            .foregroundStyle(FDTheme.gold)
+                            .foregroundStyle(FDTheme.amber)
                     }
                     .opacity(showsReroll ? 1 : 0)
                     .disabled(!showsReroll)
@@ -363,10 +363,11 @@ private struct FDStepHeader: View {
     var body: some View {
         VStack(spacing: 8) {
             Text(title.uppercased())
-                .font(.system(size: 24, weight: .heavy, design: .rounded))
+                .font(FDFont.display(26))
+                .tracking(-0.5)
                 .multilineTextAlignment(.center)
             Text(subtitle)
-                .font(.subheadline)
+                .font(FDFont.body(14))
                 .foregroundStyle(.secondary)
                 .multilineTextAlignment(.center)
         }
@@ -385,25 +386,25 @@ private struct FDChoiceCard: View {
     var body: some View {
         Button(action: action) {
             HStack(alignment: .top, spacing: 12) {
-                FDIconBadge(symbol: icon, tint: FDTheme.gold, size: 40)
+                FDIconBadge(symbol: icon, tint: FDTheme.primary, size: 40)
                 VStack(alignment: .leading, spacing: 4) {
-                    Text(title).font(.fdRounded(.headline))
-                    Text(subtitle).font(.subheadline).foregroundStyle(.secondary)
+                    Text(title).font(FDFont.display(19))
+                    Text(subtitle).font(FDFont.body(13)).foregroundStyle(.secondary)
                 }
                 Spacer(minLength: 0)
                 if selected {
-                    Image(systemName: "checkmark.circle.fill").foregroundStyle(FDTheme.gold)
+                    Image(systemName: "checkmark.circle.fill").foregroundStyle(FDTheme.primary)
                 }
             }
             .padding(16)
             .frame(maxWidth: .infinity, alignment: .leading)
             .background(
                 RoundedRectangle(cornerRadius: 18, style: .continuous)
-                    .fill(Color(.secondarySystemBackground))
+                    .fill(FDTheme.card)
             )
             .overlay(
                 RoundedRectangle(cornerRadius: 18, style: .continuous)
-                    .stroke(selected ? FDTheme.gold : Color.primary.opacity(0.06), lineWidth: selected ? 1.5 : 1)
+                    .stroke(selected ? FDTheme.primary : Color.white.opacity(0.08), lineWidth: selected ? 1.5 : 1)
             )
         }
         .buttonStyle(.plain)
@@ -419,9 +420,9 @@ private struct FDFlagCard: View {
     var body: some View {
         Button(action: action) {
             VStack(spacing: 8) {
-                FDIconBadge(symbol: flag, tint: .primary, size: 44)
+                FDIconBadge(symbol: flag, tint: .white, size: 44)
                 Text(name)
-                    .font(.fdRounded(.subheadline))
+                    .font(FDFont.body(14, black: true))
                     .multilineTextAlignment(.center)
                     .lineLimit(2)
                     .minimumScaleFactor(0.8)
@@ -430,11 +431,11 @@ private struct FDFlagCard: View {
             .padding(.vertical, 16)
             .background(
                 RoundedRectangle(cornerRadius: 16, style: .continuous)
-                    .fill(Color(.secondarySystemBackground))
+                    .fill(FDTheme.card)
             )
             .overlay(
                 RoundedRectangle(cornerRadius: 16, style: .continuous)
-                    .stroke(selected ? FDTheme.gold : Color.primary.opacity(0.06), lineWidth: selected ? 1.5 : 1)
+                    .stroke(selected ? FDTheme.primary : Color.white.opacity(0.08), lineWidth: selected ? 1.5 : 1)
             )
         }
         .buttonStyle(.plain)
@@ -459,16 +460,16 @@ private struct FDChipScrollRow<T: Hashable>: View {
                     } label: {
                         HStack(spacing: 6) {
                             Text(icon(item))
-                            Text(label(item)).font(.fdRounded(.subheadline))
+                            Text(label(item)).font(FDFont.body(14, black: true))
                         }
                         .padding(.horizontal, 14)
                         .padding(.vertical, 10)
                         .background(
-                            Capsule().fill(item == selection ? FDTheme.gold : Color(.tertiarySystemBackground))
+                            Capsule().fill(item == selection ? FDTheme.primary : FDTheme.bg.opacity(0.6))
                         )
-                        .foregroundStyle(item == selection ? FDTheme.ink : Color.primary)
+                        .foregroundStyle(item == selection ? FDTheme.ink : Color.white.opacity(0.85))
                         .overlay(
-                            Capsule().stroke(item == selection ? Color.clear : Color.primary.opacity(0.08), lineWidth: 1)
+                            Capsule().stroke(item == selection ? Color.clear : Color.white.opacity(0.10), lineWidth: 1)
                         )
                     }
                     .buttonStyle(.plain)
@@ -488,18 +489,18 @@ struct FDClubRow: View {
         VStack(alignment: .leading, spacing: 8) {
             HStack {
                 VStack(alignment: .leading, spacing: 2) {
-                    Text(club.name).font(.fdRounded(.subheadline))
+                    Text(club.name).font(FDFont.body(15, black: true))
                     Text("\(club.city), \(club.country)").font(.caption).foregroundStyle(.secondary)
                 }
                 Spacer()
                 Text("D\(club.division)")
-                    .font(.caption2.weight(.bold))
+                    .font(FDFont.mono(11, bold: true))
                     .padding(.horizontal, 8).padding(.vertical, 3)
-                    .background(Color.accentColor.opacity(0.15))
-                    .foregroundStyle(Color.accentColor)
+                    .background(FDTheme.accentTeal.opacity(0.18))
+                    .foregroundStyle(FDTheme.accentTeal)
                     .clipShape(Capsule())
                 if selected {
-                    Image(systemName: "checkmark.circle.fill").foregroundStyle(Color.accentColor)
+                    Image(systemName: "checkmark.circle.fill").foregroundStyle(FDTheme.primary)
                 }
             }
             HStack(spacing: 14) {
@@ -511,11 +512,11 @@ struct FDClubRow: View {
         .padding(12)
         .background(
             RoundedRectangle(cornerRadius: 14, style: .continuous)
-                .fill(Color(.secondarySystemBackground))
+                .fill(FDTheme.card)
         )
         .overlay(
             RoundedRectangle(cornerRadius: 14, style: .continuous)
-                .stroke(selected ? Color.accentColor.opacity(0.6) : Color.primary.opacity(0.05), lineWidth: selected ? 1.5 : 1)
+                .stroke(selected ? FDTheme.primary.opacity(0.6) : Color.white.opacity(0.06), lineWidth: selected ? 1.5 : 1)
         )
     }
 }
@@ -526,8 +527,9 @@ struct FDMiniStat: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 3) {
-            Text("\(label) \(value)").font(.caption2).foregroundStyle(.secondary)
+            Text("\(label) \(value)").font(FDFont.mono(10)).foregroundStyle(.secondary)
             ProgressView(value: Double(value), total: 100)
+                .tint(FDTheme.primary)
                 .frame(width: 56)
         }
     }

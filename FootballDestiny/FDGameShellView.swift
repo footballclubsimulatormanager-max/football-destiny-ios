@@ -25,7 +25,7 @@ struct FDGameShellView: View {
                 .tabItem { Label("Options", systemImage: "gearshape.fill") }
                 .tag(4)
         }
-        .tint(FDTheme.gold)
+        .tint(FDTheme.primary)
         .safeAreaInset(edge: .top, spacing: 0) {
             FDStatusHeader(engine: engine)
         }
@@ -49,9 +49,10 @@ struct FDStatusHeader: View {
     var body: some View {
         if let p = engine.player {
             VStack(spacing: 8) {
-                HStack {
+                HStack(spacing: 10) {
+                    FDLogoBadge(size: 26, corner: 7)
                     VStack(alignment: .leading, spacing: 1) {
-                        Text("\(p.firstName) \(p.lastName)").font(.subheadline.weight(.bold))
+                        Text("\(p.firstName) \(p.lastName)").font(FDFont.body(14, black: true))
                         Text("\(p.club.name) · \(p.position.rawValue)")
                             .font(.caption2)
                             .foregroundStyle(.secondary)
@@ -60,14 +61,14 @@ struct FDStatusHeader: View {
                     Spacer()
                     HStack(spacing: 12) {
                         Label(fdFormatMoney(p.money), systemImage: "eurosign.circle.fill")
-                            .foregroundStyle(FDTheme.gold)
+                            .foregroundStyle(FDTheme.amber)
                         Label("\(p.cond.forme)", systemImage: "waveform.path.ecg")
-                            .foregroundStyle(.green)
+                            .foregroundStyle(FDTheme.primary)
                     }
-                    .font(.caption.weight(.semibold))
+                    .font(FDFont.mono(12, bold: true))
                 }
                 ProgressView(value: Double(p.calendar.week), total: Double(p.calendar.seasonWeeks))
-                    .tint(FDTheme.gold)
+                    .tint(FDTheme.primary)
                 HStack {
                     Text("Saison \(p.calendar.season) · \(p.age) ans · \(p.status.rawValue)")
                     Spacer()
@@ -126,7 +127,7 @@ struct FDHistoireTab: View {
                 }
                 .padding()
             }
-            .background(Color(.systemGroupedBackground))
+            .background(FDTheme.bg)
             .navigationTitle("Histoire")
             .navigationBarTitleDisplayMode(.inline)
         }
@@ -164,8 +165,8 @@ private func fdSceneColor(_ category: String) -> Color {
     case "Argent", "Sponsor": return .orange
     case "Presse": return .purple
     case "Sélection", "Transfert": return .pink
-    case "Trophée": return FDTheme.gold
-    default: return .accentColor
+    case "Trophée": return FDTheme.amber
+    default: return FDTheme.accentTeal
     }
 }
 
@@ -203,7 +204,7 @@ struct FDStoryCard: View {
             FDCardVisual(symbol: fdSceneSymbol(scene.category), color: fdSceneColor(scene.category), loc: scene.location, char: scene.character)
             Text(scene.category.uppercased())
                 .font(.caption2.weight(.bold))
-                .foregroundStyle(Color.accentColor)
+                .foregroundStyle(FDTheme.accentTeal)
             Text(scene.text)
                 .font(.subheadline)
                 .foregroundStyle(.primary)
@@ -222,7 +223,7 @@ struct FDStoryCard: View {
                         }
                         .frame(maxWidth: .infinity, alignment: .leading)
                         .padding(12)
-                        .background(Color(.tertiarySystemBackground), in: RoundedRectangle(cornerRadius: 12))
+                        .background(FDTheme.bg.opacity(0.6), in: RoundedRectangle(cornerRadius: 12))
                     }
                     .buttonStyle(.plain)
                 }
@@ -254,8 +255,7 @@ struct FDMatchCard: View {
             FDCardVisual(symbol: "soccerball", color: .green, loc: "Jour de match", char: engine.player?.club.name ?? "")
             VStack(spacing: 4) {
                 Text("\(result.teamScore) - \(result.oppScore)")
-                    .font(.system(size: 32, weight: .heavy, design: .rounded))
-                    .monospacedDigit()
+                    .font(FDFont.mono(34, bold: true))
                 HStack {
                     Text(engine.player?.club.name ?? "")
                     Spacer()
@@ -288,12 +288,12 @@ struct FDMatchStat: View {
     let label: String
     var body: some View {
         VStack(spacing: 2) {
-            Text(value).font(.headline).monospacedDigit()
+            Text(value).font(FDFont.mono(17, bold: true))
             Text(label.uppercased()).font(.caption2.weight(.bold)).foregroundStyle(.secondary)
         }
         .frame(maxWidth: .infinity)
         .padding(.vertical, 8)
-        .background(Color(.tertiarySystemBackground), in: RoundedRectangle(cornerRadius: 10))
+        .background(FDTheme.bg.opacity(0.6), in: RoundedRectangle(cornerRadius: 10))
     }
 }
 
@@ -303,8 +303,8 @@ struct FDSeasonCard: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 14) {
-            FDCardVisual(symbol: "trophy.fill", color: FDTheme.gold, loc: "Bilan de saison", char: "Saison \((engine.player?.calendar.season ?? 1) - 1)")
-            Text("RÉSUMÉ").font(.caption2.weight(.bold)).foregroundStyle(Color.accentColor)
+            FDCardVisual(symbol: "trophy.fill", color: FDTheme.amber, loc: "Bilan de saison", char: "Saison \((engine.player?.calendar.season ?? 1) - 1)")
+            Text("RÉSUMÉ").font(.caption2.weight(.bold)).foregroundStyle(FDTheme.accentTeal)
             VStack(alignment: .leading, spacing: 6) {
                 ForEach(lines, id: \.self) { Text($0).font(.subheadline) }
             }
@@ -360,11 +360,11 @@ struct FDCarriereTab: View {
                                 }
                                 Spacer()
                                 VStack {
-                                    Text("\(engine.overall(p))").font(.title2.weight(.bold)).foregroundStyle(FDTheme.gold)
-                                    Text("NOTE").font(.caption2.weight(.bold)).foregroundStyle(FDTheme.gold)
+                                    Text("\(engine.overall(p))").font(FDFont.mono(20, bold: true)).foregroundStyle(FDTheme.primary)
+                                    Text("NOTE").font(.caption2.weight(.bold)).foregroundStyle(FDTheme.primary)
                                 }
                                 .padding(.horizontal, 12).padding(.vertical, 6)
-                                .background(FDTheme.gold.opacity(0.14), in: RoundedRectangle(cornerRadius: 12))
+                                .background(FDTheme.primary.opacity(0.14), in: RoundedRectangle(cornerRadius: 12))
                             }
                             LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible()), GridItem(.flexible())], spacing: 8) {
                                 FDMetaTile(value: "\(engine.potentialOverall(p))", label: "Potentiel")
@@ -379,10 +379,10 @@ struct FDCarriereTab: View {
                     }
 
                     Section("Condition") {
-                        FDConditionRow(label: "Forme", value: p.cond.forme, color: .green)
+                        FDConditionRow(label: "Forme", value: p.cond.forme, color: FDTheme.primary)
                         FDConditionRow(label: "Moral", value: p.cond.moral, color: .blue)
                         FDConditionRow(label: "Fatigue", value: p.cond.fatigue, color: .orange)
-                        FDConditionRow(label: "Confiance", value: p.cond.confiance, color: .accentColor)
+                        FDConditionRow(label: "Confiance", value: p.cond.confiance, color: FDTheme.accentTeal)
                     }
 
                     ForEach([FDAttrCategory.tech, .phys, .ment, .def], id: \.self) { cat in
@@ -394,14 +394,14 @@ struct FDCarriereTab: View {
                     }
 
                     Section("Relations") {
-                        FDConditionRow(label: "Entraîneur", value: p.rel.coach, color: .accentColor)
-                        FDConditionRow(label: "Président", value: p.rel.president, color: .accentColor)
-                        FDConditionRow(label: "Vestiaire", value: p.rel.vestiaire, color: .green)
-                        FDConditionRow(label: "Capitaine", value: p.rel.capitaine, color: .green)
+                        FDConditionRow(label: "Entraîneur", value: p.rel.coach, color: FDTheme.accentTeal)
+                        FDConditionRow(label: "Président", value: p.rel.president, color: FDTheme.accentTeal)
+                        FDConditionRow(label: "Vestiaire", value: p.rel.vestiaire, color: FDTheme.primary)
+                        FDConditionRow(label: "Capitaine", value: p.rel.capitaine, color: FDTheme.primary)
                         FDConditionRow(label: "Famille", value: p.rel.famille, color: .pink)
                         FDConditionRow(label: "Agent", value: p.rel.agent, color: .purple)
                         FDConditionRow(label: "Média", value: p.rel.media, color: .purple)
-                        FDConditionRow(label: "Supporters", value: p.rel.fans, color: FDTheme.gold)
+                        FDConditionRow(label: "Supporters", value: p.rel.fans, color: FDTheme.amber)
                     }
                 }
                 .listStyle(.insetGrouped)
@@ -425,7 +425,7 @@ struct FDMetaTile: View {
         }
         .frame(maxWidth: .infinity)
         .padding(.vertical, 6)
-        .background(Color(.secondarySystemGroupedBackground), in: RoundedRectangle(cornerRadius: 10))
+        .background(FDTheme.bg.opacity(0.6), in: RoundedRectangle(cornerRadius: 10))
     }
 }
 
@@ -511,12 +511,12 @@ struct FDStatTile: View {
     let label: String
     var body: some View {
         VStack(spacing: 4) {
-            Text(value).font(.title2.weight(.bold)).monospacedDigit()
+            Text(value).font(FDFont.mono(19, bold: true))
             Text(label.uppercased()).font(.caption2).foregroundStyle(.secondary)
         }
         .frame(maxWidth: .infinity)
         .padding(.vertical, 10)
-        .background(Color(.secondarySystemGroupedBackground), in: RoundedRectangle(cornerRadius: 12))
+        .background(FDTheme.bg.opacity(0.6), in: RoundedRectangle(cornerRadius: 12))
     }
 }
 
@@ -624,7 +624,7 @@ struct FDOptionsTab: View {
                 NavigationView {
                     ScrollView {
                         Text(exportText)
-                            .font(.system(size: 10, design: .monospaced))
+                            .font(FDFont.mono(10))
                             .textSelection(.enabled)
                             .padding()
                     }
@@ -648,9 +648,9 @@ struct FDOptionsTab: View {
                 NavigationView {
                     VStack {
                         TextEditor(text: $importText)
-                            .font(.system(size: 11, design: .monospaced))
+                            .font(FDFont.mono(11))
                             .padding(8)
-                            .background(Color(.secondarySystemGroupedBackground))
+                            .background(FDTheme.bg.opacity(0.6))
                             .clipShape(RoundedRectangle(cornerRadius: 10))
                             .padding()
                         Text("Colle ici le texte de sauvegarde exporté.")
