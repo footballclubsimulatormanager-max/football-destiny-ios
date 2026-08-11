@@ -5,6 +5,9 @@ struct FDMainMenuView: View {
     @ObservedObject var engine: FDGameEngine
     @Binding var screen: FDScreen
     @State private var showAbout = false
+    @State private var showHistorique = false
+    @State private var showBoutique = false
+    @State private var showDefis = false
     @State private var appear = false
 
     var body: some View {
@@ -60,6 +63,39 @@ struct FDMainMenuView: View {
                                 FDHaptics.tap()
                                 if engine.loadGame() { screen = .game }
                             }
+
+                            FDMenuRow(
+                                icon: "clock.arrow.circlepath",
+                                iconTint: FDTheme.accentTeal,
+                                title: "Historique",
+                                subtitle: engine.archivedCareers.isEmpty ? "Aucune carrière terminée" : "\(engine.archivedCareers.count) carrière(s) terminée(s)",
+                                disabled: false
+                            ) {
+                                FDHaptics.tap()
+                                showHistorique = true
+                            }
+
+                            FDMenuRow(
+                                icon: "cart.fill",
+                                iconTint: FDTheme.amber,
+                                title: "Boutique",
+                                subtitle: "🪙 \(engine.legendCoins) pièce(s) — compétences permanentes",
+                                disabled: false
+                            ) {
+                                FDHaptics.tap()
+                                showBoutique = true
+                            }
+
+                            FDMenuRow(
+                                icon: "trophy.fill",
+                                iconTint: FDTheme.amber,
+                                title: "Défi Gloire du Passé",
+                                subtitle: "\(engine.conqueredLegendIDs.count)/\(FDLegendChallenges.count) légendes conquises",
+                                disabled: false
+                            ) {
+                                FDHaptics.tap()
+                                showDefis = true
+                            }
                         }
                         .opacity(appear ? 1 : 0)
                         .offset(y: appear ? 0 : 16)
@@ -79,6 +115,9 @@ struct FDMainMenuView: View {
             withAnimation(.easeOut(duration: 0.6)) { appear = true }
         }
         .sheet(isPresented: $showAbout) { FDAboutSheet() }
+        .sheet(isPresented: $showHistorique) { FDHistoriqueView(engine: engine) }
+        .sheet(isPresented: $showBoutique) { FDBoutiqueView(engine: engine) }
+        .sheet(isPresented: $showDefis) { FDDefiGloireView(engine: engine, screen: $screen) }
     }
 
     private var topBar: some View {

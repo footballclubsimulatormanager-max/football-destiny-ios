@@ -10,6 +10,15 @@ final class FDGameEngine: ObservableObject {
     /// and new careers get a small starting-potential boost based on the running total.
     @Published var lifetimePoints: Int = UserDefaults.standard.integer(forKey: "footballDestinyLifetimePoints_v1")
 
+    /// The Boutique/Défis currency: 0-10 "pièces" earned per retirement based on how good
+    /// that career was, deliberately scarcer than lifetimePoints.
+    @Published var legendCoins: Int = UserDefaults.standard.integer(forKey: "footballDestinyLegendCoins_v1")
+    @Published var ownedCompetenceIDs: Set<String> = Set(UserDefaults.standard.stringArray(forKey: "footballDestinyOwnedCompetences_v1") ?? [])
+    @Published var unlockedLegendIDs: Set<String> = Set(UserDefaults.standard.stringArray(forKey: "footballDestinyUnlockedLegends_v1") ?? [])
+    @Published var conqueredLegendIDs: Set<String> = Set(UserDefaults.standard.stringArray(forKey: "footballDestinyConqueredLegends_v1") ?? [])
+    @Published var archivedCareers: [FDPlayer] = []
+
+    private var activeLegendChallengeID: String?
     private var usedSceneIds: Set<String> = []
     private var sceneCooldown: [String: Int] = [:]
     private var suppressToast = false
@@ -18,6 +27,18 @@ final class FDGameEngine: ObservableObject {
 
     private static let storageKey = "footballDestinySave_v1_native"
     private static let lifetimePointsKey = "footballDestinyLifetimePoints_v1"
+    private static let legendCoinsKey = "footballDestinyLegendCoins_v1"
+    private static let ownedCompetencesKey = "footballDestinyOwnedCompetences_v1"
+    private static let unlockedLegendsKey = "footballDestinyUnlockedLegends_v1"
+    private static let conqueredLegendsKey = "footballDestinyConqueredLegends_v1"
+    private static let archiveKey = "footballDestinyArchive_v1"
+
+    init() {
+        if let data = UserDefaults.standard.data(forKey: Self.archiveKey),
+           let decoded = try? JSONDecoder().decode([FDPlayer].self, from: data) {
+            archivedCareers = decoded
+        }
+    }
 
     // MARK: - Save / load
 
@@ -54,6 +75,7 @@ final class FDGameEngine: ObservableObject {
         currentScene = .none
         usedSceneIds = []
         sceneCooldown = [:]
+        activeLegendChallengeID = nil
     }
 
     func exportSave() -> String? {
@@ -79,7 +101,8 @@ final class FDGameEngine: ObservableObject {
 
     // MARK: - Career creation
 
-    func startCareer(draft: FDCreationDraft, club: FDClub) {
+    func startCareer(draft: FDCreationDraft, club: FDClub, legendChallengeID: String? = nil) {
+        activeLegendChallengeID = legendChallengeID
         // A crack always starts modest — the ceiling only rises with "potential stars" bought
         // from points banked by previous careers, plus a small automatic bonus for experience.
         let starsBought = min(draft.potentialStars, FDPotentialShop.maxStars)
@@ -89,7 +112,23 @@ final class FDGameEngine: ObservableObject {
             UserDefaults.standard.set(lifetimePoints, forKey: Self.lifetimePointsKey)
         }
         let metaBonus = min(10, lifetimePoints / 25)
-        let potBias = 14 + starsBought * 4 + metaBonus
+
+        // Permanent Boutique competences apply to every future career once bought.
+        var competencePotential = 0, competenceMoney = 0, competenceReputation = 0
+        var competenceForme = 0, competenceConfiance = 0, competenceMoral = 0
+        for id in ownedCompetenceIDs {
+            guard let c = FDCompetences.first(where: { $0.id == id }) else { continue }
+            switch c.effect {
+            case .potential(let v): competencePotential += v
+            case .money(let v): competenceMoney += v
+            case .reputation(let v): competenceReputation += v
+            case .forme(let v): competenceForme += v
+            case .confiance(let v): competenceConfiance += v
+            case .moral(let v): competenceMoral += v
+            }
+        }
+
+        let potBias = 14 + starsBought * 4 + metaBonus + competencePotential
         let talentSeed = Int.random(in: -6...10)
         let weights = draft.position.weights
         let jitterRange: ClosedRange<Int> = draft.personality == .irregulier ? -14...17 : -8...9
@@ -125,9 +164,12 @@ final class FDGameEngine: ObservableObject {
             background: draft.background, difficulty: draft.difficulty, mode: draft.mode,
             age: 16, status: .pro, club: club,
             attrs: attrs, potential: potential,
-            cond: FDCondition(forme: 62, moral: 65, fatigue: 15, confiance: 52, reputation: 4),
+            cond: FDCondition(
+                forme: min(100, 62 + competenceForme), moral: min(100, 65 + competenceMoral), fatigue: 15,
+                confiance: min(100, 52 + competenceConfiance), reputation: min(100, 4 + competenceReputation)
+            ),
             rel: FDRelations(),
-            money: startMoney,
+            money: startMoney + competenceMoney,
             contract: FDContract(salary: 300, years: 0),
             calendar: FDCalendar(season: 1, week: 0, seasonWeeks: 16)
         )
@@ -205,6 +247,92 @@ final class FDGameEngine: ObservableObject {
         lifetimePoints += earned
         UserDefaults.standard.set(lifetimePoints, forKey: Self.lifetimePointsKey)
         return earned
+    }
+
+    /// 0-10 "pièces" — deliberately scarce, only a near-perfect career (Ballon d'Or, an
+    /// international title, a Soulier d'Or, silverware) gets close to the maximum.
+    private func careerQualityCoins(for p: FDPlayer) -> Int {
+        var score = 0
+        if (p.awardCounts[FDAward.ballonDor.rawValue] ?? 0) > 0 { score += 3 }
+        if (p.awardCounts[FDAward.soulierDor.rawValue] ?? 0) > 0 { score += 2 }
+        if (p.awardCounts["Titre international"] ?? 0) > 0 { score += 2 }
+        if p.leagueTitles > 0 { score += 1 }
+        if p.cupTitles > 0 { score += 1 }
+        if p.careerGoals >= 150 { score += 1 }
+        if p.cond.reputation >= 70 { score += 1 }
+        return min(10, score)
+    }
+
+    /// A larger composite score used to compare a career against a Défi Gloire du Passé target.
+    private func legendScore(for p: FDPlayer) -> Int {
+        p.careerGoals * 2 + p.careerAssists + p.leagueTitles * 15 + p.cupTitles * 10
+            + (p.awardCounts[FDAward.ballonDor.rawValue] ?? 0) * 40
+            + (p.awardCounts[FDAward.soulierDor.rawValue] ?? 0) * 25
+            + (p.awardCounts["Titre international"] ?? 0) * 35
+            + p.nationalCaps
+    }
+
+    /// Called on every retirement path: banks legend coins, archives the finished career for
+    /// the Historique, and — if this was a Défi Gloire du Passé attempt — checks it against target.
+    private func archiveRetiredCareer(_ p: FDPlayer) {
+        archivedCareers.insert(p, at: 0)
+        if archivedCareers.count > 200 { archivedCareers.removeLast(archivedCareers.count - 200) }
+        if let data = try? JSONEncoder().encode(archivedCareers) {
+            UserDefaults.standard.set(data, forKey: Self.archiveKey)
+        }
+
+        let coins = careerQualityCoins(for: p)
+        legendCoins += coins
+        UserDefaults.standard.set(legendCoins, forKey: Self.legendCoinsKey)
+
+        if let challengeID = activeLegendChallengeID {
+            if let challenge = FDLegendChallenges.first(where: { $0.id == challengeID }),
+               legendScore(for: p) >= challenge.targetScore {
+                conqueredLegendIDs.insert(challengeID)
+                UserDefaults.standard.set(Array(conqueredLegendIDs), forKey: Self.conqueredLegendsKey)
+            }
+            activeLegendChallengeID = nil
+        }
+    }
+
+    // MARK: - Boutique & Défi Gloire du Passé
+
+    @discardableResult
+    func purchaseCompetence(_ id: String) -> Bool {
+        guard let competence = FDCompetences.first(where: { $0.id == id }), !ownedCompetenceIDs.contains(id), legendCoins >= competence.cost else { return false }
+        legendCoins -= competence.cost
+        ownedCompetenceIDs.insert(id)
+        UserDefaults.standard.set(legendCoins, forKey: Self.legendCoinsKey)
+        UserDefaults.standard.set(Array(ownedCompetenceIDs), forKey: Self.ownedCompetencesKey)
+        return true
+    }
+
+    @discardableResult
+    func unlockLegendChallenge(_ id: String) -> Bool {
+        guard let challenge = FDLegendChallenges.first(where: { $0.id == id }), !unlockedLegendIDs.contains(id), legendCoins >= challenge.unlockCost else { return false }
+        legendCoins -= challenge.unlockCost
+        unlockedLegendIDs.insert(id)
+        UserDefaults.standard.set(legendCoins, forKey: Self.legendCoinsKey)
+        UserDefaults.standard.set(Array(unlockedLegendIDs), forKey: Self.unlockedLegendsKey)
+        return true
+    }
+
+    /// Starts a career preset toward a legend's archetype (nationality/poste/style/personnalité) —
+    /// the player still writes their own story, but the odds and the target are the legend's.
+    func startLegendCareer(_ challenge: FDLegendChallenge) {
+        var draft = FDCreationDraft()
+        draft.nationality = challenge.nationality
+        draft.position = challenge.position
+        draft.style = challenge.style
+        draft.personality = challenge.personality
+        let generated = FDNameBank.random(for: challenge.nationality)
+        draft.firstName = generated.first
+        draft.lastName = generated.last
+
+        let homeClubs = FDAllClubs.filter { $0.country == challenge.nationality }.sorted { $0.academyQuality > $1.academyQuality }
+        guard let club = homeClubs.first ?? FDAllClubs.randomElement() else { return }
+
+        startCareer(draft: draft, club: club, legendChallengeID: challenge.id)
     }
 
     // MARK: - Derived stats
@@ -420,6 +548,7 @@ final class FDGameEngine: ObservableObject {
         if let cooldown = sceneCooldown[s.id], cooldown > key { return false }
         if p.age < s.minAge || p.age > s.maxAge { return false }
         if let statuses = s.statuses, !statuses.contains(p.status) { return false }
+        if let positions = s.positions, !positions.contains(p.position) { return false }
         if let cond = s.condition, !cond(p) { return false }
         return true
     }
@@ -743,6 +872,7 @@ final class FDGameEngine: ObservableObject {
         if p.age >= 43 {
             p.retired = true
             let earned = awardLifetimePoints(for: p)
+            archiveRetiredCareer(p)
             summary.append("Fin de carrière officielle. Merci pour cette aventure ! +\(earned) points de carrière (total cumulé : \(lifetimePoints)).")
         }
 
@@ -794,6 +924,7 @@ final class FDGameEngine: ObservableObject {
         guard var p = player, !p.retired else { return }
         p.retired = true
         let earned = awardLifetimePoints(for: p)
+        archiveRetiredCareer(p)
         player = p
         pushJournal("Retraite anticipée à \(p.age) ans, décision personnelle. +\(earned) points de carrière (total cumulé : \(lifetimePoints)).", icon: "🏁")
         currentScene = .none

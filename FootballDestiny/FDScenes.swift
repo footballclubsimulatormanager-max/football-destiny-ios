@@ -257,7 +257,26 @@ let FDScenes: [FDSceneDef] = [
                       riskEffects: [FDEffect(cond: "moral", delta: -10), FDEffect(cond: "reputation", delta: -6)],
                       riskText: "Le Panenka est lu par le gardien. Silence de mort dans le stade."),
         ],
-        condition: { p in p.cond.reputation >= 40 }),
+        condition: { p in p.cond.reputation >= 40 },
+        positions: FDPosition.allCases.filter { $0 != .gardien }),
+    FDSceneDef(
+        id: "moment_decisif_penalty_gardien", category: "Moment décisif", minAge: 18, maxAge: 40,
+        location: "Finale de Coupe Nationale", character: "90e minute, 1-1, penalty adverse",
+        text: "Penalty décisif contre ton camp en finale. Le tireur adverse pose le ballon, tout le stade retient son souffle — tout repose sur toi.",
+        choices: [
+            FDChoice(label: "Étudier le tireur, plonger réfléchi", hint: "Analyse",
+                      effects: [FDEffect(attr: .placement, delta: 3), FDEffect(cond: "confiance", delta: 4)],
+                      riskChance: 0.45,
+                      riskEffects: [FDEffect(cond: "moral", delta: -8)],
+                      riskText: "Le tireur change d'avis au dernier instant, le ballon part de l'autre côté."),
+            FDChoice(label: "Jouer l'intimidation avant le tir", hint: "Mental",
+                      effects: [FDEffect(attr: .determination, delta: 3), FDEffect(cond: "reputation", delta: 8)],
+                      riskChance: 0.4,
+                      riskEffects: [FDEffect(cond: "moral", delta: -8), FDEffect(cond: "reputation", delta: -5)],
+                      riskText: "Le tireur n'a pas cillé et a trouvé la lucarne."),
+        ],
+        condition: { p in p.cond.reputation >= 40 },
+        positions: [.gardien]),
     FDSceneDef(
         id: "moment_decisif_contre", category: "Moment décisif", minAge: 18, maxAge: 40,
         location: "Contre-attaque, 88e minute", character: "1-1, un coéquipier démarqué",
@@ -271,7 +290,8 @@ let FDScenes: [FDSceneDef] = [
             FDChoice(label: "Servir le coéquipier au bon moment", hint: "Collectif",
                       effects: [FDEffect(attr: .vision, delta: 2), FDEffect(rel: "vestiaire", delta: 5)]),
         ],
-        condition: { p in p.cond.reputation >= 35 }),
+        condition: { p in p.cond.reputation >= 35 },
+        positions: FDPosition.allCases.filter { $0 != .gardien }),
 ]
 
 // Generic filler pools: (title, text, effects)

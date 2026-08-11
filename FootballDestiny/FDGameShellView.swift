@@ -400,65 +400,80 @@ struct FDTournamentCard: View {
     }
 }
 
+/// The end-of-career summary — used both for the player's just-finished career (with a "nouvelle
+/// carrière" CTA) and, read-only, for any past career reopened from l'Historique.
+struct FDCareerSummaryCard: View {
+    let player: FDPlayer
+    var primaryActionTitle: String? = nil
+    var primaryAction: (() -> Void)? = nil
+
+    var body: some View {
+        let p = player
+        VStack(alignment: .leading, spacing: 16) {
+            FDCardVisual(symbol: "sunset.fill", color: .orange, loc: "Fin de carrière", char: "\(p.firstName) \(p.lastName)")
+
+            Text("Après \(max(0, p.calendar.season - 1)) saison(s) de carrière, tout s'arrête à \(p.age) ans. \(p.careerApps) matchs joués, \(p.careerGoals) buts, \(p.careerAssists) passes décisives. Merci d'avoir vécu cette légende.")
+                .font(.subheadline)
+
+            if p.leagueTitles > 0 || p.cupTitles > 0 || !p.awardCounts.isEmpty {
+                VStack(alignment: .leading, spacing: 8) {
+                    FDSectionLabel("Palmarès")
+                    if p.leagueTitles > 0 { FDTrophyLine(icon: "🏆", label: "Titre(s) de champion", value: p.leagueTitles) }
+                    if p.cupTitles > 0 { FDTrophyLine(icon: "🏆", label: "Coupe(s) Nationale(s)", value: p.cupTitles) }
+                    ForEach(p.awardCounts.sorted(by: { $0.key < $1.key }), id: \.key) { key, value in
+                        FDTrophyLine(icon: "⭐", label: key, value: value)
+                    }
+                }
+            }
+
+            if !p.traits.isEmpty {
+                VStack(alignment: .leading, spacing: 8) {
+                    FDSectionLabel("Traits de carrière")
+                    HStack {
+                        ForEach(p.traits) { trait in
+                            Text("\(trait.icon) \(trait.rawValue)")
+                                .font(FDFont.body(11, black: true))
+                                .padding(.horizontal, 10).padding(.vertical, 5)
+                                .background(Capsule().fill(FDTheme.primary.opacity(0.15)))
+                                .foregroundStyle(FDTheme.primary)
+                        }
+                    }
+                }
+            }
+
+            if !p.transferHistory.isEmpty {
+                VStack(alignment: .leading, spacing: 8) {
+                    FDSectionLabel("Parcours")
+                    ForEach(p.transferHistory) { t in
+                        HStack {
+                            Text("\(t.age) ans").font(FDFont.mono(12)).foregroundStyle(.secondary).frame(width: 52, alignment: .leading)
+                            Text("\(t.clubName) (\(t.country))").font(FDFont.body(13))
+                            Spacer()
+                            Text(fdFormatMoney(t.fee)).font(FDFont.mono(11)).foregroundStyle(.secondary)
+                        }
+                    }
+                }
+            }
+
+            if let title = primaryActionTitle, let action = primaryAction {
+                Button(action: action) {
+                    Text(title)
+                }
+                .buttonStyle(FDPrimaryButtonStyle())
+            }
+        }
+        .fdCard()
+    }
+}
+
 struct FDRetiredCard: View {
     @ObservedObject var engine: FDGameEngine
 
     var body: some View {
         if let p = engine.player {
-            VStack(alignment: .leading, spacing: 16) {
-                FDCardVisual(symbol: "sunset.fill", color: .orange, loc: "Fin de carrière", char: "\(p.firstName) \(p.lastName)")
-
-                Text("Après \(max(0, p.calendar.season - 1)) saison(s) de carrière, tout s'arrête à \(p.age) ans. \(p.careerApps) matchs joués, \(p.careerGoals) buts, \(p.careerAssists) passes décisives. Merci d'avoir vécu cette légende.")
-                    .font(.subheadline)
-
-                if p.leagueTitles > 0 || p.cupTitles > 0 || !p.awardCounts.isEmpty {
-                    VStack(alignment: .leading, spacing: 8) {
-                        FDSectionLabel("Palmarès")
-                        if p.leagueTitles > 0 { FDTrophyLine(icon: "🏆", label: "Titre(s) de champion", value: p.leagueTitles) }
-                        if p.cupTitles > 0 { FDTrophyLine(icon: "🏆", label: "Coupe(s) Nationale(s)", value: p.cupTitles) }
-                        ForEach(p.awardCounts.sorted(by: { $0.key < $1.key }), id: \.key) { key, value in
-                            FDTrophyLine(icon: "⭐", label: key, value: value)
-                        }
-                    }
-                }
-
-                if !p.traits.isEmpty {
-                    VStack(alignment: .leading, spacing: 8) {
-                        FDSectionLabel("Traits de carrière")
-                        HStack {
-                            ForEach(p.traits) { trait in
-                                Text("\(trait.icon) \(trait.rawValue)")
-                                    .font(FDFont.body(11, black: true))
-                                    .padding(.horizontal, 10).padding(.vertical, 5)
-                                    .background(Capsule().fill(FDTheme.primary.opacity(0.15)))
-                                    .foregroundStyle(FDTheme.primary)
-                            }
-                        }
-                    }
-                }
-
-                if !p.transferHistory.isEmpty {
-                    VStack(alignment: .leading, spacing: 8) {
-                        FDSectionLabel("Parcours")
-                        ForEach(p.transferHistory) { t in
-                            HStack {
-                                Text("\(t.age) ans").font(FDFont.mono(12)).foregroundStyle(.secondary).frame(width: 52, alignment: .leading)
-                                Text("\(t.clubName) (\(t.country))").font(FDFont.body(13))
-                                Spacer()
-                                Text(fdFormatMoney(t.fee)).font(FDFont.mono(11)).foregroundStyle(.secondary)
-                            }
-                        }
-                    }
-                }
-
-                Button {
-                    engine.resetSave()
-                } label: {
-                    Text("Commencer une nouvelle carrière")
-                }
-                .buttonStyle(FDPrimaryButtonStyle())
+            FDCareerSummaryCard(player: p, primaryActionTitle: "Commencer une nouvelle carrière") {
+                engine.resetSave()
             }
-            .fdCard()
         }
     }
 }

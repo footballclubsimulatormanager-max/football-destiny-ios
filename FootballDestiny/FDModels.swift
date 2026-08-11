@@ -428,6 +428,8 @@ struct FDSceneDef {
     var text: String
     var choices: [FDChoice]
     var condition: ((FDPlayer) -> Bool)? = nil
+    /// Restricts a scene to specific positions — nil means every position is eligible.
+    var positions: [FDPosition]? = nil
 }
 
 enum FDCurrentScene {
