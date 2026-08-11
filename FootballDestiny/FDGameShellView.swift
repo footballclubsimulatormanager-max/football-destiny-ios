@@ -122,6 +122,8 @@ struct FDHistoireTab: View {
                             FDMatchCard(engine: engine, result: result)
                         case .season(let lines):
                             FDSeasonCard(engine: engine, lines: lines)
+                        case .tournament(let summary):
+                            FDTournamentCard(engine: engine, summary: summary)
                         }
                     }
                 }
@@ -155,6 +157,7 @@ private func fdSceneSymbol(_ category: String) -> String {
     case "Transfert": return "arrow.triangle.2.circlepath"
     case "Trophée": return "trophy.fill"
     case "Retraite": return "sunset.fill"
+    case "Moment décisif": return "scope"
     default: return "calendar"
     }
 }
@@ -166,6 +169,7 @@ private func fdSceneColor(_ category: String) -> Color {
     case "Presse": return .purple
     case "Sélection", "Transfert": return .pink
     case "Trophée": return FDTheme.amber
+    case "Moment décisif": return FDTheme.primary
     default: return FDTheme.accentTeal
     }
 }
@@ -216,6 +220,13 @@ struct FDStoryCard: View {
                         engine.resolveChoice(choice)
                     } label: {
                         VStack(alignment: .leading, spacing: 3) {
+                            if let trait = choice.trait {
+                                Text(trait.rawValue.uppercased())
+                                    .font(.caption2.weight(.bold))
+                                    .padding(.horizontal, 8).padding(.vertical, 2)
+                                    .background(Capsule().fill(FDTheme.primary.opacity(0.18)))
+                                    .foregroundStyle(FDTheme.primary)
+                            }
                             Text(choice.label).font(.subheadline.weight(.semibold))
                             if !choice.hint.isEmpty {
                                 Text(choice.hint).font(.caption).foregroundStyle(.secondary)
@@ -320,15 +331,88 @@ struct FDSeasonCard: View {
     }
 }
 
+struct FDTournamentCard: View {
+    @ObservedObject var engine: FDGameEngine
+    let summary: FDTournamentSummary
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 14) {
+            FDCardVisual(
+                symbol: summary.champion ? "trophy.fill" : "globe.europe.africa.fill",
+                color: summary.champion ? FDTheme.amber : FDTheme.accentTeal,
+                loc: "\(summary.competitionName) \(summary.year)",
+                char: summary.stageReached
+            )
+            Text(summary.narrative).font(.subheadline)
+            if summary.minutesPlayed > 0 {
+                LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 8) {
+                    FDMatchStat(value: "\(summary.minutesPlayed)'", label: "Minutes")
+                    FDMatchStat(value: "\(summary.goals)", label: "Buts")
+                }
+            }
+            Button {
+                FDHaptics.tap()
+                engine.continueAfterTournament()
+            } label: {
+                Text("Continuer")
+            }
+            .buttonStyle(FDPrimaryButtonStyle())
+        }
+        .fdCard()
+    }
+}
+
 struct FDRetiredCard: View {
     @ObservedObject var engine: FDGameEngine
 
     var body: some View {
         if let p = engine.player {
-            VStack(alignment: .leading, spacing: 14) {
+            VStack(alignment: .leading, spacing: 16) {
                 FDCardVisual(symbol: "sunset.fill", color: .orange, loc: "Fin de carrière", char: "\(p.firstName) \(p.lastName)")
+
                 Text("Après \(max(0, p.calendar.season - 1)) saison(s) de carrière, tout s'arrête à \(p.age) ans. \(p.careerApps) matchs joués, \(p.careerGoals) buts, \(p.careerAssists) passes décisives. Merci d'avoir vécu cette légende.")
                     .font(.subheadline)
+
+                if p.leagueTitles > 0 || p.cupTitles > 0 || !p.awardCounts.isEmpty {
+                    VStack(alignment: .leading, spacing: 8) {
+                        FDSectionLabel("Palmarès")
+                        if p.leagueTitles > 0 { FDTrophyLine(icon: "🏆", label: "Titre(s) de champion", value: p.leagueTitles) }
+                        if p.cupTitles > 0 { FDTrophyLine(icon: "🏆", label: "Coupe(s) Nationale(s)", value: p.cupTitles) }
+                        ForEach(p.awardCounts.sorted(by: { $0.key < $1.key }), id: \.key) { key, value in
+                            FDTrophyLine(icon: "⭐", label: key, value: value)
+                        }
+                    }
+                }
+
+                if !p.traits.isEmpty {
+                    VStack(alignment: .leading, spacing: 8) {
+                        FDSectionLabel("Traits de carrière")
+                        HStack {
+                            ForEach(p.traits) { trait in
+                                Text("\(trait.icon) \(trait.rawValue)")
+                                    .font(FDFont.body(11, black: true))
+                                    .padding(.horizontal, 10).padding(.vertical, 5)
+                                    .background(Capsule().fill(FDTheme.primary.opacity(0.15)))
+                                    .foregroundStyle(FDTheme.primary)
+                            }
+                        }
+                    }
+                }
+
+                if !p.transferHistory.isEmpty {
+                    VStack(alignment: .leading, spacing: 8) {
+                        FDSectionLabel("Parcours")
+                        ForEach(p.transferHistory) { t in
+                            HStack {
+                                Text("\(t.age) ans").font(FDFont.mono(12)).foregroundStyle(.secondary).frame(width: 52, alignment: .leading)
+                                Text("\(t.clubName) (\(t.country))").font(FDFont.body(13))
+                                Spacer()
+                                Text(fdFormatMoney(t.fee)).font(FDFont.mono(11)).foregroundStyle(.secondary)
+                            }
+                        }
+                    }
+                }
+
                 Button {
                     engine.resetSave()
                 } label: {
@@ -341,10 +425,32 @@ struct FDRetiredCard: View {
     }
 }
 
+private struct FDTrophyLine: View {
+    let icon: String
+    let label: String
+    let value: Int
+    var body: some View {
+        HStack {
+            Text("\(icon) \(label)").font(FDFont.body(13))
+            Spacer()
+            Text("\(value)").font(FDFont.mono(13, bold: true)).foregroundStyle(FDTheme.amber)
+        }
+    }
+}
+
 // MARK: - Carrière tab
+
+private enum FDCarriereSubTab: String, CaseIterable, Identifiable {
+    case stats = "Statistiques"
+    case palmares = "Palmarès"
+    case distinctions = "Distinctions"
+    case parcours = "Parcours"
+    var id: String { rawValue }
+}
 
 struct FDCarriereTab: View {
     @ObservedObject var engine: FDGameEngine
+    @State private var subTab: FDCarriereSubTab = .stats
 
     var body: some View {
         NavigationView {
@@ -352,63 +458,21 @@ struct FDCarriereTab: View {
                 if let p = engine.player {
                     ScrollView {
                         VStack(spacing: 16) {
-                            VStack(spacing: 14) {
-                                HStack(alignment: .top) {
-                                    VStack(alignment: .leading, spacing: 2) {
-                                        Text("\(p.firstName) \(p.lastName)").font(FDFont.display(22))
-                                        Text("\(p.nationality) · \(p.age) ans · \(p.position.rawValue)").font(FDFont.body(12)).foregroundStyle(.secondary)
-                                        Text("\(p.club.name) (\(p.club.city), \(p.club.country))").font(FDFont.body(12)).foregroundStyle(.secondary)
-                                    }
-                                    Spacer()
-                                    VStack {
-                                        Text("\(engine.overall(p))").font(FDFont.mono(20, bold: true)).foregroundStyle(FDTheme.primary)
-                                        Text("NOTE").font(.caption2.weight(.bold)).foregroundStyle(FDTheme.primary)
-                                    }
-                                    .padding(.horizontal, 12).padding(.vertical, 6)
-                                    .background(FDTheme.primary.opacity(0.14), in: RoundedRectangle(cornerRadius: 12))
-                                }
-                                LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible()), GridItem(.flexible())], spacing: 8) {
-                                    FDMetaTile(value: "\(engine.potentialOverall(p))", label: "Potentiel")
-                                    FDMetaTile(value: fdFormatMoney(engine.marketValue(p)), label: "Valeur")
-                                    FDMetaTile(value: fdFormatMoney(p.contract.salary), label: "Salaire/sem")
-                                    FDMetaTile(value: p.status.rawValue, label: "Statut")
-                                    FDMetaTile(value: p.style.rawValue, label: "Style")
-                                    FDMetaTile(value: p.mode.rawValue, label: "Mode")
+                            headerCard(p)
+
+                            Picker("", selection: $subTab) {
+                                ForEach(FDCarriereSubTab.allCases) { tab in
+                                    Text(tab.rawValue).tag(tab)
                                 }
                             }
-                            .fdCard()
+                            .pickerStyle(.segmented)
 
-                            VStack(alignment: .leading, spacing: 12) {
-                                FDSectionLabel("Condition")
-                                FDConditionRow(label: "Forme", value: p.cond.forme, color: FDTheme.primary)
-                                FDConditionRow(label: "Moral", value: p.cond.moral, color: .blue)
-                                FDConditionRow(label: "Fatigue", value: p.cond.fatigue, color: .orange)
-                                FDConditionRow(label: "Confiance", value: p.cond.confiance, color: FDTheme.accentTeal)
+                            switch subTab {
+                            case .stats: statsContent(p)
+                            case .palmares: palmaresContent(p)
+                            case .distinctions: distinctionsContent(p)
+                            case .parcours: parcoursContent(p)
                             }
-                            .fdCard()
-
-                            ForEach([FDAttrCategory.tech, .phys, .ment, .def], id: \.self) { cat in
-                                VStack(alignment: .leading, spacing: 12) {
-                                    FDSectionLabel("Attributs — \(cat.label)")
-                                    ForEach(FDAttribute.allCases.filter { $0.category == cat }, id: \.self) { attr in
-                                        FDAttributeRow(label: attr.label, value: p.attr(attr))
-                                    }
-                                }
-                                .fdCard()
-                            }
-
-                            VStack(alignment: .leading, spacing: 12) {
-                                FDSectionLabel("Relations")
-                                FDConditionRow(label: "Entraîneur", value: p.rel.coach, color: FDTheme.accentTeal)
-                                FDConditionRow(label: "Président", value: p.rel.president, color: FDTheme.accentTeal)
-                                FDConditionRow(label: "Vestiaire", value: p.rel.vestiaire, color: FDTheme.primary)
-                                FDConditionRow(label: "Capitaine", value: p.rel.capitaine, color: FDTheme.primary)
-                                FDConditionRow(label: "Famille", value: p.rel.famille, color: .pink)
-                                FDConditionRow(label: "Agent", value: p.rel.agent, color: .purple)
-                                FDConditionRow(label: "Média", value: p.rel.media, color: .purple)
-                                FDConditionRow(label: "Supporters", value: p.rel.fans, color: FDTheme.amber)
-                            }
-                            .fdCard()
                         }
                         .padding()
                     }
@@ -423,6 +487,141 @@ struct FDCarriereTab: View {
             .navigationBarTitleDisplayMode(.inline)
         }
         .navigationViewStyle(.stack)
+    }
+
+    private func headerCard(_ p: FDPlayer) -> some View {
+        VStack(spacing: 14) {
+            HStack(alignment: .top) {
+                VStack(alignment: .leading, spacing: 2) {
+                    Text("\(p.firstName) \(p.lastName)").font(FDFont.display(22))
+                    Text("\(p.nationality) · \(p.age) ans · \(p.position.rawValue)").font(FDFont.body(12)).foregroundStyle(.secondary)
+                    Text("\(p.club.name) (\(p.club.city), \(p.club.country))").font(FDFont.body(12)).foregroundStyle(.secondary)
+                }
+                Spacer()
+                VStack {
+                    Text("\(engine.overall(p))").font(FDFont.mono(20, bold: true)).foregroundStyle(FDTheme.primary)
+                    Text("NOTE").font(.caption2.weight(.bold)).foregroundStyle(FDTheme.primary)
+                }
+                .padding(.horizontal, 12).padding(.vertical, 6)
+                .background(FDTheme.primary.opacity(0.14), in: RoundedRectangle(cornerRadius: 12))
+            }
+            LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible()), GridItem(.flexible())], spacing: 8) {
+                FDMetaTile(value: "\(engine.potentialOverall(p))", label: "Potentiel")
+                FDMetaTile(value: fdFormatMoney(engine.marketValue(p)), label: "Valeur")
+                FDMetaTile(value: fdFormatMoney(p.contract.salary), label: "Salaire/sem")
+                FDMetaTile(value: p.status.rawValue, label: "Statut")
+                FDMetaTile(value: p.style.rawValue, label: "Style")
+                FDMetaTile(value: p.mode.rawValue, label: "Mode")
+            }
+        }
+        .fdCard()
+    }
+
+    private func statsContent(_ p: FDPlayer) -> some View {
+        VStack(spacing: 16) {
+            VStack(alignment: .leading, spacing: 12) {
+                FDSectionLabel("Condition")
+                FDConditionRow(label: "Forme", value: p.cond.forme, color: FDTheme.primary)
+                FDConditionRow(label: "Moral", value: p.cond.moral, color: .blue)
+                FDConditionRow(label: "Fatigue", value: p.cond.fatigue, color: .orange)
+                FDConditionRow(label: "Confiance", value: p.cond.confiance, color: FDTheme.accentTeal)
+            }
+            .fdCard()
+
+            ForEach([FDAttrCategory.tech, .phys, .ment, .def], id: \.self) { cat in
+                VStack(alignment: .leading, spacing: 12) {
+                    FDSectionLabel("Attributs — \(cat.label)")
+                    ForEach(FDAttribute.allCases.filter { $0.category == cat }, id: \.self) { attr in
+                        FDAttributeRow(label: attr.label, value: p.attr(attr))
+                    }
+                }
+                .fdCard()
+            }
+
+            VStack(alignment: .leading, spacing: 12) {
+                FDSectionLabel("Relations")
+                FDConditionRow(label: "Entraîneur", value: p.rel.coach, color: FDTheme.accentTeal)
+                FDConditionRow(label: "Président", value: p.rel.president, color: FDTheme.accentTeal)
+                FDConditionRow(label: "Vestiaire", value: p.rel.vestiaire, color: FDTheme.primary)
+                FDConditionRow(label: "Capitaine", value: p.rel.capitaine, color: FDTheme.primary)
+                FDConditionRow(label: "Famille", value: p.rel.famille, color: .pink)
+                FDConditionRow(label: "Agent", value: p.rel.agent, color: .purple)
+                FDConditionRow(label: "Média", value: p.rel.media, color: .purple)
+                FDConditionRow(label: "Supporters", value: p.rel.fans, color: FDTheme.amber)
+            }
+            .fdCard()
+        }
+    }
+
+    private func palmaresContent(_ p: FDPlayer) -> some View {
+        VStack(alignment: .leading, spacing: 12) {
+            FDSectionLabel("Palmarès")
+            FDTrophyLine(icon: "🏆", label: "Titre(s) de champion", value: p.leagueTitles)
+            FDTrophyLine(icon: "🏆", label: "Coupe(s) Nationale(s)", value: p.cupTitles)
+            FDTrophyLine(icon: "🌍", label: "Sélections nationales", value: p.nationalCaps)
+            ForEach(FDAward.allCases, id: \.self) { award in
+                FDTrophyLine(icon: "⭐", label: award.rawValue, value: p.awardCounts[award.rawValue] ?? 0)
+            }
+        }
+        .fdCard()
+    }
+
+    private func distinctionsContent(_ p: FDPlayer) -> some View {
+        VStack(alignment: .leading, spacing: 10) {
+            FDSectionLabel("Traits")
+            if p.traits.isEmpty {
+                Text("Aucun trait débloqué pour l'instant. Certains choix marquants en débloquent au fil de l'histoire.")
+                    .font(FDFont.body(13)).foregroundStyle(.secondary)
+            } else {
+                ForEach(p.traits) { trait in
+                    HStack(alignment: .top, spacing: 10) {
+                        Text(trait.icon).font(.title3)
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text(trait.rawValue).font(FDFont.body(14, black: true))
+                            Text(trait.summary).font(.caption).foregroundStyle(.secondary)
+                        }
+                    }
+                }
+            }
+        }
+        .fdCard()
+    }
+
+    private func parcoursContent(_ p: FDPlayer) -> some View {
+        VStack(spacing: 16) {
+            VStack(alignment: .leading, spacing: 10) {
+                FDSectionLabel("Résumé")
+                FDTrophyLine(icon: "📅", label: "Saisons jouées", value: max(0, p.calendar.season - 1))
+                FDTrophyLine(icon: "⚽", label: "Matchs joués", value: p.careerApps)
+                FDTrophyLine(icon: "🥅", label: "Buts marqués", value: p.careerGoals)
+                FDTrophyLine(icon: "🎯", label: "Passes décisives", value: p.careerAssists)
+                FDTrophyLine(icon: "🌍", label: "Sélections", value: p.nationalCaps)
+            }
+            .fdCard()
+
+            VStack(alignment: .leading, spacing: 10) {
+                FDSectionLabel("Le chemin parcouru")
+                FDParcoursRow(age: 15, label: p.history.last?.club ?? p.club.name, fee: nil)
+                ForEach(p.transferHistory) { t in
+                    FDParcoursRow(age: t.age, label: "\(t.clubName) (\(t.country))", fee: t.fee)
+                }
+            }
+            .fdCard()
+        }
+    }
+}
+
+private struct FDParcoursRow: View {
+    let age: Int
+    let label: String
+    let fee: Int?
+    var body: some View {
+        HStack {
+            Text("\(age) ans").font(FDFont.mono(12)).foregroundStyle(.secondary).frame(width: 55, alignment: .leading)
+            Text(label).font(FDFont.body(13))
+            Spacer()
+            if let fee { Text(fdFormatMoney(fee)).font(FDFont.mono(11)).foregroundStyle(.secondary) }
+        }
     }
 }
 

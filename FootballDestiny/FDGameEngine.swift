@@ -14,6 +14,7 @@ final class FDGameEngine: ObservableObject {
     private var sceneCooldown: [String: Int] = [:]
     private var suppressToast = false
     private var toastDismissWorkItem: DispatchWorkItem?
+    private var pendingTournament: FDTournamentSummary?
 
     private static let storageKey = "footballDestinySave_v1_native"
     private static let lifetimePointsKey = "footballDestinyLifetimePoints_v1"
@@ -176,6 +177,16 @@ final class FDGameEngine: ObservableObject {
         }
     }
 
+    // MARK: - Trait effects
+
+    private func traitRatingModifier(_ p: FDPlayer) -> Double {
+        var bonus = 0.0
+        if p.traits.contains(.leaderNe) { bonus += 0.08 }
+        if p.traits.contains(.guerrier) { bonus += 0.05 }
+        if p.traits.contains(.talentBrut) { bonus += Double.random(in: -0.18...0.22) }
+        return bonus
+    }
+
     // MARK: - Lifetime meta-progression
 
     @discardableResult
@@ -332,6 +343,7 @@ final class FDGameEngine: ObservableObject {
         let minutes = started ? Int.random(in: 60...90) : (Double.random(in: 0...1) < 0.55 ? Int.random(in: 5...30) : 0)
 
         var rating = 5.7 + (ovr - Double(opp)) / 18 + (Double(p.cond.forme) - 50) / 60 + (Double(p.cond.confiance) - 50) / 90 + Double(Int.random(in: -9...9)) / 10
+        rating += traitRatingModifier(p)
         rating = minutes > 0 ? min(max(rating, 3.0), 10.0) : 0
 
         let isAttacker = p.position.isAttacker
@@ -442,6 +454,12 @@ final class FDGameEngine: ObservableObject {
             pushJournal(riskText, icon: "⚠️")
             showToast(riskText)
         }
+        if let trait = choice.trait, var p = player, !p.traits.contains(trait) {
+            p.traits.append(trait)
+            player = p
+            pushJournal("Trait débloqué : \(trait.icon) \(trait.rawValue).", icon: "🎭")
+            showToast("Trait débloqué : \(trait.rawValue)")
+        }
         if let weeks = choice.delayedWeeks, let effects = choice.delayedEffects, let text = choice.delayedText, var p = player {
             let due = p.calendar.week + p.calendar.season * 16 + weeks
             p.delayedEffects.append(FDDelayedEffect(dueWeek: due, effects: effects, text: text))
@@ -535,6 +553,36 @@ final class FDGameEngine: ObservableObject {
             "Note moyenne : \(p.seasonForm.isEmpty ? "—" : String(format: "%.1f", avgForm))/10.",
         ]
 
+        // League position — a rough procedural result tied to how the player's level compares to the club's.
+        let edge = Double(overall(p)) - Double(p.club.reputation)
+        let leaguePosition = min(20, max(1, Int((11.0 - edge / 5.0 + Double.random(in: -4...4)).rounded())))
+        p.history[0].leaguePosition = leaguePosition
+        summary.append("Classement : \(leaguePosition)e du championnat.")
+        if leaguePosition == 1 {
+            p.leagueTitles += 1
+            summary.append("🏆 Titre de champion avec \(p.club.name) !")
+        }
+        if Double.random(in: 0...1) < 0.06 + Double(p.cond.reputation) / 600 {
+            p.cupTitles += 1
+            summary.append("🏆 Vainqueur de la Coupe Nationale !")
+        }
+
+        // Individual awards — read from the record just inserted, before season counters reset.
+        if (p.status == .pro || p.status == .veteran) && p.seasonMatches >= 10 {
+            let seasonGoals = p.history[0].goals
+            if seasonGoals >= 18 && Double.random(in: 0...1) < 0.22 {
+                p.awardCounts[FDAward.soulierDor.rawValue, default: 0] += 1
+                summary.append("🥾 Soulier d'Or de la saison !")
+            }
+            if avgForm >= 7.4 && p.cond.reputation >= 55 && Double.random(in: 0...1) < 0.10 {
+                p.awardCounts[FDAward.ballonDor.rawValue, default: 0] += 1
+                summary.append("🏆 Ballon d'Or ! Le sommet individuel du football.")
+            } else if avgForm >= 6.8 && p.age <= 23 && Double.random(in: 0...1) < 0.15 {
+                p.awardCounts[FDAward.revelation.rawValue, default: 0] += 1
+                summary.append("⭐ Révélation de la saison !")
+            }
+        }
+
         p.age += 1
         p.seasonMatches = 0; p.seasonGoals = 0; p.seasonAssists = 0; p.seasonForm = []
         p.calendar.season += 1; p.calendar.week = 0
@@ -588,9 +636,40 @@ final class FDGameEngine: ObservableObject {
             }
         }
 
-        if p.cond.reputation >= 45 && p.age <= 34 && Double.random(in: 0...1) < 0.22 {
+        // National team selection — the stronger the footballing nation, the higher the bar to clear.
+        let tier = FDCountryTier[p.nationality] ?? 3
+        let selectionThreshold = tier == 1 ? 76 : (tier == 2 ? 66 : 54)
+        let wasSelected = p.age <= 34 && overall(p) >= selectionThreshold && Double.random(in: 0...1) < 0.5
+        p.inNationalTeam = wasSelected
+        if wasSelected {
+            p.nationalCaps += Int.random(in: 3...9)
             p.cond.reputation = min(p.cond.reputation + 6, 100)
-            summary.append("Convocation avec la sélection nationale A !")
+            summary.append("Sélectionné avec l'équipe nationale \(p.nationality) !")
+        }
+
+        // A major international tournament every two seasons, only reachable if selected this season.
+        if wasSelected && p.calendar.season % 2 == 0 {
+            let tournament = simulateTournament(for: p)
+            p.cond.reputation = min(p.cond.reputation + (tournament.champion ? 12 : 4), 100)
+            if tournament.champion {
+                p.awardCounts["Titre international", default: 0] += 1
+            }
+            summary.append("\(tournament.competitionName) \(tournament.year) : \(tournament.stageReached).")
+            pendingTournament = tournament
+        }
+
+        // A late-career transfer, more likely the further the player has outgrown their current club.
+        if !(p.age >= 43) && (p.status == .pro || p.status == .veteran) && p.age >= 17 {
+            let edgeForTransfer = Double(overall(p)) + Double(p.cond.reputation) / 2 - Double(p.club.reputation)
+            let transferChance = min(0.35, max(0.03, 0.06 + edgeForTransfer / 300))
+            if Double.random(in: 0...1) < transferChance,
+               let target = FDAllClubs.filter({ $0.id != p.club.id && $0.reputation > p.club.reputation && $0.reputation <= overall(p) + 15 }).randomElement() {
+                let fee = max(50_000, marketValue(p) / 3)
+                p.transferHistory.append(FDTransferRecord(age: p.age, clubName: target.name, country: target.country, division: target.division, fee: fee))
+                p.money += Int((Double(fee) * 0.05).rounded())
+                summary.append("Transfert : \(target.name) (\(target.country)) recrute pour \(fdFormatMoney(fee)).")
+                p.club = target
+            }
         }
 
         if p.age >= 43 {
@@ -605,7 +684,38 @@ final class FDGameEngine: ObservableObject {
         saveGame()
     }
 
+    private func simulateTournament(for p: FDPlayer) -> FDTournamentSummary {
+        let name = ((p.calendar.season / 2) % 2 == 0) ? "Championnat d'Europe" : "Championnat du Monde"
+        let year = 2026 + (p.calendar.season - 1)
+        let strength = Double(overall(p)) + Double(p.cond.reputation) / 4
+        let stages = ["Phase de groupes", "Huitièmes de finale", "Quarts de finale", "Demi-finale", "Finale"]
+        var stageIndex = 0
+        while stageIndex < stages.count - 1 && Double.random(in: 0...1) < min(0.75, 0.35 + strength / 220) {
+            stageIndex += 1
+        }
+        let champion = stageIndex == stages.count - 1 && Double.random(in: 0...1) < 0.5
+        let willPlay = Double.random(in: 0...1) < (0.35 + Double(overall(p)) / 200)
+        let minutes = willPlay ? Int.random(in: 60...90) * (stageIndex + 1) / 3 : 0
+        let goals = (willPlay && p.position.isAttacker) ? Int.random(in: 0...2) : 0
+        let stageLabel = champion ? "Champion !" : (stageIndex == 0 ? "Éliminé dès la phase de groupes" : "Éliminé en \(stages[stageIndex].lowercased())")
+        let narrative = willPlay ? "Un vrai rôle dans l'aventure, minutes comprises." : "Du voyage, mais peu de temps de jeu."
+        return FDTournamentSummary(competitionName: name, year: year, stageReached: stageLabel, champion: champion, minutesPlayed: minutes, goals: goals, narrative: narrative)
+    }
+
     func continueAfterSeason() {
+        guard let p = player, !p.retired else { return }
+        if let tournament = pendingTournament {
+            pendingTournament = nil
+            currentScene = .tournament(tournament)
+            saveGame()
+            return
+        }
+        currentScene = generateNextEvent()
+        autoResolveExpress()
+        saveGame()
+    }
+
+    func continueAfterTournament() {
         guard let p = player, !p.retired else { return }
         currentScene = generateNextEvent()
         autoResolveExpress()

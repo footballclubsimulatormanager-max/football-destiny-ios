@@ -202,6 +202,74 @@ struct FDSeasonRecord: Codable, Identifiable {
     var goals: Int
     var assists: Int
     var avgRating: Double
+    var leaguePosition: Int = 0
+}
+
+// MARK: - Traits, awards, transfers, tournaments
+
+/// A personality trait unlocked by a narrative choice, shown in the Distinctions tab
+/// and carrying a small, permanent gameplay nudge.
+enum FDTrait: String, Codable, CaseIterable, Hashable, Identifiable {
+    case leaderNe = "Leader né"
+    case joueurEnRetrait = "Joueur en retrait"
+    case mercenaire = "Mercenaire"
+    case guerrier = "Guerrier"
+    case showman = "Showman"
+    case talentBrut = "Talent brut"
+
+    var id: String { rawValue }
+
+    var icon: String {
+        switch self {
+        case .leaderNe: return "🧭"
+        case .joueurEnRetrait: return "🌫️"
+        case .mercenaire: return "💰"
+        case .guerrier: return "🛡️"
+        case .showman: return "🎤"
+        case .talentBrut: return "✨"
+        }
+    }
+
+    var summary: String {
+        switch self {
+        case .leaderNe: return "Le vestiaire te suit, un léger bonus de note quand ça compte."
+        case .joueurEnRetrait: return "Discret sous pression, mais moins visible des sélectionneurs."
+        case .mercenaire: return "Toujours partant pour la meilleure offre, au prix de ta popularité."
+        case .guerrier: return "Ne lâche rien, même dans le dur — un supplément de constance."
+        case .showman: return "Le public t'adore, ta cote médiatique grimpe plus vite."
+        case .talentBrut: return "Des éclairs de génie imprévisibles — de meilleurs pics, mais aussi des soirs sans."
+        }
+    }
+}
+
+/// Individual season/career awards, tracked as counts on the player.
+enum FDAward: String, Codable, CaseIterable, Hashable {
+    case ballonDor = "Ballon d'Or"
+    case soulierDor = "Soulier d'Or"
+    case joueurDuChampionnat = "Joueur du championnat"
+    case revelation = "Révélation de la saison"
+}
+
+/// One entry in the player's transfer path, shown in the Parcours tab.
+struct FDTransferRecord: Codable, Identifiable {
+    var id = UUID()
+    var age: Int
+    var clubName: String
+    var country: String
+    var division: Int
+    var fee: Int
+}
+
+/// Result of a biennial international tournament (Coupe du Monde / Championnat d'Europe),
+/// shown as its own scene card. Transient like the rest of FDCurrentScene — not persisted.
+struct FDTournamentSummary {
+    var competitionName: String
+    var year: Int
+    var stageReached: String
+    var champion: Bool
+    var minutesPlayed: Int
+    var goals: Int
+    var narrative: String
 }
 
 struct FDJournalEntry: Codable, Identifiable {
@@ -266,6 +334,14 @@ struct FDPlayer: Codable {
     var careerAssists = 0
     var retired = false
     var delayedEffects: [FDDelayedEffect] = []
+
+    var traits: [FDTrait] = []
+    var awardCounts: [String: Int] = [:]
+    var transferHistory: [FDTransferRecord] = []
+    var leagueTitles = 0
+    var cupTitles = 0
+    var nationalCaps = 0
+    var inNationalTeam = false
 
     func attr(_ a: FDAttribute) -> Int { attrs[a.rawValue] ?? 0 }
     func potential(_ a: FDAttribute) -> Int { potential[a.rawValue] ?? 0 }
@@ -336,6 +412,7 @@ struct FDChoice {
     var setStatus: FDStatus? = nil
     var setContractSalary: Int? = nil
     var setContractYears: Int? = nil
+    var trait: FDTrait? = nil
 }
 
 struct FDSceneDef {
@@ -357,6 +434,7 @@ enum FDCurrentScene {
     case story(FDSceneDef)
     case match(FDMatchResult)
     case season([String])
+    case tournament(FDTournamentSummary)
 }
 
 // MARK: - Creation draft (transient, used during onboarding)
