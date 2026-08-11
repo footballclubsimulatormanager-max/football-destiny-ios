@@ -581,9 +581,22 @@ struct FDCarriereTab: View {
             }
             .fdCard()
 
-            ForEach([FDAttrCategory.tech, .phys, .ment, .def], id: \.self) { cat in
+            // Categories are ordered by how much they weigh for this position, so what actually
+            // matters for a gardien vs. an avant-centre appears first — not a fixed generic order.
+            let orderedCategories = [FDAttrCategory.tech, .phys, .ment, .def]
+                .sorted { p.position.weights.value(for: $0) > p.position.weights.value(for: $1) }
+            ForEach(Array(orderedCategories.enumerated()), id: \.element) { index, cat in
                 VStack(alignment: .leading, spacing: 12) {
-                    FDSectionLabel("Attributs — \(cat.label)")
+                    HStack(spacing: 6) {
+                        FDSectionLabel("Attributs — \(cat.label)")
+                        if index == 0 {
+                            Text("CLÉ POUR TON POSTE")
+                                .font(.caption2.weight(.bold))
+                                .padding(.horizontal, 8).padding(.vertical, 2)
+                                .background(Capsule().fill(FDTheme.primary.opacity(0.18)))
+                                .foregroundStyle(FDTheme.primary)
+                        }
+                    }
                     ForEach(FDAttribute.allCases.filter { $0.category == cat }, id: \.self) { attr in
                         FDAttributeRow(label: attr.label, value: p.attr(attr))
                     }

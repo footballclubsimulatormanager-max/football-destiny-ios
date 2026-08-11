@@ -292,6 +292,113 @@ let FDScenes: [FDSceneDef] = [
         ],
         condition: { p in p.cond.reputation >= 35 },
         positions: FDPosition.allCases.filter { $0 != .gardien }),
+
+    // MARK: Position-specific training, vestiaire and press scenes
+
+    FDSceneDef(
+        id: "entrainement_gardien", category: "Entraînement", minAge: 15, maxAge: 40,
+        location: "Cage d'entraînement", character: "Entraîneur des gardiens",
+        text: "L'entraîneur des gardiens t'isole pour une séance spécifique : plongeons, sorties aériennes, jeu au pied sous pression.",
+        choices: [
+            FDChoice(label: "Travailler les sorties aériennes", hint: "+Placement, +Fatigue",
+                      effects: [FDEffect(attr: .placement, delta: 2), FDEffect(cond: "fatigue", delta: 8)]),
+            FDChoice(label: "Travailler le jeu au pied", hint: "+Contrôle",
+                      effects: [FDEffect(attr: .control, delta: 2), FDEffect(cond: "fatigue", delta: 6)]),
+        ],
+        positions: [.gardien]),
+    FDSceneDef(
+        id: "entrainement_defenseur", category: "Entraînement", minAge: 15, maxAge: 40,
+        location: "Terrain annexe", character: "Adjoint défensif",
+        text: "Séance vidéo puis mise en application : lecture des trajectoires, timing du tacle, couverture de zone.",
+        choices: [
+            FDChoice(label: "Travailler le placement défensif", hint: "+Placement",
+                      effects: [FDEffect(attr: .placement, delta: 2), FDEffect(cond: "fatigue", delta: 7)]),
+            FDChoice(label: "Travailler l'anticipation", hint: "+Interception",
+                      effects: [FDEffect(attr: .interception, delta: 2), FDEffect(cond: "fatigue", delta: 7)]),
+        ],
+        positions: [.defenseurCentral, .lateral]),
+    FDSceneDef(
+        id: "entrainement_milieu", category: "Entraînement", minAge: 15, maxAge: 40,
+        location: "Terrain annexe", character: "Adjoint tactique",
+        text: "Ateliers de conservation à haute intensité : trouver l'espace, casser les lignes, garder la tête haute sous pression.",
+        choices: [
+            FDChoice(label: "Travailler la vision de jeu", hint: "+Vision",
+                      effects: [FDEffect(attr: .vision, delta: 2), FDEffect(cond: "fatigue", delta: 7)]),
+            FDChoice(label: "Travailler la passe sous pression", hint: "+Passe",
+                      effects: [FDEffect(attr: .passe, delta: 2), FDEffect(cond: "fatigue", delta: 7)]),
+        ],
+        positions: [.milieuDefensif, .milieuRelayeur, .milieuOffensif]),
+    FDSceneDef(
+        id: "entrainement_attaquant", category: "Entraînement", minAge: 15, maxAge: 40,
+        location: "Terrain annexe", character: "Adjoint offensif",
+        text: "Séance de finitions à répétition : appels dans le dos, prise de vitesse, dernier geste devant le but.",
+        choices: [
+            FDChoice(label: "Travailler les appels de balle", hint: "+Vitesse",
+                      effects: [FDEffect(attr: .vitesse, delta: 2), FDEffect(cond: "fatigue", delta: 7)]),
+            FDChoice(label: "Travailler la finition", hint: "+Tir",
+                      effects: [FDEffect(attr: .tir, delta: 2), FDEffect(cond: "fatigue", delta: 7)]),
+        ],
+        positions: [.ailier, .avantCentre]),
+    FDSceneDef(
+        id: "vestiaire_solitude_gardien", category: "Vestiaire", minAge: 17, maxAge: 40,
+        location: "Vestiaire, après une défaite", character: "Coéquipiers de champ",
+        text: "Un but encaissé de loin a coûté le match. Le vestiaire est silencieux, personne ne te regarde vraiment — le poste de gardien porte cette solitude-là.",
+        choices: [
+            FDChoice(label: "Prendre la parole et assumer", hint: "+Leadership +Relation coach",
+                      effects: [FDEffect(attr: .leadership, delta: 3), FDEffect(rel: "coach", delta: 3)]),
+            FDChoice(label: "Encaisser en silence, revoir les images seul", hint: "+Sang-froid",
+                      effects: [FDEffect(attr: .sangfroid, delta: 3), FDEffect(cond: "confiance", delta: -2)]),
+        ],
+        positions: [.gardien]),
+    FDSceneDef(
+        id: "presse_secheresse_but", category: "Presse", minAge: 18, maxAge: 40,
+        location: "Zone mixte", character: "Journaliste",
+        text: "« Trois matchs sans marquer. Est-ce que la pression commence à peser sur vos épaules ? » Le micro est tendu, la question directe.",
+        choices: [
+            FDChoice(label: "Assumer la pression avec confiance", hint: "+Confiance +Média",
+                      effects: [FDEffect(cond: "confiance", delta: 4), FDEffect(rel: "media", delta: 3)]),
+            FDChoice(label: "Relativiser, parler du collectif", hint: "+Vestiaire",
+                      effects: [FDEffect(rel: "vestiaire", delta: 3)]),
+        ],
+        condition: { p in p.cond.reputation >= 20 },
+        positions: [.ailier, .avantCentre]),
+    FDSceneDef(
+        id: "presse_defenseur_ombre", category: "Presse", minAge: 18, maxAge: 40,
+        location: "Zone mixte", character: "Journaliste",
+        text: "« On ne parle jamais de vous, toujours des attaquants qui marquent. Ça ne vous frustre pas, cette ombre permanente ? »",
+        choices: [
+            FDChoice(label: "Revendiquer la fierté du travail de l'ombre", hint: "+Réputation +Relation coach",
+                      effects: [FDEffect(cond: "reputation", delta: 3), FDEffect(rel: "coach", delta: 3)]),
+            FDChoice(label: "Botter en touche avec humour", hint: "+Média",
+                      effects: [FDEffect(rel: "media", delta: 3)]),
+        ],
+        condition: { p in p.cond.reputation >= 20 },
+        positions: [.defenseurCentral, .lateral, .milieuDefensif]),
+    FDSceneDef(
+        id: "vestiaire_provocateur", category: "Vestiaire", minAge: 17, maxAge: 34,
+        location: "Vestiaire, avant l'entraînement", character: "Coéquipier adverse la veille",
+        text: "Un adversaire du prochain match a chambré ton équipe sur les réseaux. Le groupe attend de voir comment tu vas réagir, toi qui n'as jamais eu la langue dans ta poche.",
+        choices: [
+            FDChoice(label: "Répondre publiquement, sans filtre", hint: "+Réputation, risque de sanction",
+                      effects: [FDEffect(cond: "reputation", delta: 6), FDEffect(rel: "fans", delta: 4)],
+                      riskChance: 0.3,
+                      riskEffects: [FDEffect(rel: "president", delta: -5), FDEffect(cond: "moral", delta: -3)],
+                      riskText: "Le club te rappelle à l'ordre : la sortie n'est pas passée inaperçue en interne."),
+            FDChoice(label: "Laisser parler le terrain", hint: "+Détermination",
+                      effects: [FDEffect(attr: .determination, delta: 3)]),
+        ],
+        condition: { p in p.personality == .provocateur }),
+    FDSceneDef(
+        id: "presse_joueur_reserve", category: "Presse", minAge: 17, maxAge: 40,
+        location: "Zone mixte", character: "Journaliste",
+        text: "Les questions s'enchaînent après le match. Ce genre d'exercice n'a jamais été ton fort — tu préfères largement le terrain aux caméras.",
+        choices: [
+            FDChoice(label: "Répondre brièvement, sans en dire trop", hint: "+Sang-froid",
+                      effects: [FDEffect(attr: .sangfroid, delta: 2)]),
+            FDChoice(label: "Forcer le contact avec les médias", hint: "+Média, inconfortable",
+                      effects: [FDEffect(rel: "media", delta: 4), FDEffect(cond: "confiance", delta: -2)]),
+        ],
+        condition: { p in p.personality == .reserve }),
 ]
 
 // Generic filler pools: (title, text, effects)
