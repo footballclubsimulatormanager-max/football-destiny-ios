@@ -1,11 +1,6 @@
 import SwiftUI
 import Foundation
 
-struct FDClubGroup: Identifiable {
-    let id: String
-    let clubs: [FDClub]
-}
-
 private enum FDCreationStep: Int, CaseIterable {
     case identityNationality, position, background, profile, settings, club
 }
@@ -16,7 +11,6 @@ struct FDCareerCreationView: View {
 
     @State private var stepIndex = 0
     @State private var draft = FDCreationDraft()
-    @State private var clubSearch = ""
 
     private let steps = FDCreationStep.allCases
     private var currentStep: FDCreationStep { steps[stepIndex] }
@@ -95,6 +89,20 @@ struct FDCareerCreationView: View {
         }
     }
 
+    /// A Continuer/CTA button pinned to the bottom of the step so it's always visible,
+    /// never something the player has to scroll down to find.
+    @ViewBuilder
+    private func stickyFooter(title: String, enabled: Bool, action: @escaping () -> Void) -> some View {
+        Button(action: action) {
+            Text(title)
+        }
+        .buttonStyle(FDPrimaryButtonStyle())
+        .disabled(!enabled)
+        .opacity(enabled ? 1 : 0.5)
+        .padding()
+        .background(FDTheme.bg)
+    }
+
     private func rerollCurrent() {
         FDHaptics.tap()
         switch currentStep {
@@ -108,7 +116,7 @@ struct FDCareerCreationView: View {
             draft.style = FDStyle.allCases.randomElement() ?? draft.style
             draft.personality = FDPersonality.allCases.randomElement() ?? draft.personality
         case .settings:
-            draft.difficulty = FDDifficulty.allCases.randomElement() ?? draft.difficulty
+            draft.mode = FDMode.allCases.randomElement() ?? draft.mode
         case .club: break
         }
     }
@@ -125,16 +133,6 @@ struct FDCareerCreationView: View {
         ScrollView {
             VStack(spacing: 16) {
                 FDStepHeader(title: "Ta nationalité", subtitle: "Le pays qui te verra grandir sur les terrains. Ton nom en découlera, généré automatiquement.")
-
-                LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible()), GridItem(.flexible())], spacing: 12) {
-                    ForEach(FDNations, id: \.self) { nation in
-                        FDFlagCard(flag: fdFlag(for: nation), name: nation, selected: draft.nationality == nation) {
-                            FDHaptics.tap()
-                            draft.nationality = nation
-                            regenerateName()
-                        }
-                    }
-                }
 
                 if !draft.firstName.isEmpty {
                     HStack(spacing: 14) {
@@ -154,17 +152,28 @@ struct FDCareerCreationView: View {
                         }
                     }
                     .fdCard()
+                }
 
-                    Button {
-                        FDHaptics.tap()
-                        advance()
-                    } label: {
-                        Text("Continuer")
+                LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible()), GridItem(.flexible())], spacing: 12) {
+                    ForEach(FDNations, id: \.self) { nation in
+                        FDFlagCard(flag: fdFlag(for: nation), name: nation, selected: draft.nationality == nation) {
+                            FDHaptics.tap()
+                            draft.nationality = nation
+                            regenerateName()
+                        }
                     }
-                    .buttonStyle(FDPrimaryButtonStyle())
                 }
             }
             .padding()
+            .padding(.bottom, 70)
+        }
+        .safeAreaInset(edge: .bottom) {
+            if !draft.firstName.isEmpty {
+                stickyFooter(title: "Continuer", enabled: true) {
+                    FDHaptics.tap()
+                    advance()
+                }
+            }
         }
     }
 
@@ -237,32 +246,52 @@ struct FDCareerCreationView: View {
                     Text(draft.personality.flavorText).font(.caption).foregroundStyle(.secondary)
                 }
                 .fdCard()
-
-                Button {
-                    FDHaptics.tap()
-                    advance()
-                } label: {
-                    Text("Continuer")
-                }
-                .buttonStyle(FDPrimaryButtonStyle())
             }
             .padding()
+            .padding(.bottom, 70)
+        }
+        .safeAreaInset(edge: .bottom) {
+            stickyFooter(title: "Continuer", enabled: true) {
+                FDHaptics.tap()
+                advance()
+            }
         }
     }
 
-    // MARK: Step 4 — settings (difficulty + mode)
+    // MARK: Step 4 — settings (potential stars + narrative style)
+
+    private var maxAffordableStars: Int {
+        FDPotentialShop.maxAffordableStars(points: engine.lifetimePoints)
+    }
 
     private var settingsStep: some View {
         ScrollView {
             VStack(spacing: 16) {
-                FDStepHeader(title: "Réglages de carrière", subtitle: "La difficulté, et la manière dont tu veux vivre ton histoire.")
+                FDStepHeader(title: "Réglages de carrière", subtitle: "Toujours narratif — ici, tu choisis ton potentiel de départ et le rythme de ton histoire.")
 
                 VStack(alignment: .leading, spacing: 10) {
-                    FDSectionLabel("Difficulté")
-                    FDChipScrollRow(items: FDDifficulty.allCases, label: { $0.rawValue }, icon: { $0.flavorIcon }, selection: draft.difficulty) { d in
-                        FDHaptics.tap(); draft.difficulty = d
+                    FDSectionLabel("Potentiel de départ")
+                    HStack {
+                        Text("⭐️ \(draft.potentialStars) étoile\(draft.potentialStars > 1 ? "s" : "") achetée\(draft.potentialStars > 1 ? "s" : "")")
+                            .font(FDFont.body(15, black: true))
+                        Spacer()
+                        Stepper("", value: $draft.potentialStars, in: 0...maxAffordableStars)
+                            .labelsHidden()
+                            .disabled(maxAffordableStars == 0)
                     }
-                    Text(draft.difficulty.flavorText).font(.caption).foregroundStyle(.secondary)
+                    if draft.potentialStars > 0 {
+                        Text("Coût : \(FDPotentialShop.cumulativeCost(for: draft.potentialStars)) pts sur \(engine.lifetimePoints) — un crack commence toujours modeste, mais l'expérience de tes anciennes carrières lui donne un coup de pouce.")
+                            .font(.caption)
+                            .foregroundStyle(FDTheme.gold)
+                    } else if engine.lifetimePoints > 0 {
+                        Text("Tu as \(engine.lifetimePoints) points de carrière cumulés. Achète des étoiles pour démarrer plus fort — chaque étoile coûte un peu plus que la précédente.")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                    } else {
+                        Text("Pas encore de points de carrière : termine une carrière pour pouvoir en acheter la prochaine fois. Un crack commence toujours modeste.")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                    }
                 }
                 .fdCard()
 
@@ -274,101 +303,66 @@ struct FDCareerCreationView: View {
                     Text(draft.mode.hint).font(.caption).foregroundStyle(.secondary)
                 }
                 .fdCard()
-
-                if engine.lifetimePoints > 0 {
-                    Text("🏆 \(engine.lifetimePoints) points de carrière cumulés : ton potentiel de départ démarre un peu plus haut grâce à ton expérience.")
-                        .font(.caption)
-                        .foregroundStyle(FDTheme.gold)
-                        .multilineTextAlignment(.center)
-                        .padding(.horizontal)
-                }
-
-                Button {
-                    FDHaptics.tap()
-                    advance()
-                } label: {
-                    Text("Continuer")
-                }
-                .buttonStyle(FDPrimaryButtonStyle())
             }
             .padding()
+            .padding(.bottom, 70)
         }
-    }
-
-    // MARK: Step 5 — club
-
-    private var filteredClubs: [FDClub] {
-        if clubSearch.trimmingCharacters(in: .whitespaces).isEmpty { return FDAllClubs }
-        let q = clubSearch.lowercased()
-        return FDAllClubs.filter {
-            $0.name.lowercased().contains(q) || $0.city.lowercased().contains(q) || $0.country.lowercased().contains(q)
-        }
-    }
-
-    /// The continent tied to the player's chosen nationality, when at least one club exists there.
-    private var homeContinent: String? {
-        FDAllClubs.first(where: { $0.country == draft.nationality })?.continent
-    }
-
-    private var clubsByContinent: [FDClubGroup] {
-        let groups = Dictionary(grouping: filteredClubs, by: { $0.continent })
-        var order = ["Europe", "Amérique du Sud", "Amérique du Nord", "Asie", "Afrique", "Océanie"]
-        if let home = homeContinent, let idx = order.firstIndex(of: home), idx != 0 {
-            order.remove(at: idx)
-            order.insert(home, at: 0)
-        }
-        return order.compactMap { c in
-            guard let list = groups[c], !list.isEmpty else { return nil }
-            let sorted = list.sorted { a, b in
-                let aHome = a.country == draft.nationality
-                let bHome = b.country == draft.nationality
-                if aHome != bHome { return aHome }
-                return a.reputation > b.reputation
+        .safeAreaInset(edge: .bottom) {
+            stickyFooter(title: "Continuer", enabled: true) {
+                FDHaptics.tap()
+                advance()
             }
-            return FDClubGroup(id: c, clubs: sorted)
         }
+    }
+
+    // MARK: Step 5 — club (5 curated offers, no browsing hundreds of clubs)
+
+    /// Five clubs willing to give a 16-year-old prodigy his shot: the best academies of his
+    /// home nation first, filled out with modest foreign clubs if the nation has too few.
+    private var curatedClubChoices: [FDClub] {
+        let home = FDAllClubs
+            .filter { $0.country == draft.nationality }
+            .sorted { $0.academyQuality > $1.academyQuality }
+        var picks = Array(home.prefix(5))
+        if picks.count < 5 {
+            let pickedIDs = Set(picks.map(\.id))
+            let rest = FDAllClubs
+                .filter { !pickedIDs.contains($0.id) }
+                .sorted { $0.reputation < $1.reputation }
+            picks.append(contentsOf: rest.prefix(5 - picks.count))
+        }
+        return picks
     }
 
     private var clubStep: some View {
-        VStack(spacing: 0) {
-            FDStepHeader(
-                title: "Ton club de jeunes",
-                subtitle: "Celui qui lancera ta carrière à 15 ans. Les clubs de \(draft.nationality) apparaissent en premier."
-            )
-            .padding(.bottom, 8)
+        ScrollView {
+            VStack(spacing: 16) {
+                FDStepHeader(
+                    title: "Ton premier club",
+                    subtitle: "Cinq clubs t'ouvrent leurs portes à 16 ans. À toi de choisir où commencer."
+                )
 
-            List {
-                ForEach(clubsByContinent) { group in
-                    Section(header: Text(group.id).font(.caption.weight(.bold))) {
-                        ForEach(group.clubs) { club in
-                            FDClubRow(club: club, selected: draft.club?.id == club.id)
-                                .contentShape(Rectangle())
-                                .onTapGesture {
-                                    FDHaptics.tap()
-                                    draft.club = club
-                                }
-                                .listRowBackground(Color.clear)
-                                .listRowSeparator(.hidden)
-                                .listRowInsets(EdgeInsets(top: 4, leading: 16, bottom: 4, trailing: 16))
-                        }
+                VStack(spacing: 12) {
+                    ForEach(curatedClubChoices) { club in
+                        FDClubRow(club: club, selected: draft.club?.id == club.id)
+                            .contentShape(Rectangle())
+                            .onTapGesture {
+                                FDHaptics.tap()
+                                draft.club = club
+                            }
                     }
                 }
             }
-            .listStyle(.plain)
-            .searchable(text: $clubSearch, prompt: "Rechercher un club, une ville…")
-
-            Button {
+            .padding()
+            .padding(.bottom, 70)
+        }
+        .safeAreaInset(edge: .bottom) {
+            stickyFooter(title: "Démarrer la carrière", enabled: draft.club != nil) {
                 guard let club = draft.club else { return }
                 FDHaptics.success()
                 engine.startCareer(draft: draft, club: club)
                 screen = .game
-            } label: {
-                Text("Démarrer la carrière")
             }
-            .buttonStyle(FDPrimaryButtonStyle())
-            .disabled(draft.club == nil)
-            .opacity(draft.club == nil ? 0.5 : 1)
-            .padding()
         }
     }
 }
@@ -438,16 +432,17 @@ private struct FDFlagCard: View {
 
     var body: some View {
         Button(action: action) {
-            VStack(spacing: 8) {
-                FDIconBadge(symbol: flag, tint: .white, size: 44)
+            VStack(spacing: 6) {
+                Text(flag)
+                    .font(.system(size: 46))
                 Text(name)
-                    .font(FDFont.body(14, black: true))
+                    .font(FDFont.body(13, black: true))
                     .multilineTextAlignment(.center)
                     .lineLimit(2)
                     .minimumScaleFactor(0.8)
             }
             .frame(maxWidth: .infinity)
-            .padding(.vertical, 16)
+            .padding(.vertical, 14)
             .background(
                 RoundedRectangle(cornerRadius: 16, style: .continuous)
                     .fill(FDTheme.card)
@@ -684,22 +679,6 @@ private extension FDBackground {
     }
 }
 
-private extension FDDifficulty {
-    var flavorIcon: String {
-        switch self {
-        case .facile: return "🌤️"
-        case .normal: return "⚖️"
-        case .difficile: return "⛈️"
-        }
-    }
-    var flavorText: String {
-        switch self {
-        case .facile: return "Une carrière plus clémente, pour profiter de l'histoire sans trop de pression."
-        case .normal: return "L'expérience équilibrée, entre défis réalistes et progression juste."
-        case .difficile: return "Chaque détail compte. Une carrière exigeante, réservée aux plus courageux."
-        }
-    }
-}
 
 private extension FDMode {
     var flavorIcon: String {

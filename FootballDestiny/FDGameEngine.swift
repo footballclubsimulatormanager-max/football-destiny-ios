@@ -80,10 +80,16 @@ final class FDGameEngine: ObservableObject {
     // MARK: - Career creation
 
     func startCareer(draft: FDCreationDraft, club: FDClub) {
-        // Lifetime points banked from previous retired careers nudge the potential ceiling
-        // upward, capped so a long play history helps without breaking the game.
+        // A crack always starts modest — the ceiling only rises with "potential stars" bought
+        // from points banked by previous careers, plus a small automatic bonus for experience.
+        let starsBought = min(draft.potentialStars, FDPotentialShop.maxStars)
+        let starCost = FDPotentialShop.cumulativeCost(for: starsBought)
+        if starCost > 0 {
+            lifetimePoints = max(0, lifetimePoints - starCost)
+            UserDefaults.standard.set(lifetimePoints, forKey: Self.lifetimePointsKey)
+        }
         let metaBonus = min(10, lifetimePoints / 25)
-        let potBias = (draft.difficulty == .facile ? 20 : (draft.difficulty == .difficile ? 8 : 14)) + metaBonus
+        let potBias = 14 + starsBought * 4 + metaBonus
         let talentSeed = Int.random(in: -6...10)
         let weights = draft.position.weights
         let jitterRange: ClosedRange<Int> = draft.personality == .irregulier ? -14...17 : -8...9
@@ -117,7 +123,7 @@ final class FDGameEngine: ObservableObject {
             firstName: draft.firstName, lastName: draft.lastName, nationality: draft.nationality, birthCity: draft.birthCity,
             foot: draft.foot, position: draft.position, personality: draft.personality, style: draft.style,
             background: draft.background, difficulty: draft.difficulty, mode: draft.mode,
-            age: 15, status: .u16, club: club,
+            age: 16, status: .pro, club: club,
             attrs: attrs, potential: potential,
             cond: FDCondition(forme: 62, moral: 65, fatigue: 15, confiance: 52, reputation: 4),
             rel: FDRelations(),
@@ -125,7 +131,7 @@ final class FDGameEngine: ObservableObject {
             contract: FDContract(salary: 300, years: 0),
             calendar: FDCalendar(season: 1, week: 0, seasonWeeks: 16)
         )
-        newPlayer.journal.insert(FDJournalEntry(week: 0, season: 1, age: 15, text: "Début de carrière chez \(club.name) à 15 ans.", icon: "⚽"), at: 0)
+        newPlayer.journal.insert(FDJournalEntry(week: 0, season: 1, age: 16, text: "Débuts professionnels chez \(club.name) à 16 ans.", icon: "⚽"), at: 0)
 
         player = newPlayer
         usedSceneIds = []

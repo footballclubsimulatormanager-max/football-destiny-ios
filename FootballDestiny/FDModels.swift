@@ -451,5 +451,29 @@ struct FDCreationDraft {
     var background = FDBackground.stable
     var difficulty = FDDifficulty.normal
     var mode = FDMode.narratif
+    var potentialStars = 0
     var club: FDClub? = nil
+}
+
+/// Lifetime points earned from past careers can be spent, at creation, on "potential stars"
+/// that raise the ceiling of the new player — a crack always starts modest, but experience
+/// (i.e. points banked from previous careers) lets you start stronger and faster.
+enum FDPotentialShop {
+    static let maxStars = 5
+
+    /// Cost of buying the n-th star (1-indexed) — each one costs a little more than the last.
+    static func costOfStar(_ n: Int) -> Int { 15 * n }
+
+    /// Total points spent to own this many stars.
+    static func cumulativeCost(for stars: Int) -> Int {
+        guard stars > 0 else { return 0 }
+        return (1...stars).reduce(0) { $0 + costOfStar($1) }
+    }
+
+    /// The most stars a given point balance can afford, capped at maxStars.
+    static func maxAffordableStars(points: Int) -> Int {
+        var stars = 0
+        while stars < maxStars && cumulativeCost(for: stars + 1) <= points { stars += 1 }
+        return stars
+    }
 }
