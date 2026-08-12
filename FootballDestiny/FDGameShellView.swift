@@ -301,7 +301,7 @@ struct FDMatchCard: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 14) {
-            FDCardVisual(symbol: "soccerball", color: .green, loc: "Jour de match", char: engine.player?.club.name ?? "")
+            FDCardVisual(symbol: "soccerball", color: FDTheme.primary, loc: "Jour de match", char: engine.player?.club.name ?? "")
             VStack(spacing: 4) {
                 Text("\(result.teamScore) - \(result.oppScore)")
                     .font(FDFont.mono(34, bold: true))
