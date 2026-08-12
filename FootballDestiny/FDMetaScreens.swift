@@ -16,12 +16,47 @@ struct FDHistoriqueView: View {
                             .foregroundStyle(.secondary)
                         Text("Aucune carrière terminée pour l'instant.")
                             .foregroundStyle(.secondary)
+                            .font(.subheadline)
                     }
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
                 } else {
                     ScrollView {
-                        VStack(spacing: 12) {
-                            ForEach(Array(engine.archivedCareers.enumerated()), id: \.offset) { _, p in
+                        VStack(spacing: 0) {
+                            // Header: total stats across careers
+                            let totalGoals = engine.archivedCareers.reduce(0) { $0 + $1.careerGoals }
+                            let totalApps = engine.archivedCareers.reduce(0) { $0 + $1.careerApps }
+
+                            HStack(spacing: 0) {
+                                VStack(spacing: 2) {
+                                    Text("\(engine.archivedCareers.count)")
+                                        .font(FDFont.mono(22, bold: true)).foregroundStyle(FDTheme.amber)
+                                    Text("CARRIÈRES")
+                                        .font(.system(size: 8, weight: .bold)).foregroundStyle(.secondary)
+                                }
+                                .frame(maxWidth: .infinity)
+                                Rectangle().fill(Color.white.opacity(0.08)).frame(width: 1, height: 36)
+                                VStack(spacing: 2) {
+                                    Text("\(totalGoals)")
+                                        .font(FDFont.mono(22, bold: true)).foregroundStyle(FDTheme.success)
+                                    Text("BUTS TOTAUX")
+                                        .font(.system(size: 8, weight: .bold)).foregroundStyle(.secondary)
+                                }
+                                .frame(maxWidth: .infinity)
+                                Rectangle().fill(Color.white.opacity(0.08)).frame(width: 1, height: 36)
+                                VStack(spacing: 2) {
+                                    Text("\(totalApps)")
+                                        .font(FDFont.mono(22, bold: true)).foregroundStyle(FDTheme.primary)
+                                    Text("MATCHS TOTAUX")
+                                        .font(.system(size: 8, weight: .bold)).foregroundStyle(.secondary)
+                                }
+                                .frame(maxWidth: .infinity)
+                            }
+                            .padding(.vertical, 14)
+                            .background(FDTheme.card)
+
+                            Rectangle().fill(Color.white.opacity(0.06)).frame(height: 1)
+
+                            ForEach(Array(engine.archivedCareers.enumerated()), id: \.offset) { idx, p in
                                 NavigationLink {
                                     ScrollView {
                                         FDCareerSummaryCard(player: p)
@@ -31,12 +66,16 @@ struct FDHistoriqueView: View {
                                     .navigationTitle("\(p.firstName) \(p.lastName)")
                                     .navigationBarTitleDisplayMode(.inline)
                                 } label: {
-                                    FDHistoriqueRow(player: p)
+                                    FDHistoriqueRow(player: p, index: engine.archivedCareers.count - idx)
                                 }
                                 .buttonStyle(.plain)
+                                Rectangle().fill(Color.white.opacity(0.04)).frame(height: 1)
                             }
                         }
-                        .padding()
+                        .background(FDTheme.card, in: RoundedRectangle(cornerRadius: FDTheme.radiusCard))
+                        .overlay(RoundedRectangle(cornerRadius: FDTheme.radiusCard).stroke(Color.white.opacity(0.07), lineWidth: 1))
+                        .padding(.horizontal, 14)
+                        .padding(.bottom, 20)
                     }
                 }
             }
@@ -55,23 +94,41 @@ struct FDHistoriqueView: View {
 
 private struct FDHistoriqueRow: View {
     let player: FDPlayer
+    let index: Int
 
     var body: some View {
         HStack(spacing: 12) {
-            FDIconBadge(symbol: "person.fill", tint: FDTheme.primary, size: 40, isSystemImage: true)
-            VStack(alignment: .leading, spacing: 2) {
-                Text("\(player.firstName) \(player.lastName)").font(FDFont.body(15, black: true))
+            ZStack {
+                RoundedRectangle(cornerRadius: 10)
+                    .fill(FDTheme.primary.opacity(0.12))
+                    .frame(width: 40, height: 40)
+                Text("\(index)")
+                    .font(FDFont.mono(16, bold: true))
+                    .foregroundStyle(FDTheme.primary)
+            }
+            VStack(alignment: .leading, spacing: 3) {
+                Text("\(player.firstName) \(player.lastName)")
+                    .font(FDFont.body(14, black: true))
+                    .foregroundStyle(FDTheme.textPrimary)
                 Text("\(player.nationality) · \(player.position.rawValue) · retraité à \(player.age) ans")
-                    .font(.caption).foregroundStyle(.secondary)
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
             }
-            Spacer(minLength: 8)
+            Spacer()
             VStack(alignment: .trailing, spacing: 2) {
-                Text("\(player.careerGoals)").font(FDFont.mono(15, bold: true)).foregroundStyle(FDTheme.amber)
-                Text("buts").font(.caption2).foregroundStyle(.secondary)
+                Text("\(player.careerGoals)")
+                    .font(FDFont.mono(16, bold: true))
+                    .foregroundStyle(FDTheme.amber)
+                Text("buts")
+                    .font(.caption2)
+                    .foregroundStyle(.secondary)
             }
-            Image(systemName: "chevron.right").font(.caption.weight(.bold)).foregroundStyle(.white.opacity(0.3))
+            Image(systemName: "chevron.right")
+                .font(.caption.weight(.bold))
+                .foregroundStyle(.secondary)
         }
-        .fdCard()
+        .padding(.horizontal, 14)
+        .padding(.vertical, 11)
     }
 }
 
@@ -84,31 +141,67 @@ struct FDBoutiqueView: View {
     var body: some View {
         NavigationView {
             ScrollView {
-                VStack(spacing: 16) {
-                    HStack {
-                        Text("🪙 \(engine.legendCoins) pièces").font(FDFont.display(20))
-                        Spacer()
+                VStack(spacing: 12) {
+                    // Coins balance
+                    VStack(spacing: 0) {
+                        HStack(spacing: 10) {
+                            ZStack {
+                                Circle().fill(FDTheme.amber.opacity(0.15)).frame(width: 44, height: 44)
+                                Text("🪙").font(.system(size: 22))
+                            }
+                            VStack(alignment: .leading, spacing: 2) {
+                                Text("\(engine.legendCoins) pièces")
+                                    .font(FDFont.display(20))
+                                    .foregroundStyle(FDTheme.amber)
+                                Text("Solde disponible")
+                                    .font(.caption)
+                                    .foregroundStyle(.secondary)
+                            }
+                            Spacer()
+                        }
+                        .padding(14)
+                        Rectangle().fill(Color.white.opacity(0.06)).frame(height: 1)
+                        Text("Gagne des pièces en terminant des carrières — jusqu'à 10 pour une carrière parfaite. Chaque compétence achetée reste acquise pour toutes tes futures carrières.")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                            .padding(14)
                     }
-                    .fdCard()
+                    .background(FDTheme.card, in: RoundedRectangle(cornerRadius: FDTheme.radiusCard))
+                    .overlay(RoundedRectangle(cornerRadius: FDTheme.radiusCard).stroke(FDTheme.amber.opacity(0.2), lineWidth: 1))
 
-                    Text("Gagne des pièces en terminant des carrières — jusqu'à 10 pour une carrière parfaite (Ballon d'Or, titre international, Soulier d'Or). Chaque compétence achetée reste acquise pour toutes tes futures carrières.")
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
+                    // Compétences
+                    VStack(spacing: 0) {
+                        HStack(spacing: 6) {
+                            Image(systemName: "star.circle.fill")
+                                .font(.caption.weight(.bold))
+                                .foregroundStyle(FDTheme.amber)
+                            Text("COMPÉTENCES PERMANENTES")
+                                .font(FDFont.body(11, black: true))
+                                .foregroundStyle(FDTheme.amber)
+                            Spacer()
+                        }
+                        .padding(.horizontal, 14).padding(.vertical, 8)
+                        .background(FDTheme.amber.opacity(0.08))
 
-                    VStack(spacing: 12) {
-                        ForEach(FDCompetences) { c in
-                            FDCompetenceRow(
-                                competence: c,
-                                owned: engine.ownedCompetenceIDs.contains(c.id),
-                                canAfford: engine.legendCoins >= c.cost
-                            ) {
-                                FDHaptics.tap()
-                                engine.purchaseCompetence(c.id)
+                        Rectangle().fill(Color.white.opacity(0.06)).frame(height: 1)
+
+                        ForEach(Array(engine.permanentSkills.enumerated()), id: \.offset) { idx, skill in
+                            FDSkillRow(
+                                skill: skill,
+                                canAfford: engine.legendCoins >= skill.cost,
+                                owned: engine.unlockedSkills.contains(skill.id),
+                                onBuy: { engine.buySkill(skill) }
+                            )
+                            if idx < engine.permanentSkills.count - 1 {
+                                Rectangle().fill(Color.white.opacity(0.04)).frame(height: 1)
                             }
                         }
                     }
+                    .background(FDTheme.card, in: RoundedRectangle(cornerRadius: FDTheme.radiusCard))
+                    .overlay(RoundedRectangle(cornerRadius: FDTheme.radiusCard).stroke(Color.white.opacity(0.07), lineWidth: 1))
                 }
-                .padding()
+                .padding(.horizontal, 14)
+                .padding(.bottom, 20)
             }
             .background(FDTheme.bg)
             .navigationTitle("Boutique")
@@ -123,162 +216,235 @@ struct FDBoutiqueView: View {
     }
 }
 
-private struct FDCompetenceRow: View {
-    let competence: FDCompetence
-    let owned: Bool
+private struct FDSkillRow: View {
+    let skill: FDPermanentSkill
     let canAfford: Bool
-    let action: () -> Void
+    let owned: Bool
+    let onBuy: () -> Void
 
     var body: some View {
         HStack(spacing: 12) {
-            FDIconBadge(symbol: competence.icon, tint: FDTheme.primary, size: 44)
-            VStack(alignment: .leading, spacing: 2) {
-                Text(competence.name).font(FDFont.body(15, black: true))
-                Text(competence.description).font(.caption).foregroundStyle(.secondary)
+            ZStack {
+                RoundedRectangle(cornerRadius: 10)
+                    .fill(owned ? FDTheme.amber.opacity(0.15) : FDTheme.primary.opacity(0.1))
+                    .frame(width: 40, height: 40)
+                Image(systemName: owned ? "checkmark.seal.fill" : skill.icon)
+                    .font(.system(size: 16))
+                    .foregroundStyle(owned ? FDTheme.amber : FDTheme.primary)
             }
-            Spacer(minLength: 8)
+            VStack(alignment: .leading, spacing: 3) {
+                Text(skill.name)
+                    .font(FDFont.body(14, black: true))
+                    .foregroundStyle(FDTheme.textPrimary)
+                Text(skill.description)
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                    .lineLimit(2)
+            }
+            Spacer()
             if owned {
-                Text("Acquis")
-                    .font(.caption.weight(.bold))
+                Image(systemName: "checkmark.circle.fill")
                     .foregroundStyle(FDTheme.success)
+                    .font(.title3)
             } else {
-                Button(action: action) {
-                    Text("🪙 \(competence.cost)")
-                        .font(FDFont.body(13, black: true))
-                        .padding(.horizontal, 14).padding(.vertical, 8)
-                        .background(Capsule().fill(canAfford ? FDTheme.primary : Color.white.opacity(0.08)))
-                        .foregroundStyle(canAfford ? FDTheme.ink : .white.opacity(0.4))
+                Button(action: onBuy) {
+                    Text("🪙 \(skill.cost)")
+                        .font(FDFont.body(12, black: true))
+                        .padding(.horizontal, 12).padding(.vertical, 7)
+                        .background(Capsule().fill(canAfford ? FDTheme.primary : Color.white.opacity(0.07)))
+                        .foregroundStyle(canAfford ? .white : .secondary)
                 }
                 .buttonStyle(.plain)
                 .disabled(!canAfford)
             }
         }
-        .fdCard()
+        .padding(.horizontal, 14)
+        .padding(.vertical, 12)
     }
 }
 
-// MARK: - Défi Gloire du Passé (fictional legends)
+// MARK: - Challenges
 
-struct FDDefiGloireView: View {
+struct FDChallengesView: View {
     @ObservedObject var engine: FDGameEngine
-    @Binding var screen: FDScreen
     @Environment(\.dismiss) private var dismiss
-    @State private var pendingChallenge: FDLegendChallenge?
 
     var body: some View {
         NavigationView {
             ScrollView {
-                VStack(spacing: 16) {
-                    HStack {
-                        Text("🪙 \(engine.legendCoins) pièces").font(FDFont.display(20))
-                        Spacer()
-                        Text("\(engine.conqueredLegendIDs.count)/\(FDLegendChallenges.count) conquis")
-                            .font(.caption).foregroundStyle(.secondary)
+                VStack(spacing: 12) {
+                    // Summary
+                    let total = engine.challenges.count
+                    let conquered = engine.challenges.filter { engine.conqueredChallenges.contains($0.id) }.count
+                    let unlocked = engine.challenges.filter { engine.unlockedChallenges.contains($0.id) }.count
+
+                    VStack(spacing: 0) {
+                        HStack(spacing: 0) {
+                            VStack(spacing: 2) {
+                                Text("\(total)")
+                                    .font(FDFont.mono(22, bold: true)).foregroundStyle(FDTheme.primary)
+                                Text("TOTAL")
+                                    .font(.system(size: 8, weight: .bold)).foregroundStyle(.secondary)
+                            }
+                            .frame(maxWidth: .infinity)
+                            Rectangle().fill(Color.white.opacity(0.08)).frame(width: 1, height: 36)
+                            VStack(spacing: 2) {
+                                Text("\(unlocked)")
+                                    .font(FDFont.mono(22, bold: true)).foregroundStyle(FDTheme.warning)
+                                Text("DÉBLOQUÉS")
+                                    .font(.system(size: 8, weight: .bold)).foregroundStyle(.secondary)
+                            }
+                            .frame(maxWidth: .infinity)
+                            Rectangle().fill(Color.white.opacity(0.08)).frame(width: 1, height: 36)
+                            VStack(spacing: 2) {
+                                Text("\(conquered)")
+                                    .font(FDFont.mono(22, bold: true)).foregroundStyle(FDTheme.amber)
+                                Text("CONQUIS")
+                                    .font(.system(size: 8, weight: .bold)).foregroundStyle(.secondary)
+                            }
+                            .frame(maxWidth: .infinity)
+                        }
+                        .padding(.vertical, 14)
+                        .background(FDTheme.card)
+
+                        Rectangle().fill(Color.white.opacity(0.06)).frame(height: 1)
+
+                        // Progress bar
+                        GeometryReader { geo in
+                            ZStack(alignment: .leading) {
+                                Rectangle().fill(Color.white.opacity(0.07))
+                                Rectangle()
+                                    .fill(LinearGradient(colors: [FDTheme.amber, FDTheme.primary], startPoint: .leading, endPoint: .trailing))
+                                    .frame(width: total > 0 ? geo.size.width * CGFloat(conquered) / CGFloat(total) : 0)
+                            }
+                        }
+                        .frame(height: 3)
                     }
-                    .fdCard()
+                    .background(FDTheme.card, in: RoundedRectangle(cornerRadius: FDTheme.radiusCard))
+                    .overlay(RoundedRectangle(cornerRadius: FDTheme.radiusCard).stroke(Color.white.opacity(0.07), lineWidth: 1))
 
-                    Text("Débloque des légendes fictives — inspirées de grandes carrières, jamais de vrais noms — puis rejoue leur destin en tentant de dépasser leur score.")
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
+                    // Challenge list
+                    VStack(spacing: 0) {
+                        HStack(spacing: 6) {
+                            Image(systemName: "trophy.fill")
+                                .font(.caption.weight(.bold)).foregroundStyle(FDTheme.amber)
+                            Text("DÉFIS LÉGENDAIRES")
+                                .font(FDFont.body(11, black: true)).foregroundStyle(FDTheme.amber)
+                            Spacer()
+                        }
+                        .padding(.horizontal, 14).padding(.vertical, 8)
+                        .background(FDTheme.amber.opacity(0.08))
 
-                    VStack(spacing: 12) {
-                        ForEach(FDLegendChallenges) { challenge in
-                            FDLegendRow(
+                        Rectangle().fill(Color.white.opacity(0.06)).frame(height: 1)
+
+                        ForEach(Array(engine.challenges.enumerated()), id: \.offset) { idx, challenge in
+                            let isConquered = engine.conqueredChallenges.contains(challenge.id)
+                            let isUnlocked = engine.unlockedChallenges.contains(challenge.id)
+                            let canAfford = engine.legendCoins >= challenge.unlockCost
+
+                            FDChallengeRow(
                                 challenge: challenge,
-                                unlocked: engine.unlockedLegendIDs.contains(challenge.id),
-                                conquered: engine.conqueredLegendIDs.contains(challenge.id),
-                                canAfford: engine.legendCoins >= challenge.unlockCost,
-                                onUnlock: {
-                                    FDHaptics.tap()
-                                    engine.unlockLegendChallenge(challenge.id)
-                                },
-                                onPlay: { pendingChallenge = challenge }
+                                conquered: isConquered,
+                                unlocked: isUnlocked,
+                                canAfford: canAfford,
+                                onUnlock: { engine.unlockChallenge(challenge) },
+                                onPlay: { engine.startChallenge(challenge) }
                             )
+                            if idx < engine.challenges.count - 1 {
+                                Rectangle().fill(Color.white.opacity(0.04)).frame(height: 1)
+                            }
                         }
                     }
+                    .background(FDTheme.card, in: RoundedRectangle(cornerRadius: FDTheme.radiusCard))
+                    .overlay(RoundedRectangle(cornerRadius: FDTheme.radiusCard).stroke(Color.white.opacity(0.07), lineWidth: 1))
                 }
-                .padding()
+                .padding(.horizontal, 14)
+                .padding(.bottom, 20)
             }
             .background(FDTheme.bg)
-            .navigationTitle("Défi Gloire du Passé")
+            .navigationTitle("Défis")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("Fermer") { dismiss() }
                 }
             }
-            .alert(item: $pendingChallenge) { challenge in
-                Alert(
-                    title: Text("Lancer ce défi ?"),
-                    message: Text(engine.hasSave()
-                        ? "Ta carrière en cours sera remplacée par celle de \(challenge.name). Objectif : dépasser \(challenge.targetScore) points."
-                        : "Tu vas incarner \(challenge.name) — \(challenge.archetype) Objectif : dépasser \(challenge.targetScore) points."),
-                    primaryButton: .destructive(Text("Lancer")) {
-                        FDHaptics.success()
-                        engine.startLegendCareer(challenge)
-                        dismiss()
-                        screen = .game
-                    },
-                    secondaryButton: .cancel()
-                )
-            }
         }
         .navigationViewStyle(.stack)
     }
 }
 
-private struct FDLegendRow: View {
-    let challenge: FDLegendChallenge
-    let unlocked: Bool
+private struct FDChallengeRow: View {
+    let challenge: FDChallenge
     let conquered: Bool
+    let unlocked: Bool
     let canAfford: Bool
     let onUnlock: () -> Void
     let onPlay: () -> Void
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 10) {
-            HStack(spacing: 12) {
-                FDIconBadge(symbol: conquered ? "trophy.fill" : "person.fill.questionmark", tint: conquered ? FDTheme.amber : FDTheme.primary, size: 44, isSystemImage: true)
-                VStack(alignment: .leading, spacing: 2) {
-                    HStack(spacing: 6) {
-                        Text(challenge.name).font(FDFont.body(15, black: true))
-                        if conquered { Text("✅").font(.caption) }
-                    }
-                    Text("\(challenge.era) · \(challenge.nationality) · \(challenge.position.rawValue)")
-                        .font(.caption).foregroundStyle(.secondary)
-                }
-                Spacer(minLength: 0)
+        HStack(spacing: 12) {
+            ZStack {
+                RoundedRectangle(cornerRadius: 10)
+                    .fill(conquered ? FDTheme.amber.opacity(0.15) : FDTheme.primary.opacity(0.1))
+                    .frame(width: 44, height: 44)
+                Image(systemName: conquered ? "trophy.fill" : "person.fill.questionmark")
+                    .font(.system(size: 18))
+                    .foregroundStyle(conquered ? FDTheme.amber : FDTheme.primary)
             }
-            Text(challenge.archetype)
-                .font(.caption)
-                .foregroundStyle(.secondary)
-            HStack {
-                Text("Objectif : \(challenge.targetScore) pts")
-                    .font(.caption.weight(.semibold))
-                    .foregroundStyle(FDTheme.gold)
-                Spacer(minLength: 8)
-                if unlocked {
-                    Button(action: onPlay) {
-                        Text("Rejouer")
-                            .font(FDFont.body(13, black: true))
-                            .padding(.horizontal, 14).padding(.vertical, 8)
-                            .background(Capsule().fill(FDTheme.primary))
-                            .foregroundStyle(FDTheme.ink)
+
+            VStack(alignment: .leading, spacing: 3) {
+                HStack(spacing: 6) {
+                    Text(challenge.name)
+                        .font(FDFont.body(14, black: true))
+                        .foregroundStyle(FDTheme.textPrimary)
+                    if conquered {
+                        Image(systemName: "checkmark.seal.fill")
+                            .font(.caption)
+                            .foregroundStyle(FDTheme.amber)
                     }
-                    .buttonStyle(.plain)
-                } else {
-                    Button(action: onUnlock) {
-                        Text("🪙 \(challenge.unlockCost)")
-                            .font(FDFont.body(13, black: true))
-                            .padding(.horizontal, 14).padding(.vertical, 8)
-                            .background(Capsule().fill(canAfford ? FDTheme.primary : Color.white.opacity(0.08)))
-                            .foregroundStyle(canAfford ? FDTheme.ink : .white.opacity(0.4))
-                    }
-                    .buttonStyle(.plain)
-                    .disabled(!canAfford)
                 }
+                Text("\(challenge.era) · \(challenge.nationality) · \(challenge.position.rawValue)")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                Text(challenge.archetype)
+                    .font(.caption2)
+                    .foregroundStyle(.secondary)
+                    .lineLimit(1)
+                HStack(spacing: 4) {
+                    Image(systemName: "target")
+                        .font(.system(size: 8))
+                        .foregroundStyle(FDTheme.warning)
+                    Text("Objectif : \(challenge.targetScore) pts")
+                        .font(.caption2.weight(.semibold))
+                        .foregroundStyle(FDTheme.warning)
+                }
+            }
+
+            Spacer(minLength: 4)
+
+            if unlocked {
+                Button(action: onPlay) {
+                    Text("Rejouer")
+                        .font(FDFont.body(12, black: true))
+                        .padding(.horizontal, 12).padding(.vertical, 7)
+                        .background(Capsule().fill(FDTheme.primary))
+                        .foregroundStyle(.white)
+                }
+                .buttonStyle(.plain)
+            } else {
+                Button(action: onUnlock) {
+                    Text("🪙 \(challenge.unlockCost)")
+                        .font(FDFont.body(12, black: true))
+                        .padding(.horizontal, 12).padding(.vertical, 7)
+                        .background(Capsule().fill(canAfford ? FDTheme.amber.opacity(0.85) : Color.white.opacity(0.07)))
+                        .foregroundStyle(canAfford ? .black : .secondary)
+                }
+                .buttonStyle(.plain)
+                .disabled(!canAfford)
             }
         }
-        .fdCard()
+        .padding(.horizontal, 14)
+        .padding(.vertical, 12)
     }
 }
