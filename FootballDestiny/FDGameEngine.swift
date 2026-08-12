@@ -171,7 +171,7 @@ final class FDGameEngine: ObservableObject {
             rel: FDRelations(),
             money: startMoney + competenceMoney,
             contract: FDContract(salary: 300, years: 0),
-            calendar: FDCalendar(season: 1, week: 0, seasonWeeks: 16)
+            calendar: FDCalendar(season: 1, week: 0, seasonWeeks: 22)
         )
         newPlayer.journal.insert(FDJournalEntry(week: 0, season: 1, age: 16, text: "Débuts professionnels chez \(club.name) à 16 ans.", icon: "⚽"), at: 0)
 
@@ -553,7 +553,7 @@ final class FDGameEngine: ObservableObject {
 
     private func sceneEligible(_ s: FDSceneDef, player p: FDPlayer) -> Bool {
         if s.once && usedSceneIds.contains(s.id) { return false }
-        let key = p.calendar.week + p.calendar.season * 16
+        let key = p.calendar.week + p.calendar.season * 100
         if let cooldown = sceneCooldown[s.id], cooldown > key { return false }
         if p.age < s.minAge || p.age > s.maxAge { return false }
         if let statuses = s.statuses, !statuses.contains(p.status) { return false }
@@ -609,23 +609,15 @@ final class FDGameEngine: ObservableObject {
         guard let p = player else { return .none }
         if let hw = pickHandwrittenScene(p) {
             usedSceneIds.insert(hw.id)
-            sceneCooldown[hw.id] = p.calendar.week + p.calendar.season * 16 + 10
+            sceneCooldown[hw.id] = p.calendar.week + p.calendar.season * 100 + 10
             return .story(hw)
         }
         return genericEvent(p)
     }
 
-    /// A season only surfaces a handful of narrative choices — the rest of the weeks pass
-    /// quietly in the background (matches are simulated silently, folded into the season recap).
+    /// A season surfaces a handful of narrative choices on top of its matches — the rest of the
+    /// weeks pass quietly in the background, folded into the season recap.
     private let targetStoryEventsPerSeason = 5
-
-    private func shouldFireStoryEvent(_ p: FDPlayer) -> Bool {
-        let remainingQuota = targetStoryEventsPerSeason - p.seasonStoryEvents
-        guard remainingQuota > 0 else { return false }
-        let weeksLeft = max(1, p.calendar.seasonWeeks - p.calendar.week + 1)
-        if remainingQuota >= weeksLeft { return true }
-        return Double.random(in: 0...1) < Double(remainingQuota) / Double(weeksLeft)
-    }
 
     // MARK: - Choice resolution
 
@@ -646,7 +638,7 @@ final class FDGameEngine: ObservableObject {
             pushJournal("Trait débloqué : \(trait.icon) \(trait.rawValue).", icon: "🎭")
         }
         if let weeks = choice.delayedWeeks, let effects = choice.delayedEffects, let text = choice.delayedText, var p = player {
-            let due = p.calendar.week + p.calendar.season * 16 + weeks
+            let due = p.calendar.week + p.calendar.season * 100 + weeks
             p.delayedEffects.append(FDDelayedEffect(dueWeek: due, effects: effects, text: text))
             player = p
         }
@@ -680,7 +672,7 @@ final class FDGameEngine: ObservableObject {
 
     private func checkDelayed() {
         guard var p = player, !p.delayedEffects.isEmpty else { return }
-        let nowKey = p.calendar.week + p.calendar.season * 16
+        let nowKey = p.calendar.week + p.calendar.season * 100
         let due = p.delayedEffects.filter { $0.dueWeek <= nowKey }
         if !due.isEmpty {
             p.delayedEffects.removeAll { $0.dueWeek <= nowKey }
@@ -705,8 +697,11 @@ final class FDGameEngine: ObservableObject {
         checkDelayed()
     }
 
-    /// Advances week by week, simulating matches silently in the background and only stopping
-    /// the player on the handful of narrative choices a season actually surfaces.
+    /// Advances week by week, simulating matches silently in the background and stopping the
+    /// player on the season's narrative beats. Narrative gets first claim on the season's final
+    /// stretch — matches are flexible about exactly which week they land on and can still catch
+    /// up earlier, so they yield once both quotas are racing to fit in what's left. Without this,
+    /// matches (checked unconditionally first) starved the story quota almost every season.
     func advanceWeek() {
         while true {
             weeklyTick()
@@ -717,23 +712,20 @@ final class FDGameEngine: ObservableObject {
                 return
             }
 
-            let target = matchesTargetThisSeason(p)
-            let matchWeeksLeft = target - p.seasonMatches
             let weeksLeft = max(1, p.calendar.seasonWeeks - p.calendar.week + 1)
-            if matchWeeksLeft > 0 {
-                let mustPlayNow = matchWeeksLeft >= weeksLeft
-                if mustPlayNow || Double.random(in: 0...1) < Double(matchWeeksLeft) / Double(weeksLeft) {
-                    _ = simulateMatch()
-                    continue
-                }
-            }
+            let storyLeft = targetStoryEventsPerSeason - p.seasonStoryEvents
+            let matchWeeksLeft = matchesTargetThisSeason(p) - p.seasonMatches
 
-            if shouldFireStoryEvent(p) {
+            if storyLeft > 0 && (storyLeft >= weeksLeft || Double.random(in: 0...1) < Double(storyLeft) / Double(weeksLeft)) {
                 currentScene = generateNextEvent()
                 if var pp = player { pp.seasonStoryEvents += 1; player = pp }
                 autoResolveExpress()
                 saveGame()
                 return
+            }
+            if matchWeeksLeft > 0 && (matchWeeksLeft >= weeksLeft || Double.random(in: 0...1) < Double(matchWeeksLeft) / Double(weeksLeft)) {
+                _ = simulateMatch()
+                continue
             }
             // Quiet week: nothing notable happens, keep advancing.
         }

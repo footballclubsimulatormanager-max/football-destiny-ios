@@ -493,8 +493,10 @@ struct FDCarriereTab: View {
                             headerCard(p)
 
                             // The stat drawer never navigates away — it stays pinned above the
-                            // narrative, and swapping tabs only swaps what's inside it.
-                            VStack(spacing: 16) {
+                            // narrative, and swapping tabs only swaps what's inside it. Its own
+                            // height is capped and independently scrollable so it stays a compact
+                            // window onto the stats instead of pushing the narrative far down the page.
+                            VStack(spacing: 12) {
                                 Picker("", selection: $subTab) {
                                     ForEach(FDCarriereSubTab.allCases) { tab in
                                         Text(tab.rawValue).tag(tab)
@@ -502,12 +504,15 @@ struct FDCarriereTab: View {
                                 }
                                 .pickerStyle(.segmented)
 
-                                switch subTab {
-                                case .stats: statsContent(p)
-                                case .palmares: palmaresContent(p)
-                                case .distinctions: distinctionsContent(p)
-                                case .parcours: parcoursContent(p)
+                                ScrollView {
+                                    switch subTab {
+                                    case .stats: statsContent(p)
+                                    case .palmares: palmaresContent(p)
+                                    case .distinctions: distinctionsContent(p)
+                                    case .parcours: parcoursContent(p)
+                                    }
                                 }
+                                .frame(maxHeight: 300)
 
                                 if p.age >= 34 {
                                     Button {
@@ -602,26 +607,30 @@ struct FDCarriereTab: View {
 
             // Categories are ordered by how much they weigh for this position, so what actually
             // matters for a gardien vs. an avant-centre appears first — not a fixed generic order.
+            // Grouped into one card (not one per category) to keep the drawer from sprawling.
             let orderedCategories = [FDAttrCategory.tech, .phys, .ment, .def]
                 .sorted { p.position.weights.value(for: $0) > p.position.weights.value(for: $1) }
-            ForEach(Array(orderedCategories.enumerated()), id: \.element) { index, cat in
-                VStack(alignment: .leading, spacing: 12) {
-                    HStack(spacing: 6) {
-                        FDSectionLabel("Attributs — \(cat.label)")
-                        if index == 0 {
-                            Text("CLÉ POUR TON POSTE")
-                                .font(.caption2.weight(.bold))
-                                .padding(.horizontal, 8).padding(.vertical, 2)
-                                .background(Capsule().fill(FDTheme.primary.opacity(0.18)))
-                                .foregroundStyle(FDTheme.primary)
+            VStack(alignment: .leading, spacing: 14) {
+                ForEach(Array(orderedCategories.enumerated()), id: \.element) { index, cat in
+                    VStack(alignment: .leading, spacing: 10) {
+                        HStack(spacing: 6) {
+                            FDSectionLabel("Attributs — \(cat.label)")
+                            if index == 0 {
+                                Text("CLÉ POUR TON POSTE")
+                                    .font(.caption2.weight(.bold))
+                                    .padding(.horizontal, 8).padding(.vertical, 2)
+                                    .background(Capsule().fill(FDTheme.primary.opacity(0.18)))
+                                    .foregroundStyle(FDTheme.primary)
+                            }
+                        }
+                        ForEach(FDAttribute.allCases.filter { $0.category == cat }, id: \.self) { attr in
+                            FDAttributeRow(label: attr.label, value: p.attr(attr))
                         }
                     }
-                    ForEach(FDAttribute.allCases.filter { $0.category == cat }, id: \.self) { attr in
-                        FDAttributeRow(label: attr.label, value: p.attr(attr))
-                    }
+                    if index < orderedCategories.count - 1 { Divider().opacity(0.12) }
                 }
-                .fdCard()
             }
+            .fdCard()
 
             VStack(alignment: .leading, spacing: 12) {
                 FDSectionLabel("Relations")
