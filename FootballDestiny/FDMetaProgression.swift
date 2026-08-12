@@ -20,6 +20,9 @@ struct FDCompetence: Identifiable, Hashable {
     let effect: FDCompetenceEffect
 }
 
+/// Alias used by the Boutique screen's redesigned UI.
+typealias FDPermanentSkill = FDCompetence
+
 let FDCompetences: [FDCompetence] = [
     FDCompetence(id: "reputation_1", name: "Œil du recruteur", icon: "👁️", description: "Ta réputation de départ est un peu plus solide.", cost: 5, effect: .reputation(5)),
     FDCompetence(id: "money_1", name: "Filière familiale", icon: "💰", description: "Un petit pécule en plus pour démarrer.", cost: 4, effect: .money(1000)),
@@ -43,6 +46,9 @@ struct FDLegendChallenge: Identifiable, Hashable {
     let unlockCost: Int
     let targetScore: Int
 }
+
+/// Alias used by the Défis screen's redesigned UI.
+typealias FDChallenge = FDLegendChallenge
 
 let FDLegendChallenges: [FDLegendChallenge] = [
     FDLegendChallenge(id: "legend_maestro", name: "Le Maestro", era: "Années 1990", nationality: "France", position: .milieuOffensif, style: .createur, personality: .charismatique,

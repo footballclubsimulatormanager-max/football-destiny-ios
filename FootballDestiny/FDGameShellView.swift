@@ -1118,7 +1118,7 @@ struct FDCarriereTab: View {
 
                     VStack(spacing: 8) {
                         ForEach(catAttrs, id: \.self) { attr in
-                            FDAttrBar(label: attr.label, value: p.attr[attr] ?? 0, color: catColor)
+                            FDAttrBar(label: attr.label, value: p.attr(attr), color: catColor)
                         }
                     }
                     .padding(.horizontal, 14).padding(.vertical, 10)
@@ -1142,8 +1142,8 @@ struct FDCarriereTab: View {
                 let trophies: [(String, String, Int)] = [
                     ("trophy.fill", "Titres de champion", p.leagueTitles),
                     ("globe.europe.africa.fill", "Titres européens", p.cupTitles),
-                    ("star.fill", "Ballon d'Or", p.awardCounts["ballondor"] ?? 0),
-                    ("boot.fill", "Soulier d'Or", p.awardCounts["goldenshoe"] ?? 0),
+                    ("star.fill", "Ballon d'Or", p.awardCounts[FDAward.ballonDor.rawValue] ?? 0),
+                    ("boot.fill", "Soulier d'Or", p.awardCounts[FDAward.soulierDor.rawValue] ?? 0),
                     ("flag.fill", "Caps internationaux", p.nationalCaps),
                 ]
                 ForEach(trophies, id: \.1) { icon, label, count in
@@ -1227,9 +1227,9 @@ struct FDCarriereTab: View {
                     FDSectionHeader(icon: "person.crop.circle.fill.badge.checkmark", title: "Traits de caractère", color: FDTheme.primary)
                         .padding(.horizontal, 14).padding(.vertical, 8)
                     Rectangle().fill(Color.white.opacity(0.06)).frame(height: 1)
-                    FlowLayout(spacing: 8) {
+                    LazyVGrid(columns: [GridItem(.adaptive(minimum: 90), spacing: 8)], alignment: .leading, spacing: 8) {
                         ForEach(p.traits, id: \.self) { trait in
-                            Text(trait)
+                            Text(trait.rawValue)
                                 .font(.caption.weight(.semibold))
                                 .padding(.horizontal, 10).padding(.vertical, 5)
                                 .background(FDTheme.primary.opacity(0.15), in: Capsule())
@@ -1329,7 +1329,7 @@ struct FDCarriereTab: View {
                             Text(season.club).font(.caption.weight(.semibold)).lineLimit(1)
                             Spacer()
                             Text("\(season.goals)").font(FDFont.mono(12, bold: true)).foregroundStyle(FDTheme.success).frame(width: 36)
-                            Text(season.rating.map { String(format: "%.1f", $0) } ?? "—")
+                            Text(String(format: "%.1f", season.avgRating))
                                 .font(FDFont.mono(12, bold: true))
                                 .foregroundStyle(FDTheme.amber)
                                 .frame(width: 36)
@@ -1351,7 +1351,7 @@ struct FDCarriereTab: View {
 // MARK: - Parcours Row
 
 private struct FDParcoursRow: View {
-    let transfer: FDTransfer
+    let transfer: FDTransferRecord
 
     var body: some View {
         HStack(spacing: 10) {
@@ -1360,15 +1360,13 @@ private struct FDParcoursRow: View {
                 .foregroundStyle(FDTheme.accentTeal)
                 .frame(width: 18)
             VStack(alignment: .leading, spacing: 1) {
-                Text(transfer.toClub).font(FDFont.body(12, black: true))
-                Text(transfer.fromClub).font(.caption2).foregroundStyle(.secondary)
+                Text(transfer.clubName).font(FDFont.body(12, black: true))
+                Text(transfer.country).font(.caption2).foregroundStyle(.secondary)
             }
             Spacer()
             VStack(alignment: .trailing, spacing: 1) {
-                Text("S\(transfer.season)").font(FDFont.mono(11, bold: true)).foregroundStyle(.secondary)
-                if let fee = transfer.fee {
-                    Text(fdFormatMoney(fee)).font(.caption2).foregroundStyle(FDTheme.amber)
-                }
+                Text("\(transfer.age) ans").font(FDFont.mono(11, bold: true)).foregroundStyle(.secondary)
+                Text(fdFormatMoney(transfer.fee)).font(.caption2).foregroundStyle(FDTheme.amber)
             }
         }
         .padding(.horizontal, 14).padding(.vertical, 8)
@@ -1523,7 +1521,7 @@ struct FDOptionsTab: View {
             ScrollView {
                 VStack(spacing: 12) {
                     // Rival info
-                    if let p = engine.player, let rFirst = p.rivalFirstName {
+                    if let p = engine.player, !p.rivalFirstName.isEmpty {
                         VStack(spacing: 0) {
                             FDSectionHeader(icon: "flame.fill", title: "Rivalité", color: .red)
                                 .padding(.horizontal, 14).padding(.vertical, 8)
@@ -1534,11 +1532,11 @@ struct FDOptionsTab: View {
                                     Image(systemName: "flame.fill").font(.system(size: 14)).foregroundStyle(.red)
                                 }
                                 VStack(alignment: .leading, spacing: 2) {
-                                    Text("\(rFirst) \(p.rivalLastName ?? "")")
+                                    Text("\(p.rivalFirstName) \(p.rivalLastName)")
                                         .font(FDFont.body(14, black: true))
-                                    Text("Momentum : \(p.rivalMomentum > 0 ? "+" : "")\(p.rivalMomentum)")
+                                    Text(p.rivalMomentum >= 75 ? "En état de grâce" : (p.rivalMomentum <= 25 ? "En difficulté" : "Saison stable"))
                                         .font(.caption)
-                                        .foregroundStyle(p.rivalMomentum > 0 ? FDTheme.success : FDTheme.destructive)
+                                        .foregroundStyle(p.rivalMomentum >= 75 ? FDTheme.destructive : (p.rivalMomentum <= 25 ? FDTheme.success : .secondary))
                                 }
                                 Spacer()
                             }
@@ -1549,13 +1547,13 @@ struct FDOptionsTab: View {
                     }
 
                     // Relations
-                    if let p = engine.player, !p.rel.isEmpty {
+                    if let p = engine.player, !p.relDict.isEmpty {
                         VStack(spacing: 0) {
                             FDSectionHeader(icon: "person.2.fill", title: "Relations", color: FDTheme.accentTeal)
                                 .padding(.horizontal, 14).padding(.vertical, 8)
                             Rectangle().fill(Color.white.opacity(0.06)).frame(height: 1)
-                            ForEach(p.rel.sorted(by: { $0.key < $1.key }), id: \.key) { key, value in
-                                FDAttrBar(label: key.capitalized, value: value, color: FDTheme.accentTeal)
+                            ForEach(p.relDict.sorted(by: { $0.key < $1.key }), id: \.key) { key, value in
+                                FDAttrBar(label: key, value: value, color: FDTheme.accentTeal)
                                     .padding(.horizontal, 14).padding(.vertical, 7)
                                 Rectangle().fill(Color.white.opacity(0.04)).frame(height: 1)
                             }
@@ -1570,7 +1568,7 @@ struct FDOptionsTab: View {
                             .padding(.horizontal, 14).padding(.vertical, 8)
                         Rectangle().fill(Color.white.opacity(0.06)).frame(height: 1)
                         FDOptionRow(icon: "arrow.up.doc.fill", label: "Exporter la sauvegarde", color: FDTheme.primary) {
-                            exportText = engine.exportSave()
+                            exportText = engine.exportSave() ?? ""
                             showExport = true
                         }
                         Rectangle().fill(Color.white.opacity(0.04)).frame(height: 1)
@@ -1734,44 +1732,3 @@ private struct FDOptionRow: View {
 
 // MARK: - Flow layout for traits
 
-private struct FlowLayout: Layout {
-    var spacing: CGFloat = 8
-
-    func sizeThatFits(proposal: ProposedViewSize, subviews: Subviews, cache: inout Void) -> CGSize {
-        let width = proposal.width ?? 0
-        var height: CGFloat = 0
-        var x: CGFloat = 0
-        var rowHeight: CGFloat = 0
-
-        for view in subviews {
-            let size = view.sizeThatFits(.unspecified)
-            if x + size.width > width, x > 0 {
-                height += rowHeight + spacing
-                x = 0
-                rowHeight = 0
-            }
-            x += size.width + spacing
-            rowHeight = max(rowHeight, size.height)
-        }
-        height += rowHeight
-        return CGSize(width: width, height: height)
-    }
-
-    func placeSubviews(in bounds: CGRect, proposal: ProposedViewSize, subviews: Subviews, cache: inout Void) {
-        var x = bounds.minX
-        var y = bounds.minY
-        var rowHeight: CGFloat = 0
-
-        for view in subviews {
-            let size = view.sizeThatFits(.unspecified)
-            if x + size.width > bounds.maxX, x > bounds.minX {
-                y += rowHeight + spacing
-                x = bounds.minX
-                rowHeight = 0
-            }
-            view.place(at: CGPoint(x: x, y: y), proposal: ProposedViewSize(size))
-            x += size.width + spacing
-            rowHeight = max(rowHeight, size.height)
-        }
-    }
-}

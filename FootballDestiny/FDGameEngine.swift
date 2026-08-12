@@ -343,6 +343,48 @@ final class FDGameEngine: ObservableObject {
         startCareer(draft: draft, club: club, legendChallengeID: challenge.id)
     }
 
+    // MARK: - Compatibility aliases (redesigned Boutique/Défis screens)
+
+    var permanentSkills: [FDCompetence] { FDCompetences }
+    var unlockedSkills: Set<String> { ownedCompetenceIDs }
+    func buySkill(_ skill: FDCompetence) { purchaseCompetence(skill.id) }
+
+    var challenges: [FDLegendChallenge] { FDLegendChallenges }
+    var conqueredChallenges: Set<String> { conqueredLegendIDs }
+    var unlockedChallenges: Set<String> { unlockedLegendIDs }
+    func unlockChallenge(_ challenge: FDLegendChallenge) { unlockLegendChallenge(challenge.id) }
+    func startChallenge(_ challenge: FDLegendChallenge) { startLegendCareer(challenge) }
+
+    /// Curated first-club offers for career creation — five clubs willing to give a prodigy a
+    /// shot. Fewer potential stars bought means fewer doors open: big footballing nations only
+    /// offer lower divisions to an unproven talent, smaller nations still let their top flight in.
+    func availableStartClubs(nationality: String, potentialStars: Int) -> [FDClub] {
+        let countryTier = FDCountryTier[nationality] ?? 3
+        let allowsTopDivision = potentialStars >= 2 || countryTier == 3
+
+        let home = FDAllClubs
+            .filter { $0.country == nationality }
+            .filter { allowsTopDivision || $0.division >= 2 }
+        let sortedHome = potentialStars <= 1
+            ? home.sorted { $0.reputation < $1.reputation }
+            : home.sorted { $0.academyQuality > $1.academyQuality }
+
+        var picks = Array(sortedHome.prefix(5))
+        if picks.count < 5 {
+            let pickedIDs = Set(picks.map(\.id))
+            let rest = FDAllClubs.filter { !pickedIDs.contains($0.id) }.sorted { $0.reputation < $1.reputation }
+            picks.append(contentsOf: rest.prefix(5 - picks.count))
+        }
+        return picks
+    }
+
+    /// Convenience overload for the redesigned creation flow, which stores the chosen club
+    /// directly on the draft instead of passing it as a separate argument.
+    func startCareer(from draft: FDCreationDraft) {
+        guard let club = draft.club else { return }
+        startCareer(draft: draft, club: club)
+    }
+
     // MARK: - Derived stats
 
     func overall(_ p: FDPlayer) -> Int {

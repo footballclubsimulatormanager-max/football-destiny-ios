@@ -267,6 +267,7 @@ private struct FDSkillRow: View {
 
 struct FDChallengesView: View {
     @ObservedObject var engine: FDGameEngine
+    var screen: Binding<FDScreen>? = nil
     @Environment(\.dismiss) private var dismiss
 
     var body: some View {
@@ -348,7 +349,11 @@ struct FDChallengesView: View {
                                 unlocked: isUnlocked,
                                 canAfford: canAfford,
                                 onUnlock: { engine.unlockChallenge(challenge) },
-                                onPlay: { engine.startChallenge(challenge) }
+                                onPlay: {
+                                    engine.startChallenge(challenge)
+                                    screen?.wrappedValue = .game
+                                    dismiss()
+                                }
                             )
                             if idx < engine.challenges.count - 1 {
                                 Rectangle().fill(Color.white.opacity(0.04)).frame(height: 1)

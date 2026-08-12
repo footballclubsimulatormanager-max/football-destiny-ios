@@ -130,10 +130,9 @@ struct FDCareerCreationView: View {
     }
 
     private func regenerateName() {
-        let nameData = FDNameBank.randomName(for: draft.nationality)
+        let nameData = FDNameBank.random(for: draft.nationality)
         draft.firstName = nameData.first
         draft.lastName = nameData.last
-        draft.birthCity = nameData.city
     }
 
     // MARK: - Step 1: Identity & Nationality
@@ -554,14 +553,14 @@ struct FDCareerCreationView: View {
                     .overlay(RoundedRectangle(cornerRadius: FDTheme.radiusCard).stroke(Color.white.opacity(0.07), lineWidth: 1))
 
                     // Potentiel (méta-progression)
-                    let maxAffordable = FDPotentialShop.maxAffordableStars(points: engine.legendCoins)
+                    let maxAffordable = FDPotentialShop.maxAffordableStars(points: engine.lifetimePoints)
                     if maxAffordable > 0 {
                         VStack(spacing: 0) {
                             creationSectionHeader(icon: "crown.fill", title: "Potentiel de départ")
 
                             VStack(spacing: 12) {
                                 HStack {
-                                    Text("🪙 \(engine.legendCoins) pièces disponibles")
+                                    Text("🏆 \(engine.lifetimePoints) points de carrière cumulés")
                                         .font(FDFont.body(13))
                                         .foregroundStyle(FDTheme.amber)
                                     Spacer()
@@ -583,7 +582,7 @@ struct FDCareerCreationView: View {
 
                                 if draft.potentialStars > 0 {
                                     HStack {
-                                        Text("Coût : 🪙 \(FDPotentialShop.cumulativeCost(for: draft.potentialStars)) pièces")
+                                        Text("Coût : 🏆 \(FDPotentialShop.cumulativeCost(for: draft.potentialStars)) points")
                                             .font(.caption.weight(.semibold))
                                             .foregroundStyle(FDTheme.amber)
                                         Spacer()
@@ -669,7 +668,7 @@ struct FDCareerCreationView: View {
                     VStack(spacing: 0) {
                         creationSectionHeader(icon: "building.columns.fill", title: "Choisis ton premier club")
 
-                        ForEach(engine.availableStartClubs(for: draft.position), id: \.id) { club in
+                        ForEach(engine.availableStartClubs(nationality: draft.nationality, potentialStars: draft.potentialStars), id: \.id) { club in
                             Button {
                                 selectAndAdvance { draft.club = club }
                             } label: {

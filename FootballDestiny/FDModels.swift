@@ -165,6 +165,25 @@ struct FDClub: Codable, Identifiable, Hashable {
     var youthMinutes: Int
 }
 
+enum FDClubTier: String, Hashable {
+    case elite = "Élite"
+    case pro = "Pro"
+    case semi = "Semi-pro"
+    case amateur = "Amateur"
+}
+
+extension FDClub {
+    /// A coarse display tier derived from division/reputation, used for the club-picker badge.
+    var tier: FDClubTier {
+        switch division {
+        case 1: return reputation >= 70 ? .elite : .pro
+        case 2: return .pro
+        case 3: return .semi
+        default: return .amateur
+        }
+    }
+}
+
 // MARK: - Player sub-structures
 
 struct FDCondition: Codable {
@@ -388,6 +407,15 @@ struct FDPlayer: Codable {
         case "fans": return rel.fans
         default: return 0
         }
+    }
+
+    /// Named relations as a lookup, used by the Options screen's overview list.
+    var relDict: [String: Int] {
+        [
+            "Entraîneur": rel.coach, "Staff": rel.staff, "Directeur": rel.directeur, "Président": rel.president,
+            "Agent": rel.agent, "Capitaine": rel.capitaine, "Vestiaire": rel.vestiaire, "Famille": rel.famille,
+            "Partenaire": rel.partenaire, "Média": rel.media, "Supporters": rel.fans,
+        ]
     }
 
     func condition(_ key: String) -> Int {

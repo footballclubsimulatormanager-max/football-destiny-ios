@@ -109,7 +109,7 @@ struct FDMainMenuView: View {
         .sheet(isPresented: $showAbout) { FDAboutSheet() }
         .sheet(isPresented: $showHistorique) { FDHistoriqueView(engine: engine) }
         .sheet(isPresented: $showBoutique) { FDBoutiqueView(engine: engine) }
-        .sheet(isPresented: $showDefis) { FDDefiGloireView(engine: engine, screen: $screen) }
+        .sheet(isPresented: $showDefis) { FDChallengesView(engine: engine, screen: $screen) }
     }
 
     private var topBar: some View {
