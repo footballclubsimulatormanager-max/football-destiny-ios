@@ -9,21 +9,15 @@ struct FDGameShellView: View {
 
     var body: some View {
         TabView(selection: $selectedTab) {
-            FDHistoireTab(engine: engine)
-                .tabItem { Label("Histoire", systemImage: "sportscourt.fill") }
-                .tag(0)
             FDCarriereTab(engine: engine)
                 .tabItem { Label("Carrière", systemImage: "star.fill") }
-                .tag(1)
-            FDStatsTab(engine: engine)
-                .tabItem { Label("Stats", systemImage: "chart.bar.fill") }
-                .tag(2)
+                .tag(0)
             FDJournalTab(engine: engine)
                 .tabItem { Label("Journal", systemImage: "newspaper.fill") }
-                .tag(3)
+                .tag(1)
             FDOptionsTab(engine: engine, screen: $screen)
                 .tabItem { Label("Options", systemImage: "gearshape.fill") }
-                .tag(4)
+                .tag(2)
         }
         .tint(FDTheme.primary)
         .safeAreaInset(edge: .top, spacing: 0) {
@@ -101,43 +95,6 @@ struct FDToastView: View {
     }
 }
 
-// MARK: - Histoire tab
-
-struct FDHistoireTab: View {
-    @ObservedObject var engine: FDGameEngine
-
-    var body: some View {
-        NavigationView {
-            ScrollView {
-                VStack(spacing: 16) {
-                    if let p = engine.player, p.retired {
-                        FDRetiredCard(engine: engine)
-                    } else {
-                        switch engine.currentScene {
-                        case .none:
-                            ProgressView().padding(.top, 60)
-                        case .story(let scene):
-                            FDStoryCard(engine: engine, scene: scene)
-                        case .match(let result):
-                            FDMatchCard(engine: engine, result: result)
-                        case .season(let lines):
-                            FDSeasonCard(engine: engine, lines: lines)
-                        case .tournament(let summary):
-                            FDTournamentCard(engine: engine, summary: summary)
-                        case .outcome(let outcome):
-                            FDOutcomeCard(engine: engine, outcome: outcome)
-                        }
-                    }
-                }
-                .padding()
-            }
-            .background(FDTheme.bg)
-            .navigationTitle("Histoire")
-            .navigationBarTitleDisplayMode(.inline)
-        }
-        .navigationViewStyle(.stack)
-    }
-}
 
 private func fdSceneSymbol(_ category: String) -> String {
     switch category {
@@ -504,27 +461,65 @@ private enum FDCarriereSubTab: String, CaseIterable, Identifiable {
 struct FDCarriereTab: View {
     @ObservedObject var engine: FDGameEngine
     @State private var subTab: FDCarriereSubTab = .stats
+    @State private var showRetireConfirm = false
 
     var body: some View {
         NavigationView {
             Group {
-                if let p = engine.player {
+                if let p = engine.player, p.retired {
+                    ScrollView {
+                        FDRetiredCard(engine: engine)
+                            .padding()
+                    }
+                } else if let p = engine.player {
                     ScrollView {
                         VStack(spacing: 16) {
                             headerCard(p)
 
-                            Picker("", selection: $subTab) {
-                                ForEach(FDCarriereSubTab.allCases) { tab in
-                                    Text(tab.rawValue).tag(tab)
+                            // The stat drawer never navigates away — it stays pinned above the
+                            // narrative, and swapping tabs only swaps what's inside it.
+                            VStack(spacing: 16) {
+                                Picker("", selection: $subTab) {
+                                    ForEach(FDCarriereSubTab.allCases) { tab in
+                                        Text(tab.rawValue).tag(tab)
+                                    }
+                                }
+                                .pickerStyle(.segmented)
+
+                                switch subTab {
+                                case .stats: statsContent(p)
+                                case .palmares: palmaresContent(p)
+                                case .distinctions: distinctionsContent(p)
+                                case .parcours: parcoursContent(p)
+                                }
+
+                                if p.age >= 34 {
+                                    Button {
+                                        showRetireConfirm = true
+                                    } label: {
+                                        Label("Raccrocher les crampons", systemImage: "figure.soccer")
+                                    }
+                                    .buttonStyle(FDDestructiveButtonStyle())
                                 }
                             }
-                            .pickerStyle(.segmented)
 
-                            switch subTab {
-                            case .stats: statsContent(p)
-                            case .palmares: palmaresContent(p)
-                            case .distinctions: distinctionsContent(p)
-                            case .parcours: parcoursContent(p)
+                            Divider().opacity(0.15)
+
+                            // The narrative — always present here, right below the drawer, never
+                            // its own separate page.
+                            switch engine.currentScene {
+                            case .none:
+                                ProgressView().padding(.top, 40)
+                            case .story(let scene):
+                                FDStoryCard(engine: engine, scene: scene)
+                            case .match(let result):
+                                FDMatchCard(engine: engine, result: result)
+                            case .season(let lines):
+                                FDSeasonCard(engine: engine, lines: lines)
+                            case .tournament(let summary):
+                                FDTournamentCard(engine: engine, summary: summary)
+                            case .outcome(let outcome):
+                                FDOutcomeCard(engine: engine, outcome: outcome)
                             }
                         }
                         .padding()
@@ -538,6 +533,14 @@ struct FDCarriereTab: View {
             .background(FDTheme.bg)
             .navigationTitle("Carrière")
             .navigationBarTitleDisplayMode(.inline)
+            .confirmationDialog("Prendre ta retraite maintenant ?", isPresented: $showRetireConfirm, titleVisibility: .visible) {
+                Button("Confirmer la retraite", role: .destructive) {
+                    engine.voluntaryRetire()
+                }
+                Button("Annuler", role: .cancel) {}
+            } message: {
+                Text("Cette action est définitive pour cette carrière.")
+            }
         }
         .navigationViewStyle(.stack)
     }
@@ -673,6 +676,34 @@ struct FDCarriereTab: View {
                 }
             }
             .fdCard()
+
+            VStack(alignment: .leading, spacing: 12) {
+                FDSectionLabel("Historique des saisons")
+                if p.history.isEmpty {
+                    Text("Ta première saison est en cours — reviens ici après quelques matchs.")
+                        .font(FDFont.body(13))
+                        .foregroundStyle(.secondary)
+                } else {
+                    VStack(spacing: 0) {
+                        ForEach(Array(p.history.enumerated()), id: \.element.id) { index, h in
+                            HStack {
+                                VStack(alignment: .leading) {
+                                    Text("Saison \(h.season) · \(h.age) ans").font(FDFont.body(14, black: true))
+                                    Text(h.status.rawValue).font(FDFont.body(11)).foregroundStyle(.secondary)
+                                }
+                                Spacer()
+                                VStack(alignment: .trailing) {
+                                    Text("\(h.apps) MJ · \(h.goals) B · \(h.assists) PD").font(FDFont.mono(11))
+                                    Text(h.avgRating > 0 ? String(format: "Note %.1f", h.avgRating) : "—").font(FDFont.mono(11)).foregroundStyle(.secondary)
+                                }
+                            }
+                            .padding(.vertical, 10)
+                            if index < p.history.count - 1 { Divider() }
+                        }
+                    }
+                }
+            }
+            .fdCard()
         }
     }
 }
@@ -728,78 +759,6 @@ struct FDAttributeRow: View {
             ProgressView(value: Double(value), total: 100).tint(FDTheme.primary)
             Text("\(value)").font(FDFont.mono(11, bold: true)).frame(width: 26, alignment: .trailing)
         }
-    }
-}
-
-// MARK: - Stats tab
-
-struct FDStatsTab: View {
-    @ObservedObject var engine: FDGameEngine
-
-    var body: some View {
-        NavigationView {
-            Group {
-                if let p = engine.player {
-                    ScrollView {
-                        VStack(spacing: 16) {
-                            LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 10) {
-                                FDStatTile(value: "\(p.careerApps)", label: "Matchs joués")
-                                FDStatTile(value: "\(p.careerGoals)", label: "Buts carrière")
-                                FDStatTile(value: "\(p.careerAssists)", label: "Passes décisives")
-                                FDStatTile(value: p.history.isEmpty ? "—" : String(format: "%.1f", p.history.map(\.avgRating).reduce(0, +) / Double(p.history.count)), label: "Note moy. carrière")
-                            }
-
-                            VStack(alignment: .leading, spacing: 12) {
-                                FDSectionLabel("Historique des saisons")
-                                if p.history.isEmpty {
-                                    Text("Ta première saison est en cours — reviens ici après quelques matchs.")
-                                        .font(FDFont.body(13))
-                                        .foregroundStyle(.secondary)
-                                } else {
-                                    VStack(spacing: 0) {
-                                        ForEach(Array(p.history.enumerated()), id: \.element.id) { index, h in
-                                            HStack {
-                                                VStack(alignment: .leading) {
-                                                    Text("Saison \(h.season) · \(h.age) ans").font(FDFont.body(14, black: true))
-                                                    Text(h.status.rawValue).font(FDFont.body(11)).foregroundStyle(.secondary)
-                                                }
-                                                Spacer()
-                                                VStack(alignment: .trailing) {
-                                                    Text("\(h.apps) MJ · \(h.goals) B · \(h.assists) PD").font(FDFont.mono(11))
-                                                    Text(h.avgRating > 0 ? String(format: "Note %.1f", h.avgRating) : "—").font(FDFont.mono(11)).foregroundStyle(.secondary)
-                                                }
-                                            }
-                                            .padding(.vertical, 10)
-                                            if index < p.history.count - 1 { Divider() }
-                                        }
-                                    }
-                                }
-                            }
-                            .fdCard()
-                        }
-                        .padding()
-                    }
-                }
-            }
-            .background(FDTheme.bg)
-            .navigationTitle("Stats")
-            .navigationBarTitleDisplayMode(.inline)
-        }
-        .navigationViewStyle(.stack)
-    }
-}
-
-struct FDStatTile: View {
-    let value: String
-    let label: String
-    var body: some View {
-        VStack(spacing: 4) {
-            Text(value).font(FDFont.mono(19, bold: true))
-            Text(label.uppercased()).font(.caption2).foregroundStyle(.secondary)
-        }
-        .frame(maxWidth: .infinity)
-        .padding(.vertical, 10)
-        .background(FDTheme.bg.opacity(0.6), in: RoundedRectangle(cornerRadius: 12))
     }
 }
 

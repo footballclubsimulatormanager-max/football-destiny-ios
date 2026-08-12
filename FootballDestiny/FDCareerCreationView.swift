@@ -17,8 +17,8 @@ struct FDCareerCreationView: View {
 
     private var showsReroll: Bool {
         switch currentStep {
-        case .identityNationality, .position, .background, .profile, .settings: return true
-        case .club: return false
+        case .identityNationality, .position, .background, .profile: return true
+        case .settings, .club: return false
         }
     }
 
@@ -115,9 +115,7 @@ struct FDCareerCreationView: View {
             draft.foot = FDFoot.allCases.randomElement() ?? draft.foot
             draft.style = FDStyle.allCases.randomElement() ?? draft.style
             draft.personality = FDPersonality.allCases.randomElement() ?? draft.personality
-        case .settings:
-            draft.mode = FDMode.allCases.randomElement() ?? draft.mode
-        case .club: break
+        case .settings, .club: break
         }
     }
 
@@ -267,7 +265,7 @@ struct FDCareerCreationView: View {
     private var settingsStep: some View {
         ScrollView {
             VStack(spacing: 16) {
-                FDStepHeader(title: "Réglages de carrière", subtitle: "Toujours narratif — ici, tu choisis ton potentiel de départ et le rythme de ton histoire.")
+                FDStepHeader(title: "Réglages de carrière", subtitle: "Toujours narratif — ici, tu choisis ton potentiel de départ.")
 
                 VStack(alignment: .leading, spacing: 10) {
                     FDSectionLabel("Potentiel de départ")
@@ -292,15 +290,6 @@ struct FDCareerCreationView: View {
                             .font(.caption)
                             .foregroundStyle(.secondary)
                     }
-                }
-                .fdCard()
-
-                VStack(alignment: .leading, spacing: 10) {
-                    FDSectionLabel("Style de carrière")
-                    FDChipScrollRow(items: FDMode.allCases, label: { $0.rawValue }, icon: { $0.flavorIcon }, selection: draft.mode) { m in
-                        FDHaptics.tap(); draft.mode = m
-                    }
-                    Text(draft.mode.hint).font(.caption).foregroundStyle(.secondary)
                 }
                 .fdCard()
             }
@@ -679,12 +668,3 @@ private extension FDBackground {
     }
 }
 
-
-private extension FDMode {
-    var flavorIcon: String {
-        switch self {
-        case .narratif: return "📖"
-        case .express: return "⏩"
-        }
-    }
-}

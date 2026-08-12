@@ -65,14 +65,14 @@ struct FDMainMenuView: View {
                             }
 
                             FDMenuRow(
-                                icon: "clock.arrow.circlepath",
-                                iconTint: FDTheme.accentTeal,
-                                title: "Historique",
-                                subtitle: engine.archivedCareers.isEmpty ? "Aucune carrière terminée" : "\(engine.archivedCareers.count) carrière(s) terminée(s)",
+                                icon: "trophy.fill",
+                                iconTint: FDTheme.amber,
+                                title: "Défi Gloire du Passé",
+                                subtitle: "\(engine.conqueredLegendIDs.count)/\(FDLegendChallenges.count) légendes conquises",
                                 disabled: false
                             ) {
                                 FDHaptics.tap()
-                                showHistorique = true
+                                showDefis = true
                             }
 
                             FDMenuRow(
@@ -87,14 +87,14 @@ struct FDMainMenuView: View {
                             }
 
                             FDMenuRow(
-                                icon: "trophy.fill",
-                                iconTint: FDTheme.amber,
-                                title: "Défi Gloire du Passé",
-                                subtitle: "\(engine.conqueredLegendIDs.count)/\(FDLegendChallenges.count) légendes conquises",
+                                icon: "clock.arrow.circlepath",
+                                iconTint: FDTheme.accentTeal,
+                                title: "Historique",
+                                subtitle: engine.archivedCareers.isEmpty ? "Aucune carrière terminée" : "\(engine.archivedCareers.count) carrière(s) terminée(s)",
                                 disabled: false
                             ) {
                                 FDHaptics.tap()
-                                showDefis = true
+                                showHistorique = true
                             }
                         }
                         .opacity(appear ? 1 : 0)
@@ -247,9 +247,8 @@ struct FDAboutSheet: View {
                         .fdCard()
 
                     VStack(alignment: .leading, spacing: 10) {
-                        FDSectionLabel("Deux styles de carrière")
-                        Label("Narratif — tu vis chaque évènement", systemImage: "book.fill")
-                        Label("Express — seuls les moments clés s'affichent", systemImage: "forward.fill")
+                        FDSectionLabel("Un rythme resserré")
+                        Label("Une poignée de choix marquants par saison — le reste se joue en coulisses", systemImage: "book.fill")
                     }
                     .font(.subheadline)
                     .fdCard()
