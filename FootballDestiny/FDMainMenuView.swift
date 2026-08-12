@@ -15,31 +15,23 @@ struct FDMainMenuView: View {
             FDTheme.backgroundGradient
                 .ignoresSafeArea()
 
-            Circle()
-                .fill(FDTheme.violetGlow.opacity(0.30))
-                .frame(width: 320, height: 320)
-                .blur(radius: 75)
-                .offset(x: 140, y: -280)
-
-            Circle()
-                .fill(FDTheme.blueGlow.opacity(0.26))
-                .frame(width: 280, height: 280)
-                .blur(radius: 75)
-                .offset(x: -150, y: 300)
-
-            Circle()
-                .fill(FDTheme.violetGlow.opacity(0.12))
-                .frame(width: 420, height: 420)
-                .blur(radius: 90)
+            // A single smooth glow rising from the bottom, in place of several scattered blurred
+            // circles — calmer and closer to the reference's clean navy-to-tinted-glow blend.
+            RadialGradient(
+                colors: [FDTheme.primary.opacity(0.34), FDTheme.accentTeal.opacity(0.20), .clear],
+                center: .bottom, startRadius: 20, endRadius: 460
+            )
+            .ignoresSafeArea()
+            .blur(radius: 50)
 
             VStack(spacing: 0) {
                 topBar
 
                 ScrollView {
-                    VStack(spacing: 20) {
-                        heroCard
-                            .scaleEffect(appear ? 1 : 0.94)
+                    VStack(spacing: 22) {
+                        greetingHeader
                             .opacity(appear ? 1 : 0)
+                            .offset(y: appear ? 0 : -8)
 
                         VStack(spacing: 12) {
                             FDMenuRow(
@@ -55,7 +47,7 @@ struct FDMainMenuView: View {
 
                             FDMenuRow(
                                 icon: "play.fill",
-                                iconTint: FDTheme.accentTeal,
+                                iconTint: FDTheme.success,
                                 title: "Continuer",
                                 subtitle: engine.hasSave() ? "Reprendre ta carrière en cours" : "Aucune carrière en cours",
                                 disabled: !engine.hasSave()
@@ -77,7 +69,7 @@ struct FDMainMenuView: View {
 
                             FDMenuRow(
                                 icon: "cart.fill",
-                                iconTint: FDTheme.amber,
+                                iconTint: FDTheme.blueGlow,
                                 title: "Boutique",
                                 subtitle: "🪙 \(engine.legendCoins) pièce(s) — compétences permanentes",
                                 disabled: false
@@ -101,7 +93,7 @@ struct FDMainMenuView: View {
                         .offset(y: appear ? 0 : 16)
                     }
                     .padding(.horizontal, 20)
-                    .padding(.top, 24)
+                    .padding(.top, 20)
                     .padding(.bottom, 12)
                 }
 
@@ -151,63 +143,72 @@ struct FDMainMenuView: View {
         FDPotentialShop.maxAffordableStars(points: engine.lifetimePoints)
     }
 
-    private var heroCard: some View {
-        VStack(spacing: 14) {
-            Image("AppLogo")
-                .resizable()
-                .aspectRatio(contentMode: .fit)
-                .frame(width: 168, height: 168)
-                .clipShape(RoundedRectangle(cornerRadius: 28, style: .continuous))
-                .overlay(
-                    RoundedRectangle(cornerRadius: 28, style: .continuous)
-                        .stroke(Color.white.opacity(0.12), lineWidth: 1)
-                )
-                .shadow(color: .black.opacity(0.4), radius: 20, y: 10)
+    /// Greets by the in-progress player's first name when there's a career underway, otherwise
+    /// a generic welcome — there's no login/account, so this is the only "who's playing" signal.
+    private var greetingName: String? {
+        guard let p = engine.player, !p.retired else { return nil }
+        return p.firstName
+    }
 
-            Text("SIMULATEUR DE CARRIÈRE")
-                .font(.caption.weight(.bold))
-                .tracking(4)
-                .foregroundStyle(FDTheme.primary)
+    private var statusLine: (icon: String, text: String) {
+        if let name = greetingName {
+            return ("⚽", "\(name) t'attend — reprends là où tu t'es arrêté")
+        }
+        if engine.lifetimePoints > 0 {
+            return ("🏆", "\(engine.lifetimePoints) points de carrière cumulés")
+        }
+        return ("✨", "Prêt à écrire ta première légende")
+    }
 
-            Text("Écris ta carrière. Vis ta légende.")
-                .font(FDFont.body(15))
-                .foregroundStyle(.white.opacity(0.65))
+    /// Compact identity block — small logo, a short label, a personal greeting and a one-line
+    /// status — in place of the previous full-width hero card with a giant centered logo.
+    private var greetingHeader: some View {
+        VStack(alignment: .leading, spacing: 14) {
+            HStack(spacing: 14) {
+                FDLogoBadge(size: 52, corner: 15)
 
-            if engine.lifetimePoints > 0 {
-                HStack(spacing: 5) {
-                    Text("🏆")
-                    Text("\(engine.lifetimePoints) points de carrière cumulés")
-                        .font(.fdRounded(.caption, weight: .semibold))
+                VStack(alignment: .leading, spacing: 2) {
+                    Text("SIMULATEUR DE CARRIÈRE")
+                        .font(.caption2.weight(.bold))
+                        .tracking(2)
+                        .foregroundStyle(FDTheme.primary)
+                    Text(greetingName.map { "Bonjour, \($0) 👋" } ?? "Bonjour 👋")
+                        .font(FDFont.display(23))
+                        .foregroundStyle(.white)
                 }
-                .foregroundStyle(FDTheme.gold)
-                .padding(.horizontal, 12)
-                .padding(.vertical, 6)
-                .background(Capsule().fill(FDTheme.gold.opacity(0.14)))
-                .padding(.top, 4)
+                Spacer(minLength: 0)
             }
 
-            VStack(spacing: 4) {
-                HStack(spacing: 3) {
-                    ForEach(0..<FDPotentialShop.maxStars, id: \.self) { i in
-                        Image(systemName: i < potentialStarsUnlocked ? "star.fill" : "star")
-                            .font(.system(size: 15))
-                            .foregroundStyle(i < potentialStarsUnlocked ? FDTheme.amber : Color.white.opacity(0.25))
-                    }
+            HStack(spacing: 6) {
+                Text(statusLine.icon)
+                Text(statusLine.text)
+                    .font(.fdRounded(.caption, weight: .semibold))
+            }
+            .foregroundStyle(FDTheme.amber)
+            .padding(.horizontal, 12)
+            .padding(.vertical, 7)
+            .background(Capsule().fill(FDTheme.amber.opacity(0.14)))
+
+            HStack(spacing: 3) {
+                ForEach(0..<FDPotentialShop.maxStars, id: \.self) { i in
+                    Image(systemName: i < potentialStarsUnlocked ? "star.fill" : "star")
+                        .font(.system(size: 13))
+                        .foregroundStyle(i < potentialStarsUnlocked ? FDTheme.amber : Color.white.opacity(0.22))
                 }
-                Text("Potentiel de départ — progresse avec tes carrières cumulées")
+                Text("Potentiel de départ")
                     .font(.caption2)
                     .foregroundStyle(.white.opacity(0.45))
+                    .padding(.leading, 4)
             }
-            .padding(.top, 2)
         }
-        .padding(.vertical, 28)
-        .frame(maxWidth: .infinity)
+        .padding(16)
+        .frame(maxWidth: .infinity, alignment: .leading)
         .background(
-            RoundedRectangle(cornerRadius: 24, style: .continuous)
+            RoundedRectangle(cornerRadius: 20, style: .continuous)
                 .fill(Color.white.opacity(0.05))
         )
         .overlay(
-            RoundedRectangle(cornerRadius: 24, style: .continuous)
+            RoundedRectangle(cornerRadius: 20, style: .continuous)
                 .stroke(Color.white.opacity(0.10), lineWidth: 1)
         )
     }
