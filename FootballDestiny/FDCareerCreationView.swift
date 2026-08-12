@@ -238,7 +238,7 @@ struct FDCareerCreationView: View {
 
                 VStack(alignment: .leading, spacing: 10) {
                     FDSectionLabel("Personnalité")
-                    FDChipScrollRow(items: FDPersonality.allCases, label: { $0.rawValue }, icon: { $0.flavorIcon }, selection: draft.personality) { p in
+                    FDChipScrollRows(items: FDPersonality.allCases, label: { $0.rawValue }, icon: { $0.flavorIcon }, selection: draft.personality) { p in
                         FDHaptics.tap(); draft.personality = p
                     }
                     Text(draft.personality.flavorText).font(.caption).foregroundStyle(.secondary)
@@ -308,11 +308,20 @@ struct FDCareerCreationView: View {
 
     /// Five clubs willing to give a 16-year-old prodigy his shot: the best academies of his
     /// home nation first, filled out with modest foreign clubs if the nation has too few.
+    /// Fewer potential stars bought means fewer doors open — big footballing nations only offer
+    /// D2 (or lower) to an unproven talent, while smaller nations still let D1 clubs take a chance.
     private var curatedClubChoices: [FDClub] {
+        let countryTier = FDCountryTier[draft.nationality] ?? 3
+        let allowsTopDivision = draft.potentialStars >= 2 || countryTier == 3
+
         let home = FDAllClubs
             .filter { $0.country == draft.nationality }
-            .sorted { $0.academyQuality > $1.academyQuality }
-        var picks = Array(home.prefix(5))
+            .filter { allowsTopDivision || $0.division >= 2 }
+        let sortedHome = draft.potentialStars <= 1
+            ? home.sorted { $0.reputation < $1.reputation }
+            : home.sorted { $0.academyQuality > $1.academyQuality }
+
+        var picks = Array(sortedHome.prefix(5))
         if picks.count < 5 {
             let pickedIDs = Set(picks.map(\.id))
             let rest = FDAllClubs
@@ -457,6 +466,45 @@ private struct FDChipScrollRow<T: Hashable>: View {
     var body: some View {
         ScrollView(.horizontal, showsIndicators: false) {
             HStack(spacing: 8) {
+                ForEach(items, id: \.self) { item in
+                    Button {
+                        onSelect(item)
+                    } label: {
+                        HStack(spacing: 6) {
+                            Text(icon(item))
+                            Text(label(item)).font(FDFont.body(14, black: true))
+                        }
+                        .padding(.horizontal, 14)
+                        .padding(.vertical, 10)
+                        .background(
+                            Capsule().fill(item == selection ? FDTheme.primary : FDTheme.bg.opacity(0.6))
+                        )
+                        .foregroundStyle(item == selection ? FDTheme.ink : Color.white.opacity(0.85))
+                        .overlay(
+                            Capsule().stroke(item == selection ? Color.clear : Color.white.opacity(0.10), lineWidth: 1)
+                        )
+                    }
+                    .buttonStyle(.plain)
+                }
+            }
+            .padding(.horizontal, 2)
+            .padding(.vertical, 2)
+        }
+    }
+}
+
+/// Same idea as FDChipScrollRow, but wrapped over two fixed rows and scrolled horizontally —
+/// used for personality, which has enough options to benefit from the extra row.
+private struct FDChipScrollRows<T: Hashable>: View {
+    let items: [T]
+    let label: (T) -> String
+    let icon: (T) -> String
+    let selection: T
+    let onSelect: (T) -> Void
+
+    var body: some View {
+        ScrollView(.horizontal, showsIndicators: false) {
+            LazyHGrid(rows: [GridItem(.fixed(40), spacing: 8), GridItem(.fixed(40), spacing: 8)], spacing: 8) {
                 ForEach(items, id: \.self) { item in
                     Button {
                         onSelect(item)

@@ -147,6 +147,10 @@ struct FDMainMenuView: View {
         .padding(.top, 8)
     }
 
+    private var potentialStarsUnlocked: Int {
+        FDPotentialShop.maxAffordableStars(points: engine.lifetimePoints)
+    }
+
     private var heroCard: some View {
         VStack(spacing: 14) {
             Image("AppLogo")
@@ -181,6 +185,20 @@ struct FDMainMenuView: View {
                 .background(Capsule().fill(FDTheme.gold.opacity(0.14)))
                 .padding(.top, 4)
             }
+
+            VStack(spacing: 4) {
+                HStack(spacing: 3) {
+                    ForEach(0..<FDPotentialShop.maxStars, id: \.self) { i in
+                        Image(systemName: i < potentialStarsUnlocked ? "star.fill" : "star")
+                            .font(.system(size: 15))
+                            .foregroundStyle(i < potentialStarsUnlocked ? FDTheme.amber : Color.white.opacity(0.25))
+                    }
+                }
+                Text("Potentiel de départ — progresse avec tes carrières cumulées")
+                    .font(.caption2)
+                    .foregroundStyle(.white.opacity(0.45))
+            }
+            .padding(.top, 2)
         }
         .padding(.vertical, 28)
         .frame(maxWidth: .infinity)
@@ -249,6 +267,14 @@ struct FDAboutSheet: View {
                     VStack(alignment: .leading, spacing: 10) {
                         FDSectionLabel("Un rythme resserré")
                         Label("Une poignée de choix marquants par saison — le reste se joue en coulisses", systemImage: "book.fill")
+                    }
+                    .font(.subheadline)
+                    .fdCard()
+
+                    VStack(alignment: .leading, spacing: 10) {
+                        FDSectionLabel("Deux monnaies, deux usages")
+                        Label("🏆 Points de carrière cumulés : dépensés en étoiles de potentiel au lancement d'une nouvelle carrière.", systemImage: "star.fill")
+                        Label("🪙 Pièces : gagnées seulement pour les grandes carrières, à dépenser dans la Boutique et le Défi Gloire du Passé.", systemImage: "cart.fill")
                     }
                     .font(.subheadline)
                     .fdCard()

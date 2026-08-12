@@ -260,6 +260,15 @@ struct FDTransferRecord: Codable, Identifiable {
     var fee: Int
 }
 
+/// A season-long target, generated ahead of time and evaluated in the following bilan —
+/// "kind" drives how it's checked: "classement" against league position, "buts"/"passes"
+/// against season totals, "titulaire" against appearances.
+struct FDSeasonObjective: Codable {
+    var text: String
+    var kind: String
+    var target: Int
+}
+
 /// Result of a biennial international tournament (Coupe du Monde / Championnat d'Europe),
 /// shown as its own scene card. Transient like the rest of FDCurrentScene — not persisted.
 struct FDTournamentSummary {
@@ -344,6 +353,23 @@ struct FDPlayer: Codable {
     var nationalCaps = 0
     var inNationalTeam = false
 
+    /// This season's objectives, generated at the previous season's end and evaluated at the
+    /// next — shown as ✅/❌ in the bilan de saison, alongside the club's own target.
+    var clubObjective: FDSeasonObjective? = nil
+    var personalObjective: FDSeasonObjective? = nil
+    /// Net money moved this season (salary, sponsors, narrative wins and losses) — resets every
+    /// bilan de saison so the season's financial line reflects only that season.
+    var seasonMoneyDelta: Int = 0
+
+    /// A persistent rival, introduced narratively around age 17 and followed loosely across the
+    /// whole career via season-recap blurbs and occasional Rivalité scenes.
+    var rivalFirstName: String = ""
+    var rivalLastName: String = ""
+    var rivalMomentum: Int = 50
+
+    /// Locked in once, around age 21, via the Identité de jeu scene — a permanent play-style label.
+    var playStyleLabel: String? = nil
+
     func attr(_ a: FDAttribute) -> Int { attrs[a.rawValue] ?? 0 }
     func potential(_ a: FDAttribute) -> Int { potential[a.rawValue] ?? 0 }
 
@@ -403,6 +429,9 @@ struct FDMatchResult {
 struct FDChoice {
     var label: String
     var hint: String = ""
+    /// A short display-only badge (e.g. "CLASH", "PROVOCATION", "CARBURANT") shown before the
+    /// choice label — purely flavor, unlike `trait` which permanently unlocks an FDTrait.
+    var tag: String? = nil
     var effects: [FDEffect] = []
     var riskChance: Double? = nil
     var riskEffects: [FDEffect]? = nil
@@ -414,6 +443,8 @@ struct FDChoice {
     var setContractSalary: Int? = nil
     var setContractYears: Int? = nil
     var trait: FDTrait? = nil
+    /// Set once, by the Identité de jeu scene, to permanently label the player's play style.
+    var setPlayStyle: String? = nil
 }
 
 struct FDSceneDef {

@@ -175,6 +175,14 @@ final class FDGameEngine: ObservableObject {
         )
         newPlayer.journal.insert(FDJournalEntry(week: 0, season: 1, age: 16, text: "Débuts professionnels chez \(club.name) à 16 ans.", icon: "⚽"), at: 0)
 
+        let rivalName = FDNameBank.random(for: draft.nationality)
+        newPlayer.rivalFirstName = rivalName.first
+        newPlayer.rivalLastName = rivalName.last
+        newPlayer.rivalMomentum = Int.random(in: 40...60)
+
+        newPlayer.clubObjective = generateClubObjective(newPlayer)
+        newPlayer.personalObjective = generatePersonalObjective(newPlayer)
+
         player = newPlayer
         usedSceneIds = []
         sceneCooldown = [:]
@@ -460,6 +468,7 @@ final class FDGameEngine: ObservableObject {
             }
             if let money = e.money {
                 p.money = max(0, p.money + money)
+                p.seasonMoneyDelta += money
                 if money != 0 {
                     pills.append(FDEffectPill(label: "Argent", valueText: "\(money > 0 ? "+" : "-")\(fdFormatMoney(abs(money)))", positive: money > 0))
                 }
@@ -553,9 +562,20 @@ final class FDGameEngine: ObservableObject {
         return true
     }
 
+    /// Scene text/character can reference "{rival}" — swapped for the player's persistent
+    /// rival's last name at pick time so hand-written Rivalité scenes stay dynamic.
+    private func personalize(_ text: String, player p: FDPlayer) -> String {
+        guard text.contains("{rival}") else { return text }
+        let name = p.rivalLastName.isEmpty ? "ton rival" : p.rivalLastName
+        return text.replacingOccurrences(of: "{rival}", with: name)
+    }
+
     private func pickHandwrittenScene(_ p: FDPlayer) -> FDSceneDef? {
         let pool = FDScenes.filter { sceneEligible($0, player: p) }
-        return pool.randomElement()
+        guard var picked = pool.randomElement() else { return nil }
+        picked.text = personalize(picked.text, player: p)
+        picked.character = personalize(picked.character, player: p)
+        return picked
     }
 
     private func genericEvent(_ p: FDPlayer) -> FDCurrentScene {
@@ -640,6 +660,11 @@ final class FDGameEngine: ObservableObject {
             player = p
             pushJournal("Contrat professionnel signé : \(fdFormatMoney(salary))/semaine.", icon: "📄")
         }
+        if let style = choice.setPlayStyle, var p = player, p.playStyleLabel == nil {
+            p.playStyleLabel = style
+            player = p
+            pushJournal("Identité de jeu adoptée : \(style).", icon: "🧬")
+        }
 
         if pills.isEmpty && narrative.isEmpty {
             advanceWeek()
@@ -670,7 +695,9 @@ final class FDGameEngine: ObservableObject {
     private func weeklyTick() {
         guard var p = player else { return }
         p.calendar.week += 1
-        p.money += Int((Double(p.contract.salary) * 0.82).rounded())
+        let weeklyIncome = Int((Double(p.contract.salary) * 0.82).rounded())
+        p.money += weeklyIncome
+        p.seasonMoneyDelta += weeklyIncome
         p.cond.fatigue = min(max(p.cond.fatigue - 4, 0), 100)
         p.cond.forme = min(max(p.cond.forme + Int(((58 - Double(p.cond.forme)) * 0.14).rounded()), 0), 100)
         p.cond.confiance = min(max(p.cond.confiance + Int(((55 - Double(p.cond.confiance)) * 0.14).rounded()), 0), 100)
@@ -764,6 +791,33 @@ final class FDGameEngine: ObservableObject {
             summary.append("🏆 Vainqueur de la Coupe Nationale !")
         }
 
+        // Objectives set at the previous bilan, evaluated now against this season's real numbers.
+        if let obj = p.clubObjective {
+            let achieved = evaluateObjective(obj, leaguePosition: leaguePosition, p: p)
+            if achieved {
+                let prime = max(20_000, marketValue(p) / 200)
+                p.money += prime
+                p.seasonMoneyDelta += prime
+                summary.append("✅ Objectif du club : \(obj.text) (prime +\(fdFormatMoney(prime)))")
+            } else {
+                summary.append("❌ Objectif du club : \(obj.text)")
+            }
+        }
+        if let obj = p.personalObjective {
+            let achieved = evaluateObjective(obj, leaguePosition: leaguePosition, p: p)
+            summary.append((achieved ? "✅ Objectif personnel : " : "❌ Objectif personnel : ") + obj.text)
+        }
+
+        // Season's net financial line — salary/sponsors plus every narrative money swing, can go negative.
+        if p.seasonMoneyDelta >= 0 {
+            summary.append("💰 +\(fdFormatMoney(p.seasonMoneyDelta)) (salaire & sponsors)")
+        } else {
+            summary.append("💸 -\(fdFormatMoney(abs(p.seasonMoneyDelta))) (pertes financières de la saison)")
+        }
+
+        let rivalLine = rivalSeasonBlurb(&p)
+        if !rivalLine.isEmpty { summary.append(rivalLine) }
+
         // Individual awards — read from the record just inserted, before season counters reset.
         if (p.status == .pro || p.status == .veteran) && p.seasonMatches >= 10 {
             let seasonGoals = p.history[0].goals
@@ -782,6 +836,7 @@ final class FDGameEngine: ObservableObject {
 
         p.age += 1
         p.seasonMatches = 0; p.seasonGoals = 0; p.seasonAssists = 0; p.seasonForm = []; p.seasonStoryEvents = 0
+        p.seasonMoneyDelta = 0
         p.calendar.season += 1; p.calendar.week = 0
 
         // Growth pass — weighted toward the attributes that matter for this position
@@ -876,10 +931,89 @@ final class FDGameEngine: ObservableObject {
             summary.append("Fin de carrière officielle. Merci pour cette aventure ! +\(earned) points de carrière (total cumulé : \(lifetimePoints)).")
         }
 
+        // New objectives for the upcoming season, evaluated at the next bilan.
+        if p.retired {
+            p.clubObjective = nil
+            p.personalObjective = nil
+        } else {
+            p.clubObjective = generateClubObjective(p)
+            p.personalObjective = generatePersonalObjective(p)
+        }
+
         player = p
         pushJournal(summary.joined(separator: " "), icon: "🏆")
         currentScene = .season(summary)
         saveGame()
+    }
+
+    // MARK: - Season objectives
+
+    private func evaluateObjective(_ obj: FDSeasonObjective, leaguePosition: Int, p: FDPlayer) -> Bool {
+        switch obj.kind {
+        case "classement": return leaguePosition <= obj.target
+        case "buts": return p.seasonGoals >= obj.target
+        case "passes": return p.seasonAssists >= obj.target
+        case "titulaire": return p.seasonMatches >= obj.target
+        case "selection": return p.inNationalTeam
+        default: return false
+        }
+    }
+
+    private func generateClubObjective(_ p: FDPlayer) -> FDSeasonObjective {
+        let rep = p.club.reputation
+        if rep >= 80 {
+            return FDSeasonObjective(text: "Remporter le titre de champion", kind: "classement", target: 1)
+        } else if rep >= 60 {
+            return FDSeasonObjective(text: "Décrocher une place sur le podium", kind: "classement", target: 3)
+        } else if rep >= 35 {
+            return FDSeasonObjective(text: "Accrocher le top 6", kind: "classement", target: 6)
+        } else {
+            return FDSeasonObjective(text: "Assurer le maintien", kind: "classement", target: 16)
+        }
+    }
+
+    private func generatePersonalObjective(_ p: FDPlayer) -> FDSeasonObjective {
+        if p.position.isAttacker {
+            let target = max(6, 9 + (overall(p) - 60) / 4)
+            return FDSeasonObjective(text: "Marquer \(target) buts cette saison", kind: "buts", target: target)
+        } else if p.position == .milieuRelayeur || p.position == .milieuOffensif {
+            let target = max(5, 7 + (overall(p) - 60) / 5)
+            return FDSeasonObjective(text: "Délivrer \(target) passes décisives", kind: "passes", target: target)
+        } else {
+            return FDSeasonObjective(text: "S'imposer comme titulaire indiscutable", kind: "titulaire", target: 22)
+        }
+    }
+
+    // MARK: - Rivalité
+
+    /// A loose parallel career for the player's persistent rival — drifts randomly season to
+    /// season and surfaces as a one-line news blurb in the bilan, echoing Destiny Eleven's format.
+    private func rivalSeasonBlurb(_ p: inout FDPlayer) -> String {
+        guard !p.rivalLastName.isEmpty else { return "" }
+        let drift = Int.random(in: -14...16)
+        p.rivalMomentum = min(100, max(0, p.rivalMomentum + drift))
+        let name = p.rivalLastName
+        let pool: [String]
+        if p.rivalMomentum >= 75 {
+            pool = [
+                "Les statistiques de \(name) affolent l'Europe entière cette saison.",
+                "\(name) enchaîne les récompenses individuelles, la presse ne parle que de lui.",
+                "Saison XXL pour \(name), déjà annoncé favori pour les prochains trophées.",
+            ]
+        } else if p.rivalMomentum <= 25 {
+            pool = [
+                "\(name) traverse un passage à vide depuis plusieurs mois, les critiques pleuvent.",
+                "Saison compliquée pour \(name), relégué sur le banc de son club.",
+                "\(name) traverse une polémique après des propos maladroits en interview.",
+            ]
+        } else {
+            pool = [
+                "Rien de marquant du côté de \(name) cette saison, une année sans éclat.",
+                "\(name) poursuit sa carrière loin des projecteurs cette saison.",
+                "Saison quelconque pour \(name), ni brillante ni catastrophique.",
+            ]
+        }
+        return "📰 " + (pool.randomElement() ?? "")
     }
 
     private func simulateTournament(for p: FDPlayer) -> FDTournamentSummary {

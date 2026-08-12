@@ -399,6 +399,150 @@ let FDScenes: [FDSceneDef] = [
                       effects: [FDEffect(rel: "media", delta: 4), FDEffect(cond: "confiance", delta: -2)]),
         ],
         condition: { p in p.personality == .reserve }),
+
+    // MARK: - Rivalité (persistent rival, introduced at 17, followed loosely all career)
+    FDSceneDef(
+        id: "rivalite_intro", category: "Rivalité", minAge: 17, maxAge: 17, once: true,
+        location: "Centre de formation", character: "{rival}",
+        text: "Un jeune espoir du club voisin s'impose déjà comme LA sensation de ta génération. Les journalistes ne parlent que de lui : {rival}. Votre duel commence ici, sans que vous ne vous soyez jamais affrontés.",
+        choices: [
+            FDChoice(label: "Se jurer de le dépasser", hint: "+Détermination +Confiance", tag: "CARBURANT",
+                      effects: [FDEffect(attr: .determination, delta: 3), FDEffect(cond: "confiance", delta: 3)]),
+            FDChoice(label: "Se concentrer sur sa propre progression", hint: "+Sang-froid",
+                      effects: [FDEffect(attr: .sangfroid, delta: 2)]),
+        ]),
+    FDSceneDef(
+        id: "rivalite_clash_media", category: "Rivalité", minAge: 19, maxAge: 32,
+        location: "Zone mixte", character: "Journaliste",
+        text: "« {rival} a déclaré être largement au-dessus de vous. Une réaction ? » Le micro attend, la salle retient son souffle.",
+        choices: [
+            FDChoice(label: "Répondre par une pique bien sentie", hint: "+Réputation, risque de tension", tag: "CLASH",
+                      effects: [FDEffect(cond: "reputation", delta: 6), FDEffect(rel: "fans", delta: 3)],
+                      riskChance: 0.25,
+                      riskEffects: [FDEffect(rel: "president", delta: -4), FDEffect(cond: "moral", delta: -3)],
+                      riskText: "Le club te recadre en interne : la sortie médiatique n'est pas passée inaperçue."),
+            FDChoice(label: "Rester au-dessus de la mêlée", hint: "+Sang-froid",
+                      effects: [FDEffect(attr: .sangfroid, delta: 2)]),
+        ]),
+    FDSceneDef(
+        id: "rivalite_terrain_duel", category: "Rivalité", minAge: 19, maxAge: 32,
+        location: "Terrain", character: "{rival}",
+        text: "Vous vous retrouvez enfin face à face sur la pelouse. Chaque duel entre vous devient un match dans le match.",
+        choices: [
+            FDChoice(label: "Le chercher sur chaque ballon", hint: "+Détermination, risque de dérapage", tag: "PROVOCATION",
+                      effects: [FDEffect(attr: .determination, delta: 3)],
+                      riskChance: 0.22,
+                      riskEffects: [FDEffect(rel: "coach", delta: -4), FDEffect(cond: "moral", delta: -3)],
+                      riskText: "Le duel dégénère. Le coach n'apprécie pas ton attitude sur ce match."),
+            FDChoice(label: "Garder son sang-froid, jouer son jeu", hint: "+Sang-froid +Placement",
+                      effects: [FDEffect(attr: .sangfroid, delta: 2), FDEffect(attr: .placement, delta: 2)]),
+        ]),
+    FDSceneDef(
+        id: "rivalite_depassement", category: "Rivalité", minAge: 24, maxAge: 34,
+        location: "Vestiaire", character: "Coéquipier",
+        text: "Après des années de comparaisons, un coéquipier te lance : « Honnêtement, niveau stats, tu l'as dépassé cette saison, {rival}. Tu le sens ? »",
+        choices: [
+            FDChoice(label: "Savourer, sans le crier sur les toits", hint: "+Confiance +Moral",
+                      effects: [FDEffect(cond: "confiance", delta: 4), FDEffect(cond: "moral", delta: 3)]),
+            FDChoice(label: "Rester humble, la rivalité continue", hint: "+Vestiaire",
+                      effects: [FDEffect(rel: "vestiaire", delta: 3)]),
+        ]),
+
+    // MARK: - Identité de jeu (once, ~21 ans — permanent play-style lock)
+    FDSceneDef(
+        id: "identite_jeu", category: "Identité de jeu", minAge: 21, maxAge: 22, once: true,
+        location: "Bureau du staff technique", character: "Analyste vidéo",
+        text: "« À ce stade de ta carrière, il est temps de définir clairement ton profil de jeu. Ça orientera ton style pour les saisons à venir. »",
+        choices: [
+            FDChoice(label: "Le Régisseur — orchestrer le jeu avant de conclure", hint: "+Vision +Passe, -Tir",
+                      effects: [FDEffect(attr: .vision, delta: 4), FDEffect(attr: .passe, delta: 4), FDEffect(attr: .tir, delta: -3)],
+                      setPlayStyle: "Le Régisseur"),
+            FDChoice(label: "Le Renard — vivre dans la surface, se nourrir des occasions", hint: "+Tir +Placement, -Passe",
+                      effects: [FDEffect(attr: .tir, delta: 5), FDEffect(attr: .placement, delta: 3), FDEffect(attr: .passe, delta: -3)],
+                      setPlayStyle: "Le Renard"),
+            FDChoice(label: "Le Métronome — sécuriser chaque ballon, ne jamais le perdre", hint: "+Contrôle +Sang-froid, -Dribble",
+                      effects: [FDEffect(attr: .control, delta: 4), FDEffect(attr: .sangfroid, delta: 3), FDEffect(attr: .dribble, delta: -3)],
+                      setPlayStyle: "Le Métronome"),
+            FDChoice(label: "L'Électron libre — improviser, prendre des risques", hint: "+Dribble +Vitesse, -Placement",
+                      effects: [FDEffect(attr: .dribble, delta: 5), FDEffect(attr: .vitesse, delta: 2), FDEffect(attr: .placement, delta: -3)],
+                      setPlayStyle: "L'Électron libre"),
+        ]),
+
+    // MARK: - Hygiène de vie
+    FDSceneDef(
+        id: "hygiene_soiree_groupe", category: "Hygiène de vie", minAge: 18, maxAge: 34,
+        location: "Ville, en soirée", character: "Coéquipiers",
+        text: "Le groupe organise une sortie improvisée après une victoire. Tentant, mais un entraînement matinal t'attend demain.",
+        choices: [
+            FDChoice(label: "Se joindre au groupe, dans la limite du raisonnable", hint: "+Vestiaire +Moral, -Forme",
+                      effects: [FDEffect(rel: "vestiaire", delta: 5), FDEffect(cond: "moral", delta: 3), FDEffect(cond: "forme", delta: -3)]),
+            FDChoice(label: "Rentrer se reposer", hint: "+Forme, -Vestiaire",
+                      effects: [FDEffect(cond: "forme", delta: 3), FDEffect(rel: "vestiaire", delta: -2)]),
+        ]),
+    FDSceneDef(
+        id: "hygiene_ecrans_tard", category: "Hygiène de vie", minAge: 16, maxAge: 30,
+        location: "Chambre d'hôtel", character: "—",
+        text: "Impossible de trouver le sommeil, tu enchaînes les parties en ligne bien après minuit.",
+        choices: [
+            FDChoice(label: "Couper les écrans, dormir", hint: "+Forme",
+                      effects: [FDEffect(cond: "forme", delta: 3)]),
+            FDChoice(label: "Continuer encore un peu", hint: "-Forme, +Fatigue",
+                      effects: [FDEffect(cond: "forme", delta: -3), FDEffect(cond: "fatigue", delta: 8)]),
+        ]),
+    FDSceneDef(
+        id: "hygiene_a_lecart", category: "Hygiène de vie", minAge: 18, maxAge: 34,
+        location: "Centre d'entraînement", character: "Noyau dur du vestiaire",
+        text: "Le noyau dur du vestiaire multiplie les sorties et les habitudes communes. Tu choisis de rester en retrait, fidèle à ta propre routine.",
+        choices: [
+            FDChoice(label: "Assumer sa différence", hint: "+Sang-froid, -Vestiaire",
+                      effects: [FDEffect(attr: .sangfroid, delta: 2), FDEffect(rel: "vestiaire", delta: -2)]),
+            FDChoice(label: "Forcer le rapprochement", hint: "+Vestiaire, -Confiance",
+                      effects: [FDEffect(rel: "vestiaire", delta: 4), FDEffect(cond: "confiance", delta: -2)]),
+        ]),
+
+    // MARK: - Préparation
+    FDSceneDef(
+        id: "preparation_donnees", category: "Préparation", minAge: 20, maxAge: 40,
+        location: "Salle vidéo", character: "Analyste de la performance",
+        text: "Heat maps, données GPS, pourcentages de passes réussies : le staff te noie sous les chiffres avant chaque match.",
+        choices: [
+            FDChoice(label: "Tout décortiquer, s'en nourrir", hint: "+Vision +Placement, +Fatigue",
+                      effects: [FDEffect(attr: .vision, delta: 2), FDEffect(attr: .placement, delta: 2), FDEffect(cond: "fatigue", delta: 5)]),
+            FDChoice(label: "Garder l'instinct, ignorer les chiffres", hint: "+Confiance",
+                      effects: [FDEffect(cond: "confiance", delta: 2)]),
+        ]),
+    FDSceneDef(
+        id: "preparation_routine_recup", category: "Préparation", minAge: 29, maxAge: 40,
+        location: "Centre de récupération", character: "Kinésithérapeute",
+        text: "Après 30 ans, jouer se mérite : cryothérapie, soins ciblés, routines interminables avant chaque séance.",
+        choices: [
+            FDChoice(label: "En faire une science exacte", hint: "+Force +Forme",
+                      effects: [FDEffect(attr: .force, delta: 3), FDEffect(cond: "forme", delta: 3)]),
+            FDChoice(label: "Écouter son corps au feeling", hint: "+Sang-froid",
+                      effects: [FDEffect(attr: .sangfroid, delta: 2)]),
+        ]),
+
+    // MARK: - Supporters (fin de carrière)
+    FDSceneDef(
+        id: "supporters_lettre_fan", category: "Supporters", minAge: 28, maxAge: 40,
+        location: "Courrier du club", character: "Jeune supporter",
+        text: "Une lettre manuscrite arrive au centre d'entraînement : un jeune supporter t'écrit, tu es son idole depuis toujours.",
+        choices: [
+            FDChoice(label: "Répondre personnellement", hint: "+Supporters +Moral",
+                      effects: [FDEffect(rel: "fans", delta: 5), FDEffect(cond: "moral", delta: 3)]),
+            FDChoice(label: "Transmettre au service communication", hint: "+Supporters",
+                      effects: [FDEffect(rel: "fans", delta: 2)]),
+        ]),
+    FDSceneDef(
+        id: "supporters_tifo", category: "Supporters", minAge: 22, maxAge: 40,
+        location: "Tribune", character: "Groupe de supporters",
+        text: "Un tifo géant à ton effigie est déployé avant le coup d'envoi. Le stade retient son souffle.",
+        choices: [
+            FDChoice(label: "Saluer la tribune longuement", hint: "+Supporters +Confiance",
+                      effects: [FDEffect(rel: "fans", delta: 4), FDEffect(cond: "confiance", delta: 3)]),
+            FDChoice(label: "Rester concentré sur l'échauffement", hint: "+Sang-froid",
+                      effects: [FDEffect(attr: .sangfroid, delta: 2)]),
+        ]),
 ]
 
 // Generic filler pools: (title, text, effects)

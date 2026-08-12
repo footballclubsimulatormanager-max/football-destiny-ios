@@ -117,6 +117,11 @@ private func fdSceneSymbol(_ category: String) -> String {
     case "Trophée": return "trophy.fill"
     case "Retraite": return "sunset.fill"
     case "Moment décisif": return "scope"
+    case "Rivalité": return "flame.fill"
+    case "Identité de jeu": return "person.crop.circle.fill.badge.checkmark"
+    case "Hygiène de vie": return "moon.zzz.fill"
+    case "Préparation": return "chart.bar.fill"
+    case "Supporters": return "megaphone.fill"
     default: return "calendar"
     }
 }
@@ -129,6 +134,11 @@ private func fdSceneColor(_ category: String) -> Color {
     case "Sélection", "Transfert": return .pink
     case "Trophée": return FDTheme.amber
     case "Moment décisif": return FDTheme.primary
+    case "Rivalité": return .red
+    case "Identité de jeu": return FDTheme.primary
+    case "Hygiène de vie": return .indigo
+    case "Préparation": return FDTheme.accentTeal
+    case "Supporters": return FDTheme.amber
     default: return FDTheme.accentTeal
     }
 }
@@ -179,7 +189,13 @@ struct FDStoryCard: View {
                         engine.resolveChoice(choice, category: scene.category)
                     } label: {
                         VStack(alignment: .leading, spacing: 3) {
-                            if let trait = choice.trait {
+                            if let tag = choice.tag {
+                                Text(tag.uppercased())
+                                    .font(.caption2.weight(.bold))
+                                    .padding(.horizontal, 8).padding(.vertical, 2)
+                                    .background(Capsule().fill(FDTheme.accentTeal.opacity(0.18)))
+                                    .foregroundStyle(FDTheme.accentTeal)
+                            } else if let trait = choice.trait {
                                 Text(trait.rawValue.uppercased())
                                     .font(.caption2.weight(.bold))
                                     .padding(.horizontal, 8).padding(.vertical, 2)
@@ -567,7 +583,7 @@ struct FDCarriereTab: View {
                 FDMetaTile(value: fdFormatMoney(p.contract.salary), label: "Salaire/sem")
                 FDMetaTile(value: p.status.rawValue, label: "Statut")
                 FDMetaTile(value: p.style.rawValue, label: "Style")
-                FDMetaTile(value: p.mode.rawValue, label: "Mode")
+                FDMetaTile(value: p.playStyleLabel ?? "—", label: "Identité de jeu")
             }
         }
         .fdCard()
@@ -667,6 +683,19 @@ struct FDCarriereTab: View {
                 FDTrophyLine(icon: "🌍", label: "Sélections", value: p.nationalCaps)
             }
             .fdCard()
+
+            if !p.rivalLastName.isEmpty {
+                VStack(alignment: .leading, spacing: 6) {
+                    FDSectionLabel("Rivalité")
+                    HStack {
+                        Text("🔥 \(p.rivalFirstName) \(p.rivalLastName)").font(FDFont.body(14, black: true))
+                        Spacer()
+                        Text(p.rivalMomentum >= 75 ? "En état de grâce" : (p.rivalMomentum <= 25 ? "En difficulté" : "Saison stable"))
+                            .font(.caption).foregroundStyle(.secondary)
+                    }
+                }
+                .fdCard()
+            }
 
             VStack(alignment: .leading, spacing: 10) {
                 FDSectionLabel("Le chemin parcouru")
