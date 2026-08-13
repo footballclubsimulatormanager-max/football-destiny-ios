@@ -9,7 +9,7 @@ struct FDGameShellView: View {
 
     var body: some View {
         TabView(selection: $selectedTab) {
-            FDCarriereTab(engine: engine)
+            FDCarriereTab(engine: engine, screen: $screen)
                 .tabItem { Label("Carrière", systemImage: "star.fill") }
                 .tag(0)
             FDJournalTab(engine: engine)
@@ -864,11 +864,13 @@ struct FDCareerSummaryCard: View {
 
 struct FDRetiredCard: View {
     @ObservedObject var engine: FDGameEngine
+    @Binding var screen: FDScreen
 
     var body: some View {
         if let p = engine.player {
             FDCareerSummaryCard(player: p, primaryActionTitle: "Commencer une nouvelle carrière") {
                 engine.resetSave()
+                screen = .menu
             }
         }
     }
@@ -908,6 +910,7 @@ private enum FDCarriereSubTab: String, CaseIterable, Identifiable {
 
 struct FDCarriereTab: View {
     @ObservedObject var engine: FDGameEngine
+    @Binding var screen: FDScreen
     @State private var subTab: FDCarriereSubTab = .stats
     @State private var showRetireConfirm = false
 
@@ -916,7 +919,7 @@ struct FDCarriereTab: View {
             Group {
                 if let p = engine.player, p.retired {
                     ScrollView {
-                        FDRetiredCard(engine: engine)
+                        FDRetiredCard(engine: engine, screen: $screen)
                             .padding()
                     }
                 } else if let p = engine.player {

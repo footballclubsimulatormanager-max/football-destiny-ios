@@ -10,7 +10,17 @@ struct FDCareerCreationView: View {
     @Binding var screen: FDScreen
 
     @State private var stepIndex = 0
-    @State private var draft = FDCreationDraft()
+    @State private var draft: FDCreationDraft
+
+    init(engine: FDGameEngine, screen: Binding<FDScreen>) {
+        self.engine = engine
+        self._screen = screen
+        var initialDraft = FDCreationDraft()
+        let nameData = FDNameBank.random(for: initialDraft.nationality)
+        initialDraft.firstName = nameData.first
+        initialDraft.lastName = nameData.last
+        self._draft = State(initialValue: initialDraft)
+    }
 
     private let steps = FDCreationStep.allCases
     private var currentStep: FDCreationStep { steps[stepIndex] }
