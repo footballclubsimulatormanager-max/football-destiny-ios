@@ -201,23 +201,10 @@ struct FDCareerCreationView: View {
 
                         HStack(spacing: 0) {
                             ForEach(FDFoot.allCases, id: \.self) { foot in
-                                Button {
+                                FDFootChoice(foot: foot, selected: draft.foot == foot) {
                                     FDHaptics.tap()
                                     draft.foot = foot
-                                } label: {
-                                    VStack(spacing: 4) {
-                                        Image(systemName: foot == .droit ? "hand.point.right.fill" : "hand.point.left.fill")
-                                            .font(.title3)
-                                            .foregroundStyle(draft.foot == foot ? FDTheme.primary : .secondary)
-                                        Text(foot.rawValue)
-                                            .font(FDFont.body(13, black: draft.foot == foot))
-                                            .foregroundStyle(draft.foot == foot ? FDTheme.textPrimary : .secondary)
-                                    }
-                                    .frame(maxWidth: .infinity)
-                                    .padding(.vertical, 12)
-                                    .background(draft.foot == foot ? FDTheme.primary.opacity(0.12) : Color.clear)
                                 }
-                                .buttonStyle(.plain)
                                 if foot != FDFoot.allCases.last {
                                     Rectangle().fill(Color.white.opacity(0.06)).frame(width: 1, height: 40)
                                 }
@@ -256,34 +243,9 @@ struct FDCareerCreationView: View {
                         creationSectionHeader(icon: "figure.soccer", title: "Position sur le terrain")
 
                         ForEach(FDPosition.allCases) { position in
-                            Button {
+                            FDPositionRow(position: position, selected: draft.position == position) {
                                 selectAndAdvance { draft.position = position }
-                            } label: {
-                                HStack(spacing: 12) {
-                                    ZStack {
-                                        RoundedRectangle(cornerRadius: 8)
-                                            .fill(draft.position == position ? FDTheme.primary.opacity(0.2) : Color.white.opacity(0.06))
-                                            .frame(width: 36, height: 36)
-                                        Image(systemName: fdPositionIcon(position))
-                                            .font(.system(size: 14, weight: .semibold))
-                                            .foregroundStyle(draft.position == position ? FDTheme.primary : .secondary)
-                                    }
-                                    Text(position.rawValue)
-                                        .font(FDFont.body(14, black: draft.position == position))
-                                        .foregroundStyle(draft.position == position ? FDTheme.textPrimary : FDTheme.textMuted)
-                                    Spacer()
-                                    if draft.position == position {
-                                        Image(systemName: "checkmark.circle.fill")
-                                            .foregroundStyle(FDTheme.primary)
-                                    } else {
-                                        Image(systemName: "chevron.right")
-                                            .font(.caption.weight(.semibold))
-                                            .foregroundStyle(.secondary)
-                                    }
-                                }
-                                .padding(.horizontal, 14).padding(.vertical, 12)
                             }
-                            .buttonStyle(.plain)
                             if position != FDPosition.allCases.last {
                                 Rectangle().fill(Color.white.opacity(0.04)).frame(height: 1)
                             }
@@ -316,36 +278,12 @@ struct FDCareerCreationView: View {
                         creationSectionHeader(icon: "house.fill", title: "Milieu familial")
 
                         ForEach(FDBackground.allCases, id: \.self) { bg in
-                            Button {
+                            FDProfileChoiceRow(
+                                icon: bg.flavorIcon, title: bg.rawValue, subtitle: bg.flavorText,
+                                selected: draft.background == bg, showChevronWhenUnselected: true
+                            ) {
                                 selectAndAdvance { draft.background = bg }
-                            } label: {
-                                HStack(spacing: 12) {
-                                    Text(bg.flavorIcon)
-                                        .font(.title2)
-                                        .frame(width: 40)
-                                    VStack(alignment: .leading, spacing: 3) {
-                                        Text(bg.rawValue)
-                                            .font(FDFont.body(14, black: draft.background == bg))
-                                            .foregroundStyle(draft.background == bg ? FDTheme.textPrimary : FDTheme.textMuted)
-                                        Text(bg.flavorText)
-                                            .font(.caption)
-                                            .foregroundStyle(.secondary)
-                                            .lineLimit(2)
-                                    }
-                                    Spacer()
-                                    if draft.background == bg {
-                                        Image(systemName: "checkmark.circle.fill")
-                                            .foregroundStyle(FDTheme.primary)
-                                    } else {
-                                        Image(systemName: "chevron.right")
-                                            .font(.caption.weight(.semibold))
-                                            .foregroundStyle(.secondary)
-                                    }
-                                }
-                                .padding(.horizontal, 14).padding(.vertical, 13)
-                                .background(draft.background == bg ? FDTheme.primary.opacity(0.06) : Color.clear)
                             }
-                            .buttonStyle(.plain)
                             if bg != FDBackground.allCases.last {
                                 Rectangle().fill(Color.white.opacity(0.04)).frame(height: 1)
                             }
@@ -379,30 +317,13 @@ struct FDCareerCreationView: View {
                         creationSectionHeader(icon: "brain.fill", title: "Personnalité")
 
                         ForEach(FDPersonality.allCases, id: \.self) { personality in
-                            Button {
+                            FDProfileChoiceRow(
+                                icon: personality.flavorIcon, title: personality.rawValue, subtitle: personality.flavorText,
+                                selected: draft.personality == personality
+                            ) {
                                 FDHaptics.tap()
                                 draft.personality = personality
-                            } label: {
-                                HStack(spacing: 12) {
-                                    Text(personality.flavorIcon)
-                                        .font(.title2)
-                                        .frame(width: 40)
-                                    VStack(alignment: .leading, spacing: 3) {
-                                        Text(personality.rawValue)
-                                            .font(FDFont.body(14, black: draft.personality == personality))
-                                            .foregroundStyle(draft.personality == personality ? FDTheme.textPrimary : FDTheme.textMuted)
-                                        Text(personality.flavorText)
-                                            .font(.caption).foregroundStyle(.secondary).lineLimit(2)
-                                    }
-                                    Spacer()
-                                    if draft.personality == personality {
-                                        Image(systemName: "checkmark.circle.fill").foregroundStyle(FDTheme.primary)
-                                    }
-                                }
-                                .padding(.horizontal, 14).padding(.vertical, 11)
-                                .background(draft.personality == personality ? FDTheme.primary.opacity(0.06) : Color.clear)
                             }
-                            .buttonStyle(.plain)
                             if personality != FDPersonality.allCases.last {
                                 Rectangle().fill(Color.white.opacity(0.04)).frame(height: 1)
                             }
@@ -416,30 +337,13 @@ struct FDCareerCreationView: View {
                         creationSectionHeader(icon: "figure.run", title: "Style de jeu")
 
                         ForEach(FDStyle.allCases, id: \.self) { style in
-                            Button {
+                            FDProfileChoiceRow(
+                                icon: style.flavorIcon, title: style.rawValue, subtitle: style.flavorText,
+                                selected: draft.style == style, accent: FDTheme.accentTeal
+                            ) {
                                 FDHaptics.tap()
                                 draft.style = style
-                            } label: {
-                                HStack(spacing: 12) {
-                                    Text(style.flavorIcon)
-                                        .font(.title2)
-                                        .frame(width: 40)
-                                    VStack(alignment: .leading, spacing: 3) {
-                                        Text(style.rawValue)
-                                            .font(FDFont.body(14, black: draft.style == style))
-                                            .foregroundStyle(draft.style == style ? FDTheme.textPrimary : FDTheme.textMuted)
-                                        Text(style.flavorText)
-                                            .font(.caption).foregroundStyle(.secondary).lineLimit(2)
-                                    }
-                                    Spacer()
-                                    if draft.style == style {
-                                        Image(systemName: "checkmark.circle.fill").foregroundStyle(FDTheme.accentTeal)
-                                    }
-                                }
-                                .padding(.horizontal, 14).padding(.vertical, 11)
-                                .background(draft.style == style ? FDTheme.accentTeal.opacity(0.06) : Color.clear)
                             }
-                            .buttonStyle(.plain)
                             if style != FDStyle.allCases.last {
                                 Rectangle().fill(Color.white.opacity(0.04)).frame(height: 1)
                             }
@@ -474,35 +378,10 @@ struct FDCareerCreationView: View {
                         creationSectionHeader(icon: "slider.horizontal.3", title: "Difficulté")
 
                         ForEach(FDDifficulty.allCases, id: \.self) { diff in
-                            Button {
+                            FDDifficultyRow(diff: diff, selected: draft.difficulty == diff) {
                                 FDHaptics.tap()
                                 draft.difficulty = diff
-                            } label: {
-                                HStack(spacing: 14) {
-                                    let color: Color = difficultyColor(diff)
-                                    ZStack {
-                                        RoundedRectangle(cornerRadius: 8)
-                                            .fill(draft.difficulty == diff ? color.opacity(0.2) : Color.white.opacity(0.06))
-                                            .frame(width: 36, height: 36)
-                                        Image(systemName: difficultyIcon(diff))
-                                            .font(.system(size: 14))
-                                            .foregroundStyle(draft.difficulty == diff ? color : .secondary)
-                                    }
-                                    VStack(alignment: .leading, spacing: 2) {
-                                        Text(diff.rawValue)
-                                            .font(FDFont.body(14, black: draft.difficulty == diff))
-                                            .foregroundStyle(draft.difficulty == diff ? FDTheme.textPrimary : FDTheme.textMuted)
-                                        Text(diff.hint)
-                                            .font(.caption).foregroundStyle(.secondary).lineLimit(2)
-                                    }
-                                    Spacer()
-                                    if draft.difficulty == diff {
-                                        Image(systemName: "checkmark.circle.fill").foregroundStyle(color)
-                                    }
-                                }
-                                .padding(.horizontal, 14).padding(.vertical, 11)
                             }
-                            .buttonStyle(.plain)
                             if diff != FDDifficulty.allCases.last {
                                 Rectangle().fill(Color.white.opacity(0.04)).frame(height: 1)
                             }
@@ -516,34 +395,10 @@ struct FDCareerCreationView: View {
                         creationSectionHeader(icon: "play.circle.fill", title: "Mode de jeu")
 
                         ForEach(FDMode.allCases) { mode in
-                            Button {
+                            FDModeRow(mode: mode, selected: draft.mode == mode) {
                                 FDHaptics.tap()
                                 draft.mode = mode
-                            } label: {
-                                HStack(spacing: 14) {
-                                    ZStack {
-                                        RoundedRectangle(cornerRadius: 8)
-                                            .fill(draft.mode == mode ? FDTheme.primary.opacity(0.2) : Color.white.opacity(0.06))
-                                            .frame(width: 36, height: 36)
-                                        Image(systemName: mode == .narratif ? "book.fill" : "bolt.fill")
-                                            .font(.system(size: 14))
-                                            .foregroundStyle(draft.mode == mode ? FDTheme.primary : .secondary)
-                                    }
-                                    VStack(alignment: .leading, spacing: 2) {
-                                        Text(mode.rawValue)
-                                            .font(FDFont.body(14, black: draft.mode == mode))
-                                            .foregroundStyle(draft.mode == mode ? FDTheme.textPrimary : FDTheme.textMuted)
-                                        Text(mode.hint)
-                                            .font(.caption).foregroundStyle(.secondary).lineLimit(2)
-                                    }
-                                    Spacer()
-                                    if draft.mode == mode {
-                                        Image(systemName: "checkmark.circle.fill").foregroundStyle(FDTheme.primary)
-                                    }
-                                }
-                                .padding(.horizontal, 14).padding(.vertical, 11)
                             }
-                            .buttonStyle(.plain)
                             if mode != FDMode.allCases.last {
                                 Rectangle().fill(Color.white.opacity(0.04)).frame(height: 1)
                             }
@@ -669,40 +524,9 @@ struct FDCareerCreationView: View {
                         creationSectionHeader(icon: "building.columns.fill", title: "Choisis ton premier club")
 
                         ForEach(engine.availableStartClubs(nationality: draft.nationality, potentialStars: draft.potentialStars), id: \.id) { club in
-                            Button {
+                            FDClubChoiceRow(club: club, selected: draft.club?.id == club.id) {
                                 selectAndAdvance { draft.club = club }
-                            } label: {
-                                HStack(spacing: 12) {
-                                    ZStack {
-                                        RoundedRectangle(cornerRadius: 8)
-                                            .fill(draft.club?.id == club.id ? FDTheme.primary.opacity(0.2) : Color.white.opacity(0.06))
-                                            .frame(width: 36, height: 36)
-                                        Image(systemName: "soccerball")
-                                            .font(.system(size: 14))
-                                            .foregroundStyle(draft.club?.id == club.id ? FDTheme.primary : .secondary)
-                                    }
-                                    VStack(alignment: .leading, spacing: 3) {
-                                        Text(club.name)
-                                            .font(FDFont.body(14, black: draft.club?.id == club.id))
-                                            .foregroundStyle(draft.club?.id == club.id ? FDTheme.textPrimary : FDTheme.textMuted)
-                                        Text("\(club.country) · \(club.tier.rawValue)")
-                                            .font(.caption).foregroundStyle(.secondary)
-                                    }
-                                    Spacer()
-                                    // Tier badge
-                                    Text(club.tier.rawValue)
-                                        .font(.system(size: 9, weight: .bold))
-                                        .padding(.horizontal, 8).padding(.vertical, 3)
-                                        .background(Capsule().fill(tierColor(club.tier).opacity(0.2)))
-                                        .foregroundStyle(tierColor(club.tier))
-                                    if draft.club?.id == club.id {
-                                        Image(systemName: "checkmark.circle.fill")
-                                            .foregroundStyle(FDTheme.primary)
-                                    }
-                                }
-                                .padding(.horizontal, 14).padding(.vertical, 12)
                             }
-                            .buttonStyle(.plain)
                             Rectangle().fill(Color.white.opacity(0.04)).frame(height: 1)
                         }
                     }
@@ -742,38 +566,250 @@ struct FDCareerCreationView: View {
         }
     }
 
-    private func difficultyColor(_ diff: FDDifficulty) -> Color {
-        switch diff {
-        case .facile: return FDTheme.success
-        case .normal: return FDTheme.primary
-        case .difficile: return FDTheme.destructive
-        }
-    }
+}
 
-    private func difficultyIcon(_ diff: FDDifficulty) -> String {
-        switch diff {
-        case .facile: return "tortoise.fill"
-        case .normal: return "figure.run"
-        case .difficile: return "bolt.fill"
-        }
+private func fdPositionIcon(_ position: FDPosition) -> String {
+    switch position {
+    case .gardien: return "hand.raised.fill"
+    case .defenseurCentral, .lateral: return "shield.fill"
+    case .milieuDefensif, .milieuRelayeur, .milieuOffensif: return "arrow.triangle.swap"
+    case .ailier, .avantCentre: return "soccerball"
     }
+}
 
-    private func tierColor(_ tier: FDClubTier) -> Color {
-        switch tier {
-        case .elite: return FDTheme.amber
-        case .pro: return FDTheme.primary
-        case .semi: return FDTheme.accentTeal
-        case .amateur: return .secondary
+private struct FDFootChoice: View {
+    let foot: FDFoot
+    let selected: Bool
+    let action: () -> Void
+
+    var body: some View {
+        Button(action: action) {
+            VStack(spacing: 4) {
+                Image(systemName: foot == .droit ? "hand.point.right.fill" : "hand.point.left.fill")
+                    .font(.title3)
+                    .foregroundStyle(selected ? FDTheme.primary : .secondary)
+                Text(foot.rawValue)
+                    .font(FDFont.body(13, black: selected))
+                    .foregroundStyle(selected ? FDTheme.textPrimary : .secondary)
+            }
+            .frame(maxWidth: .infinity)
+            .padding(.vertical, 12)
+            .background(selected ? FDTheme.primary.opacity(0.12) : Color.clear)
         }
+        .buttonStyle(.plain)
     }
+}
 
-    private func fdPositionIcon(_ position: FDPosition) -> String {
-        switch position {
-        case .gardien: return "hand.raised.fill"
-        case .defenseurCentral, .lateral: return "shield.fill"
-        case .milieuDefensif, .milieuRelayeur, .milieuOffensif: return "arrow.triangle.swap"
-        case .ailier, .avantCentre: return "soccerball"
+private struct FDPositionRow: View {
+    let position: FDPosition
+    let selected: Bool
+    let action: () -> Void
+
+    var body: some View {
+        Button(action: action) {
+            HStack(spacing: 12) {
+                ZStack {
+                    RoundedRectangle(cornerRadius: 8)
+                        .fill(selected ? FDTheme.primary.opacity(0.2) : Color.white.opacity(0.06))
+                        .frame(width: 36, height: 36)
+                    Image(systemName: fdPositionIcon(position))
+                        .font(.system(size: 14, weight: .semibold))
+                        .foregroundStyle(selected ? FDTheme.primary : .secondary)
+                }
+                Text(position.rawValue)
+                    .font(FDFont.body(14, black: selected))
+                    .foregroundStyle(selected ? FDTheme.textPrimary : FDTheme.textMuted)
+                Spacer()
+                if selected {
+                    Image(systemName: "checkmark.circle.fill")
+                        .foregroundStyle(FDTheme.primary)
+                } else {
+                    Image(systemName: "chevron.right")
+                        .font(.caption.weight(.semibold))
+                        .foregroundStyle(.secondary)
+                }
+            }
+            .padding(.horizontal, 14).padding(.vertical, 12)
         }
+        .buttonStyle(.plain)
+    }
+}
+
+// MARK: - Difficulty row (split out of settingsStep so the type-checker only has to
+// solve one small view at a time, instead of one giant inline closure)
+
+private func fdDifficultyColor(_ diff: FDDifficulty) -> Color {
+    switch diff {
+    case .facile: return FDTheme.success
+    case .normal: return FDTheme.primary
+    case .difficile: return FDTheme.destructive
+    }
+}
+
+private func fdDifficultyIcon(_ diff: FDDifficulty) -> String {
+    switch diff {
+    case .facile: return "tortoise.fill"
+    case .normal: return "figure.run"
+    case .difficile: return "bolt.fill"
+    }
+}
+
+private struct FDDifficultyRow: View {
+    let diff: FDDifficulty
+    let selected: Bool
+    let action: () -> Void
+
+    private var color: Color { fdDifficultyColor(diff) }
+
+    var body: some View {
+        Button(action: action) {
+            HStack(spacing: 14) {
+                ZStack {
+                    RoundedRectangle(cornerRadius: 8)
+                        .fill(selected ? color.opacity(0.2) : Color.white.opacity(0.06))
+                        .frame(width: 36, height: 36)
+                    Image(systemName: fdDifficultyIcon(diff))
+                        .font(.system(size: 14))
+                        .foregroundStyle(selected ? color : .secondary)
+                }
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(diff.rawValue)
+                        .font(FDFont.body(14, black: selected))
+                        .foregroundStyle(selected ? FDTheme.textPrimary : FDTheme.textMuted)
+                    Text(diff.hint)
+                        .font(.caption).foregroundStyle(.secondary).lineLimit(2)
+                }
+                Spacer()
+                if selected {
+                    Image(systemName: "checkmark.circle.fill").foregroundStyle(color)
+                }
+            }
+            .padding(.horizontal, 14).padding(.vertical, 11)
+        }
+        .buttonStyle(.plain)
+    }
+}
+
+private func fdTierColor(_ tier: FDClubTier) -> Color {
+    switch tier {
+    case .elite: return FDTheme.amber
+    case .pro: return FDTheme.primary
+    case .semi: return FDTheme.accentTeal
+    case .amateur: return .secondary
+    }
+}
+
+private struct FDClubChoiceRow: View {
+    let club: FDClub
+    let selected: Bool
+    let action: () -> Void
+
+    private var tint: Color { fdTierColor(club.tier) }
+
+    var body: some View {
+        Button(action: action) {
+            HStack(spacing: 12) {
+                ZStack {
+                    RoundedRectangle(cornerRadius: 8)
+                        .fill(selected ? FDTheme.primary.opacity(0.2) : Color.white.opacity(0.06))
+                        .frame(width: 36, height: 36)
+                    Image(systemName: "soccerball")
+                        .font(.system(size: 14))
+                        .foregroundStyle(selected ? FDTheme.primary : .secondary)
+                }
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(club.name)
+                        .font(FDFont.body(14, black: selected))
+                        .foregroundStyle(selected ? FDTheme.textPrimary : FDTheme.textMuted)
+                    Text("\(club.country) · \(club.tier.rawValue)")
+                        .font(.caption).foregroundStyle(.secondary)
+                }
+                Spacer()
+                Text(club.tier.rawValue)
+                    .font(.system(size: 9, weight: .bold))
+                    .padding(.horizontal, 8).padding(.vertical, 3)
+                    .background(Capsule().fill(tint.opacity(0.2)))
+                    .foregroundStyle(tint)
+                if selected {
+                    Image(systemName: "checkmark.circle.fill")
+                        .foregroundStyle(FDTheme.primary)
+                }
+            }
+            .padding(.horizontal, 14).padding(.vertical, 12)
+        }
+        .buttonStyle(.plain)
+    }
+}
+
+private struct FDProfileChoiceRow: View {
+    let icon: String
+    let title: String
+    let subtitle: String
+    let selected: Bool
+    var accent: Color = FDTheme.primary
+    var showChevronWhenUnselected: Bool = false
+    let action: () -> Void
+
+    var body: some View {
+        Button(action: action) {
+            HStack(spacing: 12) {
+                Text(icon)
+                    .font(.title2)
+                    .frame(width: 40)
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(title)
+                        .font(FDFont.body(14, black: selected))
+                        .foregroundStyle(selected ? FDTheme.textPrimary : FDTheme.textMuted)
+                    Text(subtitle)
+                        .font(.caption).foregroundStyle(.secondary).lineLimit(2)
+                }
+                Spacer()
+                if selected {
+                    Image(systemName: "checkmark.circle.fill").foregroundStyle(accent)
+                } else if showChevronWhenUnselected {
+                    Image(systemName: "chevron.right")
+                        .font(.caption.weight(.semibold))
+                        .foregroundStyle(.secondary)
+                }
+            }
+            .padding(.horizontal, 14).padding(.vertical, 11)
+            .background(selected ? accent.opacity(0.06) : Color.clear)
+        }
+        .buttonStyle(.plain)
+    }
+}
+
+private struct FDModeRow: View {
+    let mode: FDMode
+    let selected: Bool
+    let action: () -> Void
+
+    var body: some View {
+        Button(action: action) {
+            HStack(spacing: 14) {
+                ZStack {
+                    RoundedRectangle(cornerRadius: 8)
+                        .fill(selected ? FDTheme.primary.opacity(0.2) : Color.white.opacity(0.06))
+                        .frame(width: 36, height: 36)
+                    Image(systemName: mode == .narratif ? "book.fill" : "bolt.fill")
+                        .font(.system(size: 14))
+                        .foregroundStyle(selected ? FDTheme.primary : .secondary)
+                }
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(mode.rawValue)
+                        .font(FDFont.body(14, black: selected))
+                        .foregroundStyle(selected ? FDTheme.textPrimary : FDTheme.textMuted)
+                    Text(mode.hint)
+                        .font(.caption).foregroundStyle(.secondary).lineLimit(2)
+                }
+                Spacer()
+                if selected {
+                    Image(systemName: "checkmark.circle.fill").foregroundStyle(FDTheme.primary)
+                }
+            }
+            .padding(.horizontal, 14).padding(.vertical, 11)
+        }
+        .buttonStyle(.plain)
     }
 }
 

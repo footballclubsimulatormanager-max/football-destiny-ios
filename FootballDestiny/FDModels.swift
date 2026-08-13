@@ -121,6 +121,13 @@ enum FDMode: String, Codable, CaseIterable, Identifiable, Hashable {
 enum FDDifficulty: String, Codable, CaseIterable, Identifiable, Hashable {
     case facile = "Facile", normal = "Normal", difficile = "Difficile"
     var id: String { rawValue }
+    var hint: String {
+        switch self {
+        case .facile: return "Une expérience plus clémente, pour découvrir l'histoire sans trop de pression."
+        case .normal: return "L'équilibre classique entre défis et progression."
+        case .difficile: return "Chaque décision compte double — la moindre erreur se paie cher."
+        }
+    }
 }
 
 enum FDFoot: String, Codable, CaseIterable, Identifiable, Hashable {
