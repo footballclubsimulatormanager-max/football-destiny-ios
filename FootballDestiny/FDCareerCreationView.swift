@@ -495,6 +495,7 @@ struct FDCareerCreationView: View {
             ) {
                 FDHaptics.success()
                 engine.startCareer(from: draft)
+                screen = .game
             }
         }
     }
