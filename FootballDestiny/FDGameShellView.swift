@@ -249,6 +249,24 @@ private struct FDCondPill: View {
 
 // MARK: - Scene helpers (unchanged)
 
+private func fdAttrCategoryColor(_ cat: FDAttrCategory) -> Color {
+    switch cat {
+    case .tech: return FDTheme.accentTeal
+    case .phys: return FDTheme.primary
+    case .ment: return FDTheme.amber
+    case .def: return .blue
+    }
+}
+
+private func fdAttrCategoryIcon(_ cat: FDAttrCategory) -> String {
+    switch cat {
+    case .tech: return "hand.raised.fill"
+    case .phys: return "figure.run"
+    case .ment: return "brain.fill"
+    case .def: return "shield.fill"
+    }
+}
+
 private func fdSceneSymbol(_ category: String) -> String {
     switch category {
     case "Académie": return "graduationcap.fill"
@@ -523,12 +541,12 @@ struct FDMatchCard: View {
                 Image(systemName: "flag.checkered")
                     .font(.caption.weight(.bold))
                     .foregroundStyle(FDTheme.primary)
-                Text((result.competition ?? "Match").uppercased())
+                Text("MATCH")
                     .font(.system(size: 9, weight: .bold))
                     .foregroundStyle(FDTheme.primary)
                 Spacer()
-                let isWin = result.goalsFor > result.goalsAgainst
-                let isDraw = result.goalsFor == result.goalsAgainst
+                let isWin = result.teamScore > result.oppScore
+                let isDraw = result.teamScore == result.oppScore
                 Text(isWin ? "V" : isDraw ? "N" : "D")
                     .font(FDFont.mono(11, bold: true))
                     .foregroundStyle(isWin ? FDTheme.success : isDraw ? FDTheme.warning : FDTheme.destructive)
@@ -544,39 +562,39 @@ struct FDMatchCard: View {
             // Score row
             HStack {
                 VStack(alignment: .leading, spacing: 1) {
-                    Text(result.opponent ?? "Adversaire")
+                    Text(engine.player?.club.name ?? "Ton équipe")
                         .font(FDFont.body(13, black: true))
-                    Text("Domicile")
+                    Text("Niveau adverse : \(result.opponentLevel)")
                         .font(.caption2).foregroundStyle(.secondary)
                 }
                 Spacer()
-                Text("\(result.goalsFor) – \(result.goalsAgainst)")
+                Text("\(result.teamScore) – \(result.oppScore)")
                     .font(FDFont.mono(26, bold: true))
                     .foregroundStyle(.white)
                 Spacer()
                 VStack(alignment: .trailing, spacing: 1) {
-                    Text(result.performance?.uppercased() ?? "")
+                    Text(result.minutes > 0 ? String(format: "%.1f", result.rating) : "—")
                         .font(.system(size: 9, weight: .bold))
                         .foregroundStyle(FDTheme.accentTeal)
-                    Text("Performance")
+                    Text("Note")
                         .font(.caption2).foregroundStyle(.secondary)
                 }
             }
             .padding(.horizontal, 14)
             .padding(.vertical, 14)
 
-            if let goals = result.goalsScored, goals > 0 {
+            if result.goals > 0 {
                 Rectangle().fill(Color.white.opacity(0.06)).frame(height: 1)
                 HStack(spacing: 6) {
                     Image(systemName: "soccerball").font(.caption).foregroundStyle(FDTheme.success)
-                    Text("\(goals) but\(goals > 1 ? "s" : "") marqué\(goals > 1 ? "s" : "")")
+                    Text("\(result.goals) but\(result.goals > 1 ? "s" : "") marqué\(result.goals > 1 ? "s" : "")")
                         .font(.caption.weight(.semibold))
                         .foregroundStyle(FDTheme.success)
-                    if let assists = result.assistsGiven, assists > 0 {
+                    if result.assists > 0 {
                         Text("·")
                             .foregroundStyle(.secondary)
                         Image(systemName: "arrow.triangle.turn.up.right.circle").font(.caption).foregroundStyle(FDTheme.primary)
-                        Text("\(assists) passe\(assists > 1 ? "s" : "") décisive\(assists > 1 ? "s" : "")")
+                        Text("\(result.assists) passe\(result.assists > 1 ? "s" : "") décisive\(result.assists > 1 ? "s" : "")")
                             .font(.caption.weight(.semibold))
                             .foregroundStyle(FDTheme.primary)
                     }
@@ -725,8 +743,6 @@ struct FDTournamentCard: View {
                 HStack(spacing: 0) {
                     FDMatchStat(value: "\(summary.minutesPlayed)'", label: "Minutes")
                     FDMatchStat(value: "\(summary.goals)", label: "Buts")
-                    if let a = summary.assists { FDMatchStat(value: "\(a)", label: "Passes") }
-                    if let r = summary.rating { FDMatchStat(value: String(format: "%.1f", r), label: "Note") }
                 }
                 .padding(.horizontal, 14).padding(.vertical, 8)
             }
@@ -1103,11 +1119,11 @@ struct FDCarriereTab: View {
 
             ForEach(Array(orderedCats.enumerated()), id: \.element) { idx, cat in
                 let catAttrs = FDAttribute.allCases.filter { $0.category == cat }
-                let catColor: Color = cat == .tech ? FDTheme.accentTeal : cat == .phys ? FDTheme.primary : cat == .ment ? FDTheme.amber : .blue
+                let catColor: Color = fdAttrCategoryColor(cat)
 
                 VStack(spacing: 0) {
                     FDSectionHeader(
-                        icon: cat == .tech ? "hand.raised.fill" : cat == .phys ? "figure.run" : cat == .ment ? "brain.fill" : "shield.fill",
+                        icon: fdAttrCategoryIcon(cat),
                         title: cat.label + (idx == 0 ? " · Clé" : ""),
                         badge: nil,
                         color: catColor
@@ -1473,20 +1489,19 @@ private struct FDJournalRow: View {
         HStack(alignment: .top, spacing: 12) {
             ZStack {
                 Circle()
-                    .fill(fdSceneColor(entry.category).opacity(0.15))
+                    .fill(FDTheme.accentTeal.opacity(0.15))
                     .frame(width: 34, height: 34)
-                Image(systemName: fdSceneSymbol(entry.category))
-                    .font(.system(size: 13, weight: .semibold))
-                    .foregroundStyle(fdSceneColor(entry.category))
+                Text(entry.icon)
+                    .font(.system(size: 15))
             }
             VStack(alignment: .leading, spacing: 3) {
                 HStack(spacing: 6) {
-                    Text(entry.category.uppercased())
+                    Text("SAISON \(entry.season)")
                         .font(.system(size: 8, weight: .bold))
-                        .foregroundStyle(fdSceneColor(entry.category))
+                        .foregroundStyle(FDTheme.accentTeal)
                     Text("·")
                         .foregroundStyle(.secondary)
-                    Text("S\(entry.season)")
+                    Text("\(entry.age) ans")
                         .font(FDFont.mono(10))
                         .foregroundStyle(.secondary)
                 }

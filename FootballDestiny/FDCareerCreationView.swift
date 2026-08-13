@@ -479,12 +479,12 @@ struct FDCareerCreationView: View {
                                 draft.difficulty = diff
                             } label: {
                                 HStack(spacing: 14) {
-                                    let color: Color = diff == .facile ? FDTheme.success : diff == .normal ? FDTheme.primary : FDTheme.destructive
+                                    let color: Color = difficultyColor(diff)
                                     ZStack {
                                         RoundedRectangle(cornerRadius: 8)
                                             .fill(draft.difficulty == diff ? color.opacity(0.2) : Color.white.opacity(0.06))
                                             .frame(width: 36, height: 36)
-                                        Image(systemName: diff == .facile ? "tortoise.fill" : diff == .normal ? "figure.run" : "bolt.fill")
+                                        Image(systemName: difficultyIcon(diff))
                                             .font(.system(size: 14))
                                             .foregroundStyle(draft.difficulty == diff ? color : .secondary)
                                     }
@@ -742,6 +742,22 @@ struct FDCareerCreationView: View {
         }
     }
 
+    private func difficultyColor(_ diff: FDDifficulty) -> Color {
+        switch diff {
+        case .facile: return FDTheme.success
+        case .normal: return FDTheme.primary
+        case .difficile: return FDTheme.destructive
+        }
+    }
+
+    private func difficultyIcon(_ diff: FDDifficulty) -> String {
+        switch diff {
+        case .facile: return "tortoise.fill"
+        case .normal: return "figure.run"
+        case .difficile: return "bolt.fill"
+        }
+    }
+
     private func tierColor(_ tier: FDClubTier) -> Color {
         switch tier {
         case .elite: return FDTheme.amber
@@ -825,7 +841,9 @@ private extension FDStyle {
     var flavorIcon: String {
         switch self {
         case .technicien: return "🎩"
-        case .attaquant: return "⚡"
+        case .rapide: return "💨"
+        case .puissant: return "💪"
+        case .createur: return "🎨"
         case .finisseur: return "🎯"
         case .recuperateur: return "🛡️"
         case .leader: return "👑"
@@ -834,7 +852,9 @@ private extension FDStyle {
     var flavorText: String {
         switch self {
         case .technicien: return "Le ballon t'obéit. Contrôle, vision, précision — c'est ton truc."
-        case .attaquant: return "Tu cherches constamment la profondeur. Le sprint, le duel, l'explosion."
+        case .rapide: return "Tu cherches constamment la profondeur. Le sprint, le duel, l'explosion."
+        case .puissant: return "Impossible à bouger, un rapport de force toujours à ton avantage."
+        case .createur: return "Tu vois la passe avant même que les autres ne l'imaginent."
         case .finisseur: return "Une occasion, un but. Voilà ta réputation qui se construit."
         case .recuperateur: return "Le ballon te revient toujours, par n'importe quel moyen nécessaire."
         case .leader: return "Le vestiaire t'écoute, le terrain te suit."
