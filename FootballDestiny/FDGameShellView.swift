@@ -825,8 +825,8 @@ struct FDCareerSummaryCard: View {
                 let trophies: [(String, String, Int)] = [
                     ("trophy.fill", "Titres de champion", player.leagueTitles),
                     ("globe.europe.africa.fill", "Titres européens", player.cupTitles),
-                    ("star.fill", "Ballon d'Or", player.awardCounts["ballondor"] ?? 0),
-                    ("boot.fill", "Soulier d'Or", player.awardCounts["goldenshoe"] ?? 0),
+                    ("star.fill", "Ballon d'Or", player.awardCounts[FDAward.ballonDor.rawValue] ?? 0),
+                    ("boot.fill", "Soulier d'Or", player.awardCounts[FDAward.soulierDor.rawValue] ?? 0),
                 ]
                 ForEach(trophies, id: \.1) { icon, label, count in
                     HStack(spacing: 10) {
