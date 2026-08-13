@@ -163,34 +163,20 @@ struct FDCareerCreationView: View {
                     .background(FDTheme.card, in: RoundedRectangle(cornerRadius: FDTheme.radiusCard))
                     .overlay(RoundedRectangle(cornerRadius: FDTheme.radiusCard).stroke(Color.white.opacity(0.07), lineWidth: 1))
 
-                    // Nationality
+                    // Nationality — big flags filling each cell, not a text list
                     VStack(spacing: 0) {
                         creationSectionHeader(icon: "globe.europe.africa.fill", title: "Nationalité")
 
-                        ScrollView(.horizontal, showsIndicators: false) {
-                            HStack(spacing: 8) {
-                                ForEach(FDNations, id: \.self) { nation in
-                                    Button {
-                                        FDHaptics.tap()
-                                        draft.nationality = nation
-                                        regenerateName()
-                                    } label: {
-                                        Text(nation)
-                                            .font(FDFont.body(13))
-                                            .padding(.horizontal, 14).padding(.vertical, 8)
-                                            .background(
-                                                Capsule().fill(draft.nationality == nation
-                                                               ? FDTheme.primary
-                                                               : Color.white.opacity(0.07))
-                                            )
-                                            .foregroundStyle(draft.nationality == nation ? .white : FDTheme.textPrimary)
-                                    }
-                                    .buttonStyle(.plain)
+                        LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible()), GridItem(.flexible())], spacing: 10) {
+                            ForEach(FDNations, id: \.self) { nation in
+                                FDFlagChoice(flag: fdFlag(for: nation), name: nation, selected: draft.nationality == nation) {
+                                    FDHaptics.tap()
+                                    draft.nationality = nation
+                                    regenerateName()
                                 }
                             }
-                            .padding(.horizontal, 14)
-                            .padding(.vertical, 12)
                         }
+                        .padding(14)
                     }
                     .background(FDTheme.card, in: RoundedRectangle(cornerRadius: FDTheme.radiusCard))
                     .overlay(RoundedRectangle(cornerRadius: FDTheme.radiusCard).stroke(Color.white.opacity(0.07), lineWidth: 1))
@@ -370,42 +356,8 @@ struct FDCareerCreationView: View {
                         step: 5, of: steps.count,
                         icon: "gearshape.fill",
                         title: "Paramètres",
-                        subtitle: "Comment veux-tu jouer ?"
+                        subtitle: "Toujours narratif — ici, tu choisis ton potentiel de départ."
                     )
-
-                    // Difficulté
-                    VStack(spacing: 0) {
-                        creationSectionHeader(icon: "slider.horizontal.3", title: "Difficulté")
-
-                        ForEach(FDDifficulty.allCases, id: \.self) { diff in
-                            FDDifficultyRow(diff: diff, selected: draft.difficulty == diff) {
-                                FDHaptics.tap()
-                                draft.difficulty = diff
-                            }
-                            if diff != FDDifficulty.allCases.last {
-                                Rectangle().fill(Color.white.opacity(0.04)).frame(height: 1)
-                            }
-                        }
-                    }
-                    .background(FDTheme.card, in: RoundedRectangle(cornerRadius: FDTheme.radiusCard))
-                    .overlay(RoundedRectangle(cornerRadius: FDTheme.radiusCard).stroke(Color.white.opacity(0.07), lineWidth: 1))
-
-                    // Mode
-                    VStack(spacing: 0) {
-                        creationSectionHeader(icon: "play.circle.fill", title: "Mode de jeu")
-
-                        ForEach(FDMode.allCases) { mode in
-                            FDModeRow(mode: mode, selected: draft.mode == mode) {
-                                FDHaptics.tap()
-                                draft.mode = mode
-                            }
-                            if mode != FDMode.allCases.last {
-                                Rectangle().fill(Color.white.opacity(0.04)).frame(height: 1)
-                            }
-                        }
-                    }
-                    .background(FDTheme.card, in: RoundedRectangle(cornerRadius: FDTheme.radiusCard))
-                    .overlay(RoundedRectangle(cornerRadius: FDTheme.radiusCard).stroke(Color.white.opacity(0.07), lineWidth: 1))
 
                     // Potentiel (méta-progression)
                     let maxAffordable = FDPotentialShop.maxAffordableStars(points: engine.lifetimePoints)
@@ -600,6 +552,54 @@ private struct FDFootChoice: View {
     }
 }
 
+private func fdFlag(for nation: String) -> String {
+    let flags: [String: String] = [
+        "France": "🇫🇷", "Angleterre": "🇬🇧", "Espagne": "🇪🇸", "Allemagne": "🇩🇪",
+        "Italie": "🇮🇹", "Portugal": "🇵🇹", "Pays-Bas": "🇳🇱", "Belgique": "🇧🇪",
+        "Brésil": "🇧🇷", "Argentine": "🇦🇷", "Uruguay": "🇺🇾", "Colombie": "🇨🇴",
+        "États-Unis": "🇺🇸", "Canada": "🇨🇦", "Mexique": "🇲🇽", "Sénégal": "🇸🇳",
+        "Côte d'Ivoire": "🇨🇮", "Cameroun": "🇨🇲", "Nigeria": "🇳🇬", "Maroc": "🇲🇦",
+        "Algérie": "🇩🇿", "Tunisie": "🇹🇳", "Égypte": "🇪🇬", "Japon": "🇯🇵",
+        "Corée du Sud": "🇰🇷", "Australie": "🇦🇺", "Émirats Arabes Unis": "🇦🇪",
+        "Arabie Saoudite": "🇸🇦", "Turquie": "🇹🇷", "Croatie": "🇭🇷", "Suède": "🇸🇪",
+        "Norvège": "🇳🇴", "Danemark": "🇩🇰"
+    ]
+    return flags[nation] ?? "🏳️"
+}
+
+private struct FDFlagChoice: View {
+    let flag: String
+    let name: String
+    let selected: Bool
+    let action: () -> Void
+
+    var body: some View {
+        Button(action: action) {
+            VStack(spacing: 6) {
+                Text(flag)
+                    .font(.system(size: 40))
+                Text(name)
+                    .font(FDFont.body(11, black: selected))
+                    .foregroundStyle(selected ? FDTheme.textPrimary : FDTheme.textMuted)
+                    .lineLimit(2)
+                    .multilineTextAlignment(.center)
+                    .minimumScaleFactor(0.8)
+            }
+            .frame(maxWidth: .infinity)
+            .padding(.vertical, 12)
+            .background(
+                RoundedRectangle(cornerRadius: 12, style: .continuous)
+                    .fill(selected ? FDTheme.primary.opacity(0.16) : Color.white.opacity(0.05))
+            )
+            .overlay(
+                RoundedRectangle(cornerRadius: 12, style: .continuous)
+                    .stroke(selected ? FDTheme.primary : Color.white.opacity(0.08), lineWidth: selected ? 1.5 : 1)
+            )
+        }
+        .buttonStyle(.plain)
+    }
+}
+
 private struct FDPositionRow: View {
     let position: FDPosition
     let selected: Bool
@@ -630,61 +630,6 @@ private struct FDPositionRow: View {
                 }
             }
             .padding(.horizontal, 14).padding(.vertical, 12)
-        }
-        .buttonStyle(.plain)
-    }
-}
-
-// MARK: - Difficulty row (split out of settingsStep so the type-checker only has to
-// solve one small view at a time, instead of one giant inline closure)
-
-private func fdDifficultyColor(_ diff: FDDifficulty) -> Color {
-    switch diff {
-    case .facile: return FDTheme.success
-    case .normal: return FDTheme.primary
-    case .difficile: return FDTheme.destructive
-    }
-}
-
-private func fdDifficultyIcon(_ diff: FDDifficulty) -> String {
-    switch diff {
-    case .facile: return "tortoise.fill"
-    case .normal: return "figure.run"
-    case .difficile: return "bolt.fill"
-    }
-}
-
-private struct FDDifficultyRow: View {
-    let diff: FDDifficulty
-    let selected: Bool
-    let action: () -> Void
-
-    private var color: Color { fdDifficultyColor(diff) }
-
-    var body: some View {
-        Button(action: action) {
-            HStack(spacing: 14) {
-                ZStack {
-                    RoundedRectangle(cornerRadius: 8)
-                        .fill(selected ? color.opacity(0.2) : Color.white.opacity(0.06))
-                        .frame(width: 36, height: 36)
-                    Image(systemName: fdDifficultyIcon(diff))
-                        .font(.system(size: 14))
-                        .foregroundStyle(selected ? color : .secondary)
-                }
-                VStack(alignment: .leading, spacing: 2) {
-                    Text(diff.rawValue)
-                        .font(FDFont.body(14, black: selected))
-                        .foregroundStyle(selected ? FDTheme.textPrimary : FDTheme.textMuted)
-                    Text(diff.hint)
-                        .font(.caption).foregroundStyle(.secondary).lineLimit(2)
-                }
-                Spacer()
-                if selected {
-                    Image(systemName: "checkmark.circle.fill").foregroundStyle(color)
-                }
-            }
-            .padding(.horizontal, 14).padding(.vertical, 11)
         }
         .buttonStyle(.plain)
     }
@@ -774,40 +719,6 @@ private struct FDProfileChoiceRow: View {
             }
             .padding(.horizontal, 14).padding(.vertical, 11)
             .background(selected ? accent.opacity(0.06) : Color.clear)
-        }
-        .buttonStyle(.plain)
-    }
-}
-
-private struct FDModeRow: View {
-    let mode: FDMode
-    let selected: Bool
-    let action: () -> Void
-
-    var body: some View {
-        Button(action: action) {
-            HStack(spacing: 14) {
-                ZStack {
-                    RoundedRectangle(cornerRadius: 8)
-                        .fill(selected ? FDTheme.primary.opacity(0.2) : Color.white.opacity(0.06))
-                        .frame(width: 36, height: 36)
-                    Image(systemName: mode == .narratif ? "book.fill" : "bolt.fill")
-                        .font(.system(size: 14))
-                        .foregroundStyle(selected ? FDTheme.primary : .secondary)
-                }
-                VStack(alignment: .leading, spacing: 2) {
-                    Text(mode.rawValue)
-                        .font(FDFont.body(14, black: selected))
-                        .foregroundStyle(selected ? FDTheme.textPrimary : FDTheme.textMuted)
-                    Text(mode.hint)
-                        .font(.caption).foregroundStyle(.secondary).lineLimit(2)
-                }
-                Spacer()
-                if selected {
-                    Image(systemName: "checkmark.circle.fill").foregroundStyle(FDTheme.primary)
-                }
-            }
-            .padding(.horizontal, 14).padding(.vertical, 11)
         }
         .buttonStyle(.plain)
     }
