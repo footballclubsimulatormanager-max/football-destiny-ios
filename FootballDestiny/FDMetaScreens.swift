@@ -129,8 +129,8 @@ private struct FDHistoriqueRow: View {
                 .font(.caption.weight(.bold))
                 .foregroundStyle(.secondary)
         }
-        .padding(.horizontal, 12)
-        .padding(.vertical, 8)
+        .padding(.horizontal, 11)
+        .padding(.vertical, 6)
     }
 }
 
@@ -332,8 +332,8 @@ private struct FDSkillRow: View {
 
             Spacer(minLength: 0)
         }
-        .padding(.horizontal, 12)
-        .padding(.vertical, 8)
+        .padding(.horizontal, 11)
+        .padding(.vertical, 6)
     }
 }
 
@@ -497,41 +497,45 @@ private struct FDChallengeRow: View {
     var body: some View {
         HStack(spacing: 10) {
             ZStack {
-                RoundedRectangle(cornerRadius: 8)
+                RoundedRectangle(cornerRadius: 7)
                     .fill(conquered ? FDTheme.amber.opacity(0.15) : FDTheme.primary.opacity(0.1))
-                    .frame(width: 34, height: 34)
+                    .frame(width: 28, height: 28)
                 Image(systemName: conquered ? "trophy.fill" : "person.fill.questionmark")
-                    .font(.system(size: 14))
+                    .font(.system(size: 12))
                     .foregroundStyle(conquered ? FDTheme.amber : FDTheme.primary)
             }
 
-            VStack(alignment: .leading, spacing: 2) {
+            // Name + meta on one line, archetype underneath, objective folded into the
+            // meta line — three lines instead of four, and no line left half empty.
+            VStack(alignment: .leading, spacing: 1) {
                 HStack(spacing: 5) {
                     Text(challenge.name)
-                        .font(FDFont.body(13, black: true))
+                        .font(FDFont.body(12.5, black: true))
                         .foregroundStyle(FDTheme.textPrimary)
+                        .lineLimit(1)
                     if conquered {
                         Image(systemName: "checkmark.seal.fill")
-                            .font(.system(size: 10))
+                            .font(.system(size: 9))
                             .foregroundStyle(FDTheme.amber)
                     }
                 }
-                Text("\(challenge.era) · \(fdFlag(for: challenge.nationality)) \(challenge.position.rawValue)")
-                    .font(.system(size: 10))
-                    .foregroundStyle(.secondary)
-                    .fixedSize(horizontal: false, vertical: true)
-                Text(challenge.archetype)
-                    .font(.system(size: 10))
-                    .foregroundStyle(.secondary)
-                    .fixedSize(horizontal: false, vertical: true)
+
                 HStack(spacing: 4) {
-                    Image(systemName: "target")
-                        .font(.system(size: 8))
-                        .foregroundStyle(FDTheme.warning)
-                    Text("Objectif : \(challenge.targetScore) pts")
-                        .font(.system(size: 9.5, weight: .semibold))
+                    Text("\(fdFlag(for: challenge.nationality)) \(challenge.era) · \(challenge.position.rawValue)")
+                        .foregroundStyle(.secondary)
+                    Text("·").foregroundStyle(.secondary.opacity(0.5))
+                    Text("\(challenge.targetScore) pts")
                         .foregroundStyle(FDTheme.warning)
                 }
+                .font(.system(size: 9.5, weight: .medium))
+                .lineLimit(1)
+                .minimumScaleFactor(0.75)
+
+                Text(challenge.archetype)
+                    .font(.system(size: 9.5))
+                    .foregroundStyle(.secondary.opacity(0.75))
+                    .lineLimit(2)
+                    .fixedSize(horizontal: false, vertical: true)
             }
 
             Spacer(minLength: 4)
@@ -560,8 +564,8 @@ private struct FDChallengeRow: View {
                 .disabled(!canAfford)
             }
         }
-        .padding(.horizontal, 12)
-        .padding(.vertical, 8)
+        .padding(.horizontal, 11)
+        .padding(.vertical, 6)
     }
 }
 
@@ -729,8 +733,8 @@ private struct FDClassementRow: View {
                     .foregroundStyle(.secondary)
             }
         }
-        .padding(.horizontal, 12)
-        .padding(.vertical, 8)
+        .padding(.horizontal, 11)
+        .padding(.vertical, 6)
     }
 }
 
