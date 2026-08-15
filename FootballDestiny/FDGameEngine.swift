@@ -236,18 +236,30 @@ final class FDGameEngine: ObservableObject {
         return earned
     }
 
-    /// 0-10 "pièces" — deliberately scarce, only a near-perfect career (Ballon d'Or, an
-    /// international title, a Soulier d'Or, silverware) gets close to the maximum.
+    /// 1-14 "pièces" — the Boutique and the Défis are priced against this, so the spread
+    /// matters: a career that just ran its course banks 1-2, a solid one 3-5, and only a
+    /// genuinely exceptional run (Ballon d'Or, international title, repeated silverware)
+    /// approaches the ceiling. See FDMetaProgression for how the price bands map to this.
     private func careerQualityCoins(for p: FDPlayer) -> Int {
-        var score = 0
-        if (p.awardCounts[FDAward.ballonDor.rawValue] ?? 0) > 0 { score += 3 }
-        if (p.awardCounts[FDAward.soulierDor.rawValue] ?? 0) > 0 { score += 2 }
-        if (p.awardCounts["Titre international"] ?? 0) > 0 { score += 2 }
-        if p.leagueTitles > 0 { score += 1 }
-        if p.cupTitles > 0 { score += 1 }
-        if p.careerGoals >= 150 { score += 1 }
+        var score = 1  // finishing a career at all is worth something
+
+        let ballons = p.awardCounts[FDAward.ballonDor.rawValue] ?? 0
+        let souliers = p.awardCounts[FDAward.soulierDor.rawValue] ?? 0
+        let internationals = p.awardCounts["Titre international"] ?? 0
+
+        score += min(4, ballons * 2)
+        score += min(2, souliers)
+        score += min(3, internationals * 2)
+        score += min(2, p.leagueTitles)
+        score += min(2, p.cupTitles)
+
+        if p.careerGoals >= 100 { score += 1 }
+        if p.careerGoals >= 200 { score += 1 }
         if p.cond.reputation >= 70 { score += 1 }
-        return min(10, score)
+        if p.cond.reputation >= 88 { score += 1 }
+        if p.nationalCaps >= 50 { score += 1 }
+
+        return min(14, score)
     }
 
     /// A larger composite score used to compare a career against a Défi Gloire du Passé target.
@@ -337,22 +349,46 @@ final class FDGameEngine: ObservableObject {
     /// Curated first-club offers for career creation — five clubs willing to give a prodigy a
     /// shot. Fewer potential stars bought means fewer doors open: big footballing nations only
     /// offer lower divisions to an unproven talent, smaller nations still let their top flight in.
+    /// Which divisions a player of this profile can be offered at the very start. France is
+    /// modelled four tiers deep, so an unproven player begins in Ligue 3 or the regional
+    /// level and only a heavily-invested one is offered a top-flight academy straight away.
+    /// Countries with a shallower pyramid fall back to whatever divisions they actually have.
+    private func startDivisions(potentialStars: Int) -> ClosedRange<Int> {
+        switch potentialStars {
+        case 0: return 3...4
+        case 1, 2: return 2...4
+        case 3, 4: return 1...3
+        default: return 1...2
+        }
+    }
+
     func availableStartClubs(nationality: String, potentialStars: Int) -> [FDClub] {
-        let countryTier = FDCountryTier[nationality] ?? 3
-        let allowsTopDivision = potentialStars >= 2 || countryTier == 3
+        let allowed = startDivisions(potentialStars: potentialStars)
+        let home = FDAllClubs.filter { $0.country == nationality }
 
-        let home = FDAllClubs
-            .filter { $0.country == nationality }
-            .filter { allowsTopDivision || $0.division >= 2 }
-        let sortedHome = potentialStars <= 1
-            ? home.sorted { $0.reputation < $1.reputation }
-            : home.sorted { $0.academyQuality > $1.academyQuality }
+        // Prefer the intended band; if this country isn't modelled that deep, widen to the
+        // closest divisions it does have rather than returning an empty picker.
+        var pool = home.filter { allowed.contains($0.division) }
+        if pool.count < 5 {
+            let deepest = home.map(\.division).max() ?? 1
+            let fallback = min(allowed.lowerBound, deepest)
+            pool = home.filter { $0.division >= fallback }
+        }
+        if pool.isEmpty { pool = home }
 
-        var picks = Array(sortedHome.prefix(5))
-        if picks.count < 5 {
+        // Low potential starts at the humble end of the band, high potential at the best
+        // academies it can reach.
+        let sorted = potentialStars <= 1
+            ? pool.sorted { $0.reputation < $1.reputation }
+            : pool.sorted { $0.academyQuality > $1.academyQuality }
+
+        var picks = Array(sorted.prefix(6))
+        if picks.count < 6 {
             let pickedIDs = Set(picks.map(\.id))
-            let rest = FDAllClubs.filter { !pickedIDs.contains($0.id) }.sorted { $0.reputation < $1.reputation }
-            picks.append(contentsOf: rest.prefix(5 - picks.count))
+            let rest = FDAllClubs
+                .filter { !pickedIDs.contains($0.id) && allowed.contains($0.division) }
+                .sorted { $0.reputation < $1.reputation }
+            picks.append(contentsOf: rest.prefix(6 - picks.count))
         }
         return picks
     }

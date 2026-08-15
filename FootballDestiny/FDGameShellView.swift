@@ -899,6 +899,62 @@ struct FDCareerSummaryCard: View {
                 }
             }
 
+            // Traits earned along the way — part of what made this career distinctive.
+            if !player.traits.isEmpty {
+                FDSectionHeader(icon: "person.crop.circle.fill.badge.checkmark", title: "Traits de caractère", color: FDTheme.primary)
+                    .padding(.horizontal, 14).padding(.vertical, 10)
+                Rectangle().fill(Color.white.opacity(0.06)).frame(height: 1)
+                LazyVGrid(columns: [GridItem(.adaptive(minimum: 92), spacing: 8)], alignment: .leading, spacing: 8) {
+                    ForEach(player.traits, id: \.self) { trait in
+                        HStack(spacing: 5) {
+                            Image(systemName: trait.icon).font(.system(size: 10, weight: .bold))
+                            Text(trait.rawValue).font(.caption.weight(.semibold))
+                        }
+                        .padding(.horizontal, 10).padding(.vertical, 5)
+                        .background(FDTheme.primary.opacity(0.15), in: Capsule())
+                        .foregroundStyle(FDTheme.primary)
+                    }
+                }
+                .padding(14)
+                Rectangle().fill(Color.white.opacity(0.06)).frame(height: 1)
+            }
+
+            // Season-by-season record, so reopening a career from the Historique tells the
+            // whole story rather than just the totals.
+            if !player.history.isEmpty {
+                FDSectionHeader(icon: "clock.arrow.circlepath", title: "Saison par saison", badge: "\(player.history.count)", color: FDTheme.warning)
+                    .padding(.horizontal, 14).padding(.vertical, 10)
+                Rectangle().fill(Color.white.opacity(0.06)).frame(height: 1)
+
+                HStack {
+                    Text("S.").font(.system(size: 9, weight: .bold)).foregroundStyle(.secondary).frame(width: 24)
+                    Text("Club").font(.system(size: 9, weight: .bold)).foregroundStyle(.secondary)
+                    Spacer()
+                    Text("Buts").font(.system(size: 9, weight: .bold)).foregroundStyle(.secondary).frame(width: 36)
+                    Text("Note").font(.system(size: 9, weight: .bold)).foregroundStyle(.secondary).frame(width: 36)
+                }
+                .padding(.horizontal, 14).padding(.vertical, 6)
+                .background(Color.white.opacity(0.03))
+                Rectangle().fill(Color.white.opacity(0.06)).frame(height: 1)
+
+                ForEach(Array(player.history.enumerated().reversed()), id: \.offset) { idx, season in
+                    HStack {
+                        Text("\(season.season)").font(FDFont.mono(11)).foregroundStyle(.secondary).frame(width: 24)
+                        Text(season.club).font(.caption.weight(.semibold)).lineLimit(1)
+                        Spacer()
+                        Text("\(season.goals)").font(FDFont.mono(12, bold: true)).foregroundStyle(FDTheme.success).frame(width: 36)
+                        Text(String(format: "%.1f", season.avgRating))
+                            .font(FDFont.mono(12, bold: true))
+                            .foregroundStyle(FDTheme.amber)
+                            .frame(width: 36)
+                    }
+                    .padding(.horizontal, 14).padding(.vertical, 7)
+                    if idx > 0 {
+                        Rectangle().fill(Color.white.opacity(0.03)).frame(height: 1)
+                    }
+                }
+            }
+
             if let title = primaryActionTitle, let action = primaryAction {
                 Rectangle().fill(Color.white.opacity(0.06)).frame(height: 1)
                 Button(action: action) { Text(title) }

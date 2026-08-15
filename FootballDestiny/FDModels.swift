@@ -181,6 +181,25 @@ extension FDClub {
         default: return .amateur
         }
     }
+
+    /// The competition name shown to the player. France is modelled down to four tiers and
+    /// names them properly; other countries carry fewer divisions and get a generic label.
+    var leagueName: String {
+        if country == "France" {
+            switch division {
+            case 1: return "Ligue 1"
+            case 2: return "Ligue 2"
+            case 3: return "Ligue 3"
+            default: return "Régional 1"
+            }
+        }
+        switch division {
+        case 1: return "1re division"
+        case 2: return "2e division"
+        case 3: return "3e division"
+        default: return "Division régionale"
+        }
+    }
 }
 
 // MARK: - Player sub-structures

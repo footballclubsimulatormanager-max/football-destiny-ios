@@ -720,7 +720,7 @@ private struct FDClubChoiceRow: View {
                     Text(club.name)
                         .font(FDFont.body(14, black: selected))
                         .foregroundStyle(selected ? FDTheme.textPrimary : FDTheme.textMuted)
-                    Text("\(club.country) · \(club.tier.rawValue)")
+                    Text("\(club.country) · \(club.leagueName)")
                         .font(.caption).foregroundStyle(.secondary)
                 }
                 Spacer()

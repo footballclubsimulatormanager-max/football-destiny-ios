@@ -68,7 +68,7 @@ struct FDHistoriqueView: View {
                                 } label: {
                                     FDHistoriqueRow(player: p, index: engine.archivedCareers.count - idx)
                                 }
-                                .buttonStyle(.plain)
+                                .buttonStyle(FDRowButtonStyle())
                                 Rectangle().fill(Color.white.opacity(0.04)).frame(height: 1)
                             }
                         }
@@ -171,36 +171,45 @@ struct FDBoutiqueView: View {
                     .background(FDTheme.card, in: RoundedRectangle(cornerRadius: FDTheme.radiusCard))
                     .overlay(RoundedRectangle(cornerRadius: FDTheme.radiusCard).stroke(FDTheme.amber.opacity(0.2), lineWidth: 1))
 
-                    // Compétences
-                    VStack(spacing: 0) {
-                        HStack(spacing: 6) {
-                            Image(systemName: "star.circle.fill")
-                                .font(.caption.weight(.bold))
-                                .foregroundStyle(FDTheme.amber)
-                            Text("COMPÉTENCES PERMANENTES")
-                                .font(FDFont.body(11, black: true))
-                                .foregroundStyle(FDTheme.amber)
-                            Spacer()
-                        }
-                        .padding(.horizontal, 14).padding(.vertical, 8)
-                        .background(FDTheme.amber.opacity(0.08))
+                    // Compétences, grouped by price band so a long catalogue stays readable
+                    // and the player can see what's within reach right now.
+                    ForEach(FDMetaTierInfo.all, id: \.tier) { band in
+                        let items = engine.permanentSkills.filter { $0.tier == band.tier }
+                        if !items.isEmpty {
+                            VStack(spacing: 0) {
+                                HStack(spacing: 6) {
+                                    Image(systemName: band.icon)
+                                        .font(.caption.weight(.bold))
+                                        .foregroundStyle(band.color)
+                                    Text(band.title.uppercased())
+                                        .font(FDFont.body(11, black: true))
+                                        .foregroundStyle(band.color)
+                                    Spacer()
+                                    Text(band.subtitle)
+                                        .font(.system(size: 9, weight: .bold))
+                                        .foregroundStyle(.secondary)
+                                }
+                                .padding(.horizontal, 14).padding(.vertical, 8)
+                                .background(band.color.opacity(0.08))
 
-                        Rectangle().fill(Color.white.opacity(0.06)).frame(height: 1)
+                                Rectangle().fill(Color.white.opacity(0.06)).frame(height: 1)
 
-                        ForEach(Array(engine.permanentSkills.enumerated()), id: \.offset) { idx, skill in
-                            FDSkillRow(
-                                skill: skill,
-                                canAfford: engine.legendCoins >= skill.cost,
-                                owned: engine.unlockedSkills.contains(skill.id),
-                                onBuy: { engine.buySkill(skill) }
-                            )
-                            if idx < engine.permanentSkills.count - 1 {
-                                Rectangle().fill(Color.white.opacity(0.04)).frame(height: 1)
+                                ForEach(Array(items.enumerated()), id: \.offset) { idx, skill in
+                                    FDSkillRow(
+                                        skill: skill,
+                                        canAfford: engine.legendCoins >= skill.cost,
+                                        owned: engine.unlockedSkills.contains(skill.id),
+                                        onBuy: { engine.buySkill(skill) }
+                                    )
+                                    if idx < items.count - 1 {
+                                        Rectangle().fill(Color.white.opacity(0.04)).frame(height: 1)
+                                    }
+                                }
                             }
+                            .background(FDTheme.card, in: RoundedRectangle(cornerRadius: FDTheme.radiusCard))
+                            .overlay(RoundedRectangle(cornerRadius: FDTheme.radiusCard).stroke(Color.white.opacity(0.07), lineWidth: 1))
                         }
                     }
-                    .background(FDTheme.card, in: RoundedRectangle(cornerRadius: FDTheme.radiusCard))
-                    .overlay(RoundedRectangle(cornerRadius: FDTheme.radiusCard).stroke(Color.white.opacity(0.07), lineWidth: 1))
                 }
                 .padding(.horizontal, 14)
                 .padding(.bottom, 20)
@@ -216,6 +225,23 @@ struct FDBoutiqueView: View {
         }
         .navigationViewStyle(.stack)
     }
+}
+
+/// Presentation for the four price bands shared by the Boutique and the Défis, so both
+/// screens label progression the same way. Costs themselves live in FDMetaProgression.
+struct FDMetaTierInfo {
+    let tier: Int
+    let title: String
+    let subtitle: String
+    let icon: String
+    let color: Color
+
+    static let all: [FDMetaTierInfo] = [
+        .init(tier: 1, title: "À portée", subtitle: "~10-15 CARRIÈRES", icon: "leaf.fill", color: FDTheme.success),
+        .init(tier: 2, title: "Consolidation", subtitle: "~25-40 CARRIÈRES", icon: "flame.fill", color: FDTheme.primary),
+        .init(tier: 3, title: "Exigeant", subtitle: "~50-75 CARRIÈRES", icon: "bolt.fill", color: FDTheme.accentTeal),
+        .init(tier: 4, title: "Élite", subtitle: "100+ CARRIÈRES", icon: "crown.fill", color: FDTheme.amber),
+    ]
 }
 
 private struct FDSkillRow: View {
@@ -329,44 +355,51 @@ struct FDChallengesView: View {
                     .background(FDTheme.card, in: RoundedRectangle(cornerRadius: FDTheme.radiusCard))
                     .overlay(RoundedRectangle(cornerRadius: FDTheme.radiusCard).stroke(Color.white.opacity(0.07), lineWidth: 1))
 
-                    // Challenge list
-                    VStack(spacing: 0) {
-                        HStack(spacing: 6) {
-                            Image(systemName: "trophy.fill")
-                                .font(.caption.weight(.bold)).foregroundStyle(FDTheme.amber)
-                            Text("DÉFIS LÉGENDAIRES")
-                                .font(FDFont.body(11, black: true)).foregroundStyle(FDTheme.amber)
-                            Spacer()
-                        }
-                        .padding(.horizontal, 14).padding(.vertical, 8)
-                        .background(FDTheme.amber.opacity(0.08))
+                    // Challenge list, split by price band — with 50 legends a single flat
+                    // list would be unreadable, and the bands double as a difficulty ladder.
+                    ForEach(FDMetaTierInfo.all, id: \.tier) { band in
+                        let items = engine.challenges.filter { $0.tier == band.tier }
+                        if !items.isEmpty {
+                            let bandConquered = items.filter { engine.conqueredChallenges.contains($0.id) }.count
 
-                        Rectangle().fill(Color.white.opacity(0.06)).frame(height: 1)
-
-                        ForEach(Array(engine.challenges.enumerated()), id: \.offset) { idx, challenge in
-                            let isConquered = engine.conqueredChallenges.contains(challenge.id)
-                            let isUnlocked = engine.unlockedChallenges.contains(challenge.id)
-                            let canAfford = engine.legendCoins >= challenge.unlockCost
-
-                            FDChallengeRow(
-                                challenge: challenge,
-                                conquered: isConquered,
-                                unlocked: isUnlocked,
-                                canAfford: canAfford,
-                                onUnlock: { engine.unlockChallenge(challenge) },
-                                onPlay: {
-                                    engine.startChallenge(challenge)
-                                    screen?.wrappedValue = .game
-                                    dismiss()
+                            VStack(spacing: 0) {
+                                HStack(spacing: 6) {
+                                    Image(systemName: band.icon)
+                                        .font(.caption.weight(.bold)).foregroundStyle(band.color)
+                                    Text(band.title.uppercased())
+                                        .font(FDFont.body(11, black: true)).foregroundStyle(band.color)
+                                    Spacer()
+                                    Text("\(bandConquered)/\(items.count)")
+                                        .font(FDFont.mono(11, bold: true))
+                                        .foregroundStyle(bandConquered == items.count ? band.color : .secondary)
                                 }
-                            )
-                            if idx < engine.challenges.count - 1 {
-                                Rectangle().fill(Color.white.opacity(0.04)).frame(height: 1)
+                                .padding(.horizontal, 14).padding(.vertical, 8)
+                                .background(band.color.opacity(0.08))
+
+                                Rectangle().fill(Color.white.opacity(0.06)).frame(height: 1)
+
+                                ForEach(Array(items.enumerated()), id: \.offset) { idx, challenge in
+                                    FDChallengeRow(
+                                        challenge: challenge,
+                                        conquered: engine.conqueredChallenges.contains(challenge.id),
+                                        unlocked: engine.unlockedChallenges.contains(challenge.id),
+                                        canAfford: engine.legendCoins >= challenge.unlockCost,
+                                        onUnlock: { engine.unlockChallenge(challenge) },
+                                        onPlay: {
+                                            engine.startChallenge(challenge)
+                                            screen?.wrappedValue = .game
+                                            dismiss()
+                                        }
+                                    )
+                                    if idx < items.count - 1 {
+                                        Rectangle().fill(Color.white.opacity(0.04)).frame(height: 1)
+                                    }
+                                }
                             }
+                            .background(FDTheme.card, in: RoundedRectangle(cornerRadius: FDTheme.radiusCard))
+                            .overlay(RoundedRectangle(cornerRadius: FDTheme.radiusCard).stroke(Color.white.opacity(0.07), lineWidth: 1))
                         }
                     }
-                    .background(FDTheme.card, in: RoundedRectangle(cornerRadius: FDTheme.radiusCard))
-                    .overlay(RoundedRectangle(cornerRadius: FDTheme.radiusCard).stroke(Color.white.opacity(0.07), lineWidth: 1))
                 }
                 .padding(.horizontal, 14)
                 .padding(.bottom, 20)
