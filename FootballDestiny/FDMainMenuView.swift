@@ -15,14 +15,7 @@ struct FDMainMenuView: View {
             FDTheme.backgroundGradient
                 .ignoresSafeArea()
 
-            // A single smooth glow rising from the bottom, in place of several scattered blurred
-            // circles — calmer and closer to the reference's clean navy-to-tinted-glow blend.
-            RadialGradient(
-                colors: [FDTheme.primary.opacity(0.34), FDTheme.accentTeal.opacity(0.20), .clear],
-                center: .bottom, startRadius: 20, endRadius: 460
-            )
-            .ignoresSafeArea()
-            .blur(radius: 50)
+            FDTheme.ambientGlow
 
             VStack(spacing: 0) {
                 topBar

@@ -285,7 +285,7 @@ private struct FDAttrBar: View {
         HStack(spacing: 3) {
             Text(label)
                 .font(.system(size: 9))
-                .foregroundStyle(.secondary)
+                .foregroundStyle(FDTheme.textMuted.opacity(0.75))
                 .lineLimit(1)
                 .minimumScaleFactor(0.6)
             Spacer(minLength: 1)
@@ -294,9 +294,8 @@ private struct FDAttrBar: View {
                 .foregroundStyle(FDTheme.statColor(value))
                 .animation(.fdSoft, value: value)
         }
-        .padding(.horizontal, 5)
-        .padding(.vertical, 3.5)
-        .background(Color.white.opacity(0.04), in: RoundedRectangle(cornerRadius: FDTheme.radiusMD))
+        .padding(.horizontal, 4)
+        .padding(.vertical, 2)
     }
 }
 
@@ -306,11 +305,13 @@ private let fdStatColumns = [
     GridItem(.flexible(), spacing: 6),
 ]
 
-/// Three columns, used where a whole category has to fit without scrolling.
+/// Four columns, used where a whole category has to fit without scrolling. With the pill
+/// background gone the cells are just text, so four sit comfortably across.
 private let fdStatColumnsWide = [
-    GridItem(.flexible(), spacing: 4),
-    GridItem(.flexible(), spacing: 4),
-    GridItem(.flexible(), spacing: 4),
+    GridItem(.flexible(), spacing: 8),
+    GridItem(.flexible(), spacing: 8),
+    GridItem(.flexible(), spacing: 8),
+    GridItem(.flexible(), spacing: 8),
 ]
 
 /// Compact condition pill — inline in a row
@@ -1040,27 +1041,34 @@ struct FDCarriereTab: View {
                                     .padding(7)
                                 }
                             }
-                            .frame(height: min(340, geo.size.height * 0.52))
+                            .frame(maxHeight: min(340, geo.size.height * 0.52))
                             .background(FDTheme.card.opacity(0.6), in: RoundedRectangle(cornerRadius: FDTheme.radiusCard))
                             .overlay(
                                 RoundedRectangle(cornerRadius: FDTheme.radiusCard)
                                     .stroke(Color.white.opacity(0.07), lineWidth: 1)
                             )
 
-                            switch engine.currentScene {
-                            case .none:
-                                ProgressView().frame(maxHeight: .infinity)
-                            case .story(let scene):
-                                FDStoryCard(engine: engine, scene: scene)
-                            case .match(let result):
-                                FDMatchCard(engine: engine, result: result)
-                            case .season(let lines):
-                                FDSeasonCard(engine: engine, lines: lines)
-                            case .tournament(let summary):
-                                FDTournamentCard(engine: engine, summary: summary)
-                            case .outcome(let outcome):
-                                FDOutcomeCard(engine: engine, outcome: outcome)
+                            // The narrative gets first claim on the remaining height, so a
+                            // long scene pushes the player box down to its minimum rather
+                            // than being clipped.
+                            Group {
+                                switch engine.currentScene {
+                                case .none:
+                                    ProgressView().frame(maxHeight: .infinity)
+                                case .story(let scene):
+                                    FDStoryCard(engine: engine, scene: scene)
+                                case .match(let result):
+                                    FDMatchCard(engine: engine, result: result)
+                                case .season(let lines):
+                                    FDSeasonCard(engine: engine, lines: lines)
+                                case .tournament(let summary):
+                                    FDTournamentCard(engine: engine, summary: summary)
+                                case .outcome(let outcome):
+                                    FDOutcomeCard(engine: engine, outcome: outcome)
+                                }
                             }
+                            .fixedSize(horizontal: false, vertical: true)
+                            .layoutPriority(1)
 
                             Spacer(minLength: 0)
                         }
@@ -1168,12 +1176,12 @@ struct FDCarriereTab: View {
                 .padding(.horizontal, 8).padding(.vertical, 3)
                 .background(FDTheme.headerWash(catColor))
 
-                LazyVGrid(columns: fdStatColumnsWide, spacing: 3) {
+                LazyVGrid(columns: fdStatColumnsWide, spacing: 2) {
                     ForEach(catAttrs, id: \.self) { attr in
                         FDAttrBar(label: attr.label, value: p.attr(attr), color: catColor)
                     }
                 }
-                .padding(.horizontal, 6).padding(.vertical, 4)
+                .padding(.horizontal, 8).padding(.vertical, 4)
             }
         }
         .fdCardSurface()
@@ -1227,8 +1235,7 @@ struct FDCarriereTab: View {
                             .font(FDFont.mono(11, bold: true))
                             .foregroundStyle(count > 0 ? FDTheme.amber : Color.secondary)
                     }
-                    .padding(.horizontal, 5).padding(.vertical, 3.5)
-                    .background(Color.white.opacity(0.04), in: RoundedRectangle(cornerRadius: FDTheme.radiusMD))
+                    .padding(.horizontal, 4).padding(.vertical, 2.5)
                 }
             }
             .padding(.horizontal, 6).padding(.vertical, 4)
@@ -1426,12 +1433,12 @@ struct FDCarriereTab: View {
                 .padding(.horizontal, 8).padding(.vertical, 3)
                 .background(FDTheme.headerWash(FDTheme.accentTeal))
 
-                LazyVGrid(columns: fdStatColumnsWide, spacing: 3) {
+                LazyVGrid(columns: fdStatColumnsWide, spacing: 2) {
                     ForEach(p.relDict.sorted(by: { $0.key < $1.key }), id: \.key) { key, value in
                         FDAttrBar(label: key.capitalized, value: value, color: FDTheme.accentTeal)
                     }
                 }
-                .padding(.horizontal, 6).padding(.vertical, 4)
+                .padding(.horizontal, 8).padding(.vertical, 4)
             }
         }
         .fdCardSurface()

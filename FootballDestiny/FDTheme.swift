@@ -68,9 +68,27 @@ enum FDTheme {
     /// A tinted header band that fades out to the right instead of sitting as a flat block.
     static func headerWash(_ color: Color) -> LinearGradient {
         LinearGradient(
-            colors: [color.opacity(0.20), color.opacity(0.04)],
+            colors: [color.opacity(0.22), color.opacity(0.03)],
             startPoint: .leading, endPoint: .trailing
         )
+    }
+
+    /// The ambient glow behind the main screens: two offset pools of colour rather than a
+    /// single radial, so the background has a direction instead of a flat vignette.
+    static var ambientGlow: some View {
+        ZStack {
+            RadialGradient(
+                colors: [violetGlow.opacity(0.30), .clear],
+                center: UnitPoint(x: 0.12, y: 0.02), startRadius: 8, endRadius: 420
+            )
+            RadialGradient(
+                colors: [accentTeal.opacity(0.22), .clear],
+                center: UnitPoint(x: 0.95, y: 0.85), startRadius: 8, endRadius: 460
+            )
+        }
+        .blur(radius: 60)
+        .ignoresSafeArea()
+        .allowsHitTesting(false)
     }
 
     /// Value-driven colour for a statistic: poor reads muted, good reads primary,
