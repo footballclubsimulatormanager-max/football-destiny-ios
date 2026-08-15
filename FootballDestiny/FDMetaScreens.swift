@@ -16,7 +16,7 @@ struct FDHistoriqueView: View {
                             .foregroundStyle(.secondary)
                         Text("Aucune carrière terminée pour l'instant.")
                             .foregroundStyle(.secondary)
-                            .font(.subheadline)
+                            .font(.body)
                     }
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
                 } else {
@@ -31,7 +31,7 @@ struct FDHistoriqueView: View {
                                     Text("\(engine.archivedCareers.count)")
                                         .font(FDFont.mono(22, bold: true)).foregroundStyle(FDTheme.amber)
                                     Text("CARRIÈRES")
-                                        .font(.system(size: 8, weight: .bold)).foregroundStyle(.secondary)
+                                        .font(.system(size: 11, weight: .bold)).foregroundStyle(.secondary)
                                 }
                                 .frame(maxWidth: .infinity)
                                 Rectangle().fill(Color.white.opacity(0.08)).frame(width: 1, height: 36)
@@ -39,7 +39,7 @@ struct FDHistoriqueView: View {
                                     Text("\(totalGoals)")
                                         .font(FDFont.mono(22, bold: true)).foregroundStyle(FDTheme.success)
                                     Text("BUTS TOTAUX")
-                                        .font(.system(size: 8, weight: .bold)).foregroundStyle(.secondary)
+                                        .font(.system(size: 11, weight: .bold)).foregroundStyle(.secondary)
                                 }
                                 .frame(maxWidth: .infinity)
                                 Rectangle().fill(Color.white.opacity(0.08)).frame(width: 1, height: 36)
@@ -47,7 +47,7 @@ struct FDHistoriqueView: View {
                                     Text("\(totalApps)")
                                         .font(FDFont.mono(22, bold: true)).foregroundStyle(FDTheme.primary)
                                     Text("MATCHS TOTAUX")
-                                        .font(.system(size: 8, weight: .bold)).foregroundStyle(.secondary)
+                                        .font(.system(size: 11, weight: .bold)).foregroundStyle(.secondary)
                                 }
                                 .frame(maxWidth: .infinity)
                             }
@@ -102,15 +102,15 @@ private struct FDHistoriqueRow: View {
                     .fill(FDTheme.primary.opacity(0.12))
                     .frame(width: 32, height: 32)
                 Text("\(index)")
-                    .font(FDFont.mono(13, bold: true))
+                    .font(FDFont.mono(15, bold: true))
                     .foregroundStyle(FDTheme.primary)
             }
             VStack(alignment: .leading, spacing: 4) {
                 Text("\(player.firstName) \(player.lastName)")
-                    .font(FDFont.body(14, black: true))
+                    .font(FDFont.body(16, black: true))
                     .foregroundStyle(FDTheme.textPrimary)
                 Text("\(fdFlag(for: player.nationality)) \(player.position.rawValue) · retraité à \(player.age) ans")
-                    .font(.caption)
+                    .font(.footnote)
                     .foregroundStyle(.secondary)
                     .fixedSize(horizontal: false, vertical: true)
 
@@ -126,7 +126,7 @@ private struct FDHistoriqueRow: View {
             }
             Spacer(minLength: 4)
             Image(systemName: "chevron.right")
-                .font(.caption.weight(.bold))
+                .font(.footnote.weight(.bold))
                 .foregroundStyle(.secondary)
         }
         .padding(.horizontal, 11)
@@ -143,10 +143,10 @@ struct FDMiniStat: View {
     var body: some View {
         VStack(spacing: 1) {
             Text(value)
-                .font(FDFont.mono(12, bold: true))
+                .font(FDFont.mono(14, bold: true))
                 .foregroundStyle(color)
             Text(label)
-                .font(.system(size: 7.5, weight: .bold))
+                .font(.system(size: 10, weight: .bold))
                 .foregroundStyle(.secondary)
         }
     }
@@ -176,7 +176,7 @@ struct FDBoutiqueView: View {
                                     .font(FDFont.display(20))
                                     .foregroundStyle(FDTheme.amber)
                                 Text("Solde disponible")
-                                    .font(.caption)
+                                    .font(.footnote)
                                     .foregroundStyle(.secondary)
                             }
                             Spacer()
@@ -184,7 +184,7 @@ struct FDBoutiqueView: View {
                         .padding(14)
                         Rectangle().fill(Color.white.opacity(0.06)).frame(height: 1)
                         Text("Achetée à l'unité, une compétence ne vaut que pour une seule carrière. Pour la garder définitivement, compte cinq fois le prix. Tu n'en emportes que \(FDMaxEquippedCompetences) par carrière — à toi de choisir lesquelles au moment de la créer.")
-                            .font(.caption)
+                            .font(.footnote)
                             .foregroundStyle(.secondary)
                             .padding(14)
                     }
@@ -201,14 +201,14 @@ struct FDBoutiqueView: View {
                                let band = FDMetaTierInfo.all.first(where: { $0.tier == skill.tier }) {
                                 HStack(spacing: 5) {
                                     Image(systemName: band.icon)
-                                        .font(.system(size: 10, weight: .bold))
+                                        .font(.system(size: 12, weight: .bold))
                                         .foregroundStyle(band.color)
                                     Text(band.title.uppercased())
-                                        .font(.system(size: 9.5, weight: .black))
+                                        .font(.system(size: 12, weight: .black))
                                         .foregroundStyle(band.color)
                                     Spacer()
                                     Text(band.subtitle)
-                                        .font(.system(size: 8, weight: .bold))
+                                        .font(.system(size: 11, weight: .bold))
                                         .foregroundStyle(.secondary)
                                 }
                                 .padding(.horizontal, 12).padding(.vertical, 6)
@@ -280,31 +280,31 @@ private struct FDSkillRow: View {
                     .fill(owned ? FDTheme.amber.opacity(0.15) : FDTheme.primary.opacity(0.1))
                     .frame(width: 32, height: 32)
                 Image(systemName: owned ? "checkmark.seal.fill" : skill.icon)
-                    .font(.system(size: 13))
+                    .font(.system(size: 15))
                     .foregroundStyle(owned ? FDTheme.amber : FDTheme.primary)
             }
 
             VStack(alignment: .leading, spacing: 4) {
                 HStack(spacing: 5) {
                     Text(skill.name)
-                        .font(FDFont.body(13, black: true))
+                        .font(FDFont.body(15, black: true))
                         .foregroundStyle(FDTheme.textPrimary)
                     if owned {
                         Text("ACQUISE")
-                            .font(.system(size: 7.5, weight: .black))
+                            .font(.system(size: 10, weight: .black))
                             .foregroundStyle(FDTheme.amber)
                             .padding(.horizontal, 5).padding(.vertical, 2)
                             .background(FDTheme.amber.opacity(0.16), in: Capsule())
                     } else if charges > 0 {
                         Text("×\(charges)")
-                            .font(FDFont.mono(9, bold: true))
+                            .font(FDFont.mono(12, bold: true))
                             .foregroundStyle(FDTheme.success)
                             .padding(.horizontal, 5).padding(.vertical, 2)
                             .background(FDTheme.success.opacity(0.16), in: Capsule())
                     }
                 }
                 Text(skill.description)
-                    .font(.system(size: 10.5))
+                    .font(.system(size: 13))
                     .foregroundStyle(.secondary)
                     .fixedSize(horizontal: false, vertical: true)
 
@@ -348,10 +348,10 @@ private struct FDBuyButton: View {
         Button(action: action) {
             HStack(spacing: 3) {
                 Text(label)
-                    .font(.system(size: 9, weight: .bold))
-                Image(systemName: "seal.fill").font(.system(size: 8))
+                    .font(.system(size: 12, weight: .bold))
+                Image(systemName: "seal.fill").font(.system(size: 11))
                 Text("\(cost)")
-                    .font(FDFont.mono(10, bold: true))
+                    .font(FDFont.mono(12, bold: true))
             }
             .padding(.horizontal, 8).padding(.vertical, 4)
             .background(Capsule().fill(enabled ? tint.opacity(0.9) : Color.white.opacity(0.07)))
@@ -384,7 +384,7 @@ struct FDChallengesView: View {
                                 Text("\(total)")
                                     .font(FDFont.mono(22, bold: true)).foregroundStyle(FDTheme.primary)
                                 Text("TOTAL")
-                                    .font(.system(size: 8, weight: .bold)).foregroundStyle(.secondary)
+                                    .font(.system(size: 11, weight: .bold)).foregroundStyle(.secondary)
                             }
                             .frame(maxWidth: .infinity)
                             Rectangle().fill(Color.white.opacity(0.08)).frame(width: 1, height: 36)
@@ -392,7 +392,7 @@ struct FDChallengesView: View {
                                 Text("\(unlocked)")
                                     .font(FDFont.mono(22, bold: true)).foregroundStyle(FDTheme.warning)
                                 Text("DÉBLOQUÉS")
-                                    .font(.system(size: 8, weight: .bold)).foregroundStyle(.secondary)
+                                    .font(.system(size: 11, weight: .bold)).foregroundStyle(.secondary)
                             }
                             .frame(maxWidth: .infinity)
                             Rectangle().fill(Color.white.opacity(0.08)).frame(width: 1, height: 36)
@@ -400,7 +400,7 @@ struct FDChallengesView: View {
                                 Text("\(conquered)")
                                     .font(FDFont.mono(22, bold: true)).foregroundStyle(FDTheme.amber)
                                 Text("CONQUIS")
-                                    .font(.system(size: 8, weight: .bold)).foregroundStyle(.secondary)
+                                    .font(.system(size: 11, weight: .bold)).foregroundStyle(.secondary)
                             }
                             .frame(maxWidth: .infinity)
                         }
@@ -436,14 +436,14 @@ struct FDChallengesView: View {
 
                                 HStack(spacing: 5) {
                                     Image(systemName: band.icon)
-                                        .font(.system(size: 10, weight: .bold)).foregroundStyle(band.color)
+                                        .font(.system(size: 12, weight: .bold)).foregroundStyle(band.color)
                                     Text(band.title.uppercased())
-                                        .font(.system(size: 9.5, weight: .black)).foregroundStyle(band.color)
+                                        .font(.system(size: 12, weight: .black)).foregroundStyle(band.color)
                                     Text(band.subtitle)
-                                        .font(.system(size: 8, weight: .bold)).foregroundStyle(.secondary)
+                                        .font(.system(size: 11, weight: .bold)).foregroundStyle(.secondary)
                                     Spacer()
                                     Text("\(done)/\(items.count)")
-                                        .font(FDFont.mono(10, bold: true))
+                                        .font(FDFont.mono(12, bold: true))
                                         .foregroundStyle(done == items.count ? band.color : .secondary)
                                 }
                                 .padding(.horizontal, 12).padding(.vertical, 6)
@@ -501,7 +501,7 @@ private struct FDChallengeRow: View {
                     .fill(conquered ? FDTheme.amber.opacity(0.15) : FDTheme.primary.opacity(0.1))
                     .frame(width: 28, height: 28)
                 Image(systemName: conquered ? "trophy.fill" : "person.fill.questionmark")
-                    .font(.system(size: 12))
+                    .font(.system(size: 14))
                     .foregroundStyle(conquered ? FDTheme.amber : FDTheme.primary)
             }
 
@@ -510,12 +510,12 @@ private struct FDChallengeRow: View {
             VStack(alignment: .leading, spacing: 1) {
                 HStack(spacing: 5) {
                     Text(challenge.name)
-                        .font(FDFont.body(12.5, black: true))
+                        .font(FDFont.body(14, black: true))
                         .foregroundStyle(FDTheme.textPrimary)
                         .lineLimit(1)
                     if conquered {
                         Image(systemName: "checkmark.seal.fill")
-                            .font(.system(size: 9))
+                            .font(.system(size: 12))
                             .foregroundStyle(FDTheme.amber)
                     }
                 }
@@ -527,12 +527,12 @@ private struct FDChallengeRow: View {
                     Text("\(challenge.targetScore) pts")
                         .foregroundStyle(FDTheme.warning)
                 }
-                .font(.system(size: 9.5, weight: .medium))
+                .font(.system(size: 12, weight: .medium))
                 .lineLimit(1)
                 .minimumScaleFactor(0.75)
 
                 Text(challenge.archetype)
-                    .font(.system(size: 9.5))
+                    .font(.system(size: 12))
                     .foregroundStyle(.secondary.opacity(0.75))
                     .lineLimit(2)
                     .fixedSize(horizontal: false, vertical: true)
@@ -543,7 +543,7 @@ private struct FDChallengeRow: View {
             if unlocked {
                 Button(action: onPlay) {
                     Text("Rejouer")
-                        .font(FDFont.body(11, black: true))
+                        .font(FDFont.body(14, black: true))
                         .padding(.horizontal, 9).padding(.vertical, 5)
                         .background(Capsule().fill(FDTheme.primary))
                         .foregroundStyle(.white)
@@ -552,10 +552,10 @@ private struct FDChallengeRow: View {
             } else {
                 Button(action: onUnlock) {
                     HStack(spacing: 3) {
-                        Image(systemName: "seal.fill").font(.system(size: 9))
+                        Image(systemName: "seal.fill").font(.system(size: 12))
                         Text("\(challenge.unlockCost)")
                     }
-                    .font(FDFont.body(11, black: true))
+                    .font(FDFont.body(14, black: true))
                     .padding(.horizontal, 9).padding(.vertical, 5)
                     .background(Capsule().fill(canAfford ? FDTheme.amber.opacity(0.85) : Color.white.opacity(0.07)))
                     .foregroundStyle(canAfford ? .black : .secondary)
@@ -589,10 +589,10 @@ struct FDClassementView: View {
                             .font(.system(size: 40))
                             .foregroundStyle(.secondary)
                         Text("Aucune carrière classée pour l'instant.")
-                            .font(.subheadline)
+                            .font(.body)
                             .foregroundStyle(.secondary)
                         Text("Termine une carrière pour entrer au classement.")
-                            .font(.caption)
+                            .font(.footnote)
                             .foregroundStyle(.secondary)
                     }
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -602,10 +602,10 @@ struct FDClassementView: View {
                             VStack(spacing: 0) {
                                 HStack(spacing: 6) {
                                     Image(systemName: "info.circle.fill")
-                                        .font(.caption.weight(.bold))
+                                        .font(.footnote.weight(.bold))
                                         .foregroundStyle(FDTheme.primary)
                                     Text("COMMENT C'EST CLASSÉ")
-                                        .font(FDFont.body(11, black: true))
+                                        .font(FDFont.body(14, black: true))
                                         .foregroundStyle(FDTheme.primary)
                                     Spacer()
                                 }
@@ -613,7 +613,7 @@ struct FDClassementView: View {
                                 .background(FDTheme.primary.opacity(0.07))
                                 Rectangle().fill(Color.white.opacity(0.06)).frame(height: 1)
                                 Text("Les 100 meilleures carrières terminées sur cet appareil. Le Ballon d'Or pèse le plus lourd, puis les titres internationaux, les titres de champion et de coupe, puis les sélections et les buts.")
-                                    .font(.caption)
+                                    .font(.footnote)
                                     .foregroundStyle(.secondary)
                                     .fixedSize(horizontal: false, vertical: true)
                                     .padding(14)
@@ -697,18 +697,18 @@ private struct FDClassementRow: View {
             VStack(alignment: .leading, spacing: 4) {
                 HStack(spacing: 5) {
                     Text(displayName)
-                        .font(FDFont.body(14, black: true))
+                        .font(FDFont.body(16, black: true))
                         .foregroundStyle(FDTheme.textPrimary)
                         .lineLimit(1)
                     if !player.alias.isEmpty {
                         Text("\(player.firstName) \(player.lastName)")
-                            .font(.caption2)
+                            .font(.caption)
                             .foregroundStyle(.secondary)
                             .lineLimit(1)
                     }
                 }
                 Text("\(fdFlag(for: player.nationality)) \(player.position.rawValue) · \(player.club.name)")
-                    .font(.caption)
+                    .font(.footnote)
                     .foregroundStyle(.secondary)
                     .fixedSize(horizontal: false, vertical: true)
 
@@ -726,10 +726,10 @@ private struct FDClassementRow: View {
 
             VStack(alignment: .trailing, spacing: 1) {
                 Text("\(score)")
-                    .font(FDFont.mono(14, bold: true))
+                    .font(FDFont.mono(16, bold: true))
                     .foregroundStyle(medalColor)
                 Text("PTS")
-                    .font(.system(size: 7.5, weight: .bold))
+                    .font(.system(size: 10, weight: .bold))
                     .foregroundStyle(.secondary)
             }
         }
@@ -771,10 +771,10 @@ struct FDAliasPromptCard: View {
         VStack(spacing: 0) {
             HStack(spacing: 6) {
                 Image(systemName: "list.number")
-                    .font(.caption.weight(.bold))
+                    .font(.footnote.weight(.bold))
                     .foregroundStyle(FDTheme.amber)
                 Text("ENTRER AU CLASSEMENT")
-                    .font(FDFont.body(11, black: true))
+                    .font(FDFont.body(14, black: true))
                     .foregroundStyle(FDTheme.amber)
                 Spacer()
             }
@@ -787,7 +787,7 @@ struct FDAliasPromptCard: View {
                     Image(systemName: "checkmark.circle.fill")
                         .foregroundStyle(FDTheme.success)
                     Text(signedLabel)
-                        .font(FDFont.body(13))
+                        .font(FDFont.body(15))
                         .foregroundStyle(FDTheme.textPrimary)
                         .fixedSize(horizontal: false, vertical: true)
                     Spacer()
@@ -798,11 +798,11 @@ struct FDAliasPromptCard: View {
                     if let rank {
                         HStack(spacing: 6) {
                             Image(systemName: rank <= 3 ? "medal.fill" : "list.number")
-                                .font(.system(size: 11, weight: .bold))
+                                .font(.system(size: 14, weight: .bold))
                             Text(rank == 1
                                  ? "Meilleure carrière de ton classement !"
                                  : "\(rank)e au classement de tes carrières.")
-                                .font(FDFont.body(12, black: true))
+                                .font(FDFont.body(14, black: true))
                         }
                         .foregroundStyle(FDTheme.amber)
                         .padding(.horizontal, 9).padding(.vertical, 5)
@@ -810,12 +810,12 @@ struct FDAliasPromptCard: View {
                     }
 
                     Text("Choisis un pseudo pour signer cette carrière au classement. Tu peux aussi laisser le nom du joueur.")
-                        .font(.caption)
+                        .font(.footnote)
                         .foregroundStyle(.secondary)
                         .fixedSize(horizontal: false, vertical: true)
 
                     TextField("Ton pseudo", text: $alias)
-                        .font(FDFont.body(15))
+                        .font(FDFont.body(17))
                         .foregroundStyle(FDTheme.textPrimary)
                         .padding(.horizontal, 12).padding(.vertical, 10)
                         .background(FDTheme.bg.opacity(0.6), in: RoundedRectangle(cornerRadius: FDTheme.radiusMD))

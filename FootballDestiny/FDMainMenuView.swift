@@ -107,7 +107,7 @@ struct FDMainMenuView: View {
                 }
 
                 Text("Aucune inscription · Aucun compte · Sauvegarde locale")
-                    .font(.caption2)
+                    .font(.caption)
                     .foregroundStyle(.white.opacity(0.35))
                     .padding(.bottom, 20)
             }
@@ -131,7 +131,7 @@ struct FDMainMenuView: View {
                     .font(FDFont.display(24))
                     .foregroundStyle(FDTheme.primaryTextGradient)
                 Text("DESTINY")
-                    .font(FDFont.body(9, black: true))
+                    .font(FDFont.body(12, black: true))
                     .tracking(5.5)
                     .foregroundStyle(.white.opacity(0.55))
             }
@@ -180,7 +180,7 @@ struct FDMainMenuView: View {
         VStack(alignment: .leading, spacing: 12) {
             VStack(alignment: .leading, spacing: 2) {
                 Text("SIMULATEUR DE CARRIÈRE")
-                    .font(.caption2.weight(.bold))
+                    .font(.caption.weight(.bold))
                     .tracking(2)
                     .foregroundStyle(FDTheme.primary)
                 Text(greetingName.map { "Bonjour, \($0)" } ?? "Bonjour")
@@ -191,9 +191,9 @@ struct FDMainMenuView: View {
 
             HStack(spacing: 6) {
                 Image(systemName: statusLine.icon)
-                    .font(.system(size: 12, weight: .bold))
+                    .font(.system(size: 14, weight: .bold))
                 Text(statusLine.text)
-                    .font(.fdRounded(.caption, weight: .semibold))
+                    .font(.fdRounded(.footnote, weight: .semibold))
             }
             .foregroundStyle(statusLine.tint)
             .padding(.horizontal, 12)
@@ -203,13 +203,13 @@ struct FDMainMenuView: View {
             HStack(spacing: 3) {
                 ForEach(0..<FDPotentialShop.maxStars, id: \.self) { i in
                     Image(systemName: i < potentialStarsUnlocked ? "star.fill" : "star")
-                        .font(.system(size: 13))
+                        .font(.system(size: 15))
                         .foregroundStyle(i < potentialStarsUnlocked ? FDTheme.amber : Color.white.opacity(0.22))
                         .scaleEffect(i < potentialStarsUnlocked ? 1 : 0.85)
                         .fdAppear(delay: 0.3 + Double(i) * 0.04)
                 }
                 Text("Potentiel de départ")
-                    .font(.caption2)
+                    .font(.caption)
                     .foregroundStyle(.white.opacity(0.45))
                     .padding(.leading, 4)
             }
@@ -243,7 +243,7 @@ private struct FDMenuRow: View {
 
                 VStack(alignment: .leading, spacing: 2) {
                     Text(title).font(FDFont.display(19)).foregroundStyle(.white)
-                    Text(subtitle).font(.caption).foregroundStyle(.white.opacity(0.55))
+                    Text(subtitle).font(.footnote).foregroundStyle(.white.opacity(0.55))
                 }
 
                 Spacer()
@@ -251,9 +251,9 @@ private struct FDMenuRow: View {
                 if let badge {
                     HStack(spacing: 4) {
                         Image(systemName: badge.icon)
-                            .font(.system(size: 10, weight: .bold))
+                            .font(.system(size: 12, weight: .bold))
                         Text(badge.text)
-                            .font(FDFont.mono(12, bold: true))
+                            .font(FDFont.mono(14, bold: true))
                     }
                     .foregroundStyle(badge.tint)
                     .padding(.horizontal, 9)
@@ -262,7 +262,7 @@ private struct FDMenuRow: View {
                 }
 
                 Image(systemName: "chevron.right")
-                    .font(.caption.weight(.bold))
+                    .font(.footnote.weight(.bold))
                     .foregroundStyle(.white.opacity(0.35))
             }
             .padding(14)
@@ -303,14 +303,14 @@ struct FDAboutSheet: View {
             ScrollView {
                 VStack(alignment: .leading, spacing: 16) {
                     Text("FCS-Destiny est un prototype de simulateur de carrière de footballeur : formation (2 saisons maximum en U16/U18), entraînements, vestiaire, contrats, blessures, sélection nationale, transferts, jusqu'à la retraite — forcée à 43 ans, ou à tout moment de ton choix depuis l'onglet Options.")
-                        .font(.subheadline)
+                        .font(.body)
                         .fdCard()
 
                     VStack(alignment: .leading, spacing: 10) {
                         FDSectionLabel("Un rythme resserré")
                         Label("Une poignée de choix marquants par saison — le reste se joue en coulisses", systemImage: "book.fill")
                     }
-                    .font(.subheadline)
+                    .font(.body)
                     .fdCard()
 
                     VStack(alignment: .leading, spacing: 10) {
@@ -318,14 +318,14 @@ struct FDAboutSheet: View {
                         Label("Points de carrière cumulés : dépensés en étoiles de potentiel au lancement d'une nouvelle carrière.", systemImage: "trophy.fill")
                         Label("Pièces : gagnées seulement pour les grandes carrières, à dépenser dans la Boutique et le Défi Gloire du Passé.", systemImage: "seal.fill")
                     }
-                    .font(.subheadline)
+                    .font(.body)
                     .fdCard()
 
                     VStack(alignment: .leading, spacing: 10) {
                         Text("Aucune inscription, aucun compte, aucune donnée envoyée en ligne : tout est joué et sauvegardé directement sur cet appareil.")
                         Text("Les clubs utilisent des villes et championnats réels ; aucun écusson, maillot ou nom de compétition officiel n'est reproduit.")
                     }
-                    .font(.footnote)
+                    .font(.subheadline)
                     .foregroundStyle(.secondary)
                     .fdCard()
                 }

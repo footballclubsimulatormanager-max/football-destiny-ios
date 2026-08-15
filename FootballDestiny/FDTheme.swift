@@ -199,7 +199,7 @@ struct FDSectionLabel: View {
 
     var body: some View {
         Text(text.uppercased())
-            .font(.caption2.weight(.bold))
+            .font(.caption.weight(.bold))
             .tracking(1.2)
             .foregroundStyle(FDTheme.accentTeal)
     }
