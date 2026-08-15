@@ -24,12 +24,12 @@ struct FDCompetence: Identifiable, Hashable {
 typealias FDPermanentSkill = FDCompetence
 
 let FDCompetences: [FDCompetence] = [
-    FDCompetence(id: "reputation_1", name: "Œil du recruteur", icon: "👁️", description: "Ta réputation de départ est un peu plus solide.", cost: 5, effect: .reputation(5)),
-    FDCompetence(id: "money_1", name: "Filière familiale", icon: "💰", description: "Un petit pécule en plus pour démarrer.", cost: 4, effect: .money(1000)),
-    FDCompetence(id: "forme_1", name: "Préparation physique", icon: "💪", description: "Tu arrives en pro dans une forme excellente.", cost: 4, effect: .forme(8)),
-    FDCompetence(id: "confiance_1", name: "Mental de compétiteur", icon: "🧠", description: "Une confiance en toi déjà bien ancrée.", cost: 4, effect: .confiance(8)),
-    FDCompetence(id: "moral_1", name: "Entourage solide", icon: "🤝", description: "Un moral au beau fixe dès le premier jour.", cost: 4, effect: .moral(8)),
-    FDCompetence(id: "potential_1", name: "Formation héritée", icon: "🌟", description: "Ton potentiel de départ grimpe encore un peu plus.", cost: 10, effect: .potential(5)),
+    FDCompetence(id: "reputation_1", name: "Œil du recruteur", icon: "eye.fill", description: "Ta réputation de départ est un peu plus solide.", cost: 5, effect: .reputation(5)),
+    FDCompetence(id: "money_1", name: "Filière familiale", icon: "eurosign.circle.fill", description: "Un petit pécule en plus pour démarrer.", cost: 4, effect: .money(1000)),
+    FDCompetence(id: "forme_1", name: "Préparation physique", icon: "waveform.path.ecg", description: "Tu arrives en pro dans une forme excellente.", cost: 4, effect: .forme(8)),
+    FDCompetence(id: "confiance_1", name: "Mental de compétiteur", icon: "brain.fill", description: "Une confiance en toi déjà bien ancrée.", cost: 4, effect: .confiance(8)),
+    FDCompetence(id: "moral_1", name: "Entourage solide", icon: "hand.raised.fill", description: "Un moral au beau fixe dès le premier jour.", cost: 4, effect: .moral(8)),
+    FDCompetence(id: "potential_1", name: "Formation héritée", icon: "star.circle.fill", description: "Ton potentiel de départ grimpe encore un peu plus.", cost: 10, effect: .potential(5)),
 ]
 
 // MARK: - Défi Gloire du Passé (fictional legends, inspired by real archetypes — never real names)

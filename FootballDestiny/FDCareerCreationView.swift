@@ -111,9 +111,14 @@ struct FDCareerCreationView: View {
     }
 
     @ViewBuilder
-    private func stickyFooter(title: String, enabled: Bool, action: @escaping () -> Void) -> some View {
+    private func stickyFooter(title: String, icon: String? = nil, enabled: Bool, action: @escaping () -> Void) -> some View {
         Button(action: action) {
-            Text(title)
+            HStack(spacing: 8) {
+                Text(title)
+                if let icon {
+                    Image(systemName: icon).font(.body.weight(.bold))
+                }
+            }
         }
         .buttonStyle(FDPrimaryButtonStyle())
         .disabled(!enabled)
@@ -381,12 +386,13 @@ struct FDCareerCreationView: View {
                             creationSectionHeader(icon: "crown.fill", title: "Potentiel de départ")
 
                             VStack(spacing: 12) {
-                                HStack {
-                                    Text("🏆 \(engine.lifetimePoints) points de carrière cumulés")
+                                HStack(spacing: 6) {
+                                    Image(systemName: "trophy.fill").font(.caption)
+                                    Text("\(engine.lifetimePoints) points de carrière cumulés")
                                         .font(FDFont.body(13))
-                                        .foregroundStyle(FDTheme.amber)
                                     Spacer()
                                 }
+                                .foregroundStyle(FDTheme.amber)
 
                                 HStack(spacing: 4) {
                                     ForEach(0..<FDPotentialShop.maxStars, id: \.self) { i in
@@ -404,9 +410,12 @@ struct FDCareerCreationView: View {
 
                                 if draft.potentialStars > 0 {
                                     HStack {
-                                        Text("Coût : 🏆 \(FDPotentialShop.cumulativeCost(for: draft.potentialStars)) points")
-                                            .font(.caption.weight(.semibold))
-                                            .foregroundStyle(FDTheme.amber)
+                                        HStack(spacing: 4) {
+                                            Image(systemName: "trophy.fill").font(.caption2)
+                                            Text("Coût : \(FDPotentialShop.cumulativeCost(for: draft.potentialStars)) points")
+                                        }
+                                        .font(.caption.weight(.semibold))
+                                        .foregroundStyle(FDTheme.amber)
                                         Spacer()
                                         Text("Potentiel +\(draft.potentialStars * 5)%")
                                             .font(.caption.weight(.semibold))
@@ -505,7 +514,8 @@ struct FDCareerCreationView: View {
                 .padding(.bottom, 100)
             }
             stickyFooter(
-                title: "Lancer ma carrière 🚀",
+                title: "Lancer ma carrière",
+                icon: "arrow.right.circle.fill",
                 enabled: draft.club != nil
             ) {
                 FDHaptics.success()
@@ -718,9 +728,14 @@ private struct FDProfileChoiceRow: View {
     var body: some View {
         Button(action: action) {
             HStack(spacing: 12) {
-                Text(icon)
-                    .font(.title2)
-                    .frame(width: 40)
+                ZStack {
+                    RoundedRectangle(cornerRadius: 9, style: .continuous)
+                        .fill(selected ? accent.opacity(0.2) : Color.white.opacity(0.06))
+                        .frame(width: 36, height: 36)
+                    Image(systemName: icon)
+                        .font(.system(size: 14, weight: .semibold))
+                        .foregroundStyle(selected ? accent : .secondary)
+                }
                 VStack(alignment: .leading, spacing: 3) {
                     Text(title)
                         .font(FDFont.body(14, black: selected))
@@ -808,13 +823,13 @@ private struct FDCreationField: View {
 private extension FDStyle {
     var flavorIcon: String {
         switch self {
-        case .technicien: return "🎩"
-        case .rapide: return "💨"
-        case .puissant: return "💪"
-        case .createur: return "🎨"
-        case .finisseur: return "🎯"
-        case .recuperateur: return "🛡️"
-        case .leader: return "👑"
+        case .technicien: return "wand.and.stars"
+        case .rapide: return "bolt.fill"
+        case .puissant: return "bolt.circle.fill"
+        case .createur: return "paintbrush.fill"
+        case .finisseur: return "scope"
+        case .recuperateur: return "shield.fill"
+        case .leader: return "crown.fill"
         }
     }
     var flavorText: String {
@@ -833,13 +848,13 @@ private extension FDStyle {
 private extension FDPersonality {
     var flavorIcon: String {
         switch self {
-        case .ambitieux: return "🔥"
-        case .discipline: return "📋"
-        case .charismatique: return "✨"
-        case .reserve: return "🤫"
-        case .provocateur: return "😈"
-        case .travailleur: return "⚒️"
-        case .irregulier: return "🎢"
+        case .ambitieux: return "flame.fill"
+        case .discipline: return "checklist"
+        case .charismatique: return "sparkles"
+        case .reserve: return "figure.stand"
+        case .provocateur: return "theatermasks.fill"
+        case .travailleur: return "hammer.fill"
+        case .irregulier: return "waveform.path.ecg"
         }
     }
     var flavorText: String {
@@ -858,10 +873,10 @@ private extension FDPersonality {
 private extension FDBackground {
     var flavorIcon: String {
         switch self {
-        case .modeste: return "🏠"
-        case .stable: return "⚖️"
-        case .aisee: return "💼"
-        case .footballeur: return "👨‍👦"
+        case .modeste: return "house.fill"
+        case .stable: return "scalemass.fill"
+        case .aisee: return "briefcase.fill"
+        case .footballeur: return "person.2.fill"
         }
     }
     var flavorText: String {

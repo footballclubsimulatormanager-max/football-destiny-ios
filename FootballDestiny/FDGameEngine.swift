@@ -677,7 +677,7 @@ final class FDGameEngine: ObservableObject {
         if let trait = choice.trait, var p = player, !p.traits.contains(trait) {
             p.traits.append(trait)
             player = p
-            pushJournal("Trait débloqué : \(trait.icon) \(trait.rawValue).", icon: "🎭")
+            pushJournal("Trait débloqué : \(trait.rawValue).", icon: "🎭")
         }
         if let weeks = choice.delayedWeeks, let effects = choice.delayedEffects, let text = choice.delayedText, var p = player {
             let due = p.calendar.week + p.calendar.season * 100 + weeks

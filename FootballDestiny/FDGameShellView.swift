@@ -85,6 +85,7 @@ struct FDStatusHeader: View {
                                 startPoint: .leading, endPoint: .trailing
                             ))
                             .frame(width: geo.size.width * CGFloat(p.calendar.week) / CGFloat(max(p.calendar.seasonWeeks, 1)))
+                            .animation(.fdSoft, value: p.calendar.week)
                     }
                 }
                 .frame(height: 2)
@@ -217,6 +218,7 @@ private struct FDAttrBar: View {
                     Capsule()
                         .fill(LinearGradient(colors: [color, color.opacity(0.7)], startPoint: .leading, endPoint: .trailing))
                         .frame(width: geo.size.width * CGFloat(value) / CGFloat(max), height: 4)
+                        .animation(.fdSoft, value: value)
                 }
             }
             .frame(height: 4)
@@ -438,7 +440,7 @@ struct FDStoryCard: View {
                         .padding(.vertical, 11)
                         .contentShape(Rectangle())
                     }
-                    .buttonStyle(.plain)
+                    .buttonStyle(FDRowButtonStyle())
                     if idx < scene.choices.count - 1 {
                         Rectangle().fill(Color.white.opacity(0.05)).frame(height: 1)
                     }
@@ -618,7 +620,7 @@ struct FDMatchCard: View {
                 .padding(.vertical, 12)
                 .foregroundStyle(FDTheme.primary)
             }
-            .buttonStyle(.plain)
+            .buttonStyle(FDRowButtonStyle())
         }
         .background(FDTheme.card, in: RoundedRectangle(cornerRadius: FDTheme.radiusCard))
         .overlay(
@@ -695,7 +697,7 @@ struct FDSeasonCard: View {
                 }
                 .padding(.vertical, 12)
             }
-            .buttonStyle(.plain)
+            .buttonStyle(FDRowButtonStyle())
         }
         .background(FDTheme.card, in: RoundedRectangle(cornerRadius: FDTheme.radiusCard))
         .overlay(
@@ -721,7 +723,7 @@ struct FDTournamentCard: View {
                     Text(summary.competitionName.uppercased())
                         .font(.system(size: 9, weight: .bold))
                         .foregroundStyle(summary.champion ? FDTheme.amber : FDTheme.accentTeal)
-                    Text(summary.champion ? "🏆 CHAMPION" : summary.stageReached)
+                    Text(summary.champion ? "CHAMPION" : summary.stageReached)
                         .font(FDFont.body(13, black: true))
                 }
                 Spacer()
@@ -761,7 +763,7 @@ struct FDTournamentCard: View {
                 }
                 .padding(.vertical, 12)
             }
-            .buttonStyle(.plain)
+            .buttonStyle(FDRowButtonStyle())
         }
         .background(FDTheme.card, in: RoundedRectangle(cornerRadius: FDTheme.radiusCard))
         .overlay(
@@ -1248,11 +1250,13 @@ struct FDCarriereTab: View {
                     Rectangle().fill(Color.white.opacity(0.06)).frame(height: 1)
                     LazyVGrid(columns: [GridItem(.adaptive(minimum: 90), spacing: 8)], alignment: .leading, spacing: 8) {
                         ForEach(p.traits, id: \.self) { trait in
-                            Text(trait.rawValue)
-                                .font(.caption.weight(.semibold))
-                                .padding(.horizontal, 10).padding(.vertical, 5)
-                                .background(FDTheme.primary.opacity(0.15), in: Capsule())
-                                .foregroundStyle(FDTheme.primary)
+                            HStack(spacing: 5) {
+                                Image(systemName: trait.icon).font(.system(size: 10, weight: .bold))
+                                Text(trait.rawValue).font(.caption.weight(.semibold))
+                            }
+                            .padding(.horizontal, 10).padding(.vertical, 5)
+                            .background(FDTheme.primary.opacity(0.15), in: Capsule())
+                            .foregroundStyle(FDTheme.primary)
                         }
                     }
                     .padding(14)
@@ -1743,7 +1747,7 @@ private struct FDOptionRow: View {
             .padding(.horizontal, 14)
             .padding(.vertical, 13)
         }
-        .buttonStyle(.plain)
+        .buttonStyle(FDRowButtonStyle())
         .disabled(disabled)
     }
 }

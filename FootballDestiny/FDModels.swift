@@ -247,12 +247,12 @@ enum FDTrait: String, Codable, CaseIterable, Hashable, Identifiable {
 
     var icon: String {
         switch self {
-        case .leaderNe: return "🧭"
-        case .joueurEnRetrait: return "🌫️"
-        case .mercenaire: return "💰"
-        case .guerrier: return "🛡️"
-        case .showman: return "🎤"
-        case .talentBrut: return "✨"
+        case .leaderNe: return "flag.fill"
+        case .joueurEnRetrait: return "eye.slash.fill"
+        case .mercenaire: return "eurosign.circle.fill"
+        case .guerrier: return "shield.fill"
+        case .showman: return "megaphone.fill"
+        case .talentBrut: return "sparkles"
         }
     }
 

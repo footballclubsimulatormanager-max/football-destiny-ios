@@ -147,7 +147,9 @@ struct FDBoutiqueView: View {
                         HStack(spacing: 10) {
                             ZStack {
                                 Circle().fill(FDTheme.amber.opacity(0.15)).frame(width: 44, height: 44)
-                                Text("🪙").font(.system(size: 22))
+                                Image(systemName: "seal.fill")
+                                    .font(.system(size: 20, weight: .semibold))
+                                    .foregroundStyle(FDTheme.amber)
                             }
                             VStack(alignment: .leading, spacing: 2) {
                                 Text("\(engine.legendCoins) pièces")
@@ -248,13 +250,16 @@ private struct FDSkillRow: View {
                     .font(.title3)
             } else {
                 Button(action: onBuy) {
-                    Text("🪙 \(skill.cost)")
-                        .font(FDFont.body(12, black: true))
-                        .padding(.horizontal, 12).padding(.vertical, 7)
-                        .background(Capsule().fill(canAfford ? FDTheme.primary : Color.white.opacity(0.07)))
-                        .foregroundStyle(canAfford ? .white : .secondary)
+                    HStack(spacing: 4) {
+                        Image(systemName: "seal.fill").font(.system(size: 10))
+                        Text("\(skill.cost)")
+                    }
+                    .font(FDFont.body(12, black: true))
+                    .padding(.horizontal, 12).padding(.vertical, 7)
+                    .background(Capsule().fill(canAfford ? FDTheme.primary : Color.white.opacity(0.07)))
+                    .foregroundStyle(canAfford ? .white : .secondary)
                 }
-                .buttonStyle(.plain)
+                .buttonStyle(FDChoiceButtonStyle())
                 .disabled(!canAfford)
             }
         }
@@ -436,16 +441,19 @@ private struct FDChallengeRow: View {
                         .background(Capsule().fill(FDTheme.primary))
                         .foregroundStyle(.white)
                 }
-                .buttonStyle(.plain)
+                .buttonStyle(FDChoiceButtonStyle())
             } else {
                 Button(action: onUnlock) {
-                    Text("🪙 \(challenge.unlockCost)")
-                        .font(FDFont.body(12, black: true))
-                        .padding(.horizontal, 12).padding(.vertical, 7)
-                        .background(Capsule().fill(canAfford ? FDTheme.amber.opacity(0.85) : Color.white.opacity(0.07)))
-                        .foregroundStyle(canAfford ? .black : .secondary)
+                    HStack(spacing: 4) {
+                        Image(systemName: "seal.fill").font(.system(size: 10))
+                        Text("\(challenge.unlockCost)")
+                    }
+                    .font(FDFont.body(12, black: true))
+                    .padding(.horizontal, 12).padding(.vertical, 7)
+                    .background(Capsule().fill(canAfford ? FDTheme.amber.opacity(0.85) : Color.white.opacity(0.07)))
+                    .foregroundStyle(canAfford ? .black : .secondary)
                 }
-                .buttonStyle(.plain)
+                .buttonStyle(FDChoiceButtonStyle())
                 .disabled(!canAfford)
             }
         }

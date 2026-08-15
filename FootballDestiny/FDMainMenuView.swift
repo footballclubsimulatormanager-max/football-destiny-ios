@@ -73,7 +73,8 @@ struct FDMainMenuView: View {
                                 icon: "cart.fill",
                                 iconTint: FDTheme.blueGlow,
                                 title: "Boutique",
-                                subtitle: "🪙 \(engine.legendCoins) pièce(s) — compétences permanentes",
+                                subtitle: "Compétences permanentes",
+                                badge: (text: "\(engine.legendCoins)", icon: "seal.fill", tint: FDTheme.blueGlow),
                                 disabled: false
                             ) {
                                 FDHaptics.tap()
@@ -149,14 +150,14 @@ struct FDMainMenuView: View {
         return p.firstName
     }
 
-    private var statusLine: (icon: String, text: String) {
+    private var statusLine: (icon: String, tint: Color, text: String) {
         if let name = greetingName {
-            return ("⚽", "\(name) t'attend — reprends là où tu t'es arrêté")
+            return ("arrow.uturn.forward.circle.fill", FDTheme.success, "\(name) t'attend — reprends là où tu t'es arrêté")
         }
         if engine.lifetimePoints > 0 {
-            return ("🏆", "\(engine.lifetimePoints) points de carrière cumulés")
+            return ("trophy.fill", FDTheme.amber, "\(engine.lifetimePoints) points de carrière cumulés")
         }
-        return ("✨", "Prêt à écrire ta première légende")
+        return ("sparkles", FDTheme.primary, "Prêt à écrire ta première légende")
     }
 
     /// Compact identity block — small logo, a short label, a personal greeting and a one-line
@@ -171,7 +172,7 @@ struct FDMainMenuView: View {
                         .font(.caption2.weight(.bold))
                         .tracking(2)
                         .foregroundStyle(FDTheme.primary)
-                    Text(greetingName.map { "Bonjour, \($0) 👋" } ?? "Bonjour 👋")
+                    Text(greetingName.map { "Bonjour, \($0)" } ?? "Bonjour")
                         .font(FDFont.display(23))
                         .foregroundStyle(.white)
                 }
@@ -179,14 +180,15 @@ struct FDMainMenuView: View {
             }
 
             HStack(spacing: 6) {
-                Text(statusLine.icon)
+                Image(systemName: statusLine.icon)
+                    .font(.system(size: 12, weight: .bold))
                 Text(statusLine.text)
                     .font(.fdRounded(.caption, weight: .semibold))
             }
-            .foregroundStyle(FDTheme.amber)
+            .foregroundStyle(statusLine.tint)
             .padding(.horizontal, 12)
             .padding(.vertical, 7)
-            .background(Capsule().fill(FDTheme.amber.opacity(0.14)))
+            .background(Capsule().fill(statusLine.tint.opacity(0.14)))
 
             HStack(spacing: 3) {
                 ForEach(0..<FDPotentialShop.maxStars, id: \.self) { i in
@@ -220,6 +222,7 @@ private struct FDMenuRow: View {
     let iconTint: Color
     let title: String
     let subtitle: String
+    var badge: (text: String, icon: String, tint: Color)? = nil
     let disabled: Bool
     let action: () -> Void
 
@@ -234,6 +237,19 @@ private struct FDMenuRow: View {
                 }
 
                 Spacer()
+
+                if let badge {
+                    HStack(spacing: 4) {
+                        Image(systemName: badge.icon)
+                            .font(.system(size: 10, weight: .bold))
+                        Text(badge.text)
+                            .font(FDFont.mono(12, bold: true))
+                    }
+                    .foregroundStyle(badge.tint)
+                    .padding(.horizontal, 9)
+                    .padding(.vertical, 5)
+                    .background(Capsule().fill(badge.tint.opacity(0.16)))
+                }
 
                 Image(systemName: "chevron.right")
                     .font(.caption.weight(.bold))
@@ -289,8 +305,8 @@ struct FDAboutSheet: View {
 
                     VStack(alignment: .leading, spacing: 10) {
                         FDSectionLabel("Deux monnaies, deux usages")
-                        Label("🏆 Points de carrière cumulés : dépensés en étoiles de potentiel au lancement d'une nouvelle carrière.", systemImage: "star.fill")
-                        Label("🪙 Pièces : gagnées seulement pour les grandes carrières, à dépenser dans la Boutique et le Défi Gloire du Passé.", systemImage: "cart.fill")
+                        Label("Points de carrière cumulés : dépensés en étoiles de potentiel au lancement d'une nouvelle carrière.", systemImage: "trophy.fill")
+                        Label("Pièces : gagnées seulement pour les grandes carrières, à dépenser dans la Boutique et le Défi Gloire du Passé.", systemImage: "seal.fill")
                     }
                     .font(.subheadline)
                     .fdCard()
