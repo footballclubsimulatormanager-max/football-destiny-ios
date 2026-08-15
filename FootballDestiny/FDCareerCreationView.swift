@@ -690,38 +690,32 @@ private struct FDFlagChoice: View {
 
     var body: some View {
         Button(action: action) {
-            // The flag fills the tile: scaled up and clipped to the rounded rect, with the
-            // country name laid over a dark scrim at the bottom so it stays readable.
-            ZStack(alignment: .bottom) {
+            // A flag card: the flag owns the top of the tile at its natural proportions —
+            // never stretched — with the country name on its own line underneath.
+            VStack(spacing: 0) {
                 Text(flag)
-                    .font(.system(size: 64))
-                    .minimumScaleFactor(0.1)
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
-                    .scaleEffect(1.35)
-                    .clipped()
+                    .font(.system(size: 30))
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 7)
+                    .background(Color.black.opacity(0.22))
 
                 Text(name)
-                    .font(FDFont.body(9.5, black: true))
-                    .foregroundStyle(.white)
+                    .font(FDFont.body(10, black: selected))
+                    .foregroundStyle(selected ? .white : FDTheme.textMuted)
                     .lineLimit(1)
-                    .minimumScaleFactor(0.6)
+                    .minimumScaleFactor(0.65)
                     .frame(maxWidth: .infinity)
-                    .padding(.vertical, 3)
-                    .background(
-                        LinearGradient(
-                            colors: [Color.black.opacity(0.35), Color.black.opacity(0.75)],
-                            startPoint: .top, endPoint: .bottom
-                        )
-                    )
+                    .padding(.horizontal, 3)
+                    .padding(.vertical, 5)
+                    .background(selected ? FDTheme.primary.opacity(0.22) : Color.white.opacity(0.05))
             }
-            .frame(height: 52)
             .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
             .overlay(
                 RoundedRectangle(cornerRadius: 10, style: .continuous)
-                    .stroke(selected ? FDTheme.primary : Color.white.opacity(0.12),
-                            lineWidth: selected ? 2.5 : 1)
+                    .stroke(selected ? FDTheme.primary : Color.white.opacity(0.10),
+                            lineWidth: selected ? 2 : 1)
             )
-            .shadow(color: selected ? FDTheme.primary.opacity(0.45) : .clear, radius: 6)
+            .shadow(color: selected ? FDTheme.primary.opacity(0.4) : .clear, radius: 5)
         }
         .buttonStyle(FDChoiceButtonStyle())
         .animation(.fdSnap, value: selected)

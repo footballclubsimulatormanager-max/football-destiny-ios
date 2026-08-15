@@ -978,27 +978,6 @@ struct FDRetiredCard: View {
     }
 }
 
-private struct FDTrophyLine: View {
-    let icon: String
-    let label: String
-    let value: Int
-    var body: some View {
-        HStack(spacing: 10) {
-            Image(systemName: icon)
-                .font(.caption)
-                .foregroundStyle(FDTheme.amber)
-                .frame(width: 18)
-            Text(label)
-                .font(.caption)
-                .foregroundStyle(FDTheme.textPrimary)
-            Spacer()
-            Text("\(value)")
-                .font(FDFont.mono(13, bold: true))
-                .foregroundStyle(value > 0 ? FDTheme.amber : .secondary)
-        }
-        .padding(.vertical, 6)
-    }
-}
 
 // MARK: - Carrière Tab
 
@@ -1061,7 +1040,7 @@ struct FDCarriereTab: View {
                                     .padding(7)
                                 }
                             }
-                            .frame(height: min(268, geo.size.height * 0.40))
+                            .frame(height: min(340, geo.size.height * 0.52))
                             .background(FDTheme.card.opacity(0.6), in: RoundedRectangle(cornerRadius: FDTheme.radiusCard))
                             .overlay(
                                 RoundedRectangle(cornerRadius: FDTheme.radiusCard)
@@ -1202,45 +1181,59 @@ struct FDCarriereTab: View {
 
     // MARK: Palmarès content
 
+    /// Career totals and honours in a single card, sized like the stats tab so the whole
+    /// tab lands inside the player box.
     private func palmaresContent(_ p: FDPlayer) -> some View {
-        VStack(spacing: 8) {
-            VStack(spacing: 0) {
-                FDSectionHeader(icon: "trophy.fill", title: "Palmarès", badge: nil, color: FDTheme.amber)
-                    .padding(.horizontal, 10).padding(.vertical, 6)
-                Rectangle().fill(Color.white.opacity(0.06)).frame(height: 1)
+        VStack(spacing: 0) {
+            FDStatsGrid(cells: [
+                .init(value: "\(p.careerGoals)", label: "Buts", icon: "soccerball"),
+                .init(value: "\(p.careerAssists)", label: "Passes D.", icon: "arrow.triangle.turn.up.right.circle", color: FDTheme.primary),
+                .init(value: "\(p.careerApps)", label: "Matchs", icon: "calendar", color: FDTheme.accentTeal),
+                .init(value: "\(p.nationalCaps)", label: "Sélections", icon: "globe.europe.africa.fill", color: FDTheme.warning),
+            ])
 
-                let trophies: [(String, String, Int)] = [
-                    ("trophy.fill", "Titres de champion", p.leagueTitles),
-                    ("globe.europe.africa.fill", "Titres européens", p.cupTitles),
-                    ("star.fill", "Ballon d'Or", p.awardCounts[FDAward.ballonDor.rawValue] ?? 0),
-                    ("boot.fill", "Soulier d'Or", p.awardCounts[FDAward.soulierDor.rawValue] ?? 0),
-                    ("flag.fill", "Caps internationaux", p.nationalCaps),
-                ]
+            Rectangle().fill(Color.white.opacity(0.06)).frame(height: 1)
+
+            HStack(spacing: 4) {
+                Image(systemName: "trophy.fill").font(.system(size: 8, weight: .bold))
+                Text("PALMARÈS").font(.system(size: 8, weight: .black))
+                Spacer()
+            }
+            .foregroundStyle(FDTheme.amber)
+            .padding(.horizontal, 8).padding(.vertical, 3)
+            .background(FDTheme.headerWash(FDTheme.amber))
+
+            let trophies: [(String, String, Int)] = [
+                ("trophy.fill", "Champion", p.leagueTitles),
+                ("globe.europe.africa.fill", "Européens", p.cupTitles),
+                ("star.fill", "Ballon d'Or", p.awardCounts[FDAward.ballonDor.rawValue] ?? 0),
+                ("boot.fill", "Soulier d'Or", p.awardCounts[FDAward.soulierDor.rawValue] ?? 0),
+                ("flag.fill", "Sélections", p.nationalCaps),
+                ("sparkles", "Révélation", p.awardCounts[FDAward.revelation.rawValue] ?? 0),
+            ]
+            LazyVGrid(columns: fdStatColumns, spacing: 3) {
                 ForEach(trophies, id: \.1) { icon, label, count in
-                    FDTrophyLine(icon: icon, label: label, value: count)
-                        .padding(.horizontal, 14)
-                    Rectangle().fill(Color.white.opacity(0.04)).frame(height: 1)
+                    HStack(spacing: 4) {
+                        Image(systemName: icon)
+                            .font(.system(size: 9))
+                            .foregroundStyle(count > 0 ? FDTheme.amber : Color.secondary)
+                        Text(label)
+                            .font(.system(size: 9))
+                            .foregroundStyle(.secondary)
+                            .lineLimit(1)
+                            .minimumScaleFactor(0.7)
+                        Spacer(minLength: 1)
+                        Text("\(count)")
+                            .font(FDFont.mono(11, bold: true))
+                            .foregroundStyle(count > 0 ? FDTheme.amber : Color.secondary)
+                    }
+                    .padding(.horizontal, 5).padding(.vertical, 3.5)
+                    .background(Color.white.opacity(0.04), in: RoundedRectangle(cornerRadius: FDTheme.radiusMD))
                 }
             }
-            .fdCardSurface()
-
-            // Career stats grid
-            VStack(spacing: 0) {
-                FDSectionHeader(icon: "chart.bar.fill", title: "Statistiques carrière", color: FDTheme.primary)
-                    .padding(.horizontal, 10).padding(.vertical, 6)
-                Rectangle().fill(Color.white.opacity(0.06)).frame(height: 1)
-
-                FDStatsGrid(cells: [
-                    .init(value: "\(p.careerGoals)", label: "Buts", icon: "soccerball"),
-                    .init(value: "\(p.careerAssists)", label: "Passes D.", icon: "arrow.triangle.turn.up.right.circle", color: FDTheme.primary),
-                    .init(value: "\(p.careerApps)", label: "Matchs", icon: "calendar", color: FDTheme.accentTeal),
-                    .init(value: "\(p.nationalCaps)", label: "Sélections", icon: "globe.europe.africa.fill", color: FDTheme.warning),
-                ])
-                .padding(12)
-            }
-            .fdCardSurface()
+            .padding(.horizontal, 6).padding(.vertical, 4)
         }
-        .padding(.top, 4)
+        .fdCardSurface()
     }
 
     // MARK: Distinctions content
@@ -1391,49 +1384,57 @@ struct FDCarriereTab: View {
     // alongside stats and palmarès rather than in the Options tab.
 
     private func entourageContent(_ p: FDPlayer) -> some View {
-        VStack(spacing: 8) {
+        VStack(spacing: 0) {
             if !p.rivalFirstName.isEmpty {
-                VStack(spacing: 0) {
-                    FDSectionHeader(icon: "flame.fill", title: "Rivalité", color: FDTheme.destructive)
-                        .padding(.horizontal, 10).padding(.vertical, 6)
-                    Rectangle().fill(Color.white.opacity(0.06)).frame(height: 1)
-                    HStack(spacing: 12) {
-                        ZStack {
-                            Circle().fill(FDTheme.destructive.opacity(0.15)).frame(width: 36, height: 36)
-                            Image(systemName: "flame.fill")
-                                .font(.system(size: 14))
-                                .foregroundStyle(FDTheme.destructive)
-                        }
-                        VStack(alignment: .leading, spacing: 2) {
-                            Text("\(p.rivalFirstName) \(p.rivalLastName)")
-                                .font(FDFont.body(14, black: true))
-                            Text(p.rivalMomentum >= 75 ? "En état de grâce" : (p.rivalMomentum <= 25 ? "En difficulté" : "Saison stable"))
-                                .font(.caption)
-                                .foregroundStyle(p.rivalMomentum >= 75 ? FDTheme.destructive : (p.rivalMomentum <= 25 ? FDTheme.success : .secondary))
-                        }
-                        Spacer()
-                    }
-                    .padding(14)
+                HStack(spacing: 4) {
+                    Image(systemName: "flame.fill").font(.system(size: 8, weight: .bold))
+                    Text("RIVALITÉ").font(.system(size: 8, weight: .black))
+                    Spacer()
                 }
-                .fdCardSurface()
+                .foregroundStyle(FDTheme.destructive)
+                .padding(.horizontal, 8).padding(.vertical, 3)
+                .background(FDTheme.headerWash(FDTheme.destructive))
+
+                HStack(spacing: 9) {
+                    ZStack {
+                        Circle().fill(FDTheme.destructive.opacity(0.15)).frame(width: 28, height: 28)
+                        Image(systemName: "flame.fill")
+                            .font(.system(size: 12))
+                            .foregroundStyle(FDTheme.destructive)
+                    }
+                    VStack(alignment: .leading, spacing: 1) {
+                        Text("\(p.rivalFirstName) \(p.rivalLastName)")
+                            .font(FDFont.body(12, black: true))
+                        Text(p.rivalMomentum >= 75 ? "En état de grâce" : (p.rivalMomentum <= 25 ? "En difficulté" : "Saison stable"))
+                            .font(.system(size: 10))
+                            .foregroundStyle(p.rivalMomentum >= 75 ? FDTheme.destructive : (p.rivalMomentum <= 25 ? FDTheme.success : .secondary))
+                    }
+                    Spacer()
+                }
+                .padding(.horizontal, 8).padding(.vertical, 6)
             }
 
             if !p.relDict.isEmpty {
-                VStack(spacing: 0) {
-                    FDSectionHeader(icon: "person.2.fill", title: "Relations", color: FDTheme.accentTeal)
-                        .padding(.horizontal, 10).padding(.vertical, 6)
-                    Rectangle().fill(Color.white.opacity(0.06)).frame(height: 1)
-                    LazyVGrid(columns: fdStatColumns, spacing: 6) {
-                        ForEach(p.relDict.sorted(by: { $0.key < $1.key }), id: \.key) { key, value in
-                            FDAttrBar(label: key.capitalized, value: value, color: FDTheme.accentTeal)
-                        }
-                    }
-                    .padding(.horizontal, 8).padding(.vertical, 7)
+                Rectangle().fill(Color.white.opacity(0.06)).frame(height: 1)
+
+                HStack(spacing: 4) {
+                    Image(systemName: "person.2.fill").font(.system(size: 8, weight: .bold))
+                    Text("RELATIONS").font(.system(size: 8, weight: .black))
+                    Spacer()
                 }
-                .fdCardSurface()
+                .foregroundStyle(FDTheme.accentTeal)
+                .padding(.horizontal, 8).padding(.vertical, 3)
+                .background(FDTheme.headerWash(FDTheme.accentTeal))
+
+                LazyVGrid(columns: fdStatColumnsWide, spacing: 3) {
+                    ForEach(p.relDict.sorted(by: { $0.key < $1.key }), id: \.key) { key, value in
+                        FDAttrBar(label: key.capitalized, value: value, color: FDTheme.accentTeal)
+                    }
+                }
+                .padding(.horizontal, 6).padding(.vertical, 4)
             }
         }
-        .padding(.top, 4)
+        .fdCardSurface()
     }
 }
 
