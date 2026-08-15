@@ -752,6 +752,17 @@ struct FDAliasPromptCard: View {
         return idx + 1
     }
 
+    /// What to show once signed — the chosen handle, or the player's own name when the
+    /// field was left empty.
+    private var signedLabel: String {
+        let trimmed = alias.trimmingCharacters(in: .whitespacesAndNewlines)
+        let who = trimmed.isEmpty
+            ? (engine.archivedCareers.first.map { "\($0.firstName) \($0.lastName)" } ?? "cette carrière")
+            : trimmed
+        if let rank { return "Carrière signée « \(who) » — \(rank)e au classement." }
+        return "Carrière signée « \(who) »."
+    }
+
     var body: some View {
         VStack(spacing: 0) {
             HStack(spacing: 6) {
@@ -771,8 +782,7 @@ struct FDAliasPromptCard: View {
                 HStack(spacing: 8) {
                     Image(systemName: "checkmark.circle.fill")
                         .foregroundStyle(FDTheme.success)
-                    Text(rank.map { "Carrière signée « \(alias) » — \($0)e au classement." }
-                         ?? "Carrière signée « \(alias) ».")
+                    Text(signedLabel)
                         .font(FDFont.body(13))
                         .foregroundStyle(FDTheme.textPrimary)
                         .fixedSize(horizontal: false, vertical: true)
@@ -812,14 +822,15 @@ struct FDAliasPromptCard: View {
 
                     Button {
                         FDHaptics.success()
-                        engine.setAliasForLatestCareer(alias)
+                        let trimmed = alias.trimmingCharacters(in: .whitespacesAndNewlines)
+                        if !trimmed.isEmpty { engine.setAliasForLatestCareer(trimmed) }
                         withAnimation(.fdSoft) { saved = true }
                     } label: {
-                        Text("Signer ma carrière")
+                        Text(alias.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+                             ? "Valider avec mon nom"
+                             : "Signer ma carrière")
                     }
                     .buttonStyle(FDPrimaryButtonStyle())
-                    .disabled(alias.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
-                    .opacity(alias.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ? 0.5 : 1)
                 }
                 .padding(12)
             }

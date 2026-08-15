@@ -282,20 +282,20 @@ private struct FDAttrBar: View {
     var color: Color = FDTheme.primary
 
     var body: some View {
-        HStack(spacing: 3) {
+        HStack(spacing: 4) {
             Text(label)
                 .font(.system(size: 9))
-                .foregroundStyle(FDTheme.textMuted.opacity(0.75))
+                .foregroundStyle(FDTheme.textMuted.opacity(0.7))
                 .lineLimit(1)
-                .minimumScaleFactor(0.6)
-            Spacer(minLength: 1)
+                .truncationMode(.tail)
+                .frame(maxWidth: .infinity, alignment: .leading)
             Text("\(value)")
-                .font(FDFont.mono(11, bold: true))
+                .font(FDFont.mono(10, bold: true))
                 .foregroundStyle(FDTheme.statColor(value))
+                .frame(width: 18, alignment: .trailing)
                 .animation(.fdSoft, value: value)
         }
-        .padding(.horizontal, 4)
-        .padding(.vertical, 2)
+        .padding(.vertical, 1.5)
     }
 }
 
@@ -305,13 +305,12 @@ private let fdStatColumns = [
     GridItem(.flexible(), spacing: 6),
 ]
 
-/// Four columns, used where a whole category has to fit without scrolling. With the pill
-/// background gone the cells are just text, so four sit comfortably across.
+/// Three columns for the dense stat blocks. Four fit the count but not the labels —
+/// "Détermination" and "Interception" need the width.
 private let fdStatColumnsWide = [
-    GridItem(.flexible(), spacing: 8),
-    GridItem(.flexible(), spacing: 8),
-    GridItem(.flexible(), spacing: 8),
-    GridItem(.flexible(), spacing: 8),
+    GridItem(.flexible(), spacing: 10),
+    GridItem(.flexible(), spacing: 10),
+    GridItem(.flexible(), spacing: 10),
 ]
 
 /// Compact condition pill — inline in a row
