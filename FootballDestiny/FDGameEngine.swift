@@ -78,27 +78,6 @@ final class FDGameEngine: ObservableObject {
         activeLegendChallengeID = nil
     }
 
-    func exportSave() -> String? {
-        guard let player = player else { return nil }
-        let blob = FDSaveBlob(player: player, usedSceneIds: Array(usedSceneIds), sceneCooldown: sceneCooldown)
-        guard let data = try? JSONEncoder().encode(blob) else { return nil }
-        return String(data: data, encoding: .utf8)
-    }
-
-    func importSave(_ text: String) -> Bool {
-        guard let data = text.data(using: .utf8),
-              let blob = try? JSONDecoder().decode(FDSaveBlob.self, from: data) else { return false }
-        player = blob.player
-        usedSceneIds = Set(blob.usedSceneIds)
-        sceneCooldown = blob.sceneCooldown
-        if let p = player, !p.retired {
-            currentScene = generateNextEvent()
-            autoResolveExpress()
-        }
-        saveGame()
-        return true
-    }
-
     // MARK: - Career creation
 
     func startCareer(draft: FDCreationDraft, club: FDClub, legendChallengeID: String? = nil) {

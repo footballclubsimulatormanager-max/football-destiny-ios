@@ -318,22 +318,33 @@ struct FDCareerCreationView: View {
                         subtitle: "Quel joueur es-tu ?"
                     )
 
-                    // Personnalité
+                    // Personnalité — a 2-column tile grid rather than 7 stacked description
+                    // rows, so both this and the style picker fit on one screen. The chosen
+                    // tile's flavour text is spelled out once underneath instead of repeated
+                    // on every option.
                     VStack(spacing: 0) {
                         creationSectionHeader(icon: "brain.fill", title: "Personnalité")
 
-                        ForEach(FDPersonality.allCases, id: \.self) { personality in
-                            FDProfileChoiceRow(
-                                icon: personality.flavorIcon, title: personality.rawValue, subtitle: personality.flavorText,
-                                selected: draft.personality == personality
-                            ) {
-                                FDHaptics.tap()
-                                draft.personality = personality
-                            }
-                            if personality != FDPersonality.allCases.last {
-                                Rectangle().fill(Color.white.opacity(0.04)).frame(height: 1)
+                        LazyVGrid(columns: [GridItem(.flexible(), spacing: 8), GridItem(.flexible(), spacing: 8)], spacing: 8) {
+                            ForEach(FDPersonality.allCases, id: \.self) { personality in
+                                FDProfileTile(
+                                    icon: personality.flavorIcon,
+                                    title: personality.rawValue,
+                                    selected: draft.personality == personality
+                                ) {
+                                    FDHaptics.tap()
+                                    draft.personality = personality
+                                }
                             }
                         }
+                        .padding(12)
+
+                        Rectangle().fill(Color.white.opacity(0.06)).frame(height: 1)
+                        Text(draft.personality.flavorText)
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                            .padding(.horizontal, 14).padding(.vertical, 9)
                     }
                     .background(FDTheme.card, in: RoundedRectangle(cornerRadius: FDTheme.radiusCard))
                     .overlay(RoundedRectangle(cornerRadius: FDTheme.radiusCard).stroke(Color.white.opacity(0.07), lineWidth: 1))
@@ -342,18 +353,27 @@ struct FDCareerCreationView: View {
                     VStack(spacing: 0) {
                         creationSectionHeader(icon: "figure.run", title: "Style de jeu")
 
-                        ForEach(FDStyle.allCases, id: \.self) { style in
-                            FDProfileChoiceRow(
-                                icon: style.flavorIcon, title: style.rawValue, subtitle: style.flavorText,
-                                selected: draft.style == style, accent: FDTheme.accentTeal
-                            ) {
-                                FDHaptics.tap()
-                                draft.style = style
-                            }
-                            if style != FDStyle.allCases.last {
-                                Rectangle().fill(Color.white.opacity(0.04)).frame(height: 1)
+                        LazyVGrid(columns: [GridItem(.flexible(), spacing: 8), GridItem(.flexible(), spacing: 8)], spacing: 8) {
+                            ForEach(FDStyle.allCases, id: \.self) { style in
+                                FDProfileTile(
+                                    icon: style.flavorIcon,
+                                    title: style.rawValue,
+                                    selected: draft.style == style,
+                                    accent: FDTheme.accentTeal
+                                ) {
+                                    FDHaptics.tap()
+                                    draft.style = style
+                                }
                             }
                         }
+                        .padding(12)
+
+                        Rectangle().fill(Color.white.opacity(0.06)).frame(height: 1)
+                        Text(draft.style.flavorText)
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                            .padding(.horizontal, 14).padding(.vertical, 9)
                     }
                     .background(FDTheme.card, in: RoundedRectangle(cornerRadius: FDTheme.radiusCard))
                     .overlay(RoundedRectangle(cornerRadius: FDTheme.radiusCard).stroke(Color.white.opacity(0.07), lineWidth: 1))
@@ -468,24 +488,29 @@ struct FDCareerCreationView: View {
 
                         Rectangle().fill(Color.white.opacity(0.06)).frame(height: 1)
 
+                        // These are words, not figures — they use the app's label face rather
+                        // than the monospaced one reserved for stats and money.
                         HStack(spacing: 0) {
                             VStack(spacing: 2) {
-                                Text(draft.position.rawValue.components(separatedBy: " ").first ?? draft.position.rawValue)
-                                    .font(FDFont.mono(13, bold: true)).foregroundStyle(FDTheme.primary)
+                                Text(draft.position.rawValue)
+                                    .font(FDFont.body(13, black: true)).foregroundStyle(FDTheme.primary)
+                                    .lineLimit(1).minimumScaleFactor(0.7)
                                 Text("POSTE").font(.system(size: 8, weight: .bold)).foregroundStyle(.secondary)
                             }
                             .frame(maxWidth: .infinity)
                             Rectangle().fill(Color.white.opacity(0.08)).frame(width: 1, height: 32)
                             VStack(spacing: 2) {
                                 Text(draft.nationality)
-                                    .font(FDFont.mono(13, bold: true)).foregroundStyle(.white)
+                                    .font(FDFont.body(13, black: true)).foregroundStyle(.white)
+                                    .lineLimit(1).minimumScaleFactor(0.7)
                                 Text("NATION").font(.system(size: 8, weight: .bold)).foregroundStyle(.secondary)
                             }
                             .frame(maxWidth: .infinity)
                             Rectangle().fill(Color.white.opacity(0.08)).frame(width: 1, height: 32)
                             VStack(spacing: 2) {
                                 Text(draft.personality.rawValue)
-                                    .font(FDFont.mono(13, bold: true)).foregroundStyle(FDTheme.accentTeal).lineLimit(1).minimumScaleFactor(0.7)
+                                    .font(FDFont.body(13, black: true)).foregroundStyle(FDTheme.accentTeal)
+                                    .lineLimit(1).minimumScaleFactor(0.7)
                                 Text("PERSO").font(.system(size: 8, weight: .bold)).foregroundStyle(.secondary)
                             }
                             .frame(maxWidth: .infinity)
@@ -710,6 +735,45 @@ private struct FDClubChoiceRow: View {
                 }
             }
             .padding(.horizontal, 14).padding(.vertical, 12)
+        }
+        .buttonStyle(FDChoiceButtonStyle())
+        .animation(.fdSnap, value: selected)
+    }
+}
+
+/// Compact square-ish tile used by the profile step's personality/style grids — icon over
+/// label, no description, so seven options take four rows instead of seven.
+private struct FDProfileTile: View {
+    let icon: String
+    let title: String
+    let selected: Bool
+    var accent: Color = FDTheme.primary
+    let action: () -> Void
+
+    var body: some View {
+        Button(action: action) {
+            VStack(spacing: 6) {
+                Image(systemName: icon)
+                    .font(.system(size: 17, weight: .semibold))
+                    .foregroundStyle(selected ? accent : .secondary)
+                Text(title)
+                    .font(FDFont.body(12, black: selected))
+                    .foregroundStyle(selected ? FDTheme.textPrimary : FDTheme.textMuted)
+                    .multilineTextAlignment(.center)
+                    .lineLimit(2)
+                    .minimumScaleFactor(0.75)
+            }
+            .frame(maxWidth: .infinity)
+            .frame(height: 68)
+            .padding(.horizontal, 6)
+            .background(
+                RoundedRectangle(cornerRadius: 12, style: .continuous)
+                    .fill(selected ? accent.opacity(0.16) : Color.white.opacity(0.05))
+            )
+            .overlay(
+                RoundedRectangle(cornerRadius: 12, style: .continuous)
+                    .stroke(selected ? accent : Color.white.opacity(0.08), lineWidth: selected ? 1.5 : 1)
+            )
         }
         .buttonStyle(FDChoiceButtonStyle())
         .animation(.fdSnap, value: selected)

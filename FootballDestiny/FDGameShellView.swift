@@ -199,6 +199,56 @@ private struct FDStatsGrid: View {
     }
 }
 
+/// A collapsed-by-default section: one tappable header line that expands to reveal its
+/// content. Used to keep reference material (stats, palmarès) out of the way of the
+/// narrative card, which must stay at the top of the career screen.
+struct FDDisclosureCard<Content: View>: View {
+    let title: String
+    let icon: String
+    @Binding var isOpen: Bool
+    @ViewBuilder var content: () -> Content
+
+    var body: some View {
+        VStack(spacing: 0) {
+            Button {
+                FDHaptics.tap()
+                withAnimation(.fdSoft) { isOpen.toggle() }
+            } label: {
+                HStack(spacing: 8) {
+                    Image(systemName: icon)
+                        .font(.caption.weight(.bold))
+                        .foregroundStyle(FDTheme.primary)
+                    Text(title.uppercased())
+                        .font(FDFont.body(11, black: true))
+                        .foregroundStyle(FDTheme.primary)
+                    Spacer()
+                    Image(systemName: "chevron.down")
+                        .font(.caption2.weight(.bold))
+                        .foregroundStyle(FDTheme.primary.opacity(0.7))
+                        .rotationEffect(.degrees(isOpen ? 0 : -90))
+                }
+                .padding(.horizontal, 14)
+                .padding(.vertical, 11)
+                .contentShape(Rectangle())
+            }
+            .buttonStyle(FDRowButtonStyle())
+
+            if isOpen {
+                Rectangle().fill(Color.white.opacity(0.06)).frame(height: 1)
+                content()
+                    .padding(.horizontal, 10)
+                    .padding(.top, 10)
+                    .padding(.bottom, 12)
+            }
+        }
+        .background(FDTheme.card.opacity(0.7), in: RoundedRectangle(cornerRadius: FDTheme.radiusCard))
+        .overlay(
+            RoundedRectangle(cornerRadius: FDTheme.radiusCard)
+                .stroke(Color.white.opacity(0.07), lineWidth: 1)
+        )
+    }
+}
+
 /// Compact attribute bar row — FCSManager style with thin progress bar
 private struct FDAttrBar: View {
     let label: String
@@ -907,6 +957,7 @@ private enum FDCarriereSubTab: String, CaseIterable, Identifiable {
     case palmares = "Palmarès"
     case distinctions = "Distinctions"
     case parcours = "Parcours"
+    case entourage = "Entourage"
     var id: String { rawValue }
 }
 
@@ -915,6 +966,7 @@ struct FDCarriereTab: View {
     @Binding var screen: FDScreen
     @State private var subTab: FDCarriereSubTab = .stats
     @State private var showRetireConfirm = false
+    @State private var detailsOpen = false
 
     var body: some View {
         NavigationView {
@@ -927,44 +979,8 @@ struct FDCarriereTab: View {
                 } else if let p = engine.player {
                     ScrollView {
                         VStack(spacing: 12) {
-                            headerCard(p)
-
-                            // Drawer: segmented picker + content
-                            VStack(spacing: 10) {
-                                Picker("", selection: $subTab) {
-                                    ForEach(FDCarriereSubTab.allCases) { tab in
-                                        Text(tab.rawValue).tag(tab)
-                                    }
-                                }
-                                .pickerStyle(.segmented)
-
-                                ScrollView {
-                                    switch subTab {
-                                    case .stats: statsContent(p)
-                                    case .palmares: palmaresContent(p)
-                                    case .distinctions: distinctionsContent(p)
-                                    case .parcours: parcoursContent(p)
-                                    }
-                                }
-                                .frame(maxHeight: 320)
-
-                                if p.age >= 34 {
-                                    Button {
-                                        showRetireConfirm = true
-                                    } label: {
-                                        Label("Raccrocher les crampons", systemImage: "figure.soccer")
-                                    }
-                                    .buttonStyle(FDDestructiveButtonStyle())
-                                }
-                            }
-                            .padding(.horizontal, 2)
-
-                            Rectangle()
-                                .fill(Color.white.opacity(0.07))
-                                .frame(height: 1)
-                                .padding(.vertical, 4)
-
-                            // Current scene / narrative
+                            // The narrative is what the player acts on, so it always opens at the
+                            // very top — never below a stats block the player has to scroll past.
                             switch engine.currentScene {
                             case .none:
                                 ProgressView().padding(.top, 40)
@@ -979,8 +995,45 @@ struct FDCarriereTab: View {
                             case .outcome(let outcome):
                                 FDOutcomeCard(engine: engine, outcome: outcome)
                             }
+
+                            // Everything below is reference material: collapsed by default so it
+                            // costs one line of height until the player asks for it.
+                            FDDisclosureCard(
+                                title: "Mon joueur",
+                                icon: "person.text.rectangle.fill",
+                                isOpen: $detailsOpen
+                            ) {
+                                VStack(spacing: 10) {
+                                    headerCard(p)
+
+                                    Picker("", selection: $subTab) {
+                                        ForEach(FDCarriereSubTab.allCases) { tab in
+                                            Text(tab.rawValue).tag(tab)
+                                        }
+                                    }
+                                    .pickerStyle(.segmented)
+
+                                    switch subTab {
+                                    case .stats: statsContent(p)
+                                    case .palmares: palmaresContent(p)
+                                    case .distinctions: distinctionsContent(p)
+                                    case .parcours: parcoursContent(p)
+                                    case .entourage: entourageContent(p)
+                                    }
+
+                                    if p.age >= 34 {
+                                        Button {
+                                            showRetireConfirm = true
+                                        } label: {
+                                            Label("Raccrocher les crampons", systemImage: "figure.soccer")
+                                        }
+                                        .buttonStyle(FDDestructiveButtonStyle())
+                                    }
+                                }
+                            }
                         }
                         .padding(.horizontal, 14)
+                        .padding(.top, 8)
                         .padding(.bottom, 20)
                     }
                 } else {
@@ -1369,6 +1422,58 @@ struct FDCarriereTab: View {
         }
         .padding(.top, 4)
     }
+
+    // MARK: Entourage content — rivalry and relationships
+    //
+    // These belong to the player's career picture, not to app settings, so they live here
+    // alongside stats and palmarès rather than in the Options tab.
+
+    private func entourageContent(_ p: FDPlayer) -> some View {
+        VStack(spacing: 10) {
+            if !p.rivalFirstName.isEmpty {
+                VStack(spacing: 0) {
+                    FDSectionHeader(icon: "flame.fill", title: "Rivalité", color: FDTheme.destructive)
+                        .padding(.horizontal, 14).padding(.vertical, 8)
+                    Rectangle().fill(Color.white.opacity(0.06)).frame(height: 1)
+                    HStack(spacing: 12) {
+                        ZStack {
+                            Circle().fill(FDTheme.destructive.opacity(0.15)).frame(width: 36, height: 36)
+                            Image(systemName: "flame.fill")
+                                .font(.system(size: 14))
+                                .foregroundStyle(FDTheme.destructive)
+                        }
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text("\(p.rivalFirstName) \(p.rivalLastName)")
+                                .font(FDFont.body(14, black: true))
+                            Text(p.rivalMomentum >= 75 ? "En état de grâce" : (p.rivalMomentum <= 25 ? "En difficulté" : "Saison stable"))
+                                .font(.caption)
+                                .foregroundStyle(p.rivalMomentum >= 75 ? FDTheme.destructive : (p.rivalMomentum <= 25 ? FDTheme.success : .secondary))
+                        }
+                        Spacer()
+                    }
+                    .padding(14)
+                }
+                .background(FDTheme.card, in: RoundedRectangle(cornerRadius: FDTheme.radiusCard))
+                .overlay(RoundedRectangle(cornerRadius: FDTheme.radiusCard).stroke(Color.white.opacity(0.07), lineWidth: 1))
+            }
+
+            if !p.relDict.isEmpty {
+                VStack(spacing: 0) {
+                    FDSectionHeader(icon: "person.2.fill", title: "Relations", color: FDTheme.accentTeal)
+                        .padding(.horizontal, 14).padding(.vertical, 8)
+                    Rectangle().fill(Color.white.opacity(0.06)).frame(height: 1)
+                    ForEach(p.relDict.sorted(by: { $0.key < $1.key }), id: \.key) { key, value in
+                        FDAttrBar(label: key.capitalized, value: value, color: FDTheme.accentTeal)
+                            .padding(.horizontal, 14).padding(.vertical, 7)
+                        Rectangle().fill(Color.white.opacity(0.04)).frame(height: 1)
+                    }
+                }
+                .background(FDTheme.card, in: RoundedRectangle(cornerRadius: FDTheme.radiusCard))
+                .overlay(RoundedRectangle(cornerRadius: FDTheme.radiusCard).stroke(Color.white.opacity(0.07), lineWidth: 1))
+            }
+        }
+        .padding(.top, 4)
+    }
 }
 
 // MARK: - Parcours Row
@@ -1530,11 +1635,7 @@ struct FDOptionsTab: View {
     @Binding var screen: FDScreen
 
     @State private var showRetireConfirm = false
-    @State private var showResetConfirm = false
-    @State private var showExport = false
-    @State private var showImport = false
-    @State private var importText = ""
-    @State private var exportText = ""
+    @State private var showAbandonConfirm = false
 
     private var canRetire: Bool { (engine.player?.age ?? 0) >= 30 }
 
@@ -1542,104 +1643,46 @@ struct FDOptionsTab: View {
         NavigationView {
             ScrollView {
                 VStack(spacing: 12) {
-                    // Rival info
-                    if let p = engine.player, !p.rivalFirstName.isEmpty {
-                        VStack(spacing: 0) {
-                            FDSectionHeader(icon: "flame.fill", title: "Rivalité", color: .red)
-                                .padding(.horizontal, 14).padding(.vertical, 8)
-                            Rectangle().fill(Color.white.opacity(0.06)).frame(height: 1)
-                            HStack(spacing: 12) {
-                                ZStack {
-                                    Circle().fill(Color.red.opacity(0.15)).frame(width: 36, height: 36)
-                                    Image(systemName: "flame.fill").font(.system(size: 14)).foregroundStyle(.red)
-                                }
-                                VStack(alignment: .leading, spacing: 2) {
-                                    Text("\(p.rivalFirstName) \(p.rivalLastName)")
-                                        .font(FDFont.body(14, black: true))
-                                    Text(p.rivalMomentum >= 75 ? "En état de grâce" : (p.rivalMomentum <= 25 ? "En difficulté" : "Saison stable"))
-                                        .font(.caption)
-                                        .foregroundStyle(p.rivalMomentum >= 75 ? FDTheme.destructive : (p.rivalMomentum <= 25 ? FDTheme.success : .secondary))
-                                }
-                                Spacer()
-                            }
-                            .padding(14)
-                        }
-                        .background(FDTheme.card, in: RoundedRectangle(cornerRadius: FDTheme.radiusCard))
-                        .overlay(RoundedRectangle(cornerRadius: FDTheme.radiusCard).stroke(Color.white.opacity(0.07), lineWidth: 1))
-                    }
-
-                    // Relations
-                    if let p = engine.player, !p.relDict.isEmpty {
-                        VStack(spacing: 0) {
-                            FDSectionHeader(icon: "person.2.fill", title: "Relations", color: FDTheme.accentTeal)
-                                .padding(.horizontal, 14).padding(.vertical, 8)
-                            Rectangle().fill(Color.white.opacity(0.06)).frame(height: 1)
-                            ForEach(p.relDict.sorted(by: { $0.key < $1.key }), id: \.key) { key, value in
-                                FDAttrBar(label: key, value: value, color: FDTheme.accentTeal)
-                                    .padding(.horizontal, 14).padding(.vertical, 7)
-                                Rectangle().fill(Color.white.opacity(0.04)).frame(height: 1)
-                            }
-                        }
-                        .background(FDTheme.card, in: RoundedRectangle(cornerRadius: FDTheme.radiusCard))
-                        .overlay(RoundedRectangle(cornerRadius: FDTheme.radiusCard).stroke(Color.white.opacity(0.07), lineWidth: 1))
-                    }
-
-                    // Sauvegarde
+                    // There is no account and no cloud save — a career is simply carried on,
+                    // ended on the player's terms, or abandoned. Those are the only three
+                    // things this screen offers.
                     VStack(spacing: 0) {
-                        FDSectionHeader(icon: "externaldrive.fill", title: "Sauvegarde", color: FDTheme.primary)
+                        FDSectionHeader(icon: "sunset.fill", title: "Finir ma carrière", color: FDTheme.warning)
                             .padding(.horizontal, 14).padding(.vertical, 8)
                         Rectangle().fill(Color.white.opacity(0.06)).frame(height: 1)
-                        FDOptionRow(icon: "arrow.up.doc.fill", label: "Exporter la sauvegarde", color: FDTheme.primary) {
-                            exportText = engine.exportSave() ?? ""
-                            showExport = true
-                        }
-                        Rectangle().fill(Color.white.opacity(0.04)).frame(height: 1)
-                        FDOptionRow(icon: "arrow.down.doc.fill", label: "Importer une sauvegarde", color: FDTheme.primary) {
-                            importText = ""
-                            showImport = true
-                        }
-                    }
-                    .background(FDTheme.card, in: RoundedRectangle(cornerRadius: FDTheme.radiusCard))
-                    .overlay(RoundedRectangle(cornerRadius: FDTheme.radiusCard).stroke(Color.white.opacity(0.07), lineWidth: 1))
-
-                    // Retraite
-                    VStack(spacing: 0) {
-                        FDSectionHeader(icon: "sunset.fill", title: "Retraite", color: FDTheme.warning)
-                            .padding(.horizontal, 14).padding(.vertical, 8)
-                        Rectangle().fill(Color.white.opacity(0.06)).frame(height: 1)
-                        FDOptionRow(icon: "figure.soccer", label: "Prendre sa retraite maintenant", color: FDTheme.destructive, disabled: !canRetire) {
+                        FDOptionRow(icon: "figure.soccer", label: "Raccrocher les crampons", color: FDTheme.warning, disabled: !canRetire) {
                             showRetireConfirm = true
                         }
                         Rectangle().fill(Color.white.opacity(0.04)).frame(height: 1)
-                        Text("Tu peux mettre fin à ta carrière dès 30 ans.")
+                        Text(canRetire
+                             ? "Ta carrière se termine ici et rejoint ton historique, avec les points et les pièces qu'elle a rapportés."
+                             : "Tu pourras raccrocher à partir de 30 ans.")
                             .font(.caption2).foregroundStyle(.secondary)
                             .padding(.horizontal, 14).padding(.vertical, 8)
                     }
                     .background(FDTheme.card, in: RoundedRectangle(cornerRadius: FDTheme.radiusCard))
                     .overlay(RoundedRectangle(cornerRadius: FDTheme.radiusCard).stroke(Color.white.opacity(0.07), lineWidth: 1))
 
-                    // Nouvelle carrière
                     VStack(spacing: 0) {
-                        FDSectionHeader(icon: "arrow.counterclockwise.circle.fill", title: "Nouvelle carrière", color: FDTheme.destructive)
+                        FDSectionHeader(icon: "xmark.circle.fill", title: "Abandonner", color: FDTheme.destructive)
                             .padding(.horizontal, 14).padding(.vertical, 8)
                         Rectangle().fill(Color.white.opacity(0.06)).frame(height: 1)
-                        FDOptionRow(icon: "trash.fill", label: "Réinitialiser la carrière", color: FDTheme.destructive) {
-                            showResetConfirm = true
+                        FDOptionRow(icon: "trash.fill", label: "Abandonner cette carrière", color: FDTheme.destructive) {
+                            showAbandonConfirm = true
                         }
                         Rectangle().fill(Color.white.opacity(0.04)).frame(height: 1)
-                        Text("Efface définitivement la carrière actuelle.")
+                        Text("La carrière est effacée sans rejoindre ton historique — elle ne rapporte ni points ni pièces.")
                             .font(.caption2).foregroundStyle(.secondary)
                             .padding(.horizontal, 14).padding(.vertical, 8)
                     }
                     .background(FDTheme.card, in: RoundedRectangle(cornerRadius: FDTheme.radiusCard))
                     .overlay(RoundedRectangle(cornerRadius: FDTheme.radiusCard).stroke(Color.white.opacity(0.07), lineWidth: 1))
 
-                    // À propos
                     VStack(spacing: 0) {
                         FDSectionHeader(icon: "info.circle.fill", title: "À propos", color: .secondary)
                             .padding(.horizontal, 14).padding(.vertical, 8)
                         Rectangle().fill(Color.white.opacity(0.06)).frame(height: 1)
-                        Text("FCS-Destiny — prototype natif. Aucune donnée n'est envoyée sur un serveur.")
+                        Text("FCS-Destiny — aucun compte, aucune inscription. Ta progression est enregistrée automatiquement sur cet appareil et nulle part ailleurs.")
                             .font(.caption).foregroundStyle(.secondary)
                             .padding(14)
                     }
@@ -1647,76 +1690,23 @@ struct FDOptionsTab: View {
                     .overlay(RoundedRectangle(cornerRadius: FDTheme.radiusCard).stroke(Color.white.opacity(0.07), lineWidth: 1))
                 }
                 .padding(.horizontal, 14)
+                .padding(.top, 8)
                 .padding(.bottom, 20)
             }
             .background(FDTheme.bg)
             .navigationTitle("Options")
             .navigationBarTitleDisplayMode(.inline)
-            .confirmationDialog("Prendre ta retraite maintenant ?", isPresented: $showRetireConfirm, titleVisibility: .visible) {
+            .confirmationDialog("Raccrocher les crampons ?", isPresented: $showRetireConfirm, titleVisibility: .visible) {
                 Button("Confirmer la retraite", role: .destructive) { engine.voluntaryRetire() }
                 Button("Annuler", role: .cancel) {}
-            } message: { Text("Cette action est définitive pour cette carrière.") }
-            .confirmationDialog("Réinitialiser la carrière ?", isPresented: $showResetConfirm, titleVisibility: .visible) {
-                Button("Réinitialiser", role: .destructive) {
+            } message: { Text("Ta carrière se termine ici et rejoint ton historique.") }
+            .confirmationDialog("Abandonner cette carrière ?", isPresented: $showAbandonConfirm, titleVisibility: .visible) {
+                Button("Abandonner", role: .destructive) {
                     engine.resetSave()
                     screen = .menu
                 }
                 Button("Annuler", role: .cancel) {}
-            } message: { Text("Toutes les données seront perdues définitivement.") }
-            .sheet(isPresented: $showExport) {
-                NavigationView {
-                    ScrollView {
-                        Text(exportText)
-                            .font(FDFont.mono(11))
-                            .padding()
-                            .frame(maxWidth: .infinity, alignment: .leading)
-                    }
-                    .background(FDTheme.bg)
-                    .navigationTitle("Exporter")
-                    .navigationBarTitleDisplayMode(.inline)
-                    .toolbar {
-                        ToolbarItem(placement: .confirmationAction) {
-                            Button("Copier") {
-                                UIPasteboard.general.string = exportText
-                                FDHaptics.success()
-                            }
-                        }
-                        ToolbarItem(placement: .cancellationAction) {
-                            Button("Fermer") { showExport = false }
-                        }
-                    }
-                }
-                .navigationViewStyle(.stack)
-            }
-            .sheet(isPresented: $showImport) {
-                NavigationView {
-                    VStack {
-                        TextEditor(text: $importText)
-                            .font(FDFont.mono(11))
-                            .padding(8)
-                            .background(FDTheme.bg.opacity(0.6))
-                            .clipShape(RoundedRectangle(cornerRadius: 10))
-                            .padding()
-                        Text("Colle ici le texte de sauvegarde exporté.")
-                            .font(FDFont.body(12)).foregroundStyle(.secondary)
-                    }
-                    .background(FDTheme.bg)
-                    .navigationTitle("Importer")
-                    .navigationBarTitleDisplayMode(.inline)
-                    .toolbar {
-                        ToolbarItem(placement: .confirmationAction) {
-                            Button("Importer") {
-                                if engine.importSave(importText) { showImport = false }
-                            }
-                            .disabled(importText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
-                        }
-                        ToolbarItem(placement: .cancellationAction) {
-                            Button("Annuler") { showImport = false }
-                        }
-                    }
-                }
-                .navigationViewStyle(.stack)
-            }
+            } message: { Text("Elle sera effacée sans rejoindre ton historique.") }
         }
         .navigationViewStyle(.stack)
     }
