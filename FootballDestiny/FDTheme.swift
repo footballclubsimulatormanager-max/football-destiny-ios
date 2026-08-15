@@ -256,6 +256,28 @@ struct FDSecondaryDarkButtonStyle: ButtonStyle {
     }
 }
 
+/// Press feedback for grid/list choice items (position, nationality, club, foot…) — a spring
+/// scale on tap so committing to a choice reads as a physical "pop" rather than an instant swap.
+struct FDChoiceButtonStyle: ButtonStyle {
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .scaleEffect(configuration.isPressed ? 0.94 : 1)
+            .animation(.fdSnap, value: configuration.isPressed)
+    }
+}
+
+/// Subtle press feedback for full-width list/menu rows that shouldn't look like pill buttons —
+/// a small scale + opacity dip so every tappable row in the app responds to touch, not just
+/// the primary/secondary button styles.
+struct FDRowButtonStyle: ButtonStyle {
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .scaleEffect(configuration.isPressed ? 0.97 : 1)
+            .opacity(configuration.isPressed ? 0.85 : 1)
+            .animation(.fdSnap, value: configuration.isPressed)
+    }
+}
+
 /// Plain text link, used for tertiary/low-emphasis actions.
 struct FDGhostButtonStyle: ButtonStyle {
     func makeBody(configuration: Configuration) -> some View {
@@ -282,5 +304,96 @@ struct FDDestructiveButtonStyle: ButtonStyle {
             )
             .scaleEffect(configuration.isPressed ? 0.97 : 1)
             .animation(.spring(response: 0.3, dampingFraction: 0.7), value: configuration.isPressed)
+    }
+}
+
+// MARK: - Motion
+
+/// Shared spring curves so every hand-built animation in the app (not just ButtonStyle presses)
+/// feels like it belongs to the same system.
+extension Animation {
+    /// Snappy feedback for taps, selections, toggles.
+    static let fdSnap = Animation.spring(response: 0.32, dampingFraction: 0.68)
+    /// Slightly looser spring for larger movements (sheets, step transitions, card reveals).
+    static let fdSoft = Animation.spring(response: 0.45, dampingFraction: 0.8)
+    /// Staggered list/grid entrance — call with an increasing `index` per item.
+    static func fdStagger(_ index: Int, base: Double = 0.05) -> Animation {
+        .spring(response: 0.42, dampingFraction: 0.78).delay(Double(index) * base)
+    }
+}
+
+/// Directional slide+fade, used when swapping whole screens or wizard steps so navigation reads
+/// as physical movement instead of a flat crossfade.
+extension AnyTransition {
+    static func fdSlide(forward: Bool) -> AnyTransition {
+        .asymmetric(
+            insertion: .move(edge: forward ? .trailing : .leading).combined(with: .opacity),
+            removal: .move(edge: forward ? .leading : .trailing).combined(with: .opacity)
+        )
+    }
+}
+
+/// Any view can now `.fdAppear(delay:)` to fade/rise into place — used to stagger list rows,
+/// menu items and stat cards on first appearance instead of popping in all at once.
+private struct FDAppearModifier: ViewModifier {
+    let delay: Double
+    @State private var shown = false
+
+    func body(content: Content) -> some View {
+        content
+            .opacity(shown ? 1 : 0)
+            .offset(y: shown ? 0 : 10)
+            .onAppear {
+                withAnimation(.fdSoft.delay(delay)) { shown = true }
+            }
+    }
+}
+
+extension View {
+    func fdAppear(delay: Double = 0) -> some View {
+        modifier(FDAppearModifier(delay: delay))
+    }
+
+    /// Adds a light scale/opacity "give" to any tappable view that isn't already a Button —
+    /// keeps ad-hoc tap targets (rows, chips, icons) feeling as responsive as the button styles.
+    func fdPressable(scale: CGFloat = 0.95) -> some View {
+        modifier(FDPressableModifier(scale: scale))
+    }
+
+    /// A slow, looping glow pulse used to draw the eye to one element (e.g. "resume career"),
+    /// never more than one per screen so it stays a signal rather than noise.
+    func fdPulse() -> some View {
+        modifier(FDPulseModifier())
+    }
+}
+
+private struct FDPressableModifier: ViewModifier {
+    let scale: CGFloat
+    @State private var pressed = false
+
+    func body(content: Content) -> some View {
+        content
+            .scaleEffect(pressed ? scale : 1)
+            .animation(.fdSnap, value: pressed)
+            .simultaneousGesture(
+                DragGesture(minimumDistance: 0)
+                    .onChanged { _ in pressed = true }
+                    .onEnded { _ in pressed = false }
+            )
+    }
+}
+
+private struct FDPulseModifier: ViewModifier {
+    @State private var pulsing = false
+
+    func body(content: Content) -> some View {
+        content
+            .shadow(color: FDTheme.primary.opacity(pulsing ? 0.55 : 0.15), radius: pulsing ? 14 : 4)
+            .scaleEffect(pulsing ? 1.03 : 1)
+            .onAppear {
+                withAnimation(.easeInOut(duration: 1.4).repeatForever(autoreverses: true)) {
+                    pulsing = true
+                }
+            }
     }
 }

@@ -8,7 +8,6 @@ struct FDMainMenuView: View {
     @State private var showHistorique = false
     @State private var showBoutique = false
     @State private var showDefis = false
-    @State private var appear = false
 
     var body: some View {
         ZStack {
@@ -30,8 +29,7 @@ struct FDMainMenuView: View {
                 ScrollView {
                     VStack(spacing: 22) {
                         greetingHeader
-                            .opacity(appear ? 1 : 0)
-                            .offset(y: appear ? 0 : -8)
+                            .fdAppear()
 
                         VStack(spacing: 12) {
                             FDMenuRow(
@@ -44,6 +42,7 @@ struct FDMainMenuView: View {
                                 FDHaptics.tap()
                                 screen = .creation
                             }
+                            .fdAppear(delay: 0.05)
 
                             FDMenuRow(
                                 icon: "play.fill",
@@ -55,6 +54,8 @@ struct FDMainMenuView: View {
                                 FDHaptics.tap()
                                 if engine.loadGame() { screen = .game }
                             }
+                            .fdAppear(delay: 0.10)
+                            .modifier(FDConditionalPulse(active: engine.hasSave()))
 
                             FDMenuRow(
                                 icon: "trophy.fill",
@@ -66,6 +67,7 @@ struct FDMainMenuView: View {
                                 FDHaptics.tap()
                                 showDefis = true
                             }
+                            .fdAppear(delay: 0.15)
 
                             FDMenuRow(
                                 icon: "cart.fill",
@@ -77,6 +79,7 @@ struct FDMainMenuView: View {
                                 FDHaptics.tap()
                                 showBoutique = true
                             }
+                            .fdAppear(delay: 0.20)
 
                             FDMenuRow(
                                 icon: "clock.arrow.circlepath",
@@ -88,9 +91,8 @@ struct FDMainMenuView: View {
                                 FDHaptics.tap()
                                 showHistorique = true
                             }
+                            .fdAppear(delay: 0.25)
                         }
-                        .opacity(appear ? 1 : 0)
-                        .offset(y: appear ? 0 : 16)
                     }
                     .padding(.horizontal, 20)
                     .padding(.top, 20)
@@ -102,9 +104,6 @@ struct FDMainMenuView: View {
                     .foregroundStyle(.white.opacity(0.35))
                     .padding(.bottom, 20)
             }
-        }
-        .onAppear {
-            withAnimation(.easeOut(duration: 0.6)) { appear = true }
         }
         .sheet(isPresented: $showAbout) { FDAboutSheet() }
         .sheet(isPresented: $showHistorique) { FDHistoriqueView(engine: engine) }
@@ -194,6 +193,8 @@ struct FDMainMenuView: View {
                     Image(systemName: i < potentialStarsUnlocked ? "star.fill" : "star")
                         .font(.system(size: 13))
                         .foregroundStyle(i < potentialStarsUnlocked ? FDTheme.amber : Color.white.opacity(0.22))
+                        .scaleEffect(i < potentialStarsUnlocked ? 1 : 0.85)
+                        .fdAppear(delay: 0.3 + Double(i) * 0.04)
                 }
                 Text("Potentiel de départ")
                     .font(.caption2)
@@ -248,9 +249,23 @@ private struct FDMenuRow: View {
                     .stroke(Color.white.opacity(0.10), lineWidth: 1)
             )
         }
-        .buttonStyle(.plain)
+        .buttonStyle(FDRowButtonStyle())
         .disabled(disabled)
         .opacity(disabled ? 0.45 : 1)
+    }
+}
+
+/// Wraps a view in `.fdPulse()` only when `active`, so the attention-drawing glow never
+/// shows on the "Continuer" row before a save actually exists.
+private struct FDConditionalPulse: ViewModifier {
+    let active: Bool
+
+    func body(content: Content) -> some View {
+        if active {
+            content.fdPulse()
+        } else {
+            content
+        }
     }
 }
 

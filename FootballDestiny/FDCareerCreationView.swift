@@ -10,6 +10,7 @@ struct FDCareerCreationView: View {
     @Binding var screen: FDScreen
 
     @State private var stepIndex = 0
+    @State private var stepGoingForward = true
     @State private var draft: FDCreationDraft
 
     init(engine: FDGameEngine, screen: Binding<FDScreen>) {
@@ -44,6 +45,8 @@ struct FDCareerCreationView: View {
                 case .club: clubStep
                 }
             }
+            .id(currentStep)
+            .transition(.fdSlide(forward: stepGoingForward))
             .background(FDTheme.bg)
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
@@ -85,7 +88,8 @@ struct FDCareerCreationView: View {
 
     private func goBack() {
         if stepIndex > 0 {
-            withAnimation(.easeInOut(duration: 0.25)) { stepIndex -= 1 }
+            stepGoingForward = false
+            withAnimation(.fdSoft) { stepIndex -= 1 }
         } else {
             screen = .menu
         }
@@ -93,7 +97,8 @@ struct FDCareerCreationView: View {
 
     private func advance() {
         if stepIndex < steps.count - 1 {
-            withAnimation(.easeInOut(duration: 0.25)) { stepIndex += 1 }
+            stepGoingForward = true
+            withAnimation(.fdSoft) { stepIndex += 1 }
         }
     }
 
@@ -559,7 +564,8 @@ private struct FDFootChoice: View {
             .padding(.vertical, 12)
             .background(selected ? FDTheme.primary.opacity(0.12) : Color.clear)
         }
-        .buttonStyle(.plain)
+        .buttonStyle(FDChoiceButtonStyle())
+        .animation(.fdSnap, value: selected)
     }
 }
 
@@ -607,7 +613,8 @@ private struct FDFlagChoice: View {
                     .stroke(selected ? FDTheme.primary : Color.white.opacity(0.08), lineWidth: selected ? 1.5 : 1)
             )
         }
-        .buttonStyle(.plain)
+        .buttonStyle(FDChoiceButtonStyle())
+        .animation(.fdSnap, value: selected)
     }
 }
 
@@ -642,7 +649,8 @@ private struct FDPositionRow: View {
             }
             .padding(.horizontal, 14).padding(.vertical, 12)
         }
-        .buttonStyle(.plain)
+        .buttonStyle(FDChoiceButtonStyle())
+        .animation(.fdSnap, value: selected)
     }
 }
 
@@ -693,7 +701,8 @@ private struct FDClubChoiceRow: View {
             }
             .padding(.horizontal, 14).padding(.vertical, 12)
         }
-        .buttonStyle(.plain)
+        .buttonStyle(FDChoiceButtonStyle())
+        .animation(.fdSnap, value: selected)
     }
 }
 
@@ -731,7 +740,8 @@ private struct FDProfileChoiceRow: View {
             .padding(.horizontal, 14).padding(.vertical, 11)
             .background(selected ? accent.opacity(0.06) : Color.clear)
         }
-        .buttonStyle(.plain)
+        .buttonStyle(FDChoiceButtonStyle())
+        .animation(.fdSnap, value: selected)
     }
 }
 
