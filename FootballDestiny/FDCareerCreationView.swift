@@ -549,9 +549,9 @@ struct FDCareerCreationView: View {
 private func fdPositionIcon(_ position: FDPosition) -> String {
     switch position {
     case .gardien: return "hand.raised.fill"
-    case .defenseurCentral, .lateral: return "shield.fill"
-    case .milieuDefensif, .milieuRelayeur, .milieuOffensif: return "arrow.triangle.swap"
-    case .ailier, .avantCentre: return "soccerball"
+    case .defenseur: return "shield.fill"
+    case .milieu: return "arrow.triangle.swap"
+    case .attaquant: return "soccerball"
     }
 }
 

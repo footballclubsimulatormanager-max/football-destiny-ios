@@ -1010,7 +1010,7 @@ final class FDGameEngine: ObservableObject {
         if p.position.isAttacker {
             let target = max(6, 9 + (overall(p) - 60) / 4)
             return FDSeasonObjective(text: "Marquer \(target) buts cette saison", kind: "buts", target: target)
-        } else if p.position == .milieuRelayeur || p.position == .milieuOffensif {
+        } else if p.position == .milieu {
             let target = max(5, 7 + (overall(p) - 60) / 5)
             return FDSeasonObjective(text: "Délivrer \(target) passes décisives", kind: "passes", target: target)
         } else {

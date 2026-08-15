@@ -316,7 +316,7 @@ let FDScenes: [FDSceneDef] = [
             FDChoice(label: "Travailler l'anticipation", hint: "+Interception",
                       effects: [FDEffect(attr: .interception, delta: 2), FDEffect(cond: "fatigue", delta: 7)]),
         ],
-        positions: [.defenseurCentral, .lateral]),
+        positions: [.defenseur]),
     FDSceneDef(
         id: "entrainement_milieu", category: "Entraînement", minAge: 15, maxAge: 40,
         location: "Terrain annexe", character: "Adjoint tactique",
@@ -327,7 +327,7 @@ let FDScenes: [FDSceneDef] = [
             FDChoice(label: "Travailler la passe sous pression", hint: "+Passe",
                       effects: [FDEffect(attr: .passe, delta: 2), FDEffect(cond: "fatigue", delta: 7)]),
         ],
-        positions: [.milieuDefensif, .milieuRelayeur, .milieuOffensif]),
+        positions: [.milieu]),
     FDSceneDef(
         id: "entrainement_attaquant", category: "Entraînement", minAge: 15, maxAge: 40,
         location: "Terrain annexe", character: "Adjoint offensif",
@@ -338,7 +338,7 @@ let FDScenes: [FDSceneDef] = [
             FDChoice(label: "Travailler la finition", hint: "+Tir",
                       effects: [FDEffect(attr: .tir, delta: 2), FDEffect(cond: "fatigue", delta: 7)]),
         ],
-        positions: [.ailier, .avantCentre]),
+        positions: [.attaquant]),
     FDSceneDef(
         id: "vestiaire_solitude_gardien", category: "Vestiaire", minAge: 17, maxAge: 40,
         location: "Vestiaire, après une défaite", character: "Coéquipiers de champ",
@@ -361,7 +361,7 @@ let FDScenes: [FDSceneDef] = [
                       effects: [FDEffect(rel: "vestiaire", delta: 3)]),
         ],
         condition: { p in p.cond.reputation >= 20 },
-        positions: [.ailier, .avantCentre]),
+        positions: [.attaquant]),
     FDSceneDef(
         id: "presse_defenseur_ombre", category: "Presse", minAge: 18, maxAge: 40,
         location: "Zone mixte", character: "Journaliste",
@@ -373,7 +373,7 @@ let FDScenes: [FDSceneDef] = [
                       effects: [FDEffect(rel: "media", delta: 3)]),
         ],
         condition: { p in p.cond.reputation >= 20 },
-        positions: [.defenseurCentral, .lateral, .milieuDefensif]),
+        positions: [.defenseur]),
     FDSceneDef(
         id: "vestiaire_provocateur", category: "Vestiaire", minAge: 17, maxAge: 34,
         location: "Vestiaire, avant l'entraînement", character: "Coéquipier adverse la veille",

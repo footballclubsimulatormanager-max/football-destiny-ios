@@ -4,31 +4,23 @@ import Foundation
 
 enum FDPosition: String, CaseIterable, Codable, Identifiable, Hashable {
     case gardien = "Gardien"
-    case defenseurCentral = "Défenseur central"
-    case lateral = "Latéral"
-    case milieuDefensif = "Milieu défensif"
-    case milieuRelayeur = "Milieu relayeur"
-    case milieuOffensif = "Milieu offensif"
-    case ailier = "Ailier"
-    case avantCentre = "Avant-centre"
+    case defenseur = "Défenseur"
+    case milieu = "Milieu"
+    case attaquant = "Attaquant"
 
     var id: String { rawValue }
 
     var weights: FDPositionWeights {
         switch self {
-        case .gardien:          return FDPositionWeights(tech: 0.15, phys: 0.25, ment: 0.30, def: 0.30)
-        case .defenseurCentral: return FDPositionWeights(tech: 0.15, phys: 0.30, ment: 0.20, def: 0.35)
-        case .lateral:          return FDPositionWeights(tech: 0.25, phys: 0.30, ment: 0.15, def: 0.30)
-        case .milieuDefensif:   return FDPositionWeights(tech: 0.30, phys: 0.20, ment: 0.25, def: 0.25)
-        case .milieuRelayeur:   return FDPositionWeights(tech: 0.35, phys: 0.25, ment: 0.30, def: 0.10)
-        case .milieuOffensif:   return FDPositionWeights(tech: 0.45, phys: 0.20, ment: 0.30, def: 0.05)
-        case .ailier:           return FDPositionWeights(tech: 0.45, phys: 0.35, ment: 0.15, def: 0.05)
-        case .avantCentre:      return FDPositionWeights(tech: 0.40, phys: 0.30, ment: 0.25, def: 0.05)
+        case .gardien:   return FDPositionWeights(tech: 0.15, phys: 0.25, ment: 0.30, def: 0.30)
+        case .defenseur: return FDPositionWeights(tech: 0.20, phys: 0.30, ment: 0.18, def: 0.32)
+        case .milieu:    return FDPositionWeights(tech: 0.37, phys: 0.22, ment: 0.28, def: 0.13)
+        case .attaquant: return FDPositionWeights(tech: 0.43, phys: 0.32, ment: 0.20, def: 0.05)
         }
     }
 
     var isAttacker: Bool {
-        [.ailier, .avantCentre, .milieuOffensif].contains(self)
+        self == .attaquant
     }
 }
 
@@ -530,7 +522,7 @@ struct FDCreationDraft {
     var nationality = FDNations[0]
     var birthCity = ""
     var foot = FDFoot.droit
-    var position = FDPosition.milieuDefensif
+    var position = FDPosition.milieu
     var personality = FDPersonality.ambitieux
     var style = FDStyle.technicien
     var background = FDBackground.stable
