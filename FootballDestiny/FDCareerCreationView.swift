@@ -486,6 +486,49 @@ struct FDCareerCreationView: View {
                         .fdCardSurface()
                         .overlay(RoundedRectangle(cornerRadius: FDTheme.radiusCard).stroke(FDTheme.amber.opacity(0.2), lineWidth: 1))
                     }
+
+                    // Competences to carry into this career — at most FDMaxEquippedCompetences,
+                    // drawn from what the player owns outright or holds a charge for.
+                    let available = engine.equippableCompetences
+                    if !available.isEmpty {
+                        VStack(spacing: 0) {
+                            creationSectionHeader(icon: "bolt.badge.a.fill", title: "Compétences (\(draft.equippedCompetenceIDs.count)/\(FDMaxEquippedCompetences))")
+
+                            ForEach(available) { competence in
+                                let isOn = draft.equippedCompetenceIDs.contains(competence.id)
+                                let isFull = draft.equippedCompetenceIDs.count >= FDMaxEquippedCompetences
+
+                                FDCompetenceChoiceRow(
+                                    competence: competence,
+                                    selected: isOn,
+                                    charges: engine.remainingCharges(competence.id),
+                                    disabled: !isOn && isFull
+                                ) {
+                                    FDHaptics.tap()
+                                    withAnimation(.fdSnap) {
+                                        if isOn {
+                                            draft.equippedCompetenceIDs.removeAll { $0 == competence.id }
+                                        } else if !isFull {
+                                            draft.equippedCompetenceIDs.append(competence.id)
+                                        }
+                                    }
+                                }
+
+                                if competence.id != available.last?.id {
+                                    Rectangle().fill(Color.white.opacity(0.04)).frame(height: 1)
+                                }
+                            }
+
+                            Rectangle().fill(Color.white.opacity(0.06)).frame(height: 1)
+                            Text("Une compétence à usage unique est consommée au lancement de la carrière. Celles achetées définitivement restent disponibles.")
+                                .font(.caption2)
+                                .foregroundStyle(.secondary)
+                                .fixedSize(horizontal: false, vertical: true)
+                                .frame(maxWidth: .infinity, alignment: .leading)
+                                .padding(.horizontal, 11).padding(.vertical, 8)
+                        }
+                        .fdCardSurface()
+                    }
                 }
                 .padding(.horizontal, 14)
                 .padding(.top, 8)
@@ -877,6 +920,69 @@ private struct FDCreationStepHeader: View {
             Spacer()
         }
         .padding(.vertical, 8)
+    }
+}
+
+/// One equippable competence in the creation flow: a checkbox-style row showing whether
+/// it's owned outright or backed by single-career charges.
+private struct FDCompetenceChoiceRow: View {
+    let competence: FDCompetence
+    let selected: Bool
+    /// nil when the competence is owned outright, otherwise the charges left.
+    let charges: Int?
+    let disabled: Bool
+    let action: () -> Void
+
+    var body: some View {
+        Button(action: action) {
+            HStack(spacing: 10) {
+                ZStack {
+                    RoundedRectangle(cornerRadius: 8)
+                        .fill(selected ? FDTheme.primary.opacity(0.2) : Color.white.opacity(0.06))
+                        .frame(width: 32, height: 32)
+                    Image(systemName: competence.icon)
+                        .font(.system(size: 13, weight: .semibold))
+                        .foregroundStyle(selected ? FDTheme.primary : .secondary)
+                }
+
+                VStack(alignment: .leading, spacing: 2) {
+                    HStack(spacing: 5) {
+                        Text(competence.name)
+                            .font(FDFont.body(13, black: selected))
+                            .foregroundStyle(selected ? FDTheme.textPrimary : FDTheme.textMuted)
+                        if let charges {
+                            Text("×\(charges)")
+                                .font(FDFont.mono(9, bold: true))
+                                .foregroundStyle(FDTheme.success)
+                                .padding(.horizontal, 4).padding(.vertical, 1)
+                                .background(FDTheme.success.opacity(0.16), in: Capsule())
+                        } else {
+                            Text("ACQUISE")
+                                .font(.system(size: 7.5, weight: .black))
+                                .foregroundStyle(FDTheme.amber)
+                                .padding(.horizontal, 5).padding(.vertical, 1)
+                                .background(FDTheme.amber.opacity(0.16), in: Capsule())
+                        }
+                    }
+                    Text(competence.description)
+                        .font(.system(size: 10))
+                        .foregroundStyle(.secondary)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+
+                Spacer(minLength: 4)
+
+                Image(systemName: selected ? "checkmark.circle.fill" : "circle")
+                    .font(.system(size: 16))
+                    .foregroundStyle(selected ? FDTheme.primary : Color.white.opacity(0.25))
+            }
+            .padding(.horizontal, 11).padding(.vertical, 8)
+            .background(selected ? FDTheme.primary.opacity(0.06) : Color.clear)
+        }
+        .buttonStyle(FDChoiceButtonStyle())
+        .disabled(disabled)
+        .opacity(disabled ? 0.4 : 1)
+        .animation(.fdSnap, value: selected)
     }
 }
 

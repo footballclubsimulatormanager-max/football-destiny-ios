@@ -16,6 +16,10 @@ import Foundation
 //   Palier 3  ·  150–230  ≈ 50–75 careers
 //   Palier 4  ·  300–420  ≈ 100+ careers    — the long-haul goals
 
+/// A career may bring in at most this many competences — enough to shape a run, not
+/// enough to trivialise it.
+let FDMaxEquippedCompetences = 2
+
 enum FDCompetenceEffect: Hashable {
     case reputation(Int)
     case money(Int)
@@ -32,6 +36,9 @@ struct FDCompetence: Identifiable, Hashable {
     let description: String
     let cost: Int
     let effect: FDCompetenceEffect
+
+    /// Buying a competence outright costs five careers' worth of the single-career price.
+    var permanentCost: Int { cost * 5 }
 
     /// Coarse band used by the Boutique to group and colour items.
     var tier: Int {

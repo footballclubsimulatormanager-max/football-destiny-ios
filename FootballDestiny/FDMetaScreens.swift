@@ -183,7 +183,7 @@ struct FDBoutiqueView: View {
                         }
                         .padding(14)
                         Rectangle().fill(Color.white.opacity(0.06)).frame(height: 1)
-                        Text("Gagne des pièces en terminant des carrières — jusqu'à 10 pour une carrière parfaite. Chaque compétence achetée reste acquise pour toutes tes futures carrières.")
+                        Text("Achetée à l'unité, une compétence ne vaut que pour une seule carrière. Pour la garder définitivement, compte cinq fois le prix. Tu n'en emportes que \(FDMaxEquippedCompetences) par carrière — à toi de choisir lesquelles au moment de la créer.")
                             .font(.caption)
                             .foregroundStyle(.secondary)
                             .padding(14)
@@ -218,9 +218,11 @@ struct FDBoutiqueView: View {
 
                             FDSkillRow(
                                 skill: skill,
-                                canAfford: engine.legendCoins >= skill.cost,
-                                owned: engine.unlockedSkills.contains(skill.id),
-                                onBuy: { engine.buySkill(skill) }
+                                coins: engine.legendCoins,
+                                owned: engine.ownedCompetenceIDs.contains(skill.id),
+                                charges: engine.competenceCharges[skill.id] ?? 0,
+                                onBuyCharge: { engine.purchaseCompetenceCharge(skill.id) },
+                                onBuyPermanent: { engine.purchaseCompetencePermanently(skill.id) }
                             )
                             if idx < engine.permanentSkills.count - 1 {
                                 Rectangle().fill(Color.white.opacity(0.04)).frame(height: 1)
@@ -264,12 +266,15 @@ struct FDMetaTierInfo {
 
 private struct FDSkillRow: View {
     let skill: FDPermanentSkill
-    let canAfford: Bool
+    let coins: Int
     let owned: Bool
-    let onBuy: () -> Void
+    /// Unused single-career charges already in stock, if any.
+    let charges: Int
+    let onBuyCharge: () -> Void
+    let onBuyPermanent: () -> Void
 
     var body: some View {
-        HStack(spacing: 10) {
+        HStack(alignment: .top, spacing: 10) {
             ZStack {
                 RoundedRectangle(cornerRadius: 8)
                     .fill(owned ? FDTheme.amber.opacity(0.15) : FDTheme.primary.opacity(0.1))
@@ -278,37 +283,82 @@ private struct FDSkillRow: View {
                     .font(.system(size: 13))
                     .foregroundStyle(owned ? FDTheme.amber : FDTheme.primary)
             }
-            VStack(alignment: .leading, spacing: 2) {
-                Text(skill.name)
-                    .font(FDFont.body(13, black: true))
-                    .foregroundStyle(FDTheme.textPrimary)
+
+            VStack(alignment: .leading, spacing: 4) {
+                HStack(spacing: 5) {
+                    Text(skill.name)
+                        .font(FDFont.body(13, black: true))
+                        .foregroundStyle(FDTheme.textPrimary)
+                    if owned {
+                        Text("ACQUISE")
+                            .font(.system(size: 7.5, weight: .black))
+                            .foregroundStyle(FDTheme.amber)
+                            .padding(.horizontal, 5).padding(.vertical, 2)
+                            .background(FDTheme.amber.opacity(0.16), in: Capsule())
+                    } else if charges > 0 {
+                        Text("×\(charges)")
+                            .font(FDFont.mono(9, bold: true))
+                            .foregroundStyle(FDTheme.success)
+                            .padding(.horizontal, 5).padding(.vertical, 2)
+                            .background(FDTheme.success.opacity(0.16), in: Capsule())
+                    }
+                }
                 Text(skill.description)
                     .font(.system(size: 10.5))
                     .foregroundStyle(.secondary)
                     .fixedSize(horizontal: false, vertical: true)
-            }
-            Spacer()
-            if owned {
-                Image(systemName: "checkmark.circle.fill")
-                    .foregroundStyle(FDTheme.success)
-                    .font(.system(size: 16))
-            } else {
-                Button(action: onBuy) {
-                    HStack(spacing: 3) {
-                        Image(systemName: "seal.fill").font(.system(size: 9))
-                        Text("\(skill.cost)")
+
+                if !owned {
+                    // Two ways to buy: one career at the base price, or outright at five
+                    // times that. Owning it outright stops it costing a charge every run.
+                    HStack(spacing: 6) {
+                        FDBuyButton(
+                            label: "1 carrière",
+                            cost: skill.cost,
+                            enabled: coins >= skill.cost,
+                            tint: FDTheme.primary,
+                            action: onBuyCharge
+                        )
+                        FDBuyButton(
+                            label: "Définitif",
+                            cost: skill.permanentCost,
+                            enabled: coins >= skill.permanentCost,
+                            tint: FDTheme.amber,
+                            action: onBuyPermanent
+                        )
                     }
-                    .font(FDFont.body(11, black: true))
-                    .padding(.horizontal, 9).padding(.vertical, 5)
-                    .background(Capsule().fill(canAfford ? FDTheme.primary : Color.white.opacity(0.07)))
-                    .foregroundStyle(canAfford ? .white : .secondary)
                 }
-                .buttonStyle(FDChoiceButtonStyle())
-                .disabled(!canAfford)
             }
+
+            Spacer(minLength: 0)
         }
         .padding(.horizontal, 12)
         .padding(.vertical, 8)
+    }
+}
+
+private struct FDBuyButton: View {
+    let label: String
+    let cost: Int
+    let enabled: Bool
+    let tint: Color
+    let action: () -> Void
+
+    var body: some View {
+        Button(action: action) {
+            HStack(spacing: 3) {
+                Text(label)
+                    .font(.system(size: 9, weight: .bold))
+                Image(systemName: "seal.fill").font(.system(size: 8))
+                Text("\(cost)")
+                    .font(FDFont.mono(10, bold: true))
+            }
+            .padding(.horizontal, 8).padding(.vertical, 4)
+            .background(Capsule().fill(enabled ? tint.opacity(0.9) : Color.white.opacity(0.07)))
+            .foregroundStyle(enabled ? (tint == FDTheme.amber ? .black : .white) : Color.secondary)
+        }
+        .buttonStyle(FDChoiceButtonStyle())
+        .disabled(!enabled)
     }
 }
 

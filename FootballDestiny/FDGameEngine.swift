@@ -13,7 +13,10 @@ final class FDGameEngine: ObservableObject {
     /// The Boutique/Défis currency: 0-10 "pièces" earned per retirement based on how good
     /// that career was, deliberately scarcer than lifetimePoints.
     @Published var legendCoins: Int = UserDefaults.standard.integer(forKey: "footballDestinyLegendCoins_v1")
+    /// Competences bought outright (5x the base price): available to equip in every career.
     @Published var ownedCompetenceIDs: Set<String> = Set(UserDefaults.standard.stringArray(forKey: "footballDestinyOwnedCompetences_v1") ?? [])
+    /// Single-career charges bought at the base price, consumed when the career starts.
+    @Published var competenceCharges: [String: Int] = (UserDefaults.standard.dictionary(forKey: "footballDestinyCompetenceCharges_v1") as? [String: Int]) ?? [:]
     @Published var unlockedLegendIDs: Set<String> = Set(UserDefaults.standard.stringArray(forKey: "footballDestinyUnlockedLegends_v1") ?? [])
     @Published var conqueredLegendIDs: Set<String> = Set(UserDefaults.standard.stringArray(forKey: "footballDestinyConqueredLegends_v1") ?? [])
     @Published var archivedCareers: [FDPlayer] = []
@@ -29,6 +32,7 @@ final class FDGameEngine: ObservableObject {
     private static let lifetimePointsKey = "footballDestinyLifetimePoints_v1"
     private static let legendCoinsKey = "footballDestinyLegendCoins_v1"
     private static let ownedCompetencesKey = "footballDestinyOwnedCompetences_v1"
+    private static let chargesKey = "footballDestinyCompetenceCharges_v1"
     private static let unlockedLegendsKey = "footballDestinyUnlockedLegends_v1"
     private static let conqueredLegendsKey = "footballDestinyConqueredLegends_v1"
     private static let archiveKey = "footballDestinyArchive_v1"
@@ -92,10 +96,19 @@ final class FDGameEngine: ObservableObject {
         }
         let metaBonus = min(10, lifetimePoints / 25)
 
-        // Permanent Boutique competences apply to every future career once bought.
+        // Only the competences the player chose to bring into this career apply — at most
+        // FDMaxEquippedCompetences of them — and each single-career charge is spent here.
+        let equipped = Array(draft.equippedCompetenceIDs.prefix(FDMaxEquippedCompetences))
+        for id in equipped where !ownedCompetenceIDs.contains(id) {
+            if let left = competenceCharges[id], left > 0 {
+                competenceCharges[id] = left - 1 > 0 ? left - 1 : nil
+            }
+        }
+        persistCompetences()
+
         var competencePotential = 0, competenceMoney = 0, competenceReputation = 0
         var competenceForme = 0, competenceConfiance = 0, competenceMoral = 0
-        for id in ownedCompetenceIDs {
+        for id in equipped {
             guard let c = FDCompetences.first(where: { $0.id == id }) else { continue }
             switch c.effect {
             case .potential(let v): competencePotential += v
@@ -371,14 +384,48 @@ final class FDGameEngine: ObservableObject {
 
     // MARK: - Boutique & Défi Gloire du Passé
 
+    /// Buys one career's worth of a competence at the base price. Charges stack, so the
+    /// player can stock several runs of the same perk.
     @discardableResult
-    func purchaseCompetence(_ id: String) -> Bool {
-        guard let competence = FDCompetences.first(where: { $0.id == id }), !ownedCompetenceIDs.contains(id), legendCoins >= competence.cost else { return false }
+    func purchaseCompetenceCharge(_ id: String) -> Bool {
+        guard let competence = FDCompetences.first(where: { $0.id == id }),
+              !ownedCompetenceIDs.contains(id),
+              legendCoins >= competence.cost else { return false }
         legendCoins -= competence.cost
+        competenceCharges[id, default: 0] += 1
+        persistCompetences()
+        return true
+    }
+
+    /// Buys a competence outright at five times the base price — from then on it can be
+    /// equipped in every career without spending a charge.
+    @discardableResult
+    func purchaseCompetencePermanently(_ id: String) -> Bool {
+        guard let competence = FDCompetences.first(where: { $0.id == id }),
+              !ownedCompetenceIDs.contains(id),
+              legendCoins >= competence.permanentCost else { return false }
+        legendCoins -= competence.permanentCost
         ownedCompetenceIDs.insert(id)
+        competenceCharges[id] = nil   // charges are redundant once it's owned for good
+        persistCompetences()
+        return true
+    }
+
+    private func persistCompetences() {
         UserDefaults.standard.set(legendCoins, forKey: Self.legendCoinsKey)
         UserDefaults.standard.set(Array(ownedCompetenceIDs), forKey: Self.ownedCompetencesKey)
-        return true
+        UserDefaults.standard.set(competenceCharges, forKey: Self.chargesKey)
+    }
+
+    /// Everything the player could bring into a new career: owned outright, or with at
+    /// least one unused single-career charge.
+    var equippableCompetences: [FDCompetence] {
+        FDCompetences.filter { ownedCompetenceIDs.contains($0.id) || (competenceCharges[$0.id] ?? 0) > 0 }
+    }
+
+    /// How many careers this competence is still good for — nil when owned outright.
+    func remainingCharges(_ id: String) -> Int? {
+        ownedCompetenceIDs.contains(id) ? nil : competenceCharges[id]
     }
 
     @discardableResult
@@ -413,7 +460,6 @@ final class FDGameEngine: ObservableObject {
 
     var permanentSkills: [FDCompetence] { FDCompetences }
     var unlockedSkills: Set<String> { ownedCompetenceIDs }
-    func buySkill(_ skill: FDCompetence) { purchaseCompetence(skill.id) }
 
     var challenges: [FDLegendChallenge] { FDLegendChallenges }
     var conqueredChallenges: Set<String> { conqueredLegendIDs }

@@ -588,6 +588,8 @@ struct FDCreationDraft {
     var style = FDStyle.technicien
     var background = FDBackground.stable
     var difficulty = FDDifficulty.normal
+    /// Competences carried into this career, capped at FDMaxEquippedCompetences.
+    var equippedCompetenceIDs: [String] = []
     var mode = FDMode.narratif
     var potentialStars = 0
     var club: FDClub? = nil

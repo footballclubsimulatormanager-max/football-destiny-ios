@@ -46,8 +46,15 @@ struct FDStatusHeader: View {
                 HStack(spacing: 10) {
                     FDLogoBadge(size: 24, corner: 6)
                     VStack(alignment: .leading, spacing: 1) {
-                        Text("\(p.firstName) \(p.lastName)")
-                            .font(FDFont.body(13, black: true))
+                        HStack(spacing: 5) {
+                            Text("\(p.firstName) \(p.lastName)")
+                                .font(FDFont.body(13, black: true))
+                            Text("\(engine.overall(p))")
+                                .font(FDFont.mono(11, bold: true))
+                                .foregroundStyle(FDTheme.primary)
+                                .padding(.horizontal, 5).padding(.vertical, 1)
+                                .background(FDTheme.primary.opacity(0.15), in: Capsule())
+                        }
                         Text("\(fdFlag(for: p.club.country)) \(p.club.name)  ·  \(p.position.rawValue)")
                             .font(.caption2)
                             .foregroundStyle(.secondary)
@@ -497,12 +504,7 @@ struct FDStoryCard: View {
                                     .foregroundStyle(FDTheme.textPrimary)
                                     .multilineTextAlignment(.leading)
                                     .fixedSize(horizontal: false, vertical: true)
-                                if !choice.hint.isEmpty {
-                                    Text(choice.hint)
-                                        .font(.system(size: 10))
-                                        .foregroundStyle(.secondary)
-                                        .fixedSize(horizontal: false, vertical: true)
-                                }
+
                             }
                             Spacer()
                             Image(systemName: "chevron.right")
@@ -1034,8 +1036,9 @@ struct FDCarriereTab: View {
 
                                 ScrollView {
                                     VStack(spacing: 8) {
-                                        headerCard(p)
-
+                                        // No name/rating block here — the status bar above
+                                        // already carries both, and each tab now opens only
+                                        // its own content.
                                         switch subTab {
                                         case .stats: statsContent(p)
                                         case .palmares: palmaresContent(p)
@@ -1138,86 +1141,6 @@ struct FDCarriereTab: View {
         .overlay(RoundedRectangle(cornerRadius: FDTheme.radiusCard).stroke(FDTheme.warning.opacity(0.18), lineWidth: 1))
     }
 
-    // MARK: Header card — player overview with 4-stat grid
-
-    private func headerCard(_ p: FDPlayer) -> some View {
-        VStack(spacing: 0) {
-            // Name / club
-            HStack(alignment: .center, spacing: 12) {
-                VStack(alignment: .leading, spacing: 3) {
-                    Text("\(p.firstName) \(p.lastName)")
-                        .font(FDFont.display(20))
-                    Text("\(fdFlag(for: p.nationality)) \(p.nationality) · \(p.age) ans · \(p.position.rawValue)")
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-                    Text("\(fdFlag(for: p.club.country)) \(p.club.name), \(p.club.country)")
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-                }
-                Spacer()
-                VStack(spacing: 2) {
-                    Text("\(engine.overall(p))")
-                        .font(FDFont.mono(26, bold: true))
-                        .foregroundStyle(FDTheme.primaryTextGradient)
-                                .animation(.fdSoft, value: engine.overall(p))
-                    Text("NOTE")
-                        .font(.system(size: 8, weight: .bold))
-                        .foregroundStyle(FDTheme.primary.opacity(0.7))
-                }
-                .padding(.horizontal, 14).padding(.vertical, 10)
-                .background(FDTheme.primary.opacity(0.12), in: RoundedRectangle(cornerRadius: 12))
-            }
-            .padding(14)
-
-            Rectangle().fill(Color.white.opacity(0.06)).frame(height: 1)
-
-            // 4-stat grid: FCSManager style
-            FDStatsGrid(cells: [
-                .init(value: "\(p.careerGoals)", label: "Buts", icon: "soccerball"),
-                .init(value: "\(p.careerApps)", label: "Matchs", icon: "calendar", color: FDTheme.primary),
-                .init(value: "\(engine.potentialOverall(p))", label: "Potentiel", icon: "arrow.up.circle.fill", color: FDTheme.accentTeal),
-                .init(value: fdFormatMoney(engine.marketValue(p)), label: "Valeur", icon: "eurosign.circle.fill", color: FDTheme.warning),
-            ])
-            .padding(12)
-
-            Rectangle().fill(Color.white.opacity(0.06)).frame(height: 1)
-
-            // Contract + style row
-            HStack(spacing: 0) {
-                VStack(spacing: 2) {
-                    Text(fdFormatMoney(p.contract.salary))
-                        .font(FDFont.mono(14, bold: true))
-                        .foregroundStyle(FDTheme.amber)
-                    Text("SALAIRE / SEM")
-                        .font(.system(size: 8, weight: .bold))
-                        .foregroundStyle(.secondary)
-                }
-                .frame(maxWidth: .infinity)
-                Rectangle().fill(Color.white.opacity(0.08)).frame(width: 1, height: 32)
-                VStack(spacing: 2) {
-                    Text(p.status.rawValue)
-                        .font(FDFont.body(12, black: true))
-                        .foregroundStyle(.white)
-                    Text("STATUT")
-                        .font(.system(size: 8, weight: .bold))
-                        .foregroundStyle(.secondary)
-                }
-                .frame(maxWidth: .infinity)
-                Rectangle().fill(Color.white.opacity(0.08)).frame(width: 1, height: 32)
-                VStack(spacing: 2) {
-                    Text(p.style.rawValue)
-                        .font(FDFont.body(12, black: true))
-                        .foregroundStyle(FDTheme.primary)
-                    Text("STYLE")
-                        .font(.system(size: 8, weight: .bold))
-                        .foregroundStyle(.secondary)
-                }
-                .frame(maxWidth: .infinity)
-            }
-            .padding(.vertical, 10)
-        }
-        .fdCardSurface()
-    }
 
     // MARK: Stats content — condition pills + attribute bars
 
