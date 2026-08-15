@@ -97,4 +97,14 @@ enum FDNameBank {
         let name = random(for: nationality)
         return (name.first, name.last, randomCity(for: nationality))
     }
+
+    /// A complete random identity, nationality included: the country is drawn first, then a
+    /// name and a birth city that belong to it, so the three always agree. Countries the
+    /// name bank actually covers are preferred, so the roll never lands on a generic name.
+    static func randomIdentity() -> (nationality: String, first: String, last: String, city: String) {
+        let covered = FDNations.filter { pools[$0] != nil }
+        let nation = (covered.isEmpty ? FDNations : covered).randomElement() ?? "France"
+        let identity = identity(for: nation)
+        return (nation, identity.first, identity.last, identity.city)
+    }
 }

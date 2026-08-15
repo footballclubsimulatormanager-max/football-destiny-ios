@@ -97,13 +97,13 @@ private struct FDHistoriqueRow: View {
     let index: Int
 
     var body: some View {
-        HStack(spacing: 12) {
+        HStack(spacing: 10) {
             ZStack {
-                RoundedRectangle(cornerRadius: 10)
+                RoundedRectangle(cornerRadius: 8)
                     .fill(FDTheme.primary.opacity(0.12))
-                    .frame(width: 40, height: 40)
+                    .frame(width: 32, height: 32)
                 Text("\(index)")
-                    .font(FDFont.mono(16, bold: true))
+                    .font(FDFont.mono(13, bold: true))
                     .foregroundStyle(FDTheme.primary)
             }
             VStack(alignment: .leading, spacing: 4) {
@@ -130,8 +130,8 @@ private struct FDHistoriqueRow: View {
                 .font(.caption.weight(.bold))
                 .foregroundStyle(.secondary)
         }
-        .padding(.horizontal, 14)
-        .padding(.vertical, 11)
+        .padding(.horizontal, 12)
+        .padding(.vertical, 8)
     }
 }
 
@@ -192,45 +192,44 @@ struct FDBoutiqueView: View {
                     .background(FDTheme.card, in: RoundedRectangle(cornerRadius: FDTheme.radiusCard))
                     .overlay(RoundedRectangle(cornerRadius: FDTheme.radiusCard).stroke(FDTheme.amber.opacity(0.2), lineWidth: 1))
 
-                    // Compétences, grouped by price band so a long catalogue stays readable
-                    // and the player can see what's within reach right now.
-                    ForEach(FDMetaTierInfo.all, id: \.tier) { band in
-                        let items = engine.permanentSkills.filter { $0.tier == band.tier }
-                        if !items.isEmpty {
-                            VStack(spacing: 0) {
-                                HStack(spacing: 6) {
+                    // One continuous list, price bands as inline separators rather than
+                    // nested boxes, so the catalogue reads as a single scrolling ladder.
+                    VStack(spacing: 0) {
+                        ForEach(Array(engine.permanentSkills.enumerated()), id: \.offset) { idx, skill in
+                            let previousTier = idx > 0 ? engine.permanentSkills[idx - 1].tier : -1
+
+                            if skill.tier != previousTier,
+                               let band = FDMetaTierInfo.all.first(where: { $0.tier == skill.tier }) {
+                                HStack(spacing: 5) {
                                     Image(systemName: band.icon)
-                                        .font(.caption.weight(.bold))
+                                        .font(.system(size: 10, weight: .bold))
                                         .foregroundStyle(band.color)
                                     Text(band.title.uppercased())
-                                        .font(FDFont.body(11, black: true))
+                                        .font(.system(size: 9.5, weight: .black))
                                         .foregroundStyle(band.color)
                                     Spacer()
                                     Text(band.subtitle)
-                                        .font(.system(size: 9, weight: .bold))
+                                        .font(.system(size: 8, weight: .bold))
                                         .foregroundStyle(.secondary)
                                 }
-                                .padding(.horizontal, 14).padding(.vertical, 8)
+                                .padding(.horizontal, 12).padding(.vertical, 6)
                                 .background(band.color.opacity(0.08))
-
                                 Rectangle().fill(Color.white.opacity(0.06)).frame(height: 1)
-
-                                ForEach(Array(items.enumerated()), id: \.offset) { idx, skill in
-                                    FDSkillRow(
-                                        skill: skill,
-                                        canAfford: engine.legendCoins >= skill.cost,
-                                        owned: engine.unlockedSkills.contains(skill.id),
-                                        onBuy: { engine.buySkill(skill) }
-                                    )
-                                    if idx < items.count - 1 {
-                                        Rectangle().fill(Color.white.opacity(0.04)).frame(height: 1)
-                                    }
-                                }
                             }
-                            .background(FDTheme.card, in: RoundedRectangle(cornerRadius: FDTheme.radiusCard))
-                            .overlay(RoundedRectangle(cornerRadius: FDTheme.radiusCard).stroke(Color.white.opacity(0.07), lineWidth: 1))
+
+                            FDSkillRow(
+                                skill: skill,
+                                canAfford: engine.legendCoins >= skill.cost,
+                                owned: engine.unlockedSkills.contains(skill.id),
+                                onBuy: { engine.buySkill(skill) }
+                            )
+                            if idx < engine.permanentSkills.count - 1 {
+                                Rectangle().fill(Color.white.opacity(0.04)).frame(height: 1)
+                            }
                         }
                     }
+                    .background(FDTheme.card, in: RoundedRectangle(cornerRadius: FDTheme.radiusCard))
+                    .overlay(RoundedRectangle(cornerRadius: FDTheme.radiusCard).stroke(Color.white.opacity(0.07), lineWidth: 1))
                 }
                 .padding(.horizontal, 14)
                 .padding(.bottom, 20)
@@ -272,21 +271,21 @@ private struct FDSkillRow: View {
     let onBuy: () -> Void
 
     var body: some View {
-        HStack(spacing: 12) {
+        HStack(spacing: 10) {
             ZStack {
-                RoundedRectangle(cornerRadius: 10)
+                RoundedRectangle(cornerRadius: 8)
                     .fill(owned ? FDTheme.amber.opacity(0.15) : FDTheme.primary.opacity(0.1))
-                    .frame(width: 40, height: 40)
+                    .frame(width: 32, height: 32)
                 Image(systemName: owned ? "checkmark.seal.fill" : skill.icon)
-                    .font(.system(size: 16))
+                    .font(.system(size: 13))
                     .foregroundStyle(owned ? FDTheme.amber : FDTheme.primary)
             }
-            VStack(alignment: .leading, spacing: 3) {
+            VStack(alignment: .leading, spacing: 2) {
                 Text(skill.name)
-                    .font(FDFont.body(14, black: true))
+                    .font(FDFont.body(13, black: true))
                     .foregroundStyle(FDTheme.textPrimary)
                 Text(skill.description)
-                    .font(.caption)
+                    .font(.system(size: 10.5))
                     .foregroundStyle(.secondary)
                     .fixedSize(horizontal: false, vertical: true)
             }
@@ -294,15 +293,15 @@ private struct FDSkillRow: View {
             if owned {
                 Image(systemName: "checkmark.circle.fill")
                     .foregroundStyle(FDTheme.success)
-                    .font(.title3)
+                    .font(.system(size: 16))
             } else {
                 Button(action: onBuy) {
-                    HStack(spacing: 4) {
-                        Image(systemName: "seal.fill").font(.system(size: 10))
+                    HStack(spacing: 3) {
+                        Image(systemName: "seal.fill").font(.system(size: 9))
                         Text("\(skill.cost)")
                     }
-                    .font(FDFont.body(12, black: true))
-                    .padding(.horizontal, 12).padding(.vertical, 7)
+                    .font(FDFont.body(11, black: true))
+                    .padding(.horizontal, 9).padding(.vertical, 5)
                     .background(Capsule().fill(canAfford ? FDTheme.primary : Color.white.opacity(0.07)))
                     .foregroundStyle(canAfford ? .white : .secondary)
                 }
@@ -310,8 +309,8 @@ private struct FDSkillRow: View {
                 .disabled(!canAfford)
             }
         }
-        .padding(.horizontal, 14)
-        .padding(.vertical, 12)
+        .padding(.horizontal, 12)
+        .padding(.vertical, 8)
     }
 }
 
@@ -376,51 +375,54 @@ struct FDChallengesView: View {
                     .background(FDTheme.card, in: RoundedRectangle(cornerRadius: FDTheme.radiusCard))
                     .overlay(RoundedRectangle(cornerRadius: FDTheme.radiusCard).stroke(Color.white.opacity(0.07), lineWidth: 1))
 
-                    // Challenge list, split by price band — with 50 legends a single flat
-                    // list would be unreadable, and the bands double as a difficulty ladder.
-                    ForEach(FDMetaTierInfo.all, id: \.tier) { band in
-                        let items = engine.challenges.filter { $0.tier == band.tier }
-                        if !items.isEmpty {
-                            let bandConquered = items.filter { engine.conqueredChallenges.contains($0.id) }.count
+                    // One continuous list for all 50 legends — the price bands are inline
+                    // separators, not nested boxes, so the whole thing reads as a single
+                    // scrolling ladder rather than four collapsed containers.
+                    VStack(spacing: 0) {
+                        ForEach(Array(engine.challenges.enumerated()), id: \.offset) { idx, challenge in
+                            let previousTier = idx > 0 ? engine.challenges[idx - 1].tier : -1
 
-                            VStack(spacing: 0) {
-                                HStack(spacing: 6) {
+                            if challenge.tier != previousTier,
+                               let band = FDMetaTierInfo.all.first(where: { $0.tier == challenge.tier }) {
+                                let items = engine.challenges.filter { $0.tier == band.tier }
+                                let done = items.filter { engine.conqueredChallenges.contains($0.id) }.count
+
+                                HStack(spacing: 5) {
                                     Image(systemName: band.icon)
-                                        .font(.caption.weight(.bold)).foregroundStyle(band.color)
+                                        .font(.system(size: 10, weight: .bold)).foregroundStyle(band.color)
                                     Text(band.title.uppercased())
-                                        .font(FDFont.body(11, black: true)).foregroundStyle(band.color)
+                                        .font(.system(size: 9.5, weight: .black)).foregroundStyle(band.color)
+                                    Text(band.subtitle)
+                                        .font(.system(size: 8, weight: .bold)).foregroundStyle(.secondary)
                                     Spacer()
-                                    Text("\(bandConquered)/\(items.count)")
-                                        .font(FDFont.mono(11, bold: true))
-                                        .foregroundStyle(bandConquered == items.count ? band.color : .secondary)
+                                    Text("\(done)/\(items.count)")
+                                        .font(FDFont.mono(10, bold: true))
+                                        .foregroundStyle(done == items.count ? band.color : .secondary)
                                 }
-                                .padding(.horizontal, 14).padding(.vertical, 8)
+                                .padding(.horizontal, 12).padding(.vertical, 6)
                                 .background(band.color.opacity(0.08))
-
                                 Rectangle().fill(Color.white.opacity(0.06)).frame(height: 1)
-
-                                ForEach(Array(items.enumerated()), id: \.offset) { idx, challenge in
-                                    FDChallengeRow(
-                                        challenge: challenge,
-                                        conquered: engine.conqueredChallenges.contains(challenge.id),
-                                        unlocked: engine.unlockedChallenges.contains(challenge.id),
-                                        canAfford: engine.legendCoins >= challenge.unlockCost,
-                                        onUnlock: { engine.unlockChallenge(challenge) },
-                                        onPlay: {
-                                            engine.startChallenge(challenge)
-                                            screen?.wrappedValue = .game
-                                            dismiss()
-                                        }
-                                    )
-                                    if idx < items.count - 1 {
-                                        Rectangle().fill(Color.white.opacity(0.04)).frame(height: 1)
-                                    }
-                                }
                             }
-                            .background(FDTheme.card, in: RoundedRectangle(cornerRadius: FDTheme.radiusCard))
-                            .overlay(RoundedRectangle(cornerRadius: FDTheme.radiusCard).stroke(Color.white.opacity(0.07), lineWidth: 1))
+
+                            FDChallengeRow(
+                                challenge: challenge,
+                                conquered: engine.conqueredChallenges.contains(challenge.id),
+                                unlocked: engine.unlockedChallenges.contains(challenge.id),
+                                canAfford: engine.legendCoins >= challenge.unlockCost,
+                                onUnlock: { engine.unlockChallenge(challenge) },
+                                onPlay: {
+                                    engine.startChallenge(challenge)
+                                    screen?.wrappedValue = .game
+                                    dismiss()
+                                }
+                            )
+                            if idx < engine.challenges.count - 1 {
+                                Rectangle().fill(Color.white.opacity(0.04)).frame(height: 1)
+                            }
                         }
                     }
+                    .background(FDTheme.card, in: RoundedRectangle(cornerRadius: FDTheme.radiusCard))
+                    .overlay(RoundedRectangle(cornerRadius: FDTheme.radiusCard).stroke(Color.white.opacity(0.07), lineWidth: 1))
                 }
                 .padding(.horizontal, 14)
                 .padding(.bottom, 20)
@@ -447,33 +449,33 @@ private struct FDChallengeRow: View {
     let onPlay: () -> Void
 
     var body: some View {
-        HStack(spacing: 12) {
+        HStack(spacing: 10) {
             ZStack {
-                RoundedRectangle(cornerRadius: 10)
+                RoundedRectangle(cornerRadius: 8)
                     .fill(conquered ? FDTheme.amber.opacity(0.15) : FDTheme.primary.opacity(0.1))
-                    .frame(width: 44, height: 44)
+                    .frame(width: 34, height: 34)
                 Image(systemName: conquered ? "trophy.fill" : "person.fill.questionmark")
-                    .font(.system(size: 18))
+                    .font(.system(size: 14))
                     .foregroundStyle(conquered ? FDTheme.amber : FDTheme.primary)
             }
 
-            VStack(alignment: .leading, spacing: 3) {
-                HStack(spacing: 6) {
+            VStack(alignment: .leading, spacing: 2) {
+                HStack(spacing: 5) {
                     Text(challenge.name)
-                        .font(FDFont.body(14, black: true))
+                        .font(FDFont.body(13, black: true))
                         .foregroundStyle(FDTheme.textPrimary)
                     if conquered {
                         Image(systemName: "checkmark.seal.fill")
-                            .font(.caption)
+                            .font(.system(size: 10))
                             .foregroundStyle(FDTheme.amber)
                     }
                 }
-                Text("\(challenge.era) · \(fdFlag(for: challenge.nationality)) \(challenge.nationality) · \(challenge.position.rawValue)")
-                    .font(.caption)
+                Text("\(challenge.era) · \(fdFlag(for: challenge.nationality)) \(challenge.position.rawValue)")
+                    .font(.system(size: 10))
                     .foregroundStyle(.secondary)
                     .fixedSize(horizontal: false, vertical: true)
                 Text(challenge.archetype)
-                    .font(.caption2)
+                    .font(.system(size: 10))
                     .foregroundStyle(.secondary)
                     .fixedSize(horizontal: false, vertical: true)
                 HStack(spacing: 4) {
@@ -481,7 +483,7 @@ private struct FDChallengeRow: View {
                         .font(.system(size: 8))
                         .foregroundStyle(FDTheme.warning)
                     Text("Objectif : \(challenge.targetScore) pts")
-                        .font(.caption2.weight(.semibold))
+                        .font(.system(size: 9.5, weight: .semibold))
                         .foregroundStyle(FDTheme.warning)
                 }
             }
@@ -491,20 +493,20 @@ private struct FDChallengeRow: View {
             if unlocked {
                 Button(action: onPlay) {
                     Text("Rejouer")
-                        .font(FDFont.body(12, black: true))
-                        .padding(.horizontal, 12).padding(.vertical, 7)
+                        .font(FDFont.body(11, black: true))
+                        .padding(.horizontal, 9).padding(.vertical, 5)
                         .background(Capsule().fill(FDTheme.primary))
                         .foregroundStyle(.white)
                 }
                 .buttonStyle(FDChoiceButtonStyle())
             } else {
                 Button(action: onUnlock) {
-                    HStack(spacing: 4) {
-                        Image(systemName: "seal.fill").font(.system(size: 10))
+                    HStack(spacing: 3) {
+                        Image(systemName: "seal.fill").font(.system(size: 9))
                         Text("\(challenge.unlockCost)")
                     }
-                    .font(FDFont.body(12, black: true))
-                    .padding(.horizontal, 12).padding(.vertical, 7)
+                    .font(FDFont.body(11, black: true))
+                    .padding(.horizontal, 9).padding(.vertical, 5)
                     .background(Capsule().fill(canAfford ? FDTheme.amber.opacity(0.85) : Color.white.opacity(0.07)))
                     .foregroundStyle(canAfford ? .black : .secondary)
                 }
@@ -512,8 +514,8 @@ private struct FDChallengeRow: View {
                 .disabled(!canAfford)
             }
         }
-        .padding(.horizontal, 14)
-        .padding(.vertical, 12)
+        .padding(.horizontal, 12)
+        .padding(.vertical, 8)
     }
 }
 
@@ -627,13 +629,13 @@ private struct FDClassementRow: View {
     }
 
     var body: some View {
-        HStack(spacing: 12) {
+        HStack(spacing: 10) {
             ZStack {
-                RoundedRectangle(cornerRadius: 10)
+                RoundedRectangle(cornerRadius: 8)
                     .fill(medalColor.opacity(rank <= 3 ? 0.22 : 0.12))
-                    .frame(width: 40, height: 40)
+                    .frame(width: 32, height: 32)
                 Text("\(rank)")
-                    .font(FDFont.mono(rank >= 100 ? 13 : 16, bold: true))
+                    .font(FDFont.mono(rank >= 100 ? 11 : 13, bold: true))
                     .foregroundStyle(medalColor)
             }
 
@@ -676,8 +678,8 @@ private struct FDClassementRow: View {
                     .foregroundStyle(.secondary)
             }
         }
-        .padding(.horizontal, 14)
-        .padding(.vertical, 11)
+        .padding(.horizontal, 12)
+        .padding(.vertical, 8)
     }
 }
 

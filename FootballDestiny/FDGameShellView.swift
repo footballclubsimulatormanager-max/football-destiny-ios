@@ -149,8 +149,8 @@ private struct FDSectionHeader: View {
                     .foregroundStyle(.secondary)
             }
         }
-        .padding(.horizontal, 12)
-        .padding(.vertical, 7)
+        .padding(.horizontal, 10)
+        .padding(.vertical, 5)
         .background(color.opacity(0.09), in: RoundedRectangle(cornerRadius: FDTheme.radiusMD))
     }
 }
@@ -169,25 +169,28 @@ private struct FDStatsGrid: View {
     var body: some View {
         HStack(spacing: 0) {
             ForEach(Array(cells.enumerated()), id: \.offset) { idx, cell in
-                VStack(spacing: 3) {
+                VStack(spacing: 2) {
                     Image(systemName: cell.icon)
-                        .font(.caption.weight(.semibold))
+                        .font(.system(size: 10, weight: .semibold))
                         .foregroundStyle(cell.color)
                     Text(cell.value)
-                        .font(FDFont.mono(20, bold: true))
+                        .font(FDFont.mono(16, bold: true))
                         .foregroundStyle(.white)
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.7)
                     Text(cell.label.uppercased())
-                        .font(.system(size: 8, weight: .bold))
+                        .font(.system(size: 7, weight: .bold))
                         .foregroundStyle(.secondary)
                         .multilineTextAlignment(.center)
-                        .lineLimit(2)
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.8)
                 }
                 .frame(maxWidth: .infinity)
-                .padding(.vertical, 10)
+                .padding(.vertical, 7)
                 if idx < cells.count - 1 {
                     Rectangle()
                         .fill(Color.white.opacity(0.08))
-                        .frame(width: 1, height: 44)
+                        .frame(width: 1, height: 32)
                 }
             }
         }
@@ -196,6 +199,72 @@ private struct FDStatsGrid: View {
             RoundedRectangle(cornerRadius: FDTheme.radiusCard)
                 .stroke(Color.white.opacity(0.06), lineWidth: 1)
         )
+    }
+}
+
+/// The season-by-season record, shared by the career summary and the Parcours tab.
+/// Deliberately dense: four numeric columns (matchs, buts, passes, note) on one tight row
+/// per season, with the real season span rather than an index.
+struct FDSeasonTable: View {
+    let history: [FDSeasonRecord]
+
+    private let colWidth: CGFloat = 30
+
+    var body: some View {
+        VStack(spacing: 0) {
+            HStack(spacing: 0) {
+                Text("SAISON")
+                    .frame(width: 42, alignment: .leading)
+                Text("CLUB")
+                Spacer(minLength: 4)
+                Text("M").frame(width: colWidth, alignment: .trailing)
+                Text("B").frame(width: colWidth, alignment: .trailing)
+                Text("P").frame(width: colWidth, alignment: .trailing)
+                Text("NOTE").frame(width: 34, alignment: .trailing)
+            }
+            .font(.system(size: 8, weight: .bold))
+            .foregroundStyle(.secondary)
+            .padding(.horizontal, 12).padding(.vertical, 5)
+            .background(Color.white.opacity(0.03))
+
+            Rectangle().fill(Color.white.opacity(0.06)).frame(height: 1)
+
+            ForEach(Array(history.enumerated().reversed()), id: \.offset) { idx, season in
+                HStack(spacing: 0) {
+                    Text(fdSeasonLabelShort(season.season))
+                        .font(FDFont.mono(9))
+                        .foregroundStyle(.secondary)
+                        .frame(width: 42, alignment: .leading)
+                    Text(season.club)
+                        .font(.system(size: 11, weight: .semibold))
+                        .foregroundStyle(FDTheme.textPrimary)
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.8)
+                    Spacer(minLength: 4)
+                    Text("\(season.apps)")
+                        .font(FDFont.mono(11))
+                        .foregroundStyle(.secondary)
+                        .frame(width: colWidth, alignment: .trailing)
+                    Text("\(season.goals)")
+                        .font(FDFont.mono(11, bold: true))
+                        .foregroundStyle(FDTheme.success)
+                        .frame(width: colWidth, alignment: .trailing)
+                    Text("\(season.assists)")
+                        .font(FDFont.mono(11, bold: true))
+                        .foregroundStyle(FDTheme.primary)
+                        .frame(width: colWidth, alignment: .trailing)
+                    Text(String(format: "%.1f", season.avgRating))
+                        .font(FDFont.mono(11, bold: true))
+                        .foregroundStyle(FDTheme.amber)
+                        .frame(width: 34, alignment: .trailing)
+                }
+                .padding(.horizontal, 12).padding(.vertical, 5)
+
+                if idx > 0 {
+                    Rectangle().fill(Color.white.opacity(0.03)).frame(height: 1)
+                }
+            }
+        }
     }
 }
 
@@ -209,9 +278,9 @@ private struct FDAttrBar: View {
     var body: some View {
         HStack(spacing: 8) {
             Text(label)
-                .font(.caption)
+                .font(.system(size: 10.5))
                 .foregroundStyle(.secondary)
-                .frame(width: 88, alignment: .leading)
+                .frame(width: 80, alignment: .leading)
             GeometryReader { geo in
                 ZStack(alignment: .leading) {
                     Capsule().fill(Color.white.opacity(0.08)).frame(height: 4)
@@ -223,9 +292,9 @@ private struct FDAttrBar: View {
             }
             .frame(height: 4)
             Text("\(value)")
-                .font(FDFont.mono(11, bold: true))
+                .font(FDFont.mono(10, bold: true))
                 .foregroundStyle(value >= 80 ? FDTheme.success : value >= 60 ? FDTheme.primary : .secondary)
-                .frame(width: 26, alignment: .trailing)
+                .frame(width: 22, alignment: .trailing)
         }
     }
 }
@@ -356,38 +425,40 @@ struct FDStoryCard: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
             // Header
-            HStack(spacing: 12) {
+            HStack(spacing: 10) {
                 ZStack {
-                    RoundedRectangle(cornerRadius: 10)
+                    RoundedRectangle(cornerRadius: 8)
                         .fill(fdSceneColor(scene.category).opacity(0.18))
-                        .frame(width: 40, height: 40)
+                        .frame(width: 32, height: 32)
                     Image(systemName: fdSceneSymbol(scene.category))
-                        .font(.system(size: 17, weight: .bold))
+                        .font(.system(size: 14, weight: .bold))
                         .foregroundStyle(fdSceneColor(scene.category))
                 }
-                VStack(alignment: .leading, spacing: 2) {
+                VStack(alignment: .leading, spacing: 1) {
                     Text(scene.category.uppercased())
-                        .font(.system(size: 9, weight: .bold))
+                        .font(.system(size: 8, weight: .bold))
                         .foregroundStyle(fdSceneColor(scene.category))
                     Text(scene.location)
-                        .font(FDFont.body(13, black: true))
+                        .font(FDFont.body(12, black: true))
+                        .lineLimit(1).minimumScaleFactor(0.8)
                     Text(scene.character)
-                        .font(.caption)
+                        .font(.system(size: 10))
                         .foregroundStyle(.secondary)
+                        .lineLimit(1).minimumScaleFactor(0.8)
                 }
                 Spacer()
             }
-            .padding(14)
+            .padding(.horizontal, 11).padding(.vertical, 8)
             .background(FDTheme.card.opacity(0.6))
 
             Rectangle().fill(Color.white.opacity(0.06)).frame(height: 1)
 
             // Narrative text
             Text(scene.text)
-                .font(.subheadline)
+                .font(.system(size: 13))
                 .foregroundStyle(FDTheme.textPrimary)
                 .fixedSize(horizontal: false, vertical: true)
-                .padding(14)
+                .padding(.horizontal, 11).padding(.vertical, 9)
 
             Rectangle().fill(Color.white.opacity(0.06)).frame(height: 1)
 
@@ -400,9 +471,9 @@ struct FDStoryCard: View {
                     } label: {
                         HStack(alignment: .top, spacing: 10) {
                             Text("\(idx + 1)")
-                                .font(FDFont.mono(11, bold: true))
+                                .font(FDFont.mono(10, bold: true))
                                 .foregroundStyle(FDTheme.primary.opacity(0.7))
-                                .frame(width: 16)
+                                .frame(width: 13)
                                 .padding(.top, 1)
 
                             VStack(alignment: .leading, spacing: 3) {
@@ -422,13 +493,15 @@ struct FDStoryCard: View {
                                     }
                                 }
                                 Text(choice.label)
-                                    .font(FDFont.body(13))
+                                    .font(FDFont.body(12.5))
                                     .foregroundStyle(FDTheme.textPrimary)
                                     .multilineTextAlignment(.leading)
+                                    .fixedSize(horizontal: false, vertical: true)
                                 if !choice.hint.isEmpty {
                                     Text(choice.hint)
-                                        .font(.caption2)
+                                        .font(.system(size: 10))
                                         .foregroundStyle(.secondary)
+                                        .fixedSize(horizontal: false, vertical: true)
                                 }
                             }
                             Spacer()
@@ -436,8 +509,8 @@ struct FDStoryCard: View {
                                 .font(.caption.weight(.semibold))
                                 .foregroundStyle(FDTheme.primary.opacity(0.5))
                         }
-                        .padding(.horizontal, 14)
-                        .padding(.vertical, 11)
+                        .padding(.horizontal, 11)
+                        .padding(.vertical, 8)
                         .contentShape(Rectangle())
                     }
                     .buttonStyle(FDRowButtonStyle())
@@ -844,7 +917,7 @@ struct FDCareerSummaryCard: View {
                             .font(FDFont.mono(13, bold: true))
                             .foregroundStyle(count > 0 ? FDTheme.amber : .secondary)
                     }
-                    .padding(.horizontal, 14).padding(.vertical, 8)
+                    .padding(.horizontal, 12).padding(.vertical, 6)
                     Rectangle().fill(Color.white.opacity(0.04)).frame(height: 1)
                 }
             }
@@ -852,7 +925,7 @@ struct FDCareerSummaryCard: View {
             // Traits earned along the way — part of what made this career distinctive.
             if !player.traits.isEmpty {
                 FDSectionHeader(icon: "person.crop.circle.fill.badge.checkmark", title: "Traits de caractère", color: FDTheme.primary)
-                    .padding(.horizontal, 14).padding(.vertical, 10)
+                    .padding(.horizontal, 10).padding(.vertical, 6)
                 Rectangle().fill(Color.white.opacity(0.06)).frame(height: 1)
                 LazyVGrid(columns: [GridItem(.adaptive(minimum: 92), spacing: 8)], alignment: .leading, spacing: 8) {
                     ForEach(player.traits, id: \.self) { trait in
@@ -873,36 +946,10 @@ struct FDCareerSummaryCard: View {
             // whole story rather than just the totals.
             if !player.history.isEmpty {
                 FDSectionHeader(icon: "clock.arrow.circlepath", title: "Saison par saison", badge: "\(player.history.count)", color: FDTheme.warning)
-                    .padding(.horizontal, 14).padding(.vertical, 10)
+                    .padding(.horizontal, 10).padding(.vertical, 6)
                 Rectangle().fill(Color.white.opacity(0.06)).frame(height: 1)
 
-                HStack {
-                    Text("SAISON").font(.system(size: 9, weight: .bold)).foregroundStyle(.secondary).frame(width: 40, alignment: .leading)
-                    Text("Club").font(.system(size: 9, weight: .bold)).foregroundStyle(.secondary)
-                    Spacer()
-                    Text("Buts").font(.system(size: 9, weight: .bold)).foregroundStyle(.secondary).frame(width: 36)
-                    Text("Note").font(.system(size: 9, weight: .bold)).foregroundStyle(.secondary).frame(width: 36)
-                }
-                .padding(.horizontal, 14).padding(.vertical, 6)
-                .background(Color.white.opacity(0.03))
-                Rectangle().fill(Color.white.opacity(0.06)).frame(height: 1)
-
-                ForEach(Array(player.history.enumerated().reversed()), id: \.offset) { idx, season in
-                    HStack {
-                        Text(fdSeasonLabelShort(season.season)).font(FDFont.mono(10)).foregroundStyle(.secondary).frame(width: 40, alignment: .leading)
-                        Text(season.club).font(.caption.weight(.semibold)).lineLimit(1)
-                        Spacer()
-                        Text("\(season.goals)").font(FDFont.mono(12, bold: true)).foregroundStyle(FDTheme.success).frame(width: 36)
-                        Text(String(format: "%.1f", season.avgRating))
-                            .font(FDFont.mono(12, bold: true))
-                            .foregroundStyle(FDTheme.amber)
-                            .frame(width: 36)
-                    }
-                    .padding(.horizontal, 14).padding(.vertical, 7)
-                    if idx > 0 {
-                        Rectangle().fill(Color.white.opacity(0.03)).frame(height: 1)
-                    }
-                }
+                FDSeasonTable(history: player.history)
             }
 
             if let title = primaryActionTitle, let action = primaryAction {
@@ -988,64 +1035,50 @@ struct FDCarriereTab: View {
                             .padding()
                     }
                 } else if let p = engine.player {
-                    // Fixed layout, no page-level scroll: the player block sits at the top and
-                    // scrolls inside its own bounded box, so the narrative below it always
-                    // stays exactly where the player expects to find it.
-                    VStack(spacing: 10) {
-                        VStack(spacing: 0) {
-                            HStack(spacing: 8) {
-                                Image(systemName: "person.text.rectangle.fill")
-                                    .font(.caption.weight(.bold))
-                                    .foregroundStyle(FDTheme.primary)
-                                Text("MON JOUEUR")
-                                    .font(FDFont.body(11, black: true))
-                                    .foregroundStyle(FDTheme.primary)
-                                Spacer()
-                            }
-                            .padding(.horizontal, 14).padding(.vertical, 9)
-                            .background(FDTheme.primary.opacity(0.07))
-
-                            Rectangle().fill(Color.white.opacity(0.06)).frame(height: 1)
-
-                            Picker("", selection: $subTab) {
-                                ForEach(FDCarriereSubTab.allCases) { tab in
-                                    Text(tab.rawValue).tag(tab)
-                                }
-                            }
-                            .pickerStyle(.segmented)
-                            .padding(.horizontal, 10).padding(.vertical, 8)
-
-                            Rectangle().fill(Color.white.opacity(0.06)).frame(height: 1)
-
-                            ScrollView {
-                                VStack(spacing: 10) {
-                                    headerCard(p)
-
-                                    switch subTab {
-                                    case .stats: statsContent(p)
-                                    case .palmares: palmaresContent(p)
-                                    case .distinctions: distinctionsContent(p)
-                                    case .parcours: parcoursContent(p)
-                                    case .entourage: entourageContent(p)
+                    // The narrative is the screen: it gets whatever height it needs and is
+                    // never scrolled. "Mon joueur" sits above it in a compact box, capped to
+                    // a third of the screen and scrolling internally, so it can never push
+                    // the story out of view no matter how much detail it holds.
+                    GeometryReader { geo in
+                        VStack(spacing: 8) {
+                            VStack(spacing: 0) {
+                                Picker("", selection: $subTab) {
+                                    ForEach(FDCarriereSubTab.allCases) { tab in
+                                        Text(tab.rawValue).tag(tab)
                                     }
-
-                                    retireCard(p)
                                 }
-                                .padding(10)
-                            }
-                        }
-                        .frame(height: 300)
-                        .background(FDTheme.card.opacity(0.65), in: RoundedRectangle(cornerRadius: FDTheme.radiusCard))
-                        .overlay(
-                            RoundedRectangle(cornerRadius: FDTheme.radiusCard)
-                                .stroke(Color.white.opacity(0.07), lineWidth: 1)
-                        )
+                                .pickerStyle(.segmented)
+                                .padding(.horizontal, 7).padding(.vertical, 6)
 
-                        // The narrative owns the rest of the screen and scrolls on its own.
-                        ScrollView {
+                                Rectangle().fill(Color.white.opacity(0.06)).frame(height: 1)
+
+                                ScrollView {
+                                    VStack(spacing: 8) {
+                                        headerCard(p)
+
+                                        switch subTab {
+                                        case .stats: statsContent(p)
+                                        case .palmares: palmaresContent(p)
+                                        case .distinctions: distinctionsContent(p)
+                                        case .parcours: parcoursContent(p)
+                                        case .entourage: entourageContent(p)
+                                        }
+
+                                        retireCard(p)
+                                    }
+                                    .padding(7)
+                                }
+                            }
+                            .frame(height: min(248, geo.size.height * 0.36))
+                            .background(FDTheme.card.opacity(0.6), in: RoundedRectangle(cornerRadius: FDTheme.radiusCard))
+                            .overlay(
+                                RoundedRectangle(cornerRadius: FDTheme.radiusCard)
+                                    .stroke(Color.white.opacity(0.07), lineWidth: 1)
+                            )
+
                             switch engine.currentScene {
                             case .none:
-                                ProgressView().padding(.top, 40)
+                                ProgressView().frame(maxHeight: .infinity)
                             case .story(let scene):
                                 FDStoryCard(engine: engine, scene: scene)
                             case .match(let result):
@@ -1057,12 +1090,13 @@ struct FDCarriereTab: View {
                             case .outcome(let outcome):
                                 FDOutcomeCard(engine: engine, outcome: outcome)
                             }
+
+                            Spacer(minLength: 0)
                         }
-                        .frame(maxHeight: .infinity)
                     }
-                    .padding(.horizontal, 14)
-                    .padding(.top, 8)
-                    .padding(.bottom, 10)
+                    .padding(.horizontal, 12)
+                    .padding(.top, 6)
+                    .padding(.bottom, 8)
                 } else {
                     VStack(spacing: 12) {
                         Image(systemName: "person.slash")
@@ -1211,7 +1245,7 @@ struct FDCarriereTab: View {
     // MARK: Stats content — condition pills + attribute bars
 
     private func statsContent(_ p: FDPlayer) -> some View {
-        VStack(spacing: 10) {
+        VStack(spacing: 8) {
             // Condition section
             VStack(spacing: 0) {
                 FDSectionHeader(icon: "waveform.path.ecg", title: "Condition", color: FDTheme.primary)
@@ -1252,12 +1286,12 @@ struct FDCarriereTab: View {
 
                     Rectangle().fill(Color.white.opacity(0.06)).frame(height: 1)
 
-                    VStack(spacing: 8) {
+                    VStack(spacing: 5) {
                         ForEach(catAttrs, id: \.self) { attr in
                             FDAttrBar(label: attr.label, value: p.attr(attr), color: catColor)
                         }
                     }
-                    .padding(.horizontal, 14).padding(.vertical, 10)
+                    .padding(.horizontal, 10).padding(.vertical, 7)
                 }
                 .background(FDTheme.card, in: RoundedRectangle(cornerRadius: FDTheme.radiusCard))
                 .overlay(RoundedRectangle(cornerRadius: FDTheme.radiusCard).stroke(Color.white.opacity(0.07), lineWidth: 1))
@@ -1269,10 +1303,10 @@ struct FDCarriereTab: View {
     // MARK: Palmarès content
 
     private func palmaresContent(_ p: FDPlayer) -> some View {
-        VStack(spacing: 10) {
+        VStack(spacing: 8) {
             VStack(spacing: 0) {
                 FDSectionHeader(icon: "trophy.fill", title: "Palmarès", badge: nil, color: FDTheme.amber)
-                    .padding(.horizontal, 14).padding(.vertical, 8)
+                    .padding(.horizontal, 10).padding(.vertical, 6)
                 Rectangle().fill(Color.white.opacity(0.06)).frame(height: 1)
 
                 let trophies: [(String, String, Int)] = [
@@ -1294,7 +1328,7 @@ struct FDCarriereTab: View {
             // Career stats grid
             VStack(spacing: 0) {
                 FDSectionHeader(icon: "chart.bar.fill", title: "Statistiques carrière", color: FDTheme.primary)
-                    .padding(.horizontal, 14).padding(.vertical, 8)
+                    .padding(.horizontal, 10).padding(.vertical, 6)
                 Rectangle().fill(Color.white.opacity(0.06)).frame(height: 1)
 
                 FDStatsGrid(cells: [
@@ -1314,10 +1348,10 @@ struct FDCarriereTab: View {
     // MARK: Distinctions content
 
     private func distinctionsContent(_ p: FDPlayer) -> some View {
-        VStack(spacing: 10) {
+        VStack(spacing: 8) {
             VStack(spacing: 0) {
                 FDSectionHeader(icon: "medal.fill", title: "Distinctions individuelles", color: FDTheme.amber)
-                    .padding(.horizontal, 14).padding(.vertical, 8)
+                    .padding(.horizontal, 10).padding(.vertical, 6)
                 Rectangle().fill(Color.white.opacity(0.06)).frame(height: 1)
 
                 if p.awardCounts.isEmpty {
@@ -1361,7 +1395,7 @@ struct FDCarriereTab: View {
             if !p.traits.isEmpty {
                 VStack(spacing: 0) {
                     FDSectionHeader(icon: "person.crop.circle.fill.badge.checkmark", title: "Traits de caractère", color: FDTheme.primary)
-                        .padding(.horizontal, 14).padding(.vertical, 8)
+                        .padding(.horizontal, 10).padding(.vertical, 6)
                     Rectangle().fill(Color.white.opacity(0.06)).frame(height: 1)
                     LazyVGrid(columns: [GridItem(.adaptive(minimum: 90), spacing: 8)], alignment: .leading, spacing: 8) {
                         ForEach(p.traits, id: \.self) { trait in
@@ -1386,11 +1420,11 @@ struct FDCarriereTab: View {
     // MARK: Parcours content — transfer history table
 
     private func parcoursContent(_ p: FDPlayer) -> some View {
-        VStack(spacing: 10) {
+        VStack(spacing: 8) {
             // Current club
             VStack(spacing: 0) {
                 FDSectionHeader(icon: "building.columns.fill", title: "Club actuel", color: FDTheme.primary)
-                    .padding(.horizontal, 14).padding(.vertical, 8)
+                    .padding(.horizontal, 10).padding(.vertical, 6)
                 Rectangle().fill(Color.white.opacity(0.06)).frame(height: 1)
                 HStack(spacing: 12) {
                     ZStack {
@@ -1420,7 +1454,7 @@ struct FDCarriereTab: View {
             // Transfer history
             VStack(spacing: 0) {
                 FDSectionHeader(icon: "arrow.triangle.2.circlepath", title: "Historique des transferts", badge: "\(p.transferHistory.count)", color: FDTheme.accentTeal)
-                    .padding(.horizontal, 14).padding(.vertical, 8)
+                    .padding(.horizontal, 10).padding(.vertical, 6)
                 Rectangle().fill(Color.white.opacity(0.06)).frame(height: 1)
 
                 if p.transferHistory.isEmpty {
@@ -1447,36 +1481,9 @@ struct FDCarriereTab: View {
             if !p.history.isEmpty {
                 VStack(spacing: 0) {
                     FDSectionHeader(icon: "clock.arrow.circlepath", title: "Historique saisons", badge: "\(p.history.count)", color: FDTheme.warning)
-                        .padding(.horizontal, 14).padding(.vertical, 8)
+                        .padding(.horizontal, 10).padding(.vertical, 6)
                     Rectangle().fill(Color.white.opacity(0.06)).frame(height: 1)
-                    // Season header row
-                    HStack {
-                        Text("SAISON").font(.system(size: 9, weight: .bold)).foregroundStyle(.secondary).frame(width: 40, alignment: .leading)
-                        Text("Club").font(.system(size: 9, weight: .bold)).foregroundStyle(.secondary)
-                        Spacer()
-                        Text("Buts").font(.system(size: 9, weight: .bold)).foregroundStyle(.secondary).frame(width: 36)
-                        Text("Note").font(.system(size: 9, weight: .bold)).foregroundStyle(.secondary).frame(width: 36)
-                    }
-                    .padding(.horizontal, 14).padding(.vertical, 6)
-                    .background(Color.white.opacity(0.03))
-                    Rectangle().fill(Color.white.opacity(0.06)).frame(height: 1)
-
-                    ForEach(Array(p.history.enumerated().reversed()), id: \.offset) { idx, season in
-                        HStack {
-                            Text(fdSeasonLabelShort(season.season)).font(FDFont.mono(10)).foregroundStyle(.secondary).frame(width: 40, alignment: .leading)
-                            Text(season.club).font(.caption.weight(.semibold)).lineLimit(1)
-                            Spacer()
-                            Text("\(season.goals)").font(FDFont.mono(12, bold: true)).foregroundStyle(FDTheme.success).frame(width: 36)
-                            Text(String(format: "%.1f", season.avgRating))
-                                .font(FDFont.mono(12, bold: true))
-                                .foregroundStyle(FDTheme.amber)
-                                .frame(width: 36)
-                        }
-                        .padding(.horizontal, 14).padding(.vertical, 7)
-                        if idx > 0 {
-                            Rectangle().fill(Color.white.opacity(0.03)).frame(height: 1)
-                        }
-                    }
+                    FDSeasonTable(history: p.history)
                 }
                 .background(FDTheme.card, in: RoundedRectangle(cornerRadius: FDTheme.radiusCard))
                 .overlay(RoundedRectangle(cornerRadius: FDTheme.radiusCard).stroke(Color.white.opacity(0.07), lineWidth: 1))
@@ -1491,11 +1498,11 @@ struct FDCarriereTab: View {
     // alongside stats and palmarès rather than in the Options tab.
 
     private func entourageContent(_ p: FDPlayer) -> some View {
-        VStack(spacing: 10) {
+        VStack(spacing: 8) {
             if !p.rivalFirstName.isEmpty {
                 VStack(spacing: 0) {
                     FDSectionHeader(icon: "flame.fill", title: "Rivalité", color: FDTheme.destructive)
-                        .padding(.horizontal, 14).padding(.vertical, 8)
+                        .padding(.horizontal, 10).padding(.vertical, 6)
                     Rectangle().fill(Color.white.opacity(0.06)).frame(height: 1)
                     HStack(spacing: 12) {
                         ZStack {
@@ -1522,7 +1529,7 @@ struct FDCarriereTab: View {
             if !p.relDict.isEmpty {
                 VStack(spacing: 0) {
                     FDSectionHeader(icon: "person.2.fill", title: "Relations", color: FDTheme.accentTeal)
-                        .padding(.horizontal, 14).padding(.vertical, 8)
+                        .padding(.horizontal, 10).padding(.vertical, 6)
                     Rectangle().fill(Color.white.opacity(0.06)).frame(height: 1)
                     ForEach(p.relDict.sorted(by: { $0.key < $1.key }), id: \.key) { key, value in
                         FDAttrBar(label: key.capitalized, value: value, color: FDTheme.accentTeal)

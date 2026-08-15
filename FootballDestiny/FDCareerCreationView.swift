@@ -139,8 +139,7 @@ struct FDCareerCreationView: View {
         FDHaptics.tap()
         switch currentStep {
         case .identityNationality:
-            draft.nationality = FDNations.randomElement() ?? draft.nationality
-            regenerateIdentity()
+            rollFullIdentity()
         case .position: draft.position = FDPosition.allCases.randomElement() ?? draft.position
         case .background: draft.background = FDBackground.allCases.randomElement() ?? draft.background
         case .profile:
@@ -150,10 +149,20 @@ struct FDCareerCreationView: View {
         }
     }
 
-    /// Name and birth city are both derived from the nationality — changing country, or
-    /// tapping the dice, re-rolls the whole identity together.
+    /// Re-rolls name and birth city for the nationality already chosen — used when the
+    /// player picks a country from the flag grid.
     private func regenerateIdentity() {
         let identity = FDNameBank.identity(for: draft.nationality)
+        draft.firstName = identity.first
+        draft.lastName = identity.last
+        draft.birthCity = identity.city
+    }
+
+    /// Rolls the whole identity at once, nationality included, so the country, the name and
+    /// the birth city always belong together.
+    private func rollFullIdentity() {
+        let identity = FDNameBank.randomIdentity()
+        draft.nationality = identity.nationality
         draft.firstName = identity.first
         draft.lastName = identity.last
         draft.birthCity = identity.city
@@ -164,7 +173,7 @@ struct FDCareerCreationView: View {
     private var identityNationalityStep: some View {
         VStack(spacing: 0) {
             ScrollView {
-                VStack(spacing: 16) {
+                VStack(spacing: 12) {
                     // Step header
                     FDCreationStepHeader(
                         step: 1, of: steps.count,
@@ -200,7 +209,7 @@ struct FDCareerCreationView: View {
 
                             Button {
                                 FDHaptics.tap()
-                                withAnimation(.fdSnap) { regenerateIdentity() }
+                                withAnimation(.fdSnap) { rollFullIdentity() }
                             } label: {
                                 Image(systemName: "dice.fill")
                                     .font(.system(size: 15, weight: .semibold))
@@ -210,7 +219,7 @@ struct FDCareerCreationView: View {
                             }
                             .buttonStyle(FDChoiceButtonStyle())
                         }
-                        .padding(14)
+                        .padding(11)
                     }
                     .background(FDTheme.card, in: RoundedRectangle(cornerRadius: FDTheme.radiusCard))
                     .overlay(RoundedRectangle(cornerRadius: FDTheme.radiusCard).stroke(Color.white.opacity(0.07), lineWidth: 1))
@@ -228,7 +237,7 @@ struct FDCareerCreationView: View {
                                 }
                             }
                         }
-                        .padding(14)
+                        .padding(11)
                     }
                     .background(FDTheme.card, in: RoundedRectangle(cornerRadius: FDTheme.radiusCard))
                     .overlay(RoundedRectangle(cornerRadius: FDTheme.radiusCard).stroke(Color.white.opacity(0.07), lineWidth: 1))
@@ -269,7 +278,7 @@ struct FDCareerCreationView: View {
     private var positionStep: some View {
         VStack(spacing: 0) {
             ScrollView {
-                VStack(spacing: 16) {
+                VStack(spacing: 12) {
                     FDCreationStepHeader(
                         step: 2, of: steps.count,
                         icon: "figure.soccer",
@@ -304,7 +313,7 @@ struct FDCareerCreationView: View {
     private var backgroundStep: some View {
         VStack(spacing: 0) {
             ScrollView {
-                VStack(spacing: 16) {
+                VStack(spacing: 12) {
                     FDCreationStepHeader(
                         step: 3, of: steps.count,
                         icon: "house.fill",
@@ -342,7 +351,7 @@ struct FDCareerCreationView: View {
     private var profileStep: some View {
         VStack(spacing: 0) {
             ScrollView {
-                VStack(spacing: 16) {
+                VStack(spacing: 12) {
                     FDCreationStepHeader(
                         step: 4, of: steps.count,
                         icon: "person.crop.circle.fill.badge.checkmark",
@@ -423,7 +432,7 @@ struct FDCareerCreationView: View {
     private var settingsStep: some View {
         VStack(spacing: 0) {
             ScrollView {
-                VStack(spacing: 16) {
+                VStack(spacing: 12) {
                     FDCreationStepHeader(
                         step: 5, of: steps.count,
                         icon: "gearshape.fill",
@@ -498,7 +507,7 @@ struct FDCareerCreationView: View {
     private var clubStep: some View {
         VStack(spacing: 0) {
             ScrollView {
-                VStack(spacing: 16) {
+                VStack(spacing: 12) {
                     FDCreationStepHeader(
                         step: 6, of: steps.count,
                         icon: "building.columns.fill",
@@ -597,7 +606,7 @@ struct FDCareerCreationView: View {
                 .foregroundStyle(FDTheme.primary)
             Spacer()
         }
-        .padding(.horizontal, 14).padding(.vertical, 8)
+        .padding(.horizontal, 11).padding(.vertical, 6)
         .background(FDTheme.primary.opacity(0.07))
         .overlay(alignment: .bottom) {
             Rectangle().fill(Color.white.opacity(0.06)).frame(height: 1)
@@ -647,18 +656,18 @@ private struct FDFlagChoice: View {
 
     var body: some View {
         Button(action: action) {
-            VStack(spacing: 6) {
+            VStack(spacing: 4) {
                 Text(flag)
-                    .font(.system(size: 40))
+                    .font(.system(size: 32))
                 Text(name)
-                    .font(FDFont.body(11, black: selected))
+                    .font(FDFont.body(10, black: selected))
                     .foregroundStyle(selected ? FDTheme.textPrimary : FDTheme.textMuted)
                     .lineLimit(2)
                     .multilineTextAlignment(.center)
                     .minimumScaleFactor(0.8)
             }
             .frame(maxWidth: .infinity)
-            .padding(.vertical, 12)
+            .padding(.vertical, 9)
             .background(
                 RoundedRectangle(cornerRadius: 12, style: .continuous)
                     .fill(selected ? FDTheme.primary.opacity(0.16) : Color.white.opacity(0.05))
@@ -702,7 +711,7 @@ private struct FDPositionRow: View {
                         .foregroundStyle(.secondary)
                 }
             }
-            .padding(.horizontal, 14).padding(.vertical, 12)
+            .padding(.horizontal, 11).padding(.vertical, 9)
         }
         .buttonStyle(FDChoiceButtonStyle())
         .animation(.fdSnap, value: selected)
@@ -755,7 +764,7 @@ private struct FDClubChoiceRow: View {
                         .foregroundStyle(FDTheme.primary)
                 }
             }
-            .padding(.horizontal, 14).padding(.vertical, 12)
+            .padding(.horizontal, 11).padding(.vertical, 9)
         }
         .buttonStyle(FDChoiceButtonStyle())
         .animation(.fdSnap, value: selected)
@@ -775,17 +784,17 @@ private struct FDProfileTile: View {
         Button(action: action) {
             VStack(spacing: 6) {
                 Image(systemName: icon)
-                    .font(.system(size: 17, weight: .semibold))
+                    .font(.system(size: 15, weight: .semibold))
                     .foregroundStyle(selected ? accent : .secondary)
                 Text(title)
-                    .font(FDFont.body(12, black: selected))
+                    .font(FDFont.body(11, black: selected))
                     .foregroundStyle(selected ? FDTheme.textPrimary : FDTheme.textMuted)
                     .multilineTextAlignment(.center)
                     .lineLimit(2)
                     .minimumScaleFactor(0.75)
             }
             .frame(maxWidth: .infinity)
-            .frame(height: 68)
+            .frame(height: 58)
             .padding(.horizontal, 6)
             .background(
                 RoundedRectangle(cornerRadius: 12, style: .continuous)
@@ -837,7 +846,7 @@ private struct FDProfileChoiceRow: View {
                         .foregroundStyle(.secondary)
                 }
             }
-            .padding(.horizontal, 14).padding(.vertical, 11)
+            .padding(.horizontal, 11).padding(.vertical, 8)
             .background(selected ? accent.opacity(0.06) : Color.clear)
         }
         .buttonStyle(FDChoiceButtonStyle())
