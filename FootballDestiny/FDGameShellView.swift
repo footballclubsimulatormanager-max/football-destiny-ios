@@ -48,7 +48,7 @@ struct FDStatusHeader: View {
                     VStack(alignment: .leading, spacing: 1) {
                         Text("\(p.firstName) \(p.lastName)")
                             .font(FDFont.body(13, black: true))
-                        Text("\(p.club.name)  ·  \(p.position.rawValue)")
+                        Text("\(fdFlag(for: p.club.country)) \(p.club.name)  ·  \(p.position.rawValue)")
                             .font(.caption2)
                             .foregroundStyle(.secondary)
                             .lineLimit(1)
@@ -91,7 +91,7 @@ struct FDStatusHeader: View {
                 .frame(height: 2)
 
                 HStack {
-                    Text("S\(p.calendar.season)  ·  \(p.age) ans  ·  Sem. \(p.calendar.week)/\(p.calendar.seasonWeeks)")
+                    Text("\(fdSeasonLabel(p.calendar.season))  ·  \(p.age) ans  ·  Sem. \(p.calendar.week)/\(p.calendar.seasonWeeks)")
                         .foregroundStyle(.secondary)
                     Spacer()
                     HStack(spacing: 3) {
@@ -195,56 +195,6 @@ private struct FDStatsGrid: View {
         .overlay(
             RoundedRectangle(cornerRadius: FDTheme.radiusCard)
                 .stroke(Color.white.opacity(0.06), lineWidth: 1)
-        )
-    }
-}
-
-/// A collapsed-by-default section: one tappable header line that expands to reveal its
-/// content. Used to keep reference material (stats, palmarès) out of the way of the
-/// narrative card, which must stay at the top of the career screen.
-struct FDDisclosureCard<Content: View>: View {
-    let title: String
-    let icon: String
-    @Binding var isOpen: Bool
-    @ViewBuilder var content: () -> Content
-
-    var body: some View {
-        VStack(spacing: 0) {
-            Button {
-                FDHaptics.tap()
-                withAnimation(.fdSoft) { isOpen.toggle() }
-            } label: {
-                HStack(spacing: 8) {
-                    Image(systemName: icon)
-                        .font(.caption.weight(.bold))
-                        .foregroundStyle(FDTheme.primary)
-                    Text(title.uppercased())
-                        .font(FDFont.body(11, black: true))
-                        .foregroundStyle(FDTheme.primary)
-                    Spacer()
-                    Image(systemName: "chevron.down")
-                        .font(.caption2.weight(.bold))
-                        .foregroundStyle(FDTheme.primary.opacity(0.7))
-                        .rotationEffect(.degrees(isOpen ? 0 : -90))
-                }
-                .padding(.horizontal, 14)
-                .padding(.vertical, 11)
-                .contentShape(Rectangle())
-            }
-            .buttonStyle(FDRowButtonStyle())
-
-            if isOpen {
-                Rectangle().fill(Color.white.opacity(0.06)).frame(height: 1)
-                content()
-                    .padding(.horizontal, 10)
-                    .padding(.top, 10)
-                    .padding(.bottom, 12)
-            }
-        }
-        .background(FDTheme.card.opacity(0.7), in: RoundedRectangle(cornerRadius: FDTheme.radiusCard))
-        .overlay(
-            RoundedRectangle(cornerRadius: FDTheme.radiusCard)
-                .stroke(Color.white.opacity(0.07), lineWidth: 1)
         )
     }
 }
@@ -711,7 +661,7 @@ struct FDSeasonCard: View {
                     .font(.system(size: 9, weight: .bold))
                     .foregroundStyle(FDTheme.amber)
                 Spacer()
-                Text("Saison \((engine.player?.calendar.season ?? 1) - 1)")
+                Text("Saison \(fdSeasonLabel(max(1, (engine.player?.calendar.season ?? 1) - 1)))")
                     .font(FDFont.mono(10)).foregroundStyle(.secondary)
             }
             .padding(.horizontal, 14).padding(.vertical, 10)
@@ -845,7 +795,7 @@ struct FDCareerSummaryCard: View {
                 VStack(alignment: .leading, spacing: 2) {
                     Text("\(player.firstName) \(player.lastName)")
                         .font(FDFont.display(18))
-                    Text("\(player.nationality) · \(player.position.rawValue) · retraité à \(player.age) ans")
+                    Text("\(fdFlag(for: player.nationality)) \(player.nationality) · \(player.position.rawValue) · retraité à \(player.age) ans")
                         .font(.caption)
                         .foregroundStyle(.secondary)
                 }
@@ -927,7 +877,7 @@ struct FDCareerSummaryCard: View {
                 Rectangle().fill(Color.white.opacity(0.06)).frame(height: 1)
 
                 HStack {
-                    Text("S.").font(.system(size: 9, weight: .bold)).foregroundStyle(.secondary).frame(width: 24)
+                    Text("SAISON").font(.system(size: 9, weight: .bold)).foregroundStyle(.secondary).frame(width: 40, alignment: .leading)
                     Text("Club").font(.system(size: 9, weight: .bold)).foregroundStyle(.secondary)
                     Spacer()
                     Text("Buts").font(.system(size: 9, weight: .bold)).foregroundStyle(.secondary).frame(width: 36)
@@ -939,7 +889,7 @@ struct FDCareerSummaryCard: View {
 
                 ForEach(Array(player.history.enumerated().reversed()), id: \.offset) { idx, season in
                     HStack {
-                        Text("\(season.season)").font(FDFont.mono(11)).foregroundStyle(.secondary).frame(width: 24)
+                        Text(fdSeasonLabelShort(season.season)).font(FDFont.mono(10)).foregroundStyle(.secondary).frame(width: 40, alignment: .leading)
                         Text(season.club).font(.caption.weight(.semibold)).lineLimit(1)
                         Spacer()
                         Text("\(season.goals)").font(FDFont.mono(12, bold: true)).foregroundStyle(FDTheme.success).frame(width: 36)
@@ -976,9 +926,15 @@ struct FDRetiredCard: View {
 
     var body: some View {
         if let p = engine.player {
-            FDCareerSummaryCard(player: p, primaryActionTitle: "Commencer une nouvelle carrière") {
-                engine.resetSave()
-                screen = .menu
+            VStack(spacing: 12) {
+                // The career is over — this is the one moment the player gets to sign it
+                // before it takes its place in the local leaderboard.
+                FDAliasPromptCard(engine: engine)
+
+                FDCareerSummaryCard(player: p, primaryActionTitle: "Commencer une nouvelle carrière") {
+                    engine.resetSave()
+                    screen = .menu
+                }
             }
         }
     }
@@ -1022,7 +978,6 @@ struct FDCarriereTab: View {
     @Binding var screen: FDScreen
     @State private var subTab: FDCarriereSubTab = .stats
     @State private var showRetireConfirm = false
-    @State private var detailsOpen = false
 
     var body: some View {
         NavigationView {
@@ -1033,10 +988,61 @@ struct FDCarriereTab: View {
                             .padding()
                     }
                 } else if let p = engine.player {
-                    ScrollView {
-                        VStack(spacing: 12) {
-                            // The narrative is what the player acts on, so it always opens at the
-                            // very top — never below a stats block the player has to scroll past.
+                    // Fixed layout, no page-level scroll: the player block sits at the top and
+                    // scrolls inside its own bounded box, so the narrative below it always
+                    // stays exactly where the player expects to find it.
+                    VStack(spacing: 10) {
+                        VStack(spacing: 0) {
+                            HStack(spacing: 8) {
+                                Image(systemName: "person.text.rectangle.fill")
+                                    .font(.caption.weight(.bold))
+                                    .foregroundStyle(FDTheme.primary)
+                                Text("MON JOUEUR")
+                                    .font(FDFont.body(11, black: true))
+                                    .foregroundStyle(FDTheme.primary)
+                                Spacer()
+                            }
+                            .padding(.horizontal, 14).padding(.vertical, 9)
+                            .background(FDTheme.primary.opacity(0.07))
+
+                            Rectangle().fill(Color.white.opacity(0.06)).frame(height: 1)
+
+                            Picker("", selection: $subTab) {
+                                ForEach(FDCarriereSubTab.allCases) { tab in
+                                    Text(tab.rawValue).tag(tab)
+                                }
+                            }
+                            .pickerStyle(.segmented)
+                            .padding(.horizontal, 10).padding(.vertical, 8)
+
+                            Rectangle().fill(Color.white.opacity(0.06)).frame(height: 1)
+
+                            ScrollView {
+                                VStack(spacing: 10) {
+                                    headerCard(p)
+
+                                    switch subTab {
+                                    case .stats: statsContent(p)
+                                    case .palmares: palmaresContent(p)
+                                    case .distinctions: distinctionsContent(p)
+                                    case .parcours: parcoursContent(p)
+                                    case .entourage: entourageContent(p)
+                                    }
+
+                                    retireCard(p)
+                                }
+                                .padding(10)
+                            }
+                        }
+                        .frame(height: 300)
+                        .background(FDTheme.card.opacity(0.65), in: RoundedRectangle(cornerRadius: FDTheme.radiusCard))
+                        .overlay(
+                            RoundedRectangle(cornerRadius: FDTheme.radiusCard)
+                                .stroke(Color.white.opacity(0.07), lineWidth: 1)
+                        )
+
+                        // The narrative owns the rest of the screen and scrolls on its own.
+                        ScrollView {
                             switch engine.currentScene {
                             case .none:
                                 ProgressView().padding(.top, 40)
@@ -1051,47 +1057,12 @@ struct FDCarriereTab: View {
                             case .outcome(let outcome):
                                 FDOutcomeCard(engine: engine, outcome: outcome)
                             }
-
-                            // Everything below is reference material: collapsed by default so it
-                            // costs one line of height until the player asks for it.
-                            FDDisclosureCard(
-                                title: "Mon joueur",
-                                icon: "person.text.rectangle.fill",
-                                isOpen: $detailsOpen
-                            ) {
-                                VStack(spacing: 10) {
-                                    headerCard(p)
-
-                                    Picker("", selection: $subTab) {
-                                        ForEach(FDCarriereSubTab.allCases) { tab in
-                                            Text(tab.rawValue).tag(tab)
-                                        }
-                                    }
-                                    .pickerStyle(.segmented)
-
-                                    switch subTab {
-                                    case .stats: statsContent(p)
-                                    case .palmares: palmaresContent(p)
-                                    case .distinctions: distinctionsContent(p)
-                                    case .parcours: parcoursContent(p)
-                                    case .entourage: entourageContent(p)
-                                    }
-
-                                    if p.age >= 34 {
-                                        Button {
-                                            showRetireConfirm = true
-                                        } label: {
-                                            Label("Raccrocher les crampons", systemImage: "figure.soccer")
-                                        }
-                                        .buttonStyle(FDDestructiveButtonStyle())
-                                    }
-                                }
-                            }
                         }
-                        .padding(.horizontal, 14)
-                        .padding(.top, 8)
-                        .padding(.bottom, 20)
+                        .frame(maxHeight: .infinity)
                     }
+                    .padding(.horizontal, 14)
+                    .padding(.top, 8)
+                    .padding(.bottom, 10)
                 } else {
                     VStack(spacing: 12) {
                         Image(systemName: "person.slash")
@@ -1118,6 +1089,41 @@ struct FDCarriereTab: View {
         .navigationViewStyle(.stack)
     }
 
+    // MARK: Retire card — always present inside the player box, so ending a career is
+    // reachable from the career screen itself and not buried in Options.
+
+    @ViewBuilder
+    private func retireCard(_ p: FDPlayer) -> some View {
+        let canRetire = p.age >= 30
+        VStack(spacing: 0) {
+            FDSectionHeader(icon: "sunset.fill", title: "Raccrocher les crampons", color: FDTheme.warning)
+                .padding(.horizontal, 14).padding(.vertical, 8)
+            Rectangle().fill(Color.white.opacity(0.06)).frame(height: 1)
+
+            VStack(spacing: 8) {
+                Text(canRetire
+                     ? "Ta carrière se termine ici et rejoint ton historique, avec les points et les pièces qu'elle a rapportés."
+                     : "Tu pourras raccrocher à partir de 30 ans. Encore \(30 - p.age) saison(s) à écrire.")
+                    .font(.caption2)
+                    .foregroundStyle(.secondary)
+                    .fixedSize(horizontal: false, vertical: true)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+
+                Button {
+                    showRetireConfirm = true
+                } label: {
+                    Label("Raccrocher les crampons", systemImage: "figure.soccer")
+                }
+                .buttonStyle(FDDestructiveButtonStyle())
+                .disabled(!canRetire)
+                .opacity(canRetire ? 1 : 0.45)
+            }
+            .padding(12)
+        }
+        .background(FDTheme.card, in: RoundedRectangle(cornerRadius: FDTheme.radiusCard))
+        .overlay(RoundedRectangle(cornerRadius: FDTheme.radiusCard).stroke(FDTheme.warning.opacity(0.18), lineWidth: 1))
+    }
+
     // MARK: Header card — player overview with 4-stat grid
 
     private func headerCard(_ p: FDPlayer) -> some View {
@@ -1127,10 +1133,10 @@ struct FDCarriereTab: View {
                 VStack(alignment: .leading, spacing: 3) {
                     Text("\(p.firstName) \(p.lastName)")
                         .font(FDFont.display(20))
-                    Text("\(p.nationality) · \(p.age) ans · \(p.position.rawValue)")
+                    Text("\(fdFlag(for: p.nationality)) \(p.nationality) · \(p.age) ans · \(p.position.rawValue)")
                         .font(.caption)
                         .foregroundStyle(.secondary)
-                    Text("\(p.club.name), \(p.club.country)")
+                    Text("\(fdFlag(for: p.club.country)) \(p.club.name), \(p.club.country)")
                         .font(.caption)
                         .foregroundStyle(.secondary)
                 }
@@ -1397,7 +1403,7 @@ struct FDCarriereTab: View {
                     }
                     VStack(alignment: .leading, spacing: 2) {
                         Text(p.club.name).font(FDFont.body(14, black: true))
-                        Text("\(p.club.city), \(p.club.country)").font(.caption).foregroundStyle(.secondary)
+                        Text("\(fdFlag(for: p.club.country)) \(p.club.city), \(p.club.country)").font(.caption).foregroundStyle(.secondary)
                     }
                     Spacer()
                     Text(p.status.rawValue)
@@ -1445,7 +1451,7 @@ struct FDCarriereTab: View {
                     Rectangle().fill(Color.white.opacity(0.06)).frame(height: 1)
                     // Season header row
                     HStack {
-                        Text("S.").font(.system(size: 9, weight: .bold)).foregroundStyle(.secondary).frame(width: 24)
+                        Text("SAISON").font(.system(size: 9, weight: .bold)).foregroundStyle(.secondary).frame(width: 40, alignment: .leading)
                         Text("Club").font(.system(size: 9, weight: .bold)).foregroundStyle(.secondary)
                         Spacer()
                         Text("Buts").font(.system(size: 9, weight: .bold)).foregroundStyle(.secondary).frame(width: 36)
@@ -1457,7 +1463,7 @@ struct FDCarriereTab: View {
 
                     ForEach(Array(p.history.enumerated().reversed()), id: \.offset) { idx, season in
                         HStack {
-                            Text("\(season.season)").font(FDFont.mono(11)).foregroundStyle(.secondary).frame(width: 24)
+                            Text(fdSeasonLabelShort(season.season)).font(FDFont.mono(10)).foregroundStyle(.secondary).frame(width: 40, alignment: .leading)
                             Text(season.club).font(.caption.weight(.semibold)).lineLimit(1)
                             Spacer()
                             Text("\(season.goals)").font(FDFont.mono(12, bold: true)).foregroundStyle(FDTheme.success).frame(width: 36)

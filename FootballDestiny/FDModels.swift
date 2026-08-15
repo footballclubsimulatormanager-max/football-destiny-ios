@@ -229,6 +229,45 @@ struct FDCalendar: Codable {
     var seasonWeeks: Int
 }
 
+// MARK: - Shared display helpers
+
+/// The real-world season a career's season 1 maps onto. Seasons are shown as "2026-2027"
+/// everywhere rather than as a bare index, so a career reads like a real football timeline.
+let FDFirstSeasonYear = 2026
+
+/// "2026-2027" for season 1, "2027-2028" for season 2, and so on.
+func fdSeasonLabel(_ season: Int) -> String {
+    let start = FDFirstSeasonYear + max(0, season - 1)
+    return "\(start)-\(start + 1)"
+}
+
+/// Short form used where space is tight, e.g. "26/27".
+func fdSeasonLabelShort(_ season: Int) -> String {
+    let start = FDFirstSeasonYear + max(0, season - 1)
+    return String(format: "%02d/%02d", start % 100, (start + 1) % 100)
+}
+
+/// Flag emoji for a country name. Used everywhere a country is displayed — the club picker,
+/// the player header, the historique and the leaderboard — so a nationality always reads
+/// the same way across the app.
+func fdFlag(for nation: String) -> String {
+    let flags: [String: String] = [
+        "France": "🇫🇷", "Angleterre": "🇬🇧", "Espagne": "🇪🇸", "Allemagne": "🇩🇪",
+        "Italie": "🇮🇹", "Portugal": "🇵🇹", "Pays-Bas": "🇳🇱", "Belgique": "🇧🇪",
+        "Brésil": "🇧🇷", "Argentine": "🇦🇷", "Uruguay": "🇺🇾", "Colombie": "🇨🇴",
+        "États-Unis": "🇺🇸", "Canada": "🇨🇦", "Mexique": "🇲🇽", "Sénégal": "🇸🇳",
+        "Côte d'Ivoire": "🇨🇮", "Cameroun": "🇨🇲", "Nigeria": "🇳🇬", "Maroc": "🇲🇦",
+        "Algérie": "🇩🇿", "Tunisie": "🇹🇳", "Égypte": "🇪🇬", "Japon": "🇯🇵",
+        "Corée du Sud": "🇰🇷", "Australie": "🇦🇺", "Émirats Arabes Unis": "🇦🇪",
+        "Arabie Saoudite": "🇸🇦", "Turquie": "🇹🇷", "Croatie": "🇭🇷", "Suède": "🇸🇪",
+        "Norvège": "🇳🇴", "Danemark": "🇩🇰", "Écosse": "🏴󠁧󠁢󠁳󠁣󠁴󠁿", "Autriche": "🇦🇹",
+        "Suisse": "🇨🇭", "Grèce": "🇬🇷", "Chili": "🇨🇱", "Équateur": "🇪🇨",
+        "Afrique du Sud": "🇿🇦", "Chine": "🇨🇳", "Qatar": "🇶🇦",
+        "Nouvelle-Zélande": "🇳🇿", "Monaco": "🇲🇨",
+    ]
+    return flags[nation] ?? "🏳️"
+}
+
 struct FDSeasonRecord: Codable, Identifiable {
     var id = UUID()
     var season: Int
@@ -348,6 +387,9 @@ struct FDPlayer: Codable {
     var lastName: String
     var nationality: String
     var birthCity: String
+    /// Optional handle the player types in once the career is over, used to sign their entry
+    /// in the local leaderboard. Empty until then; defaulted so old saves still decode.
+    var alias: String = ""
     var foot: FDFoot
     var position: FDPosition
     var personality: FDPersonality

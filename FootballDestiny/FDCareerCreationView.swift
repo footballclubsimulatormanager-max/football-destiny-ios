@@ -17,9 +17,10 @@ struct FDCareerCreationView: View {
         self.engine = engine
         self._screen = screen
         var initialDraft = FDCreationDraft()
-        let nameData = FDNameBank.random(for: initialDraft.nationality)
-        initialDraft.firstName = nameData.first
-        initialDraft.lastName = nameData.last
+        let identity = FDNameBank.identity(for: initialDraft.nationality)
+        initialDraft.firstName = identity.first
+        initialDraft.lastName = identity.last
+        initialDraft.birthCity = identity.city
         self._draft = State(initialValue: initialDraft)
     }
 
@@ -139,7 +140,7 @@ struct FDCareerCreationView: View {
         switch currentStep {
         case .identityNationality:
             draft.nationality = FDNations.randomElement() ?? draft.nationality
-            regenerateName()
+            regenerateIdentity()
         case .position: draft.position = FDPosition.allCases.randomElement() ?? draft.position
         case .background: draft.background = FDBackground.allCases.randomElement() ?? draft.background
         case .profile:
@@ -149,10 +150,13 @@ struct FDCareerCreationView: View {
         }
     }
 
-    private func regenerateName() {
-        let nameData = FDNameBank.random(for: draft.nationality)
-        draft.firstName = nameData.first
-        draft.lastName = nameData.last
+    /// Name and birth city are both derived from the nationality — changing country, or
+    /// tapping the dice, re-rolls the whole identity together.
+    private func regenerateIdentity() {
+        let identity = FDNameBank.identity(for: draft.nationality)
+        draft.firstName = identity.first
+        draft.lastName = identity.last
+        draft.birthCity = identity.city
     }
 
     // MARK: - Step 1: Identity & Nationality
@@ -169,14 +173,42 @@ struct FDCareerCreationView: View {
                         subtitle: "Qui es-tu ?"
                     )
 
-                    // Name card
+                    // Generated identity — the player never types a name. Both the name and
+                    // the birth city follow the selected nationality and are re-rolled with
+                    // it, or on demand with the dice below.
                     VStack(spacing: 0) {
-                        creationSectionHeader(icon: "textformat", title: "Nom & prénom")
+                        creationSectionHeader(icon: "person.text.rectangle.fill", title: "Ton identité")
 
-                        VStack(spacing: 12) {
-                            FDCreationField(label: "Prénom", text: $draft.firstName, placeholder: "Prénom")
-                            FDCreationField(label: "Nom", text: $draft.lastName, placeholder: "Nom de famille")
-                            FDCreationField(label: "Ville de naissance", text: $draft.birthCity, placeholder: "Ville")
+                        HStack(spacing: 12) {
+                            Text(fdFlag(for: draft.nationality))
+                                .font(.system(size: 34))
+
+                            VStack(alignment: .leading, spacing: 3) {
+                                Text("\(draft.firstName) \(draft.lastName)")
+                                    .font(FDFont.display(21))
+                                    .foregroundStyle(.white)
+                                    .lineLimit(1)
+                                    .minimumScaleFactor(0.7)
+                                Text("Né à \(draft.birthCity), \(draft.nationality)")
+                                    .font(.caption)
+                                    .foregroundStyle(.secondary)
+                                    .lineLimit(1)
+                                    .minimumScaleFactor(0.8)
+                            }
+
+                            Spacer(minLength: 0)
+
+                            Button {
+                                FDHaptics.tap()
+                                withAnimation(.fdSnap) { regenerateIdentity() }
+                            } label: {
+                                Image(systemName: "dice.fill")
+                                    .font(.system(size: 15, weight: .semibold))
+                                    .foregroundStyle(FDTheme.amber)
+                                    .frame(width: 38, height: 38)
+                                    .background(FDTheme.amber.opacity(0.14), in: Circle())
+                            }
+                            .buttonStyle(FDChoiceButtonStyle())
                         }
                         .padding(14)
                     }
@@ -192,7 +224,7 @@ struct FDCareerCreationView: View {
                                 FDFlagChoice(flag: fdFlag(for: nation), name: nation, selected: draft.nationality == nation) {
                                     FDHaptics.tap()
                                     draft.nationality = nation
-                                    regenerateName()
+                                    regenerateIdentity()
                                 }
                             }
                         }
@@ -500,9 +532,12 @@ struct FDCareerCreationView: View {
                             .frame(maxWidth: .infinity)
                             Rectangle().fill(Color.white.opacity(0.08)).frame(width: 1, height: 32)
                             VStack(spacing: 2) {
-                                Text(draft.nationality)
-                                    .font(FDFont.body(13, black: true)).foregroundStyle(.white)
-                                    .lineLimit(1).minimumScaleFactor(0.7)
+                                HStack(spacing: 4) {
+                                    Text(fdFlag(for: draft.nationality)).font(.system(size: 13))
+                                    Text(draft.nationality)
+                                        .font(FDFont.body(13, black: true)).foregroundStyle(.white)
+                                        .lineLimit(1).minimumScaleFactor(0.7)
+                                }
                                 Text("NATION").font(.system(size: 8, weight: .bold)).foregroundStyle(.secondary)
                             }
                             .frame(maxWidth: .infinity)
@@ -604,21 +639,6 @@ private struct FDFootChoice: View {
     }
 }
 
-private func fdFlag(for nation: String) -> String {
-    let flags: [String: String] = [
-        "France": "🇫🇷", "Angleterre": "🇬🇧", "Espagne": "🇪🇸", "Allemagne": "🇩🇪",
-        "Italie": "🇮🇹", "Portugal": "🇵🇹", "Pays-Bas": "🇳🇱", "Belgique": "🇧🇪",
-        "Brésil": "🇧🇷", "Argentine": "🇦🇷", "Uruguay": "🇺🇾", "Colombie": "🇨🇴",
-        "États-Unis": "🇺🇸", "Canada": "🇨🇦", "Mexique": "🇲🇽", "Sénégal": "🇸🇳",
-        "Côte d'Ivoire": "🇨🇮", "Cameroun": "🇨🇲", "Nigeria": "🇳🇬", "Maroc": "🇲🇦",
-        "Algérie": "🇩🇿", "Tunisie": "🇹🇳", "Égypte": "🇪🇬", "Japon": "🇯🇵",
-        "Corée du Sud": "🇰🇷", "Australie": "🇦🇺", "Émirats Arabes Unis": "🇦🇪",
-        "Arabie Saoudite": "🇸🇦", "Turquie": "🇹🇷", "Croatie": "🇭🇷", "Suède": "🇸🇪",
-        "Norvège": "🇳🇴", "Danemark": "🇩🇰"
-    ]
-    return flags[nation] ?? "🏳️"
-}
-
 private struct FDFlagChoice: View {
     let flag: String
     let name: String
@@ -712,16 +732,17 @@ private struct FDClubChoiceRow: View {
                     RoundedRectangle(cornerRadius: 8)
                         .fill(selected ? FDTheme.primary.opacity(0.2) : Color.white.opacity(0.06))
                         .frame(width: 36, height: 36)
-                    Image(systemName: "soccerball")
-                        .font(.system(size: 14))
-                        .foregroundStyle(selected ? FDTheme.primary : .secondary)
+                    Text(fdFlag(for: club.country))
+                        .font(.system(size: 19))
                 }
                 VStack(alignment: .leading, spacing: 3) {
                     Text(club.name)
                         .font(FDFont.body(14, black: selected))
                         .foregroundStyle(selected ? FDTheme.textPrimary : FDTheme.textMuted)
-                    Text("\(club.country) · \(club.leagueName)")
+                        .fixedSize(horizontal: false, vertical: true)
+                    Text("\(club.city) · \(club.leagueName)")
                         .font(.caption).foregroundStyle(.secondary)
+                        .fixedSize(horizontal: false, vertical: true)
                 }
                 Spacer()
                 Text(club.tier.rawValue)
@@ -856,29 +877,6 @@ private struct FDCreationStepHeader: View {
             Spacer()
         }
         .padding(.vertical, 8)
-    }
-}
-
-private struct FDCreationField: View {
-    let label: String
-    @Binding var text: String
-    var placeholder: String = ""
-
-    var body: some View {
-        VStack(alignment: .leading, spacing: 4) {
-            Text(label.uppercased())
-                .font(.system(size: 9, weight: .bold))
-                .foregroundStyle(FDTheme.primary.opacity(0.7))
-            TextField(placeholder, text: $text)
-                .font(FDFont.body(15))
-                .foregroundStyle(FDTheme.textPrimary)
-                .padding(.horizontal, 12).padding(.vertical, 10)
-                .background(FDTheme.bg.opacity(0.6), in: RoundedRectangle(cornerRadius: FDTheme.radiusMD))
-                .overlay(
-                    RoundedRectangle(cornerRadius: FDTheme.radiusMD)
-                        .stroke(Color.white.opacity(0.12), lineWidth: 1)
-                )
-        }
     }
 }
 

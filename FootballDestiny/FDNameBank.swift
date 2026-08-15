@@ -83,4 +83,18 @@ enum FDNameBank {
         let last = pool.last.randomElement() ?? "Martin"
         return (first, last)
     }
+
+    /// Birth city, drawn from the real cities the club database already knows for that
+    /// country — no second list to keep in sync, and the result is always plausible.
+    static func randomCity(for nationality: String) -> String {
+        let cities = Set(FDAllClubs.filter { $0.country == nationality }.map(\.city))
+        if let pick = cities.randomElement() { return pick }
+        return FDAllClubs.randomElement()?.city ?? "Inconnue"
+    }
+
+    /// The full generated identity for a nationality — the player never types any of it.
+    static func identity(for nationality: String) -> (first: String, last: String, city: String) {
+        let name = random(for: nationality)
+        return (name.first, name.last, randomCity(for: nationality))
+    }
 }

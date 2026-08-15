@@ -106,29 +106,50 @@ private struct FDHistoriqueRow: View {
                     .font(FDFont.mono(16, bold: true))
                     .foregroundStyle(FDTheme.primary)
             }
-            VStack(alignment: .leading, spacing: 3) {
+            VStack(alignment: .leading, spacing: 4) {
                 Text("\(player.firstName) \(player.lastName)")
                     .font(FDFont.body(14, black: true))
                     .foregroundStyle(FDTheme.textPrimary)
-                Text("\(player.nationality) · \(player.position.rawValue) · retraité à \(player.age) ans")
+                Text("\(fdFlag(for: player.nationality)) \(player.position.rawValue) · retraité à \(player.age) ans")
                     .font(.caption)
                     .foregroundStyle(.secondary)
+                    .fixedSize(horizontal: false, vertical: true)
+
+                // Career totals at a glance, not just goals.
+                HStack(spacing: 10) {
+                    FDMiniStat(value: "\(player.careerGoals)", label: "buts", color: FDTheme.success)
+                    FDMiniStat(value: "\(player.careerAssists)", label: "passes", color: FDTheme.primary)
+                    FDMiniStat(value: "\(player.careerApps)", label: "matchs", color: FDTheme.accentTeal)
+                    if let best = player.history.map(\.avgRating).max(), best > 0 {
+                        FDMiniStat(value: String(format: "%.1f", best), label: "note max", color: FDTheme.amber)
+                    }
+                }
             }
-            Spacer()
-            VStack(alignment: .trailing, spacing: 2) {
-                Text("\(player.careerGoals)")
-                    .font(FDFont.mono(16, bold: true))
-                    .foregroundStyle(FDTheme.amber)
-                Text("buts")
-                    .font(.caption2)
-                    .foregroundStyle(.secondary)
-            }
+            Spacer(minLength: 4)
             Image(systemName: "chevron.right")
                 .font(.caption.weight(.bold))
                 .foregroundStyle(.secondary)
         }
         .padding(.horizontal, 14)
         .padding(.vertical, 11)
+    }
+}
+
+/// Tiny value-over-label pair used in dense list rows.
+struct FDMiniStat: View {
+    let value: String
+    let label: String
+    var color: Color = FDTheme.primary
+
+    var body: some View {
+        VStack(spacing: 1) {
+            Text(value)
+                .font(FDFont.mono(12, bold: true))
+                .foregroundStyle(color)
+            Text(label)
+                .font(.system(size: 7.5, weight: .bold))
+                .foregroundStyle(.secondary)
+        }
     }
 }
 
@@ -267,7 +288,7 @@ private struct FDSkillRow: View {
                 Text(skill.description)
                     .font(.caption)
                     .foregroundStyle(.secondary)
-                    .lineLimit(2)
+                    .fixedSize(horizontal: false, vertical: true)
             }
             Spacer()
             if owned {
@@ -447,13 +468,14 @@ private struct FDChallengeRow: View {
                             .foregroundStyle(FDTheme.amber)
                     }
                 }
-                Text("\(challenge.era) · \(challenge.nationality) · \(challenge.position.rawValue)")
+                Text("\(challenge.era) · \(fdFlag(for: challenge.nationality)) \(challenge.nationality) · \(challenge.position.rawValue)")
                     .font(.caption)
                     .foregroundStyle(.secondary)
+                    .fixedSize(horizontal: false, vertical: true)
                 Text(challenge.archetype)
                     .font(.caption2)
                     .foregroundStyle(.secondary)
-                    .lineLimit(1)
+                    .fixedSize(horizontal: false, vertical: true)
                 HStack(spacing: 4) {
                     Image(systemName: "target")
                         .font(.system(size: 8))
@@ -492,5 +514,237 @@ private struct FDChallengeRow: View {
         }
         .padding(.horizontal, 14)
         .padding(.vertical, 12)
+    }
+}
+
+// MARK: - Classement (local hall of fame)
+//
+// There is no account and no server, so this ranks every career finished on this device
+// against each other. Ordering comes from FDGameEngine.careerRankScore, which weighs
+// honours above raw output: Ballon d'Or, then international titles, then league and cup
+// silverware, then caps and goals.
+
+struct FDClassementView: View {
+    @ObservedObject var engine: FDGameEngine
+    @Environment(\.dismiss) private var dismiss
+
+    var body: some View {
+        NavigationView {
+            Group {
+                if engine.leaderboard.isEmpty {
+                    VStack(spacing: 12) {
+                        Image(systemName: "list.number")
+                            .font(.system(size: 40))
+                            .foregroundStyle(.secondary)
+                        Text("Aucune carrière classée pour l'instant.")
+                            .font(.subheadline)
+                            .foregroundStyle(.secondary)
+                        Text("Termine une carrière pour entrer au classement.")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                    }
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                } else {
+                    ScrollView {
+                        VStack(spacing: 12) {
+                            VStack(spacing: 0) {
+                                HStack(spacing: 6) {
+                                    Image(systemName: "info.circle.fill")
+                                        .font(.caption.weight(.bold))
+                                        .foregroundStyle(FDTheme.primary)
+                                    Text("COMMENT C'EST CLASSÉ")
+                                        .font(FDFont.body(11, black: true))
+                                        .foregroundStyle(FDTheme.primary)
+                                    Spacer()
+                                }
+                                .padding(.horizontal, 14).padding(.vertical, 8)
+                                .background(FDTheme.primary.opacity(0.07))
+                                Rectangle().fill(Color.white.opacity(0.06)).frame(height: 1)
+                                Text("Les 100 meilleures carrières terminées sur cet appareil. Le Ballon d'Or pèse le plus lourd, puis les titres internationaux, les titres de champion et de coupe, puis les sélections et les buts.")
+                                    .font(.caption)
+                                    .foregroundStyle(.secondary)
+                                    .fixedSize(horizontal: false, vertical: true)
+                                    .padding(14)
+                            }
+                            .background(FDTheme.card, in: RoundedRectangle(cornerRadius: FDTheme.radiusCard))
+                            .overlay(RoundedRectangle(cornerRadius: FDTheme.radiusCard).stroke(Color.white.opacity(0.07), lineWidth: 1))
+
+                            VStack(spacing: 0) {
+                                ForEach(Array(engine.leaderboard.enumerated()), id: \.offset) { idx, p in
+                                    NavigationLink {
+                                        ScrollView {
+                                            FDCareerSummaryCard(player: p).padding()
+                                        }
+                                        .background(FDTheme.bg)
+                                        .navigationTitle("\(p.firstName) \(p.lastName)")
+                                        .navigationBarTitleDisplayMode(.inline)
+                                    } label: {
+                                        FDClassementRow(player: p, rank: idx + 1, score: engine.careerRankScore(p))
+                                    }
+                                    .buttonStyle(FDRowButtonStyle())
+                                    if idx < engine.leaderboard.count - 1 {
+                                        Rectangle().fill(Color.white.opacity(0.04)).frame(height: 1)
+                                    }
+                                }
+                            }
+                            .background(FDTheme.card, in: RoundedRectangle(cornerRadius: FDTheme.radiusCard))
+                            .overlay(RoundedRectangle(cornerRadius: FDTheme.radiusCard).stroke(Color.white.opacity(0.07), lineWidth: 1))
+                        }
+                        .padding(.horizontal, 14)
+                        .padding(.bottom, 20)
+                    }
+                }
+            }
+            .background(FDTheme.bg)
+            .navigationTitle("Classement")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .cancellationAction) {
+                    Button("Fermer") { dismiss() }
+                }
+            }
+        }
+        .navigationViewStyle(.stack)
+    }
+}
+
+private struct FDClassementRow: View {
+    let player: FDPlayer
+    let rank: Int
+    let score: Int
+
+    private var medalColor: Color {
+        switch rank {
+        case 1: return FDTheme.amber
+        case 2: return Color(white: 0.75)
+        case 3: return Color(red: 0.80, green: 0.50, blue: 0.20)
+        default: return FDTheme.primary
+        }
+    }
+
+    private var displayName: String {
+        player.alias.isEmpty ? "\(player.firstName) \(player.lastName)" : player.alias
+    }
+
+    var body: some View {
+        HStack(spacing: 12) {
+            ZStack {
+                RoundedRectangle(cornerRadius: 10)
+                    .fill(medalColor.opacity(rank <= 3 ? 0.22 : 0.12))
+                    .frame(width: 40, height: 40)
+                Text("\(rank)")
+                    .font(FDFont.mono(rank >= 100 ? 13 : 16, bold: true))
+                    .foregroundStyle(medalColor)
+            }
+
+            VStack(alignment: .leading, spacing: 4) {
+                HStack(spacing: 5) {
+                    Text(displayName)
+                        .font(FDFont.body(14, black: true))
+                        .foregroundStyle(FDTheme.textPrimary)
+                        .lineLimit(1)
+                    if !player.alias.isEmpty {
+                        Text("\(player.firstName) \(player.lastName)")
+                            .font(.caption2)
+                            .foregroundStyle(.secondary)
+                            .lineLimit(1)
+                    }
+                }
+                Text("\(fdFlag(for: player.nationality)) \(player.position.rawValue) · \(player.club.name)")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                    .fixedSize(horizontal: false, vertical: true)
+
+                HStack(spacing: 10) {
+                    let ballons = player.awardCounts[FDAward.ballonDor.rawValue] ?? 0
+                    if ballons > 0 { FDMiniStat(value: "\(ballons)", label: "B. d'Or", color: FDTheme.amber) }
+                    if player.leagueTitles > 0 { FDMiniStat(value: "\(player.leagueTitles)", label: "titres", color: FDTheme.amber) }
+                    if player.cupTitles > 0 { FDMiniStat(value: "\(player.cupTitles)", label: "coupes", color: FDTheme.accentTeal) }
+                    FDMiniStat(value: "\(player.careerGoals)", label: "buts", color: FDTheme.success)
+                    FDMiniStat(value: "\(player.nationalCaps)", label: "sél.", color: FDTheme.primary)
+                }
+            }
+
+            Spacer(minLength: 4)
+
+            VStack(alignment: .trailing, spacing: 1) {
+                Text("\(score)")
+                    .font(FDFont.mono(14, bold: true))
+                    .foregroundStyle(medalColor)
+                Text("PTS")
+                    .font(.system(size: 7.5, weight: .bold))
+                    .foregroundStyle(.secondary)
+            }
+        }
+        .padding(.horizontal, 14)
+        .padding(.vertical, 11)
+    }
+}
+
+// MARK: - Alias prompt shown once a career is over
+
+struct FDAliasPromptCard: View {
+    @ObservedObject var engine: FDGameEngine
+    @State private var alias = ""
+    @State private var saved = false
+
+    var body: some View {
+        VStack(spacing: 0) {
+            HStack(spacing: 6) {
+                Image(systemName: "list.number")
+                    .font(.caption.weight(.bold))
+                    .foregroundStyle(FDTheme.amber)
+                Text("ENTRER AU CLASSEMENT")
+                    .font(FDFont.body(11, black: true))
+                    .foregroundStyle(FDTheme.amber)
+                Spacer()
+            }
+            .padding(.horizontal, 14).padding(.vertical, 8)
+            .background(FDTheme.amber.opacity(0.08))
+            Rectangle().fill(Color.white.opacity(0.06)).frame(height: 1)
+
+            if saved {
+                HStack(spacing: 8) {
+                    Image(systemName: "checkmark.circle.fill")
+                        .foregroundStyle(FDTheme.success)
+                    Text("Carrière signée « \(alias) ».")
+                        .font(FDFont.body(13))
+                        .foregroundStyle(FDTheme.textPrimary)
+                    Spacer()
+                }
+                .padding(14)
+            } else {
+                VStack(alignment: .leading, spacing: 10) {
+                    Text("Choisis un pseudo pour signer cette carrière au classement. Tu peux aussi laisser le nom du joueur.")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .fixedSize(horizontal: false, vertical: true)
+
+                    TextField("Ton pseudo", text: $alias)
+                        .font(FDFont.body(15))
+                        .foregroundStyle(FDTheme.textPrimary)
+                        .padding(.horizontal, 12).padding(.vertical, 10)
+                        .background(FDTheme.bg.opacity(0.6), in: RoundedRectangle(cornerRadius: FDTheme.radiusMD))
+                        .overlay(
+                            RoundedRectangle(cornerRadius: FDTheme.radiusMD)
+                                .stroke(Color.white.opacity(0.12), lineWidth: 1)
+                        )
+
+                    Button {
+                        FDHaptics.success()
+                        engine.setAliasForLatestCareer(alias)
+                        withAnimation(.fdSoft) { saved = true }
+                    } label: {
+                        Text("Signer ma carrière")
+                    }
+                    .buttonStyle(FDPrimaryButtonStyle())
+                    .disabled(alias.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
+                    .opacity(alias.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ? 0.5 : 1)
+                }
+                .padding(14)
+            }
+        }
+        .background(FDTheme.card, in: RoundedRectangle(cornerRadius: FDTheme.radiusCard))
+        .overlay(RoundedRectangle(cornerRadius: FDTheme.radiusCard).stroke(FDTheme.amber.opacity(0.22), lineWidth: 1))
     }
 }

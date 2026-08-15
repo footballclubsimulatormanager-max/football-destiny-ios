@@ -262,6 +262,52 @@ final class FDGameEngine: ObservableObject {
         return min(14, score)
     }
 
+    // MARK: - Leaderboard
+    //
+    // There is no account and no server, so this is a local hall of fame: every career
+    // finished on this device, ranked against each other. Ordering follows the weight the
+    // game gives each achievement — Ballon d'Or first, then international titles, league
+    // and cup silverware, then caps and raw output.
+
+    /// Ranking score for the leaderboard. Deliberately different from `legendScore`: it
+    /// leans harder on honours than on goal tallies, so a decorated career outranks a
+    /// prolific but trophyless one.
+    func careerRankScore(_ p: FDPlayer) -> Int {
+        let ballon = p.awardCounts[FDAward.ballonDor.rawValue] ?? 0
+        let soulier = p.awardCounts[FDAward.soulierDor.rawValue] ?? 0
+        let international = p.awardCounts["Titre international"] ?? 0
+        let revelation = p.awardCounts[FDAward.revelation.rawValue] ?? 0
+
+        return ballon * 500
+            + international * 350
+            + p.leagueTitles * 120
+            + p.cupTitles * 90
+            + soulier * 150
+            + revelation * 40
+            + p.nationalCaps * 3
+            + p.careerGoals * 2
+            + p.careerAssists
+            + p.cond.reputation
+    }
+
+    /// Archived careers ranked best-first, capped at the top 100.
+    var leaderboard: [FDPlayer] {
+        archivedCareers
+            .sorted { careerRankScore($0) > careerRankScore($1) }
+            .prefix(100)
+            .map { $0 }
+    }
+
+    /// Sets the handle on the most recently finished career and re-persists the archive.
+    func setAliasForLatestCareer(_ alias: String) {
+        let trimmed = alias.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmed.isEmpty, !archivedCareers.isEmpty else { return }
+        archivedCareers[0].alias = String(trimmed.prefix(18))
+        if let data = try? JSONEncoder().encode(archivedCareers) {
+            UserDefaults.standard.set(data, forKey: Self.archiveKey)
+        }
+    }
+
     /// A larger composite score used to compare a career against a Défi Gloire du Passé target.
     private func legendScore(for p: FDPlayer) -> Int {
         p.careerGoals * 2 + p.careerAssists + p.leagueTitles * 15 + p.cupTitles * 10
@@ -822,7 +868,7 @@ final class FDGameEngine: ObservableObject {
                                           avgRating: (avgForm * 10).rounded() / 10), at: 0)
 
         var summary: [String] = [
-            "Saison \(p.calendar.season) terminée : \(p.seasonMatches) match(s), \(p.seasonGoals) but(s), \(p.seasonAssists) passe(s) décisive(s).",
+            "Saison \(fdSeasonLabel(p.calendar.season)) terminée : \(p.seasonMatches) match(s), \(p.seasonGoals) but(s), \(p.seasonAssists) passe(s) décisive(s).",
             "Note moyenne : \(p.seasonForm.isEmpty ? "—" : String(format: "%.1f", avgForm))/10.",
         ]
 
