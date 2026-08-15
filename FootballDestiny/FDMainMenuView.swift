@@ -119,31 +119,38 @@ struct FDMainMenuView: View {
         .sheet(isPresented: $showClassement) { FDClassementView(engine: engine) }
     }
 
+    /// The brand lockup, centred: the mark, then "FCS" in the display italic under a
+    /// gradient with "DESTINY" letterspaced beneath it. The info button is overlaid rather
+    /// than placed in the row, so it can't pull the lockup off centre.
     private var topBar: some View {
-        HStack {
-            HStack(spacing: 8) {
-                FDLogoBadge(size: 34, corner: 9)
+        HStack(spacing: 10) {
+            FDLogoBadge(size: 38, corner: 10)
 
-                Text("FCS-DESTINY")
-                    .font(.caption.weight(.heavy))
-                    .tracking(1)
-                    .foregroundStyle(.white.opacity(0.8))
+            VStack(alignment: .leading, spacing: -1) {
+                Text("FCS")
+                    .font(FDFont.display(24))
+                    .foregroundStyle(FDTheme.primaryTextGradient)
+                Text("DESTINY")
+                    .font(FDFont.body(9, black: true))
+                    .tracking(5.5)
+                    .foregroundStyle(.white.opacity(0.55))
             }
-
-            Spacer()
-
+        }
+        .frame(maxWidth: .infinity)
+        .overlay(alignment: .trailing) {
             Button {
                 showAbout = true
             } label: {
                 Image(systemName: "info.circle")
-                    .font(.system(size: 18, weight: .semibold))
-                    .foregroundStyle(.white.opacity(0.7))
-                    .frame(width: 34, height: 34)
+                    .font(.system(size: 17, weight: .semibold))
+                    .foregroundStyle(.white.opacity(0.65))
+                    .frame(width: 32, height: 32)
                     .background(Color.white.opacity(0.06), in: Circle())
             }
         }
         .padding(.horizontal, 20)
-        .padding(.top, 8)
+        .padding(.top, 10)
+        .padding(.bottom, 2)
     }
 
     private var potentialStarsUnlocked: Int {
@@ -170,21 +177,17 @@ struct FDMainMenuView: View {
     /// Compact identity block — small logo, a short label, a personal greeting and a one-line
     /// status — in place of the previous full-width hero card with a giant centered logo.
     private var greetingHeader: some View {
-        VStack(alignment: .leading, spacing: 14) {
-            HStack(spacing: 14) {
-                FDLogoBadge(size: 52, corner: 15)
-
-                VStack(alignment: .leading, spacing: 2) {
-                    Text("SIMULATEUR DE CARRIÈRE")
-                        .font(.caption2.weight(.bold))
-                        .tracking(2)
-                        .foregroundStyle(FDTheme.primary)
-                    Text(greetingName.map { "Bonjour, \($0)" } ?? "Bonjour")
-                        .font(FDFont.display(23))
-                        .foregroundStyle(.white)
-                }
-                Spacer(minLength: 0)
+        VStack(alignment: .leading, spacing: 12) {
+            VStack(alignment: .leading, spacing: 2) {
+                Text("SIMULATEUR DE CARRIÈRE")
+                    .font(.caption2.weight(.bold))
+                    .tracking(2)
+                    .foregroundStyle(FDTheme.primary)
+                Text(greetingName.map { "Bonjour, \($0)" } ?? "Bonjour")
+                    .font(FDFont.display(25))
+                    .foregroundStyle(.white)
             }
+            .frame(maxWidth: .infinity, alignment: .leading)
 
             HStack(spacing: 6) {
                 Image(systemName: statusLine.icon)
