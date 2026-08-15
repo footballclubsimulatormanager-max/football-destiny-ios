@@ -282,20 +282,20 @@ private struct FDAttrBar: View {
     var color: Color = FDTheme.primary
 
     var body: some View {
-        HStack(spacing: 6) {
+        HStack(spacing: 3) {
             Text(label)
-                .font(.system(size: 10.5))
+                .font(.system(size: 9))
                 .foregroundStyle(.secondary)
                 .lineLimit(1)
-                .minimumScaleFactor(0.75)
-            Spacer(minLength: 2)
+                .minimumScaleFactor(0.6)
+            Spacer(minLength: 1)
             Text("\(value)")
-                .font(FDFont.mono(12, bold: true))
+                .font(FDFont.mono(11, bold: true))
                 .foregroundStyle(FDTheme.statColor(value))
                 .animation(.fdSoft, value: value)
         }
-        .padding(.horizontal, 8)
-        .padding(.vertical, 5)
+        .padding(.horizontal, 5)
+        .padding(.vertical, 3.5)
         .background(Color.white.opacity(0.04), in: RoundedRectangle(cornerRadius: FDTheme.radiusMD))
     }
 }
@@ -306,6 +306,13 @@ private let fdStatColumns = [
     GridItem(.flexible(), spacing: 6),
 ]
 
+/// Three columns, used where a whole category has to fit without scrolling.
+private let fdStatColumnsWide = [
+    GridItem(.flexible(), spacing: 4),
+    GridItem(.flexible(), spacing: 4),
+    GridItem(.flexible(), spacing: 4),
+]
+
 /// Compact condition pill — inline in a row
 private struct FDCondPill: View {
     let label: String
@@ -313,13 +320,15 @@ private struct FDCondPill: View {
     var color: Color
 
     var body: some View {
-        VStack(spacing: 2) {
+        VStack(spacing: 1) {
             Text("\(value)")
-                .font(FDFont.mono(16, bold: true))
+                .font(FDFont.mono(13, bold: true))
                 .foregroundStyle(color)
             Text(label.uppercased())
-                .font(.system(size: 8, weight: .bold))
+                .font(.system(size: 7, weight: .bold))
                 .foregroundStyle(.secondary)
+                .lineLimit(1)
+                .minimumScaleFactor(0.7)
         }
         .frame(maxWidth: .infinity)
     }
@@ -1052,7 +1061,7 @@ struct FDCarriereTab: View {
                                     .padding(7)
                                 }
                             }
-                            .frame(height: min(248, geo.size.height * 0.36))
+                            .frame(height: min(268, geo.size.height * 0.40))
                             .background(FDTheme.card.opacity(0.6), in: RoundedRectangle(cornerRadius: FDTheme.radiusCard))
                             .overlay(
                                 RoundedRectangle(cornerRadius: FDTheme.radiusCard)
@@ -1144,58 +1153,51 @@ struct FDCarriereTab: View {
 
     // MARK: Stats content — condition pills + attribute bars
 
+    /// Everything about the player's shape, sized to fit the player box without scrolling:
+    /// one card, a condition strip, then all sixteen attributes in a three-column grid with
+    /// thin category separators instead of four stacked sub-cards.
     private func statsContent(_ p: FDPlayer) -> some View {
-        VStack(spacing: 8) {
-            // Condition section
-            VStack(spacing: 0) {
-                FDSectionHeader(icon: "waveform.path.ecg", title: "Condition", color: FDTheme.primary)
-                    .padding(.horizontal, 14).padding(.vertical, 8)
+        let orderedCats = [FDAttrCategory.tech, .phys, .ment, .def]
+            .sorted { p.position.weights.value(for: $0) > p.position.weights.value(for: $1) }
 
-                Rectangle().fill(Color.white.opacity(0.06)).frame(height: 1)
-
-                HStack(spacing: 0) {
-                    FDCondPill(label: "Forme", value: p.cond.forme, color: FDTheme.primary)
-                    Rectangle().fill(Color.white.opacity(0.08)).frame(width: 1, height: 36)
-                    FDCondPill(label: "Moral", value: p.cond.moral, color: .blue)
-                    Rectangle().fill(Color.white.opacity(0.08)).frame(width: 1, height: 36)
-                    FDCondPill(label: "Confiance", value: p.cond.confiance, color: FDTheme.accentTeal)
-                    Rectangle().fill(Color.white.opacity(0.08)).frame(width: 1, height: 36)
-                    FDCondPill(label: "Fatigue", value: p.cond.fatigue, color: .orange)
-                }
-                .padding(.vertical, 10)
+        return VStack(spacing: 0) {
+            HStack(spacing: 0) {
+                FDCondPill(label: "Forme", value: p.cond.forme, color: FDTheme.primary)
+                Rectangle().fill(Color.white.opacity(0.08)).frame(width: 1, height: 24)
+                FDCondPill(label: "Moral", value: p.cond.moral, color: .blue)
+                Rectangle().fill(Color.white.opacity(0.08)).frame(width: 1, height: 24)
+                FDCondPill(label: "Confiance", value: p.cond.confiance, color: FDTheme.accentTeal)
+                Rectangle().fill(Color.white.opacity(0.08)).frame(width: 1, height: 24)
+                FDCondPill(label: "Fatigue", value: p.cond.fatigue, color: .orange)
             }
-            .fdCardSurface()
-
-            // Attributes by category (ordered by position weight)
-            let orderedCats = [FDAttrCategory.tech, .phys, .ment, .def]
-                .sorted { p.position.weights.value(for: $0) > p.position.weights.value(for: $1) }
+            .padding(.vertical, 6)
 
             ForEach(Array(orderedCats.enumerated()), id: \.element) { idx, cat in
                 let catAttrs = FDAttribute.allCases.filter { $0.category == cat }
                 let catColor: Color = fdAttrCategoryColor(cat)
 
-                VStack(spacing: 0) {
-                    FDSectionHeader(
-                        icon: fdAttrCategoryIcon(cat),
-                        title: cat.label + (idx == 0 ? " · Clé" : ""),
-                        badge: nil,
-                        color: catColor
-                    )
-                    .padding(.horizontal, 14).padding(.vertical, 8)
+                Rectangle().fill(Color.white.opacity(0.06)).frame(height: 1)
 
-                    Rectangle().fill(Color.white.opacity(0.06)).frame(height: 1)
-
-                    LazyVGrid(columns: fdStatColumns, spacing: 6) {
-                        ForEach(catAttrs, id: \.self) { attr in
-                            FDAttrBar(label: attr.label, value: p.attr(attr), color: catColor)
-                        }
-                    }
-                    .padding(.horizontal, 8).padding(.vertical, 7)
+                HStack(spacing: 4) {
+                    Image(systemName: fdAttrCategoryIcon(cat))
+                        .font(.system(size: 8, weight: .bold))
+                    Text(cat.label.uppercased() + (idx == 0 ? " · CLÉ" : ""))
+                        .font(.system(size: 8, weight: .black))
+                    Spacer()
                 }
-                .fdCardSurface()
+                .foregroundStyle(catColor)
+                .padding(.horizontal, 8).padding(.vertical, 3)
+                .background(FDTheme.headerWash(catColor))
+
+                LazyVGrid(columns: fdStatColumnsWide, spacing: 3) {
+                    ForEach(catAttrs, id: \.self) { attr in
+                        FDAttrBar(label: attr.label, value: p.attr(attr), color: catColor)
+                    }
+                }
+                .padding(.horizontal, 6).padding(.vertical, 4)
             }
         }
-        .padding(.top, 4)
+        .fdCardSurface()
     }
 
     // MARK: Palmarès content

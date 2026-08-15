@@ -690,26 +690,38 @@ private struct FDFlagChoice: View {
 
     var body: some View {
         Button(action: action) {
-            VStack(spacing: 4) {
+            // The flag fills the tile: scaled up and clipped to the rounded rect, with the
+            // country name laid over a dark scrim at the bottom so it stays readable.
+            ZStack(alignment: .bottom) {
                 Text(flag)
-                    .font(.system(size: 32))
+                    .font(.system(size: 64))
+                    .minimumScaleFactor(0.1)
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    .scaleEffect(1.35)
+                    .clipped()
+
                 Text(name)
-                    .font(FDFont.body(10, black: selected))
-                    .foregroundStyle(selected ? FDTheme.textPrimary : FDTheme.textMuted)
-                    .lineLimit(2)
-                    .multilineTextAlignment(.center)
-                    .minimumScaleFactor(0.8)
+                    .font(FDFont.body(9.5, black: true))
+                    .foregroundStyle(.white)
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.6)
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 3)
+                    .background(
+                        LinearGradient(
+                            colors: [Color.black.opacity(0.35), Color.black.opacity(0.75)],
+                            startPoint: .top, endPoint: .bottom
+                        )
+                    )
             }
-            .frame(maxWidth: .infinity)
-            .padding(.vertical, 9)
-            .background(
-                RoundedRectangle(cornerRadius: 12, style: .continuous)
-                    .fill(selected ? FDTheme.primary.opacity(0.16) : Color.white.opacity(0.05))
-            )
+            .frame(height: 52)
+            .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
             .overlay(
-                RoundedRectangle(cornerRadius: 12, style: .continuous)
-                    .stroke(selected ? FDTheme.primary : Color.white.opacity(0.08), lineWidth: selected ? 1.5 : 1)
+                RoundedRectangle(cornerRadius: 10, style: .continuous)
+                    .stroke(selected ? FDTheme.primary : Color.white.opacity(0.12),
+                            lineWidth: selected ? 2.5 : 1)
             )
+            .shadow(color: selected ? FDTheme.primary.opacity(0.45) : .clear, radius: 6)
         }
         .buttonStyle(FDChoiceButtonStyle())
         .animation(.fdSnap, value: selected)
