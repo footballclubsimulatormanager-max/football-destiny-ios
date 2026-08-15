@@ -221,8 +221,7 @@ struct FDCareerCreationView: View {
                         }
                         .padding(11)
                     }
-                    .background(FDTheme.card, in: RoundedRectangle(cornerRadius: FDTheme.radiusCard))
-                    .overlay(RoundedRectangle(cornerRadius: FDTheme.radiusCard).stroke(Color.white.opacity(0.07), lineWidth: 1))
+                    .fdCardSurface()
 
                     // Nationality — big flags filling each cell, not a text list
                     VStack(spacing: 0) {
@@ -239,8 +238,7 @@ struct FDCareerCreationView: View {
                         }
                         .padding(11)
                     }
-                    .background(FDTheme.card, in: RoundedRectangle(cornerRadius: FDTheme.radiusCard))
-                    .overlay(RoundedRectangle(cornerRadius: FDTheme.radiusCard).stroke(Color.white.opacity(0.07), lineWidth: 1))
+                    .fdCardSurface()
 
                     // Pied fort
                     VStack(spacing: 0) {
@@ -258,8 +256,7 @@ struct FDCareerCreationView: View {
                             }
                         }
                     }
-                    .background(FDTheme.card, in: RoundedRectangle(cornerRadius: FDTheme.radiusCard))
-                    .overlay(RoundedRectangle(cornerRadius: FDTheme.radiusCard).stroke(Color.white.opacity(0.07), lineWidth: 1))
+                    .fdCardSurface()
                 }
                 .padding(.horizontal, 14)
                 .padding(.top, 8)
@@ -298,8 +295,7 @@ struct FDCareerCreationView: View {
                             }
                         }
                     }
-                    .background(FDTheme.card, in: RoundedRectangle(cornerRadius: FDTheme.radiusCard))
-                    .overlay(RoundedRectangle(cornerRadius: FDTheme.radiusCard).stroke(Color.white.opacity(0.07), lineWidth: 1))
+                    .fdCardSurface()
                 }
                 .padding(.horizontal, 14)
                 .padding(.top, 8)
@@ -336,8 +332,7 @@ struct FDCareerCreationView: View {
                             }
                         }
                     }
-                    .background(FDTheme.card, in: RoundedRectangle(cornerRadius: FDTheme.radiusCard))
-                    .overlay(RoundedRectangle(cornerRadius: FDTheme.radiusCard).stroke(Color.white.opacity(0.07), lineWidth: 1))
+                    .fdCardSurface()
                 }
                 .padding(.horizontal, 14)
                 .padding(.top, 8)
@@ -387,8 +382,7 @@ struct FDCareerCreationView: View {
                             .frame(maxWidth: .infinity, alignment: .leading)
                             .padding(.horizontal, 14).padding(.vertical, 9)
                     }
-                    .background(FDTheme.card, in: RoundedRectangle(cornerRadius: FDTheme.radiusCard))
-                    .overlay(RoundedRectangle(cornerRadius: FDTheme.radiusCard).stroke(Color.white.opacity(0.07), lineWidth: 1))
+                    .fdCardSurface()
 
                     // Style de jeu
                     VStack(spacing: 0) {
@@ -416,8 +410,7 @@ struct FDCareerCreationView: View {
                             .frame(maxWidth: .infinity, alignment: .leading)
                             .padding(.horizontal, 14).padding(.vertical, 9)
                     }
-                    .background(FDTheme.card, in: RoundedRectangle(cornerRadius: FDTheme.radiusCard))
-                    .overlay(RoundedRectangle(cornerRadius: FDTheme.radiusCard).stroke(Color.white.opacity(0.07), lineWidth: 1))
+                    .fdCardSurface()
                 }
                 .padding(.horizontal, 14)
                 .padding(.top, 8)
@@ -490,7 +483,7 @@ struct FDCareerCreationView: View {
                             }
                             .padding(14)
                         }
-                        .background(FDTheme.card, in: RoundedRectangle(cornerRadius: FDTheme.radiusCard))
+                        .fdCardSurface()
                         .overlay(RoundedRectangle(cornerRadius: FDTheme.radiusCard).stroke(FDTheme.amber.opacity(0.2), lineWidth: 1))
                     }
                 }
@@ -561,8 +554,7 @@ struct FDCareerCreationView: View {
                         }
                         .padding(.vertical, 10)
                     }
-                    .background(FDTheme.card, in: RoundedRectangle(cornerRadius: FDTheme.radiusCard))
-                    .overlay(RoundedRectangle(cornerRadius: FDTheme.radiusCard).stroke(Color.white.opacity(0.07), lineWidth: 1))
+                    .fdCardSurface()
 
                     // Club picker
                     VStack(spacing: 0) {
@@ -575,8 +567,7 @@ struct FDCareerCreationView: View {
                             Rectangle().fill(Color.white.opacity(0.04)).frame(height: 1)
                         }
                     }
-                    .background(FDTheme.card, in: RoundedRectangle(cornerRadius: FDTheme.radiusCard))
-                    .overlay(RoundedRectangle(cornerRadius: FDTheme.radiusCard).stroke(Color.white.opacity(0.07), lineWidth: 1))
+                    .fdCardSurface()
                 }
                 .padding(.horizontal, 14)
                 .padding(.top, 8)

@@ -151,7 +151,7 @@ private struct FDSectionHeader: View {
         }
         .padding(.horizontal, 10)
         .padding(.vertical, 5)
-        .background(color.opacity(0.09), in: RoundedRectangle(cornerRadius: FDTheme.radiusMD))
+        .background(FDTheme.headerWash(color), in: RoundedRectangle(cornerRadius: FDTheme.radiusMD))
     }
 }
 
@@ -194,11 +194,7 @@ private struct FDStatsGrid: View {
                 }
             }
         }
-        .background(FDTheme.card, in: RoundedRectangle(cornerRadius: FDTheme.radiusCard))
-        .overlay(
-            RoundedRectangle(cornerRadius: FDTheme.radiusCard)
-                .stroke(Color.white.opacity(0.06), lineWidth: 1)
-        )
+        .fdCardSurface()
     }
 }
 
@@ -269,6 +265,9 @@ struct FDSeasonTable: View {
 }
 
 /// Compact attribute bar row — FCSManager style with thin progress bar
+/// One statistic as a name and a figure — no progress bar. The bar carried no
+/// information the number didn't already give and ate the width that lets two stats sit
+/// side by side, so stats now pack into a two-column grid instead of a stack of rows.
 private struct FDAttrBar: View {
     let label: String
     let value: Int
@@ -276,28 +275,29 @@ private struct FDAttrBar: View {
     var color: Color = FDTheme.primary
 
     var body: some View {
-        HStack(spacing: 8) {
+        HStack(spacing: 6) {
             Text(label)
                 .font(.system(size: 10.5))
                 .foregroundStyle(.secondary)
-                .frame(width: 80, alignment: .leading)
-            GeometryReader { geo in
-                ZStack(alignment: .leading) {
-                    Capsule().fill(Color.white.opacity(0.08)).frame(height: 4)
-                    Capsule()
-                        .fill(LinearGradient(colors: [color, color.opacity(0.7)], startPoint: .leading, endPoint: .trailing))
-                        .frame(width: geo.size.width * CGFloat(value) / CGFloat(max), height: 4)
-                        .animation(.fdSoft, value: value)
-                }
-            }
-            .frame(height: 4)
+                .lineLimit(1)
+                .minimumScaleFactor(0.75)
+            Spacer(minLength: 2)
             Text("\(value)")
-                .font(FDFont.mono(10, bold: true))
-                .foregroundStyle(value >= 80 ? FDTheme.success : value >= 60 ? FDTheme.primary : .secondary)
-                .frame(width: 22, alignment: .trailing)
+                .font(FDFont.mono(12, bold: true))
+                .foregroundStyle(FDTheme.statColor(value))
+                .animation(.fdSoft, value: value)
         }
+        .padding(.horizontal, 8)
+        .padding(.vertical, 5)
+        .background(Color.white.opacity(0.04), in: RoundedRectangle(cornerRadius: FDTheme.radiusMD))
     }
 }
+
+/// Two-column layout shared by every stat block, so a category fits in half the height.
+private let fdStatColumns = [
+    GridItem(.flexible(), spacing: 6),
+    GridItem(.flexible(), spacing: 6),
+]
 
 /// Compact condition pill — inline in a row
 private struct FDCondPill: View {
@@ -520,11 +520,7 @@ struct FDStoryCard: View {
                 }
             }
         }
-        .background(FDTheme.card, in: RoundedRectangle(cornerRadius: FDTheme.radiusCard))
-        .overlay(
-            RoundedRectangle(cornerRadius: FDTheme.radiusCard)
-                .stroke(Color.white.opacity(0.07), lineWidth: 1)
-        )
+        .fdCardSurface()
     }
 }
 
@@ -595,11 +591,7 @@ struct FDOutcomeCard: View {
                 .padding(14)
             }
         }
-        .background(FDTheme.card, in: RoundedRectangle(cornerRadius: FDTheme.radiusCard))
-        .overlay(
-            RoundedRectangle(cornerRadius: FDTheme.radiusCard)
-                .stroke(Color.white.opacity(0.07), lineWidth: 1)
-        )
+        .fdCardSurface()
     }
 }
 
@@ -695,11 +687,7 @@ struct FDMatchCard: View {
             }
             .buttonStyle(FDRowButtonStyle())
         }
-        .background(FDTheme.card, in: RoundedRectangle(cornerRadius: FDTheme.radiusCard))
-        .overlay(
-            RoundedRectangle(cornerRadius: FDTheme.radiusCard)
-                .stroke(Color.white.opacity(0.07), lineWidth: 1)
-        )
+        .fdCardSurface()
     }
 }
 
@@ -772,7 +760,7 @@ struct FDSeasonCard: View {
             }
             .buttonStyle(FDRowButtonStyle())
         }
-        .background(FDTheme.card, in: RoundedRectangle(cornerRadius: FDTheme.radiusCard))
+        .fdCardSurface()
         .overlay(
             RoundedRectangle(cornerRadius: FDTheme.radiusCard)
                 .stroke(FDTheme.amber.opacity(0.15), lineWidth: 1)
@@ -838,11 +826,7 @@ struct FDTournamentCard: View {
             }
             .buttonStyle(FDRowButtonStyle())
         }
-        .background(FDTheme.card, in: RoundedRectangle(cornerRadius: FDTheme.radiusCard))
-        .overlay(
-            RoundedRectangle(cornerRadius: FDTheme.radiusCard)
-                .stroke(Color.white.opacity(0.07), lineWidth: 1)
-        )
+        .fdCardSurface()
     }
 }
 
@@ -959,11 +943,7 @@ struct FDCareerSummaryCard: View {
                     .padding(14)
             }
         }
-        .background(FDTheme.card, in: RoundedRectangle(cornerRadius: FDTheme.radiusCard))
-        .overlay(
-            RoundedRectangle(cornerRadius: FDTheme.radiusCard)
-                .stroke(Color.white.opacity(0.07), lineWidth: 1)
-        )
+        .fdCardSurface()
     }
 }
 
@@ -1154,7 +1134,7 @@ struct FDCarriereTab: View {
             }
             .padding(12)
         }
-        .background(FDTheme.card, in: RoundedRectangle(cornerRadius: FDTheme.radiusCard))
+        .fdCardSurface()
         .overlay(RoundedRectangle(cornerRadius: FDTheme.radiusCard).stroke(FDTheme.warning.opacity(0.18), lineWidth: 1))
     }
 
@@ -1178,7 +1158,8 @@ struct FDCarriereTab: View {
                 VStack(spacing: 2) {
                     Text("\(engine.overall(p))")
                         .font(FDFont.mono(26, bold: true))
-                        .foregroundStyle(FDTheme.primary)
+                        .foregroundStyle(FDTheme.primaryTextGradient)
+                                .animation(.fdSoft, value: engine.overall(p))
                     Text("NOTE")
                         .font(.system(size: 8, weight: .bold))
                         .foregroundStyle(FDTheme.primary.opacity(0.7))
@@ -1235,11 +1216,7 @@ struct FDCarriereTab: View {
             }
             .padding(.vertical, 10)
         }
-        .background(FDTheme.card, in: RoundedRectangle(cornerRadius: FDTheme.radiusCard))
-        .overlay(
-            RoundedRectangle(cornerRadius: FDTheme.radiusCard)
-                .stroke(Color.white.opacity(0.07), lineWidth: 1)
-        )
+        .fdCardSurface()
     }
 
     // MARK: Stats content — condition pills + attribute bars
@@ -1264,8 +1241,7 @@ struct FDCarriereTab: View {
                 }
                 .padding(.vertical, 10)
             }
-            .background(FDTheme.card, in: RoundedRectangle(cornerRadius: FDTheme.radiusCard))
-            .overlay(RoundedRectangle(cornerRadius: FDTheme.radiusCard).stroke(Color.white.opacity(0.07), lineWidth: 1))
+            .fdCardSurface()
 
             // Attributes by category (ordered by position weight)
             let orderedCats = [FDAttrCategory.tech, .phys, .ment, .def]
@@ -1286,15 +1262,14 @@ struct FDCarriereTab: View {
 
                     Rectangle().fill(Color.white.opacity(0.06)).frame(height: 1)
 
-                    VStack(spacing: 5) {
+                    LazyVGrid(columns: fdStatColumns, spacing: 6) {
                         ForEach(catAttrs, id: \.self) { attr in
                             FDAttrBar(label: attr.label, value: p.attr(attr), color: catColor)
                         }
                     }
-                    .padding(.horizontal, 10).padding(.vertical, 7)
+                    .padding(.horizontal, 8).padding(.vertical, 7)
                 }
-                .background(FDTheme.card, in: RoundedRectangle(cornerRadius: FDTheme.radiusCard))
-                .overlay(RoundedRectangle(cornerRadius: FDTheme.radiusCard).stroke(Color.white.opacity(0.07), lineWidth: 1))
+                .fdCardSurface()
             }
         }
         .padding(.top, 4)
@@ -1322,8 +1297,7 @@ struct FDCarriereTab: View {
                     Rectangle().fill(Color.white.opacity(0.04)).frame(height: 1)
                 }
             }
-            .background(FDTheme.card, in: RoundedRectangle(cornerRadius: FDTheme.radiusCard))
-            .overlay(RoundedRectangle(cornerRadius: FDTheme.radiusCard).stroke(Color.white.opacity(0.07), lineWidth: 1))
+            .fdCardSurface()
 
             // Career stats grid
             VStack(spacing: 0) {
@@ -1339,8 +1313,7 @@ struct FDCarriereTab: View {
                 ])
                 .padding(12)
             }
-            .background(FDTheme.card, in: RoundedRectangle(cornerRadius: FDTheme.radiusCard))
-            .overlay(RoundedRectangle(cornerRadius: FDTheme.radiusCard).stroke(Color.white.opacity(0.07), lineWidth: 1))
+            .fdCardSurface()
         }
         .padding(.top, 4)
     }
@@ -1388,8 +1361,7 @@ struct FDCarriereTab: View {
                     }
                 }
             }
-            .background(FDTheme.card, in: RoundedRectangle(cornerRadius: FDTheme.radiusCard))
-            .overlay(RoundedRectangle(cornerRadius: FDTheme.radiusCard).stroke(Color.white.opacity(0.07), lineWidth: 1))
+            .fdCardSurface()
 
             // Traits
             if !p.traits.isEmpty {
@@ -1410,8 +1382,7 @@ struct FDCarriereTab: View {
                     }
                     .padding(14)
                 }
-                .background(FDTheme.card, in: RoundedRectangle(cornerRadius: FDTheme.radiusCard))
-                .overlay(RoundedRectangle(cornerRadius: FDTheme.radiusCard).stroke(Color.white.opacity(0.07), lineWidth: 1))
+                .fdCardSurface()
             }
         }
         .padding(.top, 4)
@@ -1448,8 +1419,7 @@ struct FDCarriereTab: View {
                 }
                 .padding(14)
             }
-            .background(FDTheme.card, in: RoundedRectangle(cornerRadius: FDTheme.radiusCard))
-            .overlay(RoundedRectangle(cornerRadius: FDTheme.radiusCard).stroke(Color.white.opacity(0.07), lineWidth: 1))
+            .fdCardSurface()
 
             // Transfer history
             VStack(spacing: 0) {
@@ -1474,8 +1444,7 @@ struct FDCarriereTab: View {
                     }
                 }
             }
-            .background(FDTheme.card, in: RoundedRectangle(cornerRadius: FDTheme.radiusCard))
-            .overlay(RoundedRectangle(cornerRadius: FDTheme.radiusCard).stroke(Color.white.opacity(0.07), lineWidth: 1))
+            .fdCardSurface()
 
             // Season history
             if !p.history.isEmpty {
@@ -1485,8 +1454,7 @@ struct FDCarriereTab: View {
                     Rectangle().fill(Color.white.opacity(0.06)).frame(height: 1)
                     FDSeasonTable(history: p.history)
                 }
-                .background(FDTheme.card, in: RoundedRectangle(cornerRadius: FDTheme.radiusCard))
-                .overlay(RoundedRectangle(cornerRadius: FDTheme.radiusCard).stroke(Color.white.opacity(0.07), lineWidth: 1))
+                .fdCardSurface()
             }
         }
         .padding(.top, 4)
@@ -1522,8 +1490,7 @@ struct FDCarriereTab: View {
                     }
                     .padding(14)
                 }
-                .background(FDTheme.card, in: RoundedRectangle(cornerRadius: FDTheme.radiusCard))
-                .overlay(RoundedRectangle(cornerRadius: FDTheme.radiusCard).stroke(Color.white.opacity(0.07), lineWidth: 1))
+                .fdCardSurface()
             }
 
             if !p.relDict.isEmpty {
@@ -1531,14 +1498,14 @@ struct FDCarriereTab: View {
                     FDSectionHeader(icon: "person.2.fill", title: "Relations", color: FDTheme.accentTeal)
                         .padding(.horizontal, 10).padding(.vertical, 6)
                     Rectangle().fill(Color.white.opacity(0.06)).frame(height: 1)
-                    ForEach(p.relDict.sorted(by: { $0.key < $1.key }), id: \.key) { key, value in
-                        FDAttrBar(label: key.capitalized, value: value, color: FDTheme.accentTeal)
-                            .padding(.horizontal, 14).padding(.vertical, 7)
-                        Rectangle().fill(Color.white.opacity(0.04)).frame(height: 1)
+                    LazyVGrid(columns: fdStatColumns, spacing: 6) {
+                        ForEach(p.relDict.sorted(by: { $0.key < $1.key }), id: \.key) { key, value in
+                            FDAttrBar(label: key.capitalized, value: value, color: FDTheme.accentTeal)
+                        }
                     }
+                    .padding(.horizontal, 8).padding(.vertical, 7)
                 }
-                .background(FDTheme.card, in: RoundedRectangle(cornerRadius: FDTheme.radiusCard))
-                .overlay(RoundedRectangle(cornerRadius: FDTheme.radiusCard).stroke(Color.white.opacity(0.07), lineWidth: 1))
+                .fdCardSurface()
             }
         }
         .padding(.top, 4)
@@ -1644,8 +1611,7 @@ struct FDJournalTab: View {
                                     Rectangle().fill(Color.white.opacity(0.05)).frame(height: 1)
                                 }
                             }
-                            .background(FDTheme.card, in: RoundedRectangle(cornerRadius: FDTheme.radiusCard))
-                            .overlay(RoundedRectangle(cornerRadius: FDTheme.radiusCard).stroke(Color.white.opacity(0.07), lineWidth: 1))
+                            .fdCardSurface()
                             .padding(.horizontal, 14)
                             .padding(.bottom, 20)
                         }
@@ -1729,8 +1695,7 @@ struct FDOptionsTab: View {
                             .font(.caption2).foregroundStyle(.secondary)
                             .padding(.horizontal, 14).padding(.vertical, 8)
                     }
-                    .background(FDTheme.card, in: RoundedRectangle(cornerRadius: FDTheme.radiusCard))
-                    .overlay(RoundedRectangle(cornerRadius: FDTheme.radiusCard).stroke(Color.white.opacity(0.07), lineWidth: 1))
+                    .fdCardSurface()
 
                     VStack(spacing: 0) {
                         FDSectionHeader(icon: "xmark.circle.fill", title: "Abandonner", color: FDTheme.destructive)
@@ -1744,8 +1709,7 @@ struct FDOptionsTab: View {
                             .font(.caption2).foregroundStyle(.secondary)
                             .padding(.horizontal, 14).padding(.vertical, 8)
                     }
-                    .background(FDTheme.card, in: RoundedRectangle(cornerRadius: FDTheme.radiusCard))
-                    .overlay(RoundedRectangle(cornerRadius: FDTheme.radiusCard).stroke(Color.white.opacity(0.07), lineWidth: 1))
+                    .fdCardSurface()
 
                     VStack(spacing: 0) {
                         FDSectionHeader(icon: "info.circle.fill", title: "À propos", color: .secondary)
@@ -1755,8 +1719,7 @@ struct FDOptionsTab: View {
                             .font(.caption).foregroundStyle(.secondary)
                             .padding(14)
                     }
-                    .background(FDTheme.card, in: RoundedRectangle(cornerRadius: FDTheme.radiusCard))
-                    .overlay(RoundedRectangle(cornerRadius: FDTheme.radiusCard).stroke(Color.white.opacity(0.07), lineWidth: 1))
+                    .fdCardSurface()
                 }
                 .padding(.horizontal, 14)
                 .padding(.top, 8)

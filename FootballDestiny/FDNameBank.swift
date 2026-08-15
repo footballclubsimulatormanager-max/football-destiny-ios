@@ -84,12 +84,50 @@ enum FDNameBank {
         return (first, last)
     }
 
-    /// Birth city, drawn from the real cities the club database already knows for that
-    /// country — no second list to keep in sync, and the result is always plausible.
+    /// Ten real cities per country — the birth city is always drawn from the chosen
+    /// nationality's own list, never from another country's. (The club database can't
+    /// serve this: several playable nations have only a handful of clubs in it, and the
+    /// old fallback could land on a city from the wrong country entirely.)
+    private static let cities: [String: [String]] = [
+        "France": ["Paris", "Marseille", "Lyon", "Lille", "Nantes", "Toulouse", "Bordeaux", "Strasbourg", "Rennes", "Nice"],
+        "Angleterre": ["Londres", "Manchester", "Liverpool", "Birmingham", "Leeds", "Newcastle", "Sheffield", "Bristol", "Nottingham", "Southampton"],
+        "Espagne": ["Madrid", "Barcelone", "Séville", "Valence", "Bilbao", "Malaga", "Saragosse", "Grenade", "Vigo", "La Corogne"],
+        "Allemagne": ["Berlin", "Munich", "Hambourg", "Cologne", "Francfort", "Dortmund", "Stuttgart", "Leipzig", "Brême", "Nuremberg"],
+        "Italie": ["Rome", "Milan", "Naples", "Turin", "Florence", "Gênes", "Bologne", "Palerme", "Vérone", "Bari"],
+        "Portugal": ["Lisbonne", "Porto", "Braga", "Coimbra", "Setúbal", "Guimarães", "Aveiro", "Faro", "Funchal", "Évora"],
+        "Pays-Bas": ["Amsterdam", "Rotterdam", "La Haye", "Utrecht", "Eindhoven", "Groningue", "Arnhem", "Nimègue", "Tilburg", "Alkmaar"],
+        "Belgique": ["Bruxelles", "Anvers", "Gand", "Liège", "Bruges", "Charleroi", "Louvain", "Malines", "Ostende", "Genk"],
+        "Brésil": ["São Paulo", "Rio de Janeiro", "Belo Horizonte", "Porto Alegre", "Salvador", "Recife", "Fortaleza", "Curitiba", "Santos", "Belém"],
+        "Argentine": ["Buenos Aires", "Rosario", "Córdoba", "La Plata", "Mendoza", "Santa Fe", "Mar del Plata", "Tucumán", "Avellaneda", "Lanús"],
+        "Uruguay": ["Montevideo", "Salto", "Paysandú", "Maldonado", "Rivera", "Melo", "Tacuarembó", "Mercedes", "Artigas", "Durazno"],
+        "Colombie": ["Bogota", "Medellín", "Cali", "Barranquilla", "Carthagène", "Bucaramanga", "Pereira", "Manizales", "Cúcuta", "Ibagué"],
+        "États-Unis": ["Los Angeles", "New York", "Chicago", "Houston", "Miami", "Atlanta", "Dallas", "Seattle", "Philadelphie", "Denver"],
+        "Canada": ["Toronto", "Montréal", "Vancouver", "Ottawa", "Calgary", "Edmonton", "Québec", "Winnipeg", "Hamilton", "Halifax"],
+        "Mexique": ["Mexico", "Guadalajara", "Monterrey", "Puebla", "Tijuana", "León", "Querétaro", "Toluca", "Pachuca", "Veracruz"],
+        "Sénégal": ["Dakar", "Thiès", "Saint-Louis", "Kaolack", "Ziguinchor", "Rufisque", "Mbour", "Diourbel", "Louga", "Touba"],
+        "Côte d'Ivoire": ["Abidjan", "Bouaké", "Daloa", "Yamoussoukro", "San-Pédro", "Korhogo", "Man", "Gagnoa", "Divo", "Abengourou"],
+        "Cameroun": ["Douala", "Yaoundé", "Garoua", "Bafoussam", "Bamenda", "Maroua", "Ngaoundéré", "Kumba", "Limbé", "Ebolowa"],
+        "Nigeria": ["Lagos", "Abuja", "Kano", "Ibadan", "Port Harcourt", "Enugu", "Kaduna", "Benin City", "Jos", "Ilorin"],
+        "Maroc": ["Casablanca", "Rabat", "Marrakech", "Fès", "Tanger", "Agadir", "Meknès", "Oujda", "Kénitra", "Tétouan"],
+        "Algérie": ["Alger", "Oran", "Constantine", "Annaba", "Sétif", "Blida", "Tlemcen", "Béjaïa", "Batna", "Tizi Ouzou"],
+        "Tunisie": ["Tunis", "Sfax", "Sousse", "Bizerte", "Gabès", "Kairouan", "Gafsa", "Monastir", "Nabeul", "La Marsa"],
+        "Égypte": ["Le Caire", "Alexandrie", "Gizeh", "Port-Saïd", "Suez", "Louxor", "Assouan", "Tanta", "Ismaïlia", "Mansoura"],
+        "Japon": ["Tokyo", "Osaka", "Yokohama", "Nagoya", "Sapporo", "Kobe", "Fukuoka", "Kyoto", "Hiroshima", "Sendai"],
+        "Corée du Sud": ["Séoul", "Busan", "Incheon", "Daegu", "Daejeon", "Gwangju", "Suwon", "Ulsan", "Jeonju", "Pohang"],
+        "Australie": ["Sydney", "Melbourne", "Brisbane", "Perth", "Adélaïde", "Canberra", "Newcastle", "Gold Coast", "Wollongong", "Hobart"],
+        "Émirats Arabes Unis": ["Dubaï", "Abou Dabi", "Charjah", "Al-Aïn", "Ajman", "Ras el Khaïmah", "Foujaïrah", "Oumm al Qaïwaïn", "Khor Fakkan", "Dibba"],
+        "Arabie Saoudite": ["Riyad", "Djeddah", "La Mecque", "Médine", "Dammam", "Taïf", "Tabuk", "Abha", "Buraydah", "Khobar"],
+        "Turquie": ["Istanbul", "Ankara", "Izmir", "Bursa", "Antalya", "Adana", "Trabzon", "Konya", "Gaziantep", "Kayseri"],
+        "Croatie": ["Zagreb", "Split", "Rijeka", "Osijek", "Zadar", "Pula", "Dubrovnik", "Šibenik", "Varaždin", "Vinkovci"],
+        "Suède": ["Stockholm", "Göteborg", "Malmö", "Uppsala", "Örebro", "Norrköping", "Helsingborg", "Linköping", "Västerås", "Umeå"],
+        "Norvège": ["Oslo", "Bergen", "Trondheim", "Stavanger", "Drammen", "Kristiansand", "Tromsø", "Ålesund", "Bodø", "Fredrikstad"],
+        "Danemark": ["Copenhague", "Aarhus", "Odense", "Aalborg", "Esbjerg", "Randers", "Horsens", "Vejle", "Kolding", "Herning"],
+    ]
+
     static func randomCity(for nationality: String) -> String {
-        let cities = Set(FDAllClubs.filter { $0.country == nationality }.map(\.city))
-        if let pick = cities.randomElement() { return pick }
-        return FDAllClubs.randomElement()?.city ?? "Inconnue"
+        if let pick = cities[nationality]?.randomElement() { return pick }
+        // Last resort only — every playable nation has its own list above.
+        return cities["France"]?.randomElement() ?? "Paris"
     }
 
     /// The full generated identity for a nationality — the player never types any of it.

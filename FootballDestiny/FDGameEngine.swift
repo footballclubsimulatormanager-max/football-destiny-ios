@@ -269,26 +269,55 @@ final class FDGameEngine: ObservableObject {
     // game gives each achievement — Ballon d'Or first, then international titles, league
     // and cup silverware, then caps and raw output.
 
-    /// Ranking score for the leaderboard. Deliberately different from `legendScore`: it
-    /// leans harder on honours than on goal tallies, so a decorated career outranks a
-    /// prolific but trophyless one.
+    /// Ranking score for the leaderboard, in the order the game values achievements:
+    ///
+    ///  1. Ballon d'Or — the individual summit, worth more than anything else.
+    ///  2. International titles (world/continental), then European club silverware.
+    ///  3. Domestic league and cup titles.
+    ///  4. Individual output, weighted **by position** so the four roles compete fairly:
+    ///     a striker is judged on goals, a midfielder on assists and rating, a defender
+    ///     and a keeper on rating and longevity. Without this a striker would always
+    ///     outrank a defender on raw goal count alone.
     func careerRankScore(_ p: FDPlayer) -> Int {
         let ballon = p.awardCounts[FDAward.ballonDor.rawValue] ?? 0
         let soulier = p.awardCounts[FDAward.soulierDor.rawValue] ?? 0
         let international = p.awardCounts["Titre international"] ?? 0
         let revelation = p.awardCounts[FDAward.revelation.rawValue] ?? 0
 
-        return ballon * 500
-            + international * 350
-            + p.leagueTitles * 120
-            + p.cupTitles * 90
+        // --- Honours, identical for every position ---
+        var score = ballon * 600
+            + international * 400
+            + p.cupTitles * 130      // European / cup silverware
+            + p.leagueTitles * 110
             + soulier * 150
             + revelation * 40
             + p.nationalCaps * 3
-            + p.careerGoals * 2
-            + p.careerAssists
-            + p.cond.reputation
+
+        // --- Individual output, balanced per position ---
+        let seasons = max(p.history.count, 1)
+        let avgRating = p.history.isEmpty
+            ? 0.0
+            : p.history.reduce(0.0) { $0 + $1.avgRating } / Double(p.history.count)
+        // A 7.0 average is par; every tenth of a point above it is worth real weight.
+        let ratingPoints = Int(max(0.0, avgRating - 6.0) * 60)
+
+        switch p.position {
+        case .attaquant:
+            score += p.careerGoals * 3 + p.careerAssists + ratingPoints
+        case .milieu:
+            score += p.careerAssists * 3 + p.careerGoals + ratingPoints * 2
+        case .defenseur:
+            score += ratingPoints * 3 + p.careerApps / 2 + p.careerGoals * 2 + p.careerAssists
+        case .gardien:
+            score += ratingPoints * 3 + p.careerApps / 2
+        }
+
+        // Longevity at a good level counts a little for everyone.
+        score += seasons * 10 + p.cond.reputation
+
+        return score
     }
+
 
     /// Archived careers ranked best-first, capped at the top 100.
     var leaderboard: [FDPlayer] {

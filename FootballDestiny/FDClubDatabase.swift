@@ -515,8 +515,224 @@ private let FDOceaniaSeeds: [FDClubSeed] = [
     .init(name:"Auckland City", city:"Auckland", country:"Nouvelle-Zélande", continent:"Océanie", division:1),
 ]
 
+
+// MARK: - Lower-division expansion
+//
+// Every playable nation carries its own local pyramid: a first division everywhere, a
+// second division everywhere (professional in the major nations, semi-pro elsewhere —
+// the display tier in FDModels encodes that), and a semi-pro third division for the
+// big four outside France (England, Spain, Germany, Italy; France already goes four
+// deep). Like the rest of this file these are representative selections of real clubs,
+// not exhaustive league tables, and will drift with promotion/relegation over time.
+
+private let FDLowerDivisionSeeds: [FDClubSeed] = [
+    // Angleterre — League One (D3, semi-pro in-game)
+    .init(name:"Charlton Athletic", city:"Londres", country:"Angleterre", continent:"Europe", division:3),
+    .init(name:"Bolton Wanderers", city:"Bolton", country:"Angleterre", continent:"Europe", division:3),
+    .init(name:"Barnsley", city:"Barnsley", country:"Angleterre", continent:"Europe", division:3),
+    .init(name:"Wigan Athletic", city:"Wigan", country:"Angleterre", continent:"Europe", division:3),
+    .init(name:"Reading", city:"Reading", country:"Angleterre", continent:"Europe", division:3),
+    .init(name:"Rotherham United", city:"Rotherham", country:"Angleterre", continent:"Europe", division:3),
+
+    // Espagne — Primera Federación (D3)
+    .init(name:"Real Murcia", city:"Murcie", country:"Espagne", continent:"Europe", division:3),
+    .init(name:"Hércules CF", city:"Alicante", country:"Espagne", continent:"Europe", division:3),
+    .init(name:"CD Badajoz", city:"Badajoz", country:"Espagne", continent:"Europe", division:3),
+    .init(name:"UD Ibiza", city:"Ibiza", country:"Espagne", continent:"Europe", division:3),
+    .init(name:"Recreativo de Huelva", city:"Huelva", country:"Espagne", continent:"Europe", division:3),
+    .init(name:"Cultural Leonesa", city:"León", country:"Espagne", continent:"Europe", division:3),
+
+    // Allemagne — 3. Liga (D3)
+    .init(name:"1860 Munich", city:"Munich", country:"Allemagne", continent:"Europe", division:3),
+    .init(name:"Dynamo Dresde", city:"Dresde", country:"Allemagne", continent:"Europe", division:3),
+    .init(name:"Rot-Weiss Essen", city:"Essen", country:"Allemagne", continent:"Europe", division:3),
+    .init(name:"Energie Cottbus", city:"Cottbus", country:"Allemagne", continent:"Europe", division:3),
+    .init(name:"Waldhof Mannheim", city:"Mannheim", country:"Allemagne", continent:"Europe", division:3),
+    .init(name:"VfL Osnabrück", city:"Osnabrück", country:"Allemagne", continent:"Europe", division:3),
+
+    // Italie — Serie C (D3)
+    .init(name:"Triestina", city:"Trieste", country:"Italie", continent:"Europe", division:3),
+    .init(name:"Perugia", city:"Pérouse", country:"Italie", continent:"Europe", division:3),
+    .init(name:"Ternana", city:"Terni", country:"Italie", continent:"Europe", division:3),
+    .init(name:"Pro Vercelli", city:"Vercelli", country:"Italie", continent:"Europe", division:3),
+    .init(name:"Foggia", city:"Foggia", country:"Italie", continent:"Europe", division:3),
+    .init(name:"Novara", city:"Novare", country:"Italie", continent:"Europe", division:3),
+
+    // Pays-Bas — Eerste Divisie (D2)
+    .init(name:"De Graafschap", city:"Doetinchem", country:"Pays-Bas", continent:"Europe", division:2),
+    .init(name:"Roda JC", city:"Kerkrade", country:"Pays-Bas", continent:"Europe", division:2),
+    .init(name:"MVV Maastricht", city:"Maastricht", country:"Pays-Bas", continent:"Europe", division:2),
+    .init(name:"SC Cambuur", city:"Leeuwarden", country:"Pays-Bas", continent:"Europe", division:2),
+    .init(name:"Excelsior", city:"Rotterdam", country:"Pays-Bas", continent:"Europe", division:2),
+    .init(name:"FC Den Bosch", city:"Bois-le-Duc", country:"Pays-Bas", continent:"Europe", division:2),
+
+    // Belgique — Challenger Pro League (D2)
+    .init(name:"Beerschot", city:"Anvers", country:"Belgique", continent:"Europe", division:2),
+    .init(name:"RWD Molenbeek", city:"Bruxelles", country:"Belgique", continent:"Europe", division:2),
+    .init(name:"Lommel SK", city:"Lommel", country:"Belgique", continent:"Europe", division:2),
+    .init(name:"KMSK Deinze", city:"Deinze", country:"Belgique", continent:"Europe", division:2),
+    .init(name:"Zulte Waregem", city:"Waregem", country:"Belgique", continent:"Europe", division:2),
+    .init(name:"Lierse", city:"Lierre", country:"Belgique", continent:"Europe", division:2),
+
+    // Argentine — Primera Nacional (D2)
+    .init(name:"Ferro Carril Oeste", city:"Buenos Aires", country:"Argentine", continent:"Amérique du Sud", division:2),
+    .init(name:"Quilmes", city:"Quilmes", country:"Argentine", continent:"Amérique du Sud", division:2),
+    .init(name:"Chacarita Juniors", city:"San Martín", country:"Argentine", continent:"Amérique du Sud", division:2),
+    .init(name:"Atlanta", city:"Buenos Aires", country:"Argentine", continent:"Amérique du Sud", division:2),
+    .init(name:"Temperley", city:"Temperley", country:"Argentine", continent:"Amérique du Sud", division:2),
+    .init(name:"Almirante Brown", city:"Isidro Casanova", country:"Argentine", continent:"Amérique du Sud", division:2),
+
+    // Uruguay — Segunda División (D2)
+    .init(name:"Rampla Juniors", city:"Montevideo", country:"Uruguay", continent:"Amérique du Sud", division:2),
+    .init(name:"Sud América", city:"Montevideo", country:"Uruguay", continent:"Amérique du Sud", division:2),
+    .init(name:"Juventud de Las Piedras", city:"Las Piedras", country:"Uruguay", continent:"Amérique du Sud", division:2),
+    .init(name:"Villa Española", city:"Montevideo", country:"Uruguay", continent:"Amérique du Sud", division:2),
+
+    // Colombie — Primera B (D2)
+    .init(name:"Cúcuta Deportivo", city:"Cúcuta", country:"Colombie", continent:"Amérique du Sud", division:2),
+    .init(name:"Real Cartagena", city:"Carthagène", country:"Colombie", continent:"Amérique du Sud", division:2),
+    .init(name:"Atlético Huila", city:"Neiva", country:"Colombie", continent:"Amérique du Sud", division:2),
+    .init(name:"Deportes Quindío", city:"Armenia", country:"Colombie", continent:"Amérique du Sud", division:2),
+
+    // États-Unis — USL Championship (D2)
+    .init(name:"Sacramento Republic", city:"Sacramento", country:"États-Unis", continent:"Amérique du Nord", division:2),
+    .init(name:"Louisville City", city:"Louisville", country:"États-Unis", continent:"Amérique du Nord", division:2),
+    .init(name:"San Antonio FC", city:"San Antonio", country:"États-Unis", continent:"Amérique du Nord", division:2),
+    .init(name:"Phoenix Rising", city:"Phoenix", country:"États-Unis", continent:"Amérique du Nord", division:2),
+    .init(name:"Tampa Bay Rowdies", city:"Tampa", country:"États-Unis", continent:"Amérique du Nord", division:2),
+    .init(name:"Indy Eleven", city:"Indianapolis", country:"États-Unis", continent:"Amérique du Nord", division:2),
+
+    // Canada — Canadian Premier League (D2 in-game)
+    .init(name:"Forge FC", city:"Hamilton", country:"Canada", continent:"Amérique du Nord", division:2),
+    .init(name:"Cavalry FC", city:"Calgary", country:"Canada", continent:"Amérique du Nord", division:2),
+    .init(name:"Pacific FC", city:"Victoria", country:"Canada", continent:"Amérique du Nord", division:2),
+    .init(name:"York United", city:"Toronto", country:"Canada", continent:"Amérique du Nord", division:2),
+    .init(name:"Valour FC", city:"Winnipeg", country:"Canada", continent:"Amérique du Nord", division:2),
+    .init(name:"Atlético Ottawa", city:"Ottawa", country:"Canada", continent:"Amérique du Nord", division:2),
+
+    // Mexique — Liga de Expansión (D2)
+    .init(name:"Atlante", city:"Mexico", country:"Mexique", continent:"Amérique du Nord", division:2),
+    .init(name:"Leones Negros", city:"Guadalajara", country:"Mexique", continent:"Amérique du Nord", division:2),
+    .init(name:"Correcaminos UAT", city:"Ciudad Victoria", country:"Mexique", continent:"Amérique du Nord", division:2),
+    .init(name:"Celaya FC", city:"Celaya", country:"Mexique", continent:"Amérique du Nord", division:2),
+    .init(name:"Venados FC", city:"Mérida", country:"Mexique", continent:"Amérique du Nord", division:2),
+
+    // Sénégal — Ligue 2 (D2)
+    .init(name:"ASC Ndiambour", city:"Louga", country:"Sénégal", continent:"Afrique", division:2),
+    .init(name:"Stade de Mbour", city:"Mbour", country:"Sénégal", continent:"Afrique", division:2),
+    .init(name:"US Ouakam", city:"Dakar", country:"Sénégal", continent:"Afrique", division:2),
+    .init(name:"ASC Linguère", city:"Saint-Louis", country:"Sénégal", continent:"Afrique", division:2),
+
+    // Côte d'Ivoire — Ligue 1 & Ligue 2
+    .init(name:"ASEC Mimosas", city:"Abidjan", country:"Côte d'Ivoire", continent:"Afrique", division:1),
+    .init(name:"Africa Sports", city:"Abidjan", country:"Côte d'Ivoire", continent:"Afrique", division:1),
+    .init(name:"Stade d'Abidjan", city:"Abidjan", country:"Côte d'Ivoire", continent:"Afrique", division:1),
+    .init(name:"San Pédro FC", city:"San-Pédro", country:"Côte d'Ivoire", continent:"Afrique", division:1),
+    .init(name:"Stella Club d'Adjamé", city:"Abidjan", country:"Côte d'Ivoire", continent:"Afrique", division:2),
+    .init(name:"Bouaké FC", city:"Bouaké", country:"Côte d'Ivoire", continent:"Afrique", division:2),
+    .init(name:"Séwé Sport", city:"San-Pédro", country:"Côte d'Ivoire", continent:"Afrique", division:2),
+    .init(name:"ASI d'Abengourou", city:"Abengourou", country:"Côte d'Ivoire", continent:"Afrique", division:2),
+
+    // Cameroun — Elite Two (D2)
+    .init(name:"Tonnerre Yaoundé", city:"Yaoundé", country:"Cameroun", continent:"Afrique", division:2),
+    .init(name:"Racing Bafoussam", city:"Bafoussam", country:"Cameroun", continent:"Afrique", division:2),
+    .init(name:"Aigle Royal de la Menoua", city:"Dschang", country:"Cameroun", continent:"Afrique", division:2),
+    .init(name:"Bamboutos FC", city:"Mbouda", country:"Cameroun", continent:"Afrique", division:2),
+
+    // Nigeria — NNL (D2)
+    .init(name:"Heartland FC", city:"Owerri", country:"Nigeria", continent:"Afrique", division:2),
+    .init(name:"Wikki Tourists", city:"Bauchi", country:"Nigeria", continent:"Afrique", division:2),
+    .init(name:"Warri Wolves", city:"Warri", country:"Nigeria", continent:"Afrique", division:2),
+    .init(name:"Abia Warriors", city:"Umuahia", country:"Nigeria", continent:"Afrique", division:2),
+
+    // Maroc — Botola 2 (D2)
+    .init(name:"KAC Kénitra", city:"Kénitra", country:"Maroc", continent:"Afrique", division:2),
+    .init(name:"CODM Meknès", city:"Meknès", country:"Maroc", continent:"Afrique", division:2),
+    .init(name:"Wydad de Fès", city:"Fès", country:"Maroc", continent:"Afrique", division:2),
+    .init(name:"Raja Beni Mellal", city:"Beni Mellal", country:"Maroc", continent:"Afrique", division:2),
+
+    // Algérie — Ligue 2 (D2)
+    .init(name:"RC Kouba", city:"Alger", country:"Algérie", continent:"Afrique", division:2),
+    .init(name:"USM El Harrach", city:"Alger", country:"Algérie", continent:"Afrique", division:2),
+    .init(name:"JSM Béjaïa", city:"Béjaïa", country:"Algérie", continent:"Afrique", division:2),
+    .init(name:"WA Tlemcen", city:"Tlemcen", country:"Algérie", continent:"Afrique", division:2),
+
+    // Tunisie — Ligue 2 (D2)
+    .init(name:"Stade Gabésien", city:"Gabès", country:"Tunisie", continent:"Afrique", division:2),
+    .init(name:"AS Marsa", city:"La Marsa", country:"Tunisie", continent:"Afrique", division:2),
+    .init(name:"ES Hammam-Sousse", city:"Hammam Sousse", country:"Tunisie", continent:"Afrique", division:2),
+    .init(name:"Jendouba Sport", city:"Jendouba", country:"Tunisie", continent:"Afrique", division:2),
+
+    // Égypte — D2
+    .init(name:"Tersana SC", city:"Le Caire", country:"Égypte", continent:"Afrique", division:2),
+    .init(name:"Olympic Club", city:"Alexandrie", country:"Égypte", continent:"Afrique", division:2),
+    .init(name:"Tanta SC", city:"Tanta", country:"Égypte", continent:"Afrique", division:2),
+    .init(name:"Suez SC", city:"Suez", country:"Égypte", continent:"Afrique", division:2),
+
+    // Japon — J2 League (D2)
+    .init(name:"JEF United", city:"Chiba", country:"Japon", continent:"Asie", division:2),
+    .init(name:"V-Varen Nagasaki", city:"Nagasaki", country:"Japon", continent:"Asie", division:2),
+    .init(name:"Ventforet Kofu", city:"Kofu", country:"Japon", continent:"Asie", division:2),
+    .init(name:"Oita Trinita", city:"Oita", country:"Japon", continent:"Asie", division:2),
+    .init(name:"Montedio Yamagata", city:"Yamagata", country:"Japon", continent:"Asie", division:2),
+
+    // Corée du Sud — K League 2 (D2)
+    .init(name:"Busan IPark", city:"Busan", country:"Corée du Sud", continent:"Asie", division:2),
+    .init(name:"Seongnam FC", city:"Seongnam", country:"Corée du Sud", continent:"Asie", division:2),
+    .init(name:"Bucheon FC 1995", city:"Bucheon", country:"Corée du Sud", continent:"Asie", division:2),
+    .init(name:"Ansan Greeners", city:"Ansan", country:"Corée du Sud", continent:"Asie", division:2),
+
+    // Australie — NPL (D2 in-game, semi-pro)
+    .init(name:"South Melbourne", city:"Melbourne", country:"Australie", continent:"Océanie", division:2),
+    .init(name:"Sydney Olympic", city:"Sydney", country:"Australie", continent:"Océanie", division:2),
+    .init(name:"Marconi Stallions", city:"Sydney", country:"Australie", continent:"Océanie", division:2),
+    .init(name:"Wollongong Wolves", city:"Wollongong", country:"Australie", continent:"Océanie", division:2),
+
+    // Émirats Arabes Unis — D2
+    .init(name:"Al Dhafra", city:"Madinat Zayed", country:"Émirats Arabes Unis", continent:"Asie", division:2),
+    .init(name:"Emirates Club", city:"Ras el Khaïmah", country:"Émirats Arabes Unis", continent:"Asie", division:2),
+    .init(name:"Hatta Club", city:"Dubaï", country:"Émirats Arabes Unis", continent:"Asie", division:2),
+    .init(name:"Al Urooba", city:"Foujaïrah", country:"Émirats Arabes Unis", continent:"Asie", division:2),
+
+    // Arabie Saoudite — D2
+    .init(name:"Ohod Club", city:"Médine", country:"Arabie Saoudite", continent:"Asie", division:2),
+    .init(name:"Al-Jabalain", city:"Haïl", country:"Arabie Saoudite", continent:"Asie", division:2),
+    .init(name:"Hajer FC", city:"Al-Hassa", country:"Arabie Saoudite", continent:"Asie", division:2),
+    .init(name:"Al-Najma", city:"Unaizah", country:"Arabie Saoudite", continent:"Asie", division:2),
+
+    // Turquie — 1. Lig (D2)
+    .init(name:"Sakaryaspor", city:"Sakarya", country:"Turquie", continent:"Europe", division:2),
+    .init(name:"Bandırmaspor", city:"Bandırma", country:"Turquie", continent:"Europe", division:2),
+    .init(name:"Boluspor", city:"Bolu", country:"Turquie", continent:"Europe", division:2),
+    .init(name:"Erzurumspor", city:"Erzurum", country:"Turquie", continent:"Europe", division:2),
+
+    // Croatie — Prva NL (D2)
+    .init(name:"NK Rudeš", city:"Zagreb", country:"Croatie", continent:"Europe", division:2),
+    .init(name:"Cibalia", city:"Vinkovci", country:"Croatie", continent:"Europe", division:2),
+    .init(name:"NK Solin", city:"Solin", country:"Croatie", continent:"Europe", division:2),
+    .init(name:"HNK Orijent", city:"Rijeka", country:"Croatie", continent:"Europe", division:2),
+
+    // Suède — Superettan (D2)
+    .init(name:"Örgryte IS", city:"Göteborg", country:"Suède", continent:"Europe", division:2),
+    .init(name:"Landskrona BoIS", city:"Landskrona", country:"Suède", continent:"Europe", division:2),
+    .init(name:"GAIS", city:"Göteborg", country:"Suède", continent:"Europe", division:2),
+    .init(name:"Östers IF", city:"Växjö", country:"Suède", continent:"Europe", division:2),
+
+    // Norvège — OBOS-ligaen (D2)
+    .init(name:"IK Start", city:"Kristiansand", country:"Norvège", continent:"Europe", division:2),
+    .init(name:"Aalesunds FK", city:"Ålesund", country:"Norvège", continent:"Europe", division:2),
+    .init(name:"Sogndal", city:"Sogndal", country:"Norvège", continent:"Europe", division:2),
+    .init(name:"Ranheim IL", city:"Trondheim", country:"Norvège", continent:"Europe", division:2),
+
+    // Danemark — 1. Division (D2)
+    .init(name:"AC Horsens", city:"Horsens", country:"Danemark", continent:"Europe", division:2),
+    .init(name:"Esbjerg fB", city:"Esbjerg", country:"Danemark", continent:"Europe", division:2),
+    .init(name:"Hvidovre IF", city:"Hvidovre", country:"Danemark", continent:"Europe", division:2),
+    .init(name:"Kolding IF", city:"Kolding", country:"Danemark", continent:"Europe", division:2),
+]
+
 let FDAllClubSeeds: [FDClubSeed] =
-    FDEuropeSeeds + FDSouthAmericaSeeds + FDNorthAmericaSeeds + FDAsiaSeeds + FDAfricaSeeds + FDOceaniaSeeds
+    FDEuropeSeeds + FDSouthAmericaSeeds + FDNorthAmericaSeeds + FDAsiaSeeds + FDAfricaSeeds + FDOceaniaSeeds + FDLowerDivisionSeeds
 
 // MARK: - Procedural stat derivation (deterministic hash → stable jitter)
 

@@ -72,8 +72,7 @@ struct FDHistoriqueView: View {
                                 Rectangle().fill(Color.white.opacity(0.04)).frame(height: 1)
                             }
                         }
-                        .background(FDTheme.card, in: RoundedRectangle(cornerRadius: FDTheme.radiusCard))
-                        .overlay(RoundedRectangle(cornerRadius: FDTheme.radiusCard).stroke(Color.white.opacity(0.07), lineWidth: 1))
+                        .fdCardSurface()
                         .padding(.horizontal, 14)
                         .padding(.bottom, 20)
                     }
@@ -189,7 +188,7 @@ struct FDBoutiqueView: View {
                             .foregroundStyle(.secondary)
                             .padding(14)
                     }
-                    .background(FDTheme.card, in: RoundedRectangle(cornerRadius: FDTheme.radiusCard))
+                    .fdCardSurface()
                     .overlay(RoundedRectangle(cornerRadius: FDTheme.radiusCard).stroke(FDTheme.amber.opacity(0.2), lineWidth: 1))
 
                     // One continuous list, price bands as inline separators rather than
@@ -228,8 +227,7 @@ struct FDBoutiqueView: View {
                             }
                         }
                     }
-                    .background(FDTheme.card, in: RoundedRectangle(cornerRadius: FDTheme.radiusCard))
-                    .overlay(RoundedRectangle(cornerRadius: FDTheme.radiusCard).stroke(Color.white.opacity(0.07), lineWidth: 1))
+                    .fdCardSurface()
                 }
                 .padding(.horizontal, 14)
                 .padding(.bottom, 20)
@@ -372,8 +370,7 @@ struct FDChallengesView: View {
                         }
                         .frame(height: 3)
                     }
-                    .background(FDTheme.card, in: RoundedRectangle(cornerRadius: FDTheme.radiusCard))
-                    .overlay(RoundedRectangle(cornerRadius: FDTheme.radiusCard).stroke(Color.white.opacity(0.07), lineWidth: 1))
+                    .fdCardSurface()
 
                     // One continuous list for all 50 legends — the price bands are inline
                     // separators, not nested boxes, so the whole thing reads as a single
@@ -421,8 +418,7 @@ struct FDChallengesView: View {
                             }
                         }
                     }
-                    .background(FDTheme.card, in: RoundedRectangle(cornerRadius: FDTheme.radiusCard))
-                    .overlay(RoundedRectangle(cornerRadius: FDTheme.radiusCard).stroke(Color.white.opacity(0.07), lineWidth: 1))
+                    .fdCardSurface()
                 }
                 .padding(.horizontal, 14)
                 .padding(.bottom, 20)
@@ -568,8 +564,7 @@ struct FDClassementView: View {
                                     .fixedSize(horizontal: false, vertical: true)
                                     .padding(14)
                             }
-                            .background(FDTheme.card, in: RoundedRectangle(cornerRadius: FDTheme.radiusCard))
-                            .overlay(RoundedRectangle(cornerRadius: FDTheme.radiusCard).stroke(Color.white.opacity(0.07), lineWidth: 1))
+                            .fdCardSurface()
 
                             VStack(spacing: 0) {
                                 ForEach(Array(engine.leaderboard.enumerated()), id: \.offset) { idx, p in
@@ -589,8 +584,7 @@ struct FDClassementView: View {
                                     }
                                 }
                             }
-                            .background(FDTheme.card, in: RoundedRectangle(cornerRadius: FDTheme.radiusCard))
-                            .overlay(RoundedRectangle(cornerRadius: FDTheme.radiusCard).stroke(Color.white.opacity(0.07), lineWidth: 1))
+                            .fdCardSurface()
                         }
                         .padding(.horizontal, 14)
                         .padding(.bottom, 20)
@@ -631,8 +625,15 @@ private struct FDClassementRow: View {
     var body: some View {
         HStack(spacing: 10) {
             ZStack {
-                RoundedRectangle(cornerRadius: 8)
-                    .fill(medalColor.opacity(rank <= 3 ? 0.22 : 0.12))
+                RoundedRectangle(cornerRadius: 8, style: .continuous)
+                    .fill(
+                        LinearGradient(
+                            colors: rank <= 3
+                                ? [medalColor.opacity(0.38), medalColor.opacity(0.14)]
+                                : [medalColor.opacity(0.14), medalColor.opacity(0.07)],
+                            startPoint: .topLeading, endPoint: .bottomTrailing
+                        )
+                    )
                     .frame(width: 32, height: 32)
                 Text("\(rank)")
                     .font(FDFont.mono(rank >= 100 ? 11 : 13, bold: true))
@@ -690,6 +691,17 @@ struct FDAliasPromptCard: View {
     @State private var alias = ""
     @State private var saved = false
 
+    /// Where the career that just ended landed in the local top 100, if it made it.
+    private var rank: Int? {
+        guard let latest = engine.archivedCareers.first else { return nil }
+        let board = engine.leaderboard
+        guard let idx = board.firstIndex(where: {
+            $0.firstName == latest.firstName && $0.lastName == latest.lastName
+                && $0.careerApps == latest.careerApps && $0.careerGoals == latest.careerGoals
+        }) else { return nil }
+        return idx + 1
+    }
+
     var body: some View {
         VStack(spacing: 0) {
             HStack(spacing: 6) {
@@ -709,14 +721,30 @@ struct FDAliasPromptCard: View {
                 HStack(spacing: 8) {
                     Image(systemName: "checkmark.circle.fill")
                         .foregroundStyle(FDTheme.success)
-                    Text("Carrière signée « \(alias) ».")
+                    Text(rank.map { "Carrière signée « \(alias) » — \($0)e au classement." }
+                         ?? "Carrière signée « \(alias) ».")
                         .font(FDFont.body(13))
                         .foregroundStyle(FDTheme.textPrimary)
+                        .fixedSize(horizontal: false, vertical: true)
                     Spacer()
                 }
-                .padding(14)
+                .padding(12)
             } else {
-                VStack(alignment: .leading, spacing: 10) {
+                VStack(alignment: .leading, spacing: 9) {
+                    if let rank {
+                        HStack(spacing: 6) {
+                            Image(systemName: rank <= 3 ? "medal.fill" : "list.number")
+                                .font(.system(size: 11, weight: .bold))
+                            Text(rank == 1
+                                 ? "Meilleure carrière de ton classement !"
+                                 : "\(rank)e au classement de tes carrières.")
+                                .font(FDFont.body(12, black: true))
+                        }
+                        .foregroundStyle(FDTheme.amber)
+                        .padding(.horizontal, 9).padding(.vertical, 5)
+                        .background(FDTheme.amber.opacity(0.14), in: Capsule())
+                    }
+
                     Text("Choisis un pseudo pour signer cette carrière au classement. Tu peux aussi laisser le nom du joueur.")
                         .font(.caption)
                         .foregroundStyle(.secondary)
@@ -743,10 +771,10 @@ struct FDAliasPromptCard: View {
                     .disabled(alias.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
                     .opacity(alias.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ? 0.5 : 1)
                 }
-                .padding(14)
+                .padding(12)
             }
         }
-        .background(FDTheme.card, in: RoundedRectangle(cornerRadius: FDTheme.radiusCard))
+        .fdCardSurface()
         .overlay(RoundedRectangle(cornerRadius: FDTheme.radiusCard).stroke(FDTheme.amber.opacity(0.22), lineWidth: 1))
     }
 }

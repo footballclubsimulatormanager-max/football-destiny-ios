@@ -44,6 +44,46 @@ enum FDTheme {
     static let radiusMD: CGFloat = 6
     static let radiusLG: CGFloat = 9
     static let radiusCard: CGFloat = 16
+
+    // MARK: Surfaces
+    //
+    // Cards used to be one flat fill with a hairline. These give them a little depth
+    // without changing any layout: a top-lit gradient body and a border that fades from
+    // a lit edge to nothing, the way a panel catches light from above.
+
+    static var cardGradient: LinearGradient {
+        LinearGradient(
+            colors: [Color.white.opacity(0.055), Color.white.opacity(0.012)],
+            startPoint: .top, endPoint: .bottom
+        )
+    }
+
+    static var cardStroke: LinearGradient {
+        LinearGradient(
+            colors: [Color.white.opacity(0.16), Color.white.opacity(0.05)],
+            startPoint: .top, endPoint: .bottom
+        )
+    }
+
+    /// A tinted header band that fades out to the right instead of sitting as a flat block.
+    static func headerWash(_ color: Color) -> LinearGradient {
+        LinearGradient(
+            colors: [color.opacity(0.20), color.opacity(0.04)],
+            startPoint: .leading, endPoint: .trailing
+        )
+    }
+
+    /// Value-driven colour for a statistic: poor reads muted, good reads primary,
+    /// excellent reads success — so a stat block has a visible shape at a glance now
+    /// that the bars are gone.
+    static func statColor(_ value: Int) -> Color {
+        switch value {
+        case 85...: return success
+        case 70..<85: return primary
+        case 50..<70: return accentTeal
+        default: return textMuted.opacity(0.65)
+        }
+    }
 }
 
 // MARK: - Fonts
@@ -96,6 +136,19 @@ struct FDCardBackground: ViewModifier {
 extension View {
     func fdCard(padding: CGFloat = 16, corner: CGFloat = FDTheme.radiusCard) -> some View {
         modifier(FDCardBackground(padding: padding, corner: corner))
+    }
+
+    /// The standard card surface used across every screen: the base card colour, a
+    /// top-lit gradient over it and a border that fades downward. Replaces the old
+    /// flat fill + hairline pair, and keeps that treatment in one place.
+    func fdCardSurface(corner: CGFloat = FDTheme.radiusCard) -> some View {
+        self
+            .background(FDTheme.card, in: RoundedRectangle(cornerRadius: corner, style: .continuous))
+            .background(FDTheme.cardGradient, in: RoundedRectangle(cornerRadius: corner, style: .continuous))
+            .overlay(
+                RoundedRectangle(cornerRadius: corner, style: .continuous)
+                    .strokeBorder(FDTheme.cardStroke, lineWidth: 1)
+            )
     }
 }
 
