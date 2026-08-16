@@ -750,7 +750,10 @@ final class FDGameEngine: ObservableObject {
 
     private func pickHandwrittenScene(_ p: FDPlayer) -> FDSceneDef? {
         let pool = FDScenes.filter { sceneEligible($0, player: p) }
-        guard var picked = pool.randomElement() else { return nil }
+        // With several hundred scenes available, a career should exhaust what it has never
+        // seen before showing anything twice — otherwise the same handful keeps coming back.
+        let unseen = pool.filter { !usedSceneIds.contains($0.id) }
+        guard var picked = (unseen.isEmpty ? pool : unseen).randomElement() else { return nil }
         picked.text = personalize(picked.text, player: p)
         picked.character = personalize(picked.character, player: p)
         return picked
@@ -787,7 +790,8 @@ final class FDGameEngine: ObservableObject {
         guard let p = player else { return .none }
         if let hw = pickHandwrittenScene(p) {
             usedSceneIds.insert(hw.id)
-            sceneCooldown[hw.id] = p.calendar.week + p.calendar.season * 100 + 10
+            // Roughly two seasons before a scene can come back at all.
+            sceneCooldown[hw.id] = p.calendar.week + p.calendar.season * 100 + 200
             return .story(hw)
         }
         return genericEvent(p)
