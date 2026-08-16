@@ -121,16 +121,17 @@ enum FDFont {
         .custom(bold ? "JetBrainsMono-Bold" : "JetBrainsMono-Regular", size: size)
     }
 
-    /// Lora — the serif the story is told in. Narratives, season chronicles and the
-    /// end-of-career piece read like a written article rather than an interface.
+    /// The narrative voice. The reference the app follows sets its stories in the same
+    /// sans as the rest of the interface — a serif read as foreign here — so the story
+    /// stays in Barlow and earns its weight from size and line spacing instead.
     static func story(_ size: CGFloat, bold: Bool = false, italic: Bool = false) -> Font {
-        .custom(italic ? "Lora-Italic" : (bold ? "Lora-Bold" : "Lora-Regular"), size: size)
+        .custom(bold ? "Barlow-Black" : "Barlow-Regular", size: size)
     }
 
-    /// Fraunces — the editorial voice: scene titles, chronicle headlines, the lines meant
-    /// to be read as a headline rather than as interface text.
+    /// Headlines — scene titles and chronicle mastheads — in the app's own slanted
+    /// display face, the one already used for names and titles.
     static func headline(_ size: CGFloat, italic: Bool = true) -> Font {
-        .custom(italic ? "Fraunces-SemiBoldItalic" : "Fraunces-SemiBold", size: size)
+        .custom(italic ? "BarlowSemiCondensed-BlackItalic" : "BarlowSemiCondensed-Black", size: size)
     }
 }
 

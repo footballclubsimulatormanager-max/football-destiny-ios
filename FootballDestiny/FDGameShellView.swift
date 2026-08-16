@@ -308,26 +308,6 @@ private let fdStatColumns = [
 ]
 
 /// Compact condition pill — inline in a row
-private struct FDCondPill: View {
-    let label: String
-    let value: Int
-    var color: Color
-
-    var body: some View {
-        VStack(spacing: 1) {
-            Text("\(value)")
-                .font(FDFont.mono(17, bold: true))
-                .foregroundStyle(color)
-            Text(label.uppercased())
-                .font(.system(size: 12, weight: .bold))
-                .foregroundStyle(.secondary)
-                .lineLimit(1)
-                .minimumScaleFactor(0.7)
-        }
-        .frame(maxWidth: .infinity)
-    }
-}
-
 // MARK: - Scene helpers (unchanged)
 
 private func fdAttrCategoryColor(_ cat: FDAttrCategory) -> Color {
@@ -1152,7 +1132,6 @@ struct FDCarriereTab: View {
     @Binding var screen: FDScreen
     @State private var mainTab: FDCarriereMainTab = .carriere
     @State private var subTab: FDCarriereSubTab = .stats
-    @State private var showRetireConfirm = false
 
     var body: some View {
         NavigationView {
@@ -1196,14 +1175,6 @@ struct FDCarriereTab: View {
             .background(FDTheme.bg)
             .navigationTitle("Carrière")
             .navigationBarTitleDisplayMode(.inline)
-            .confirmationDialog("Prendre ta retraite maintenant ?", isPresented: $showRetireConfirm, titleVisibility: .visible) {
-                Button("Confirmer la retraite", role: .destructive) {
-                    engine.voluntaryRetire()
-                }
-                Button("Annuler", role: .cancel) {}
-            } message: {
-                Text("Cette action est définitive pour cette carrière.")
-            }
         }
         .navigationViewStyle(.stack)
     }
@@ -1316,10 +1287,11 @@ struct FDCarriereTab: View {
                     .background(FDTheme.primary.opacity(0.12), in: RoundedRectangle(cornerRadius: 10))
                 }
 
-                HStack(spacing: 10) {
+                HStack(spacing: 9) {
                     fdGauge(label: "FORME", value: p.cond.forme, color: FDTheme.success)
                     fdGauge(label: "MORAL", value: p.cond.moral, color: FDTheme.accentTeal)
-                    fdGauge(label: "RÉPUT.", value: p.cond.reputation, color: FDTheme.amber)
+                    fdGauge(label: "CONF.", value: p.cond.confiance, color: FDTheme.primary)
+                    fdGauge(label: "FATIGUE", value: p.cond.fatigue, color: .orange)
                 }
             }
             .padding(.horizontal, 11).padding(.vertical, 9)
@@ -1345,8 +1317,6 @@ struct FDCarriereTab: View {
                     case .parcours: parcoursContent(p)
                     case .entourage: entourageContent(p)
                     }
-
-                    retireCard(p)
                 }
                 .padding(7)
                 .id(subTab)
@@ -1405,38 +1375,6 @@ struct FDCarriereTab: View {
     // reachable from the career screen itself and not buried in Options.
 
     @ViewBuilder
-    private func retireCard(_ p: FDPlayer) -> some View {
-        let canRetire = p.age >= 30
-        VStack(spacing: 0) {
-            FDSectionHeader(icon: "sunset.fill", title: "Raccrocher les crampons", color: FDTheme.warning)
-                .padding(.horizontal, 14).padding(.vertical, 8)
-            Rectangle().fill(Color.white.opacity(0.06)).frame(height: 1)
-
-            VStack(spacing: 8) {
-                Text(canRetire
-                     ? "Ta carrière se termine ici et rejoint ton historique, avec les points et les pièces qu'elle a rapportés."
-                     : "Tu pourras raccrocher à partir de 30 ans. Encore \(30 - p.age) saison(s) à écrire.")
-                    .font(.subheadline)
-                    .foregroundStyle(.secondary)
-                    .fixedSize(horizontal: false, vertical: true)
-                    .frame(maxWidth: .infinity, alignment: .leading)
-
-                Button {
-                    showRetireConfirm = true
-                } label: {
-                    Label("Raccrocher les crampons", systemImage: "figure.soccer")
-                }
-                .buttonStyle(FDDestructiveButtonStyle())
-                .disabled(!canRetire)
-                .opacity(canRetire ? 1 : 0.45)
-            }
-            .padding(12)
-        }
-        .fdCardSurface()
-        .overlay(RoundedRectangle(cornerRadius: FDTheme.radiusCard).stroke(FDTheme.warning.opacity(0.18), lineWidth: 1))
-    }
-
-
     // MARK: Stats content — condition pills + attribute bars
 
     /// Everything about the player's shape, sized to fit the player box without scrolling:
@@ -1447,17 +1385,6 @@ struct FDCarriereTab: View {
             .sorted { p.position.weights.value(for: $0) > p.position.weights.value(for: $1) }
 
         return VStack(spacing: 0) {
-            HStack(spacing: 0) {
-                FDCondPill(label: "Forme", value: p.cond.forme, color: FDTheme.primary)
-                Rectangle().fill(Color.white.opacity(0.08)).frame(width: 1, height: 24)
-                FDCondPill(label: "Moral", value: p.cond.moral, color: .blue)
-                Rectangle().fill(Color.white.opacity(0.08)).frame(width: 1, height: 24)
-                FDCondPill(label: "Confiance", value: p.cond.confiance, color: FDTheme.accentTeal)
-                Rectangle().fill(Color.white.opacity(0.08)).frame(width: 1, height: 24)
-                FDCondPill(label: "Fatigue", value: p.cond.fatigue, color: .orange)
-            }
-            .padding(.vertical, 6)
-
             ForEach(Array(orderedCats.enumerated()), id: \.element) { idx, cat in
                 let catAttrs = FDAttribute.allCases.filter { $0.category == cat }
                 let catColor: Color = fdAttrCategoryColor(cat)
