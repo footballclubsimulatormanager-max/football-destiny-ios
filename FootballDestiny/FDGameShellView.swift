@@ -461,59 +461,43 @@ struct FDStoryCard: View {
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
 
-            VStack(spacing: 9) {
+            VStack(spacing: 8) {
                 ForEach(Array(scene.choices.enumerated()), id: \.offset) { idx, choice in
+                    // Each choice is a filled button in its own colour — pressable at a
+                    // glance, no hunting for the tappable part of a row.
+                    let tint = fdChoiceTint(index: idx, category: scene.category)
                     Button {
                         FDHaptics.tap()
                         engine.resolveChoice(choice, category: scene.category)
                     } label: {
-                        HStack(alignment: .center, spacing: 12) {
-                            ZStack {
-                                Circle()
-                                    .fill(fdSceneColor(scene.category).opacity(0.16))
-                                    .frame(width: 30, height: 30)
-                                Text("\(idx + 1)")
-                                    .font(FDFont.mono(17, bold: true))
-                                    .foregroundStyle(fdSceneColor(scene.category))
+                        VStack(spacing: 3) {
+                            if let tag = choice.tag {
+                                Text(tag.uppercased())
+                                    .font(.system(size: 11, weight: .black))
+                                    .tracking(0.9)
+                                    .foregroundStyle(tint.opacity(0.85))
+                            } else if let trait = choice.trait {
+                                Text(trait.rawValue.uppercased())
+                                    .font(.system(size: 11, weight: .black))
+                                    .tracking(0.9)
+                                    .foregroundStyle(tint.opacity(0.85))
                             }
-
-                            VStack(alignment: .leading, spacing: 4) {
-                                if let tag = choice.tag {
-                                    Text(tag.uppercased())
-                                        .font(.system(size: 13, weight: .black))
-                                        .tracking(0.8)
-                                        .padding(.horizontal, 8).padding(.vertical, 3)
-                                        .background(Capsule().fill(FDTheme.accentTeal.opacity(0.18)))
-                                        .foregroundStyle(FDTheme.accentTeal)
-                                } else if let trait = choice.trait {
-                                    Text(trait.rawValue.uppercased())
-                                        .font(.system(size: 13, weight: .black))
-                                        .tracking(0.8)
-                                        .padding(.horizontal, 8).padding(.vertical, 3)
-                                        .background(Capsule().fill(FDTheme.primary.opacity(0.16)))
-                                        .foregroundStyle(FDTheme.primary)
-                                }
-                                Text(choice.label)
-                                    .font(FDFont.body(19, black: true))
-                                    .foregroundStyle(FDTheme.textPrimary)
-                                    .multilineTextAlignment(.leading)
-                                    .fixedSize(horizontal: false, vertical: true)
-                            }
-
-                            Spacer(minLength: 4)
-                            Image(systemName: "chevron.right")
-                                .font(.system(size: 17, weight: .bold))
-                                .foregroundStyle(fdSceneColor(scene.category).opacity(0.65))
+                            Text(choice.label)
+                                .font(FDFont.body(17, black: true))
+                                .foregroundStyle(tint)
+                                .multilineTextAlignment(.center)
+                                .fixedSize(horizontal: false, vertical: true)
                         }
-                        .padding(.horizontal, 13)
+                        .frame(maxWidth: .infinity)
                         .padding(.vertical, 13)
+                        .padding(.horizontal, 12)
                         .background(
                             RoundedRectangle(cornerRadius: 14, style: .continuous)
-                                .fill(Color.white.opacity(0.05))
+                                .fill(tint.opacity(0.15))
                         )
                         .overlay(
                             RoundedRectangle(cornerRadius: 14, style: .continuous)
-                                .strokeBorder(fdSceneColor(scene.category).opacity(0.20), lineWidth: 1)
+                                .strokeBorder(tint.opacity(0.38), lineWidth: 1)
                         )
                         .contentShape(Rectangle())
                     }
@@ -528,6 +512,14 @@ struct FDStoryCard: View {
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
         .fdCardSurface()
     }
+}
+
+
+/// Colour for a choice button. The first choice wears the scene's own colour, the following
+/// ones take the rest of the palette, so three options are told apart at a glance.
+private func fdChoiceTint(index: Int, category: String) -> Color {
+    let palette: [Color] = [fdSceneColor(category), FDTheme.primary, FDTheme.success, FDTheme.warning]
+    return palette[index % palette.count]
 }
 
 // MARK: - Outcome Card
@@ -1211,37 +1203,15 @@ struct FDCarriereTab: View {
     @ViewBuilder
     private func carriereView(_ p: FDPlayer) -> some View {
         VStack(spacing: 8) {
-            HStack(spacing: 10) {
-                VStack(alignment: .leading, spacing: 2) {
-                    Text("\(p.firstName) \(p.lastName)")
-                        .font(FDFont.display(21))
-                        .foregroundStyle(.white)
-                        .lineLimit(1)
-                        .minimumScaleFactor(0.7)
-                    Text("\(fdFlag(for: p.club.country)) \(p.club.name)  ·  \(p.position.rawValue)  ·  \(p.age) ans")
-                        .font(.subheadline)
-                        .foregroundStyle(.secondary)
-                        .lineLimit(1)
-                        .minimumScaleFactor(0.8)
-                }
-                Spacer(minLength: 0)
-                VStack(spacing: 0) {
-                    Text("\(engine.overall(p))")
-                        .font(FDFont.mono(19, bold: true))
-                        .foregroundStyle(FDTheme.primary)
-                    Text("NOTE")
-                        .font(.system(size: 12, weight: .bold))
-                        .foregroundStyle(FDTheme.primary.opacity(0.7))
-                }
-                .padding(.horizontal, 10).padding(.vertical, 6)
-                .background(FDTheme.primary.opacity(0.12), in: RoundedRectangle(cornerRadius: 10))
+            // The player's state, permanently on screen: the four figures that change week
+            // to week and that every choice is about. The name and club are already in the
+            // status bar above, so they are not repeated here.
+            HStack(spacing: 7) {
+                FDStateChip(value: p.cond.forme, label: "FORME", color: FDTheme.success)
+                FDStateChip(value: p.cond.moral, label: "MORAL", color: FDTheme.primary)
+                FDStateChip(value: p.cond.confiance, label: "CONFIANCE", color: FDTheme.accentTeal)
+                FDStateChip(value: p.cond.fatigue, label: "FATIGUE", color: FDTheme.warning)
             }
-            .padding(.horizontal, 12).padding(.vertical, 9)
-            .background(FDTheme.card.opacity(0.6), in: RoundedRectangle(cornerRadius: FDTheme.radiusCard))
-            .overlay(
-                RoundedRectangle(cornerRadius: FDTheme.radiusCard)
-                    .stroke(Color.white.opacity(0.07), lineWidth: 1)
-            )
 
             sceneCard
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -1961,3 +1931,45 @@ private struct FDOptionRow: View {
 
 // MARK: - Flow layout for traits
 
+
+/// One of the four state figures shown above the scene: a big number, its label, and a bar
+/// that fills with the value — the player's condition readable without leaving the story.
+private struct FDStateChip: View {
+    let value: Int
+    let label: String
+    let color: Color
+
+    var body: some View {
+        VStack(spacing: 3) {
+            Text("\(value)")
+                .font(FDFont.mono(19, bold: true))
+                .foregroundStyle(color)
+                .lineLimit(1)
+                .minimumScaleFactor(0.6)
+            Text(label)
+                .font(.system(size: 10, weight: .black))
+                .tracking(0.4)
+                .foregroundStyle(.secondary)
+                .lineLimit(1)
+                .minimumScaleFactor(0.55)
+            GeometryReader { g in
+                ZStack(alignment: .leading) {
+                    Capsule().fill(Color.white.opacity(0.09))
+                    Capsule()
+                        .fill(color)
+                        .frame(width: g.size.width * CGFloat(min(max(value, 0), 100)) / 100)
+                        .animation(.fdSoft, value: value)
+                }
+            }
+            .frame(height: 3)
+        }
+        .frame(maxWidth: .infinity)
+        .padding(.vertical, 8)
+        .padding(.horizontal, 6)
+        .background(FDTheme.bg.opacity(0.55), in: RoundedRectangle(cornerRadius: 12, style: .continuous))
+        .overlay(
+            RoundedRectangle(cornerRadius: 12, style: .continuous)
+                .strokeBorder(color.opacity(0.22), lineWidth: 1)
+        )
+    }
+}

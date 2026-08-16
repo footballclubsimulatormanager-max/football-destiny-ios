@@ -21,8 +21,12 @@ struct FDMainMenuView: View {
             VStack(spacing: 0) {
                 topBar
 
-                ScrollView {
-                    VStack(spacing: 22) {
+                GeometryReader { geo in
+                    // No scrolling here: the menu is a destination, not a document. The gaps
+                    // breathe on a big phone and tighten on a small one so every entry stays
+                    // on screen.
+                    let gap = min(max(geo.size.height * 0.026, 10), 22)
+                    VStack(spacing: gap) {
                         greetingHeader
                             .fdAppear()
 
@@ -128,8 +132,8 @@ struct FDMainMenuView: View {
                         }
                     }
                     .padding(.horizontal, 20)
-                    .padding(.top, 20)
-                    .padding(.bottom, 12)
+                    .padding(.top, gap)
+                    .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
                 }
 
                 Text("Aucune inscription · Aucun compte · Sauvegarde locale")
@@ -180,10 +184,6 @@ struct FDMainMenuView: View {
         .padding(.bottom, 2)
     }
 
-    private var potentialStarsUnlocked: Int {
-        FDPotentialShop.maxAffordableStars(points: engine.lifetimePoints)
-    }
-
     /// Greets by the in-progress player's first name when there's a career underway, otherwise
     /// a generic welcome — there's no login/account, so this is the only "who's playing" signal.
     private var greetingName: String? {
@@ -204,8 +204,8 @@ struct FDMainMenuView: View {
     /// Compact identity block — small logo, a short label, a personal greeting and a one-line
     /// status — in place of the previous full-width hero card with a giant centered logo.
     private var greetingHeader: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            VStack(alignment: .leading, spacing: 2) {
+        VStack(alignment: .leading, spacing: 9) {
+            VStack(alignment: .leading, spacing: 1) {
                 Text("SIMULATEUR DE CARRIÈRE")
                     .font(.subheadline.weight(.bold))
                     .tracking(2)
@@ -227,21 +227,8 @@ struct FDMainMenuView: View {
             .padding(.vertical, 7)
             .background(Capsule().fill(statusLine.tint.opacity(0.14)))
 
-            HStack(spacing: 3) {
-                ForEach(0..<FDPotentialShop.maxStars, id: \.self) { i in
-                    Image(systemName: i < potentialStarsUnlocked ? "star.fill" : "star")
-                        .font(.system(size: 17))
-                        .foregroundStyle(i < potentialStarsUnlocked ? FDTheme.amber : Color.white.opacity(0.22))
-                        .scaleEffect(i < potentialStarsUnlocked ? 1 : 0.85)
-                        .fdAppear(delay: 0.3 + Double(i) * 0.04)
-                }
-                Text("Potentiel de départ")
-                    .font(.subheadline)
-                    .foregroundStyle(.white.opacity(0.45))
-                    .padding(.leading, 4)
-            }
         }
-        .padding(16)
+        .padding(14)
         .frame(maxWidth: .infinity, alignment: .leading)
         .background(
             RoundedRectangle(cornerRadius: 20, style: .continuous)
