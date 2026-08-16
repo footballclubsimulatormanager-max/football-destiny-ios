@@ -1624,6 +1624,7 @@ struct FDOptionsTab: View {
 
     @State private var showRetireConfirm = false
     @State private var showAbandonConfirm = false
+    @State private var showRegles = false
 
     private var canRetire: Bool { (engine.player?.age ?? 0) >= 30 }
 
@@ -1664,6 +1665,30 @@ struct FDOptionsTab: View {
                     }
                     .fdCardSurface()
 
+                    // The rules live one tap away from the game itself, not only in the menu.
+                    Button {
+                        FDHaptics.tap()
+                        showRegles = true
+                    } label: {
+                        VStack(spacing: 0) {
+                            FDSectionHeader(icon: "book.fill", title: "Règles du jeu", color: FDTheme.primary)
+                                .padding(.horizontal, 14).padding(.vertical, 8)
+                            Rectangle().fill(Color.white.opacity(0.06)).frame(height: 1)
+                            HStack {
+                                Text("Modes de jeu, monnaies, Boutique, Défis et barème du classement.")
+                                    .font(.footnote).foregroundStyle(.secondary)
+                                    .fixedSize(horizontal: false, vertical: true)
+                                    .frame(maxWidth: .infinity, alignment: .leading)
+                                Image(systemName: "chevron.right")
+                                    .font(.footnote.weight(.bold))
+                                    .foregroundStyle(FDTheme.primary)
+                            }
+                            .padding(14)
+                        }
+                        .fdCardSurface()
+                    }
+                    .buttonStyle(FDRowButtonStyle())
+
                     VStack(spacing: 0) {
                         FDSectionHeader(icon: "info.circle.fill", title: "À propos", color: .secondary)
                             .padding(.horizontal, 14).padding(.vertical, 8)
@@ -1692,6 +1717,7 @@ struct FDOptionsTab: View {
                 }
                 Button("Annuler", role: .cancel) {}
             } message: { Text("Elle sera effacée sans rejoindre ton historique.") }
+            .sheet(isPresented: $showRegles) { FDReglesView() }
         }
         .navigationViewStyle(.stack)
     }

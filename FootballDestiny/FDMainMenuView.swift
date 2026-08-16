@@ -9,6 +9,7 @@ struct FDMainMenuView: View {
     @State private var showBoutique = false
     @State private var showDefis = false
     @State private var showClassement = false
+    @State private var showRegles = false
 
     var body: some View {
         ZStack {
@@ -89,6 +90,18 @@ struct FDMainMenuView: View {
                             .fdAppear(delay: 0.25)
 
                             FDMenuRow(
+                                icon: "book.fill",
+                                iconTint: FDTheme.textMuted,
+                                title: "Règles",
+                                subtitle: "Modes de jeu, monnaies, classement",
+                                disabled: false
+                            ) {
+                                FDHaptics.tap()
+                                showRegles = true
+                            }
+                            .fdAppear(delay: 0.30)
+
+                            FDMenuRow(
                                 icon: "clock.arrow.circlepath",
                                 iconTint: FDTheme.accentTeal,
                                 title: "Historique",
@@ -98,7 +111,7 @@ struct FDMainMenuView: View {
                                 FDHaptics.tap()
                                 showHistorique = true
                             }
-                            .fdAppear(delay: 0.30)
+                            .fdAppear(delay: 0.35)
                         }
                     }
                     .padding(.horizontal, 20)
@@ -117,6 +130,7 @@ struct FDMainMenuView: View {
         .sheet(isPresented: $showBoutique) { FDBoutiqueView(engine: engine) }
         .sheet(isPresented: $showDefis) { FDChallengesView(engine: engine, screen: $screen) }
         .sheet(isPresented: $showClassement) { FDClassementView(engine: engine) }
+        .sheet(isPresented: $showRegles) { FDReglesView() }
     }
 
     /// The brand lockup, centred: the mark, then "FCS" in the display italic under a

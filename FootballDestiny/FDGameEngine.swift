@@ -328,6 +328,10 @@ final class FDGameEngine: ObservableObject {
         // Longevity at a good level counts a little for everyone.
         score += seasons * 10 + p.cond.reputation
 
+        // What the career earned counts too, on a banded scale so a fortune never outweighs
+        // a Ballon d'Or on its own.
+        score += FDWealthScale.points(for: p.money)
+
         return score
     }
 
@@ -1244,4 +1248,47 @@ func fdFormatMoney(_ v: Int) -> String {
     if v >= 1_000_000 { return String(format: "%.1fM €", Double(v) / 1_000_000) }
     if v >= 1_000 { return "\(Int((Double(v) / 1000).rounded())) k €" }
     return "\(v) €"
+}
+
+// MARK: - Wealth scale
+
+/// What a career earned is part of what it was worth, so the leaderboard weighs the money
+/// left at retirement — on bands rather than proportionally, so a fortune can never on its
+/// own outweigh a Ballon d'Or (600 points).
+enum FDWealthScale {
+    /// Ordered low-to-high: the threshold a career must reach, and what it is worth.
+    static let bands: [(threshold: Int, points: Int)] = [
+        (0, 0),
+        (500_000, 40),
+        (2_000_000, 90),
+        (5_000_000, 150),
+        (10_000_000, 220),
+        (25_000_000, 300),
+        (50_000_000, 380),
+        (100_000_000, 450),
+    ]
+
+    static func points(for money: Int) -> Int {
+        var earned = 0
+        for band in bands where money >= band.threshold {
+            earned = band.points
+        }
+        return earned
+    }
+
+    /// Human-readable rows for the rules screen.
+    static var rows: [(label: String, points: Int)] {
+        bands.enumerated().map { index, band in
+            let next = index + 1 < bands.count ? bands[index + 1].threshold : nil
+            let label: String
+            if band.threshold == 0 {
+                label = "Moins de \(fdFormatMoney(bands[1].threshold))"
+            } else if let next {
+                label = "\(fdFormatMoney(band.threshold)) – \(fdFormatMoney(next))"
+            } else {
+                label = "Plus de \(fdFormatMoney(band.threshold))"
+            }
+            return (label, band.points)
+        }
+    }
 }

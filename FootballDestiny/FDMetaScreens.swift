@@ -612,11 +612,14 @@ struct FDClassementView: View {
                                 .padding(.horizontal, 14).padding(.vertical, 8)
                                 .background(FDTheme.primary.opacity(0.07))
                                 Rectangle().fill(Color.white.opacity(0.06)).frame(height: 1)
-                                Text("Les 100 meilleures carrières terminées sur cet appareil. Le Ballon d'Or pèse le plus lourd, puis les titres internationaux, les titres de champion et de coupe, puis les sélections et les buts.")
-                                    .font(.footnote)
-                                    .foregroundStyle(.secondary)
-                                    .fixedSize(horizontal: false, vertical: true)
-                                    .padding(14)
+                                VStack(alignment: .leading, spacing: 6) {
+                                    Text("Les 100 meilleures carrières terminées sur cet appareil. Le Ballon d'Or pèse le plus lourd, puis les titres internationaux, les titres de champion et de coupe, puis les sélections et les buts.")
+                                    Text("L'argent laissé à la retraite compte aussi, par paliers : jusqu'à \(FDWealthScale.bands.last?.points ?? 0) points, soit moins qu'un seul Ballon d'Or.")
+                                }
+                                .font(.footnote)
+                                .foregroundStyle(.secondary)
+                                .fixedSize(horizontal: false, vertical: true)
+                                .padding(14)
                             }
                             .fdCardSurface()
 
@@ -841,5 +844,222 @@ struct FDAliasPromptCard: View {
         }
         .fdCardSurface()
         .overlay(RoundedRectangle(cornerRadius: FDTheme.radiusCard).stroke(FDTheme.amber.opacity(0.22), lineWidth: 1))
+    }
+}
+
+// MARK: - Règles
+
+/// One place that explains every system in the game: how a career runs, what the two
+/// currencies are for, how the Boutique and the Défis work, and exactly how the leaderboard
+/// scores a finished career — including the money it left behind.
+struct FDReglesView: View {
+    @Environment(\.dismiss) private var dismiss
+
+    var body: some View {
+        NavigationView {
+            ScrollView {
+                VStack(spacing: 12) {
+                    principeCard
+                    carriereCard
+                    monnaiesCard
+                    boutiqueCard
+                    defisCard
+                    classementCard
+                    financierCard
+                    sauvegardeCard
+                }
+                .padding(.horizontal, 14)
+                .padding(.vertical, 12)
+            }
+            .background(FDTheme.bg)
+            .navigationTitle("Règles")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .confirmationAction) {
+                    Button("Fermer") { dismiss() }
+                        .tint(FDTheme.primary)
+                }
+            }
+        }
+        .navigationViewStyle(.stack)
+    }
+
+    // MARK: Cards
+
+    private var principeCard: some View {
+        rulesCard(icon: "book.fill", title: "Le principe", color: FDTheme.primary) {
+            paragraph("FCS-Destiny est une carrière narrative. Tu ne diriges pas les matchs : tu prends les décisions qui font une vie de footballeur, de la formation à la retraite.")
+            paragraph("Chaque saison alterne des scènes à choix, des matchs simulés à partir de tes statistiques, et un bilan de fin de saison.")
+            paragraph("Les conséquences d'un choix ne sont jamais annoncées à l'avance : elles se découvrent une fois la décision prise.")
+        }
+    }
+
+    private var carriereCard: some View {
+        rulesCard(icon: "figure.soccer", title: "Une carrière", color: FDTheme.accentTeal) {
+            bullet("L'identité, la ville de naissance et le pied fort sont tirés au sort et cohérents avec la nationalité.")
+            bullet("Quatre postes : gardien, défenseur, milieu, attaquant. Le poste pondère tes statistiques et les scènes que tu rencontres.")
+            bullet("Le club de départ dépend du niveau de départ que tu peux te permettre.")
+            bullet("La retraite est possible à partir de 30 ans, ou forcée par l'âge et l'état physique.")
+            bullet("À la retraite, la carrière rejoint l'Historique, rapporte des points et des pièces, et peut être signée pour entrer au Classement.")
+        }
+    }
+
+    private var monnaiesCard: some View {
+        rulesCard(icon: "circle.hexagongrid.fill", title: "Les deux monnaies", color: FDTheme.warning) {
+            labeled("Points de carrière", "Gagnés à chaque retraite, quelle que soit la qualité de la carrière. Ils servent uniquement à acheter des étoiles de potentiel au démarrage de la carrière suivante.")
+            ruleRow("1re étoile", "\(FDPotentialShop.costOfStar(1)) pts")
+            ruleRow("5 étoiles (total)", "\(FDPotentialShop.cumulativeCost(for: FDPotentialShop.maxStars)) pts")
+            divider
+            labeled("Pièces", "Bien plus rares : elles ne récompensent que la qualité d'une carrière. Une carrière terminée sans rien gagner rapporte 1 pièce, une carrière historique jusqu'à 14.")
+            ruleRow("Terminer une carrière", "+1")
+            ruleRow("Ballon d'Or", "+2 (max 4)")
+            ruleRow("Titre international", "+2 (max 3)")
+            ruleRow("Soulier d'Or", "+1 (max 2)")
+            ruleRow("Championnat / Coupe", "+1 chacun (max 2)")
+            ruleRow("100 puis 200 buts", "+1 chacun")
+            ruleRow("Réputation 70 puis 88", "+1 chacun")
+            ruleRow("50 sélections", "+1")
+        }
+    }
+
+    private var boutiqueCard: some View {
+        rulesCard(icon: "cart.fill", title: "Boutique", color: FDTheme.blueGlow) {
+            paragraph("La Boutique se paie en pièces. Chaque compétence peut s'acheter de deux façons :")
+            bullet("Usage unique : au prix affiché, consommée au lancement de la carrière où tu l'équipes.")
+            bullet("Définitive : cinq fois le prix, disponible dans toutes tes carrières à venir.")
+            paragraph("Au début de chaque carrière, tu équipes au maximum \(FDMaxEquippedCompetences) compétences parmi celles que tu possèdes. C'est volontairement limité : au-delà, une carrière devient trop facile.")
+        }
+    }
+
+    private var defisCard: some View {
+        rulesCard(icon: "trophy.fill", title: "Défi Gloire du Passé", color: FDTheme.amber) {
+            paragraph("\(FDLegendChallenges.count) légendes à égaler, réparties en quatre paliers de difficulté. Chacune se débloque avec des pièces, puis impose un cadre : nationalité, poste, style et personnalité imposés.")
+            paragraph("Le défi est réussi si le score de la carrière atteint la cible de la légende. Une légende conquise le reste définitivement.")
+            ForEach(FDMetaTierInfo.all, id: \.tier) { tier in
+                ruleRow("Palier \(tier.tier) · \(tier.title)", tier.subtitle.capitalized)
+            }
+        }
+    }
+
+    private var classementCard: some View {
+        rulesCard(icon: "list.number", title: "Classement des carrières", color: FDTheme.destructive) {
+            paragraph("Les 100 meilleures carrières terminées, classées par un score unique. Les titres pèsent le plus lourd, puis les statistiques individuelles pondérées par le poste.")
+            ruleRow("Ballon d'Or", "600 pts")
+            ruleRow("Titre international", "400 pts")
+            ruleRow("Soulier d'Or", "150 pts")
+            ruleRow("Coupe / Europe", "130 pts")
+            ruleRow("Championnat", "110 pts")
+            ruleRow("Révélation", "40 pts")
+            ruleRow("Sélection", "3 pts")
+            divider
+            labeled("Selon le poste", "Le même exploit ne vaut pas la même chose partout.")
+            ruleRow("Attaquant", "buts ×3, passes ×1, note")
+            ruleRow("Milieu", "passes ×3, buts ×1, note ×2")
+            ruleRow("Défenseur", "note ×3, matchs ÷2, buts ×2")
+            ruleRow("Gardien", "note ×3, matchs ÷2")
+            divider
+            ruleRow("Par saison jouée", "10 pts")
+            ruleRow("Réputation finale", "1 pt par point")
+        }
+    }
+
+    private var financierCard: some View {
+        rulesCard(icon: "eurosign.circle.fill", title: "L'aspect financier", color: FDTheme.success) {
+            paragraph("L'argent laissé à la retraite compte aussi au Classement. Le barème est par paliers : bien gagner sa vie rapporte, mais une fortune ne remplacera jamais un palmarès.")
+            ForEach(Array(FDWealthScale.rows.enumerated()), id: \.offset) { _, row in
+                ruleRow(row.label, "\(row.points) pts")
+            }
+            paragraph("Le maximum financier vaut moins qu'un seul Ballon d'Or. Salaires, primes, sponsors et dépenses de ta carrière alimentent directement ce total.")
+        }
+    }
+
+    private var sauvegardeCard: some View {
+        rulesCard(icon: "externaldrive.fill", title: "Sauvegarde", color: FDTheme.textMuted) {
+            bullet("Aucun compte, aucune inscription : tout est stocké sur l'appareil.")
+            bullet("Une seule carrière en cours à la fois : tu la termines, tu l'abandonnes, ou tu la reprends.")
+            bullet("Points, pièces, compétences, légendes conquises et classement survivent aux carrières.")
+        }
+    }
+
+    // MARK: Building blocks
+
+    @ViewBuilder
+    private func rulesCard<Content: View>(icon: String, title: String, color: Color,
+                                          @ViewBuilder content: () -> Content) -> some View {
+        VStack(spacing: 0) {
+            HStack(spacing: 7) {
+                Image(systemName: icon)
+                    .font(.footnote.weight(.bold))
+                    .foregroundStyle(color)
+                Text(title.uppercased())
+                    .font(FDFont.body(14, black: true))
+                    .foregroundStyle(color)
+                Spacer()
+            }
+            .padding(.horizontal, 12).padding(.vertical, 9)
+            .background(FDTheme.headerWash(color))
+
+            Rectangle().fill(Color.white.opacity(0.06)).frame(height: 1)
+
+            VStack(alignment: .leading, spacing: 8) {
+                content()
+            }
+            .padding(12)
+        }
+        .fdCardSurface()
+    }
+
+    private func paragraph(_ text: String) -> some View {
+        Text(text)
+            .font(.footnote)
+            .foregroundStyle(FDTheme.textPrimary.opacity(0.85))
+            .fixedSize(horizontal: false, vertical: true)
+            .frame(maxWidth: .infinity, alignment: .leading)
+    }
+
+    private func bullet(_ text: String) -> some View {
+        HStack(alignment: .top, spacing: 7) {
+            Circle()
+                .fill(FDTheme.primary.opacity(0.7))
+                .frame(width: 5, height: 5)
+                .padding(.top, 6)
+            Text(text)
+                .font(.footnote)
+                .foregroundStyle(FDTheme.textPrimary.opacity(0.85))
+                .fixedSize(horizontal: false, vertical: true)
+            Spacer(minLength: 0)
+        }
+    }
+
+    private func labeled(_ title: String, _ text: String) -> some View {
+        VStack(alignment: .leading, spacing: 3) {
+            Text(title)
+                .font(FDFont.body(15, black: true))
+                .foregroundStyle(FDTheme.textPrimary)
+            Text(text)
+                .font(.footnote)
+                .foregroundStyle(FDTheme.textPrimary.opacity(0.8))
+                .fixedSize(horizontal: false, vertical: true)
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+    }
+
+    private func ruleRow(_ label: String, _ value: String) -> some View {
+        HStack(spacing: 8) {
+            Text(label)
+                .font(.footnote)
+                .foregroundStyle(.secondary)
+                .lineLimit(1)
+                .minimumScaleFactor(0.75)
+            Spacer(minLength: 6)
+            Text(value)
+                .font(FDFont.mono(13, bold: true))
+                .foregroundStyle(FDTheme.textPrimary)
+                .lineLimit(1)
+        }
+    }
+
+    private var divider: some View {
+        Rectangle().fill(Color.white.opacity(0.06)).frame(height: 1)
     }
 }
