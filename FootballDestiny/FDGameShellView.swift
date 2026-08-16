@@ -8,22 +8,26 @@ struct FDGameShellView: View {
     @State private var selectedTab = 0
 
     var body: some View {
-        TabView(selection: $selectedTab) {
-            FDCarriereTab(engine: engine, screen: $screen)
-                .tabItem { Label("Carrière", systemImage: "star.fill") }
-                .tag(0)
-            FDJournalTab(engine: engine)
-                .tabItem { Label("Journal", systemImage: "newspaper.fill") }
-                .tag(1)
-            FDOptionsTab(engine: engine, screen: $screen)
-                .tabItem { Label("Options", systemImage: "gearshape.fill") }
-                .tag(2)
-        }
-        .tint(FDTheme.primary)
-        .background(FDTheme.bg.ignoresSafeArea())
-        .safeAreaInset(edge: .top, spacing: 0) {
+        // The status header sits above the TabView rather than being inset into it. As a
+        // safe-area inset it shifted the whole tab content down while the tabs kept their
+        // full height, which left a band of background at the bottom of every screen.
+        VStack(spacing: 0) {
             FDStatusHeader(engine: engine)
+
+            TabView(selection: $selectedTab) {
+                FDCarriereTab(engine: engine, screen: $screen)
+                    .tabItem { Label("Carrière", systemImage: "star.fill") }
+                    .tag(0)
+                FDJournalTab(engine: engine)
+                    .tabItem { Label("Journal", systemImage: "newspaper.fill") }
+                    .tag(1)
+                FDOptionsTab(engine: engine, screen: $screen)
+                    .tabItem { Label("Options", systemImage: "gearshape.fill") }
+                    .tag(2)
+            }
+            .tint(FDTheme.primary)
         }
+        .background(FDTheme.bg.ignoresSafeArea())
         .overlay(alignment: .top) {
             if let toast = engine.toast {
                 FDToastView(text: toast)
@@ -1166,8 +1170,10 @@ struct FDCarriereTab: View {
                 }
             }
             .background(FDTheme.bg.ignoresSafeArea())
-            .navigationTitle("Carrière")
-            .navigationBarTitleDisplayMode(.inline)
+            // No navigation bar here: it carried no title anyone could read — same colour as
+            // the background — while stealing 44pt at the top of every screen, which pushed
+            // the content down and left a band of empty background above the tab bar.
+            .navigationBarHidden(true)
         }
         .navigationViewStyle(.stack)
     }
