@@ -21,6 +21,7 @@ struct FDCareerCreationView: View {
         initialDraft.firstName = identity.first
         initialDraft.lastName = identity.last
         initialDraft.birthCity = identity.city
+        initialDraft.foot = FDCareerCreationView.rolledFoot()
         self._draft = State(initialValue: initialDraft)
     }
 
@@ -184,6 +185,17 @@ struct FDCareerCreationView: View {
         draft.firstName = identity.first
         draft.lastName = identity.last
         draft.birthCity = identity.city
+        draft.foot = FDCareerCreationView.rolledFoot()
+    }
+
+    /// The strong foot is dealt with the rest of the identity rather than picked: roughly
+    /// three players in four are right-footed, and true ambidexterity stays rare.
+    static func rolledFoot() -> FDFoot {
+        switch Int.random(in: 0..<100) {
+        case ..<72: return .droit
+        case ..<95: return .gauche
+        default: return .ambidextre
+        }
     }
 
     // MARK: - Step 1: Identity & Nationality
@@ -221,6 +233,15 @@ struct FDCareerCreationView: View {
                                     .foregroundStyle(.secondary)
                                     .lineLimit(1)
                                     .minimumScaleFactor(0.8)
+                                // The strong foot is dealt, not chosen — shown here so the
+                                // player still knows what they were given.
+                                HStack(spacing: 4) {
+                                    Image(systemName: "figure.walk")
+                                        .font(.system(size: 11, weight: .bold))
+                                    Text("Pied \(draft.foot.rawValue.lowercased())")
+                                        .font(.footnote.weight(.semibold))
+                                }
+                                .foregroundStyle(FDTheme.accentTeal)
                             }
 
                             Spacer(minLength: 0)
@@ -258,23 +279,6 @@ struct FDCareerCreationView: View {
                     }
                     .fdCardSurface()
 
-                    // Pied fort
-                    VStack(spacing: 0) {
-                        creationSectionHeader(icon: "boot.fill", title: "Pied fort")
-
-                        HStack(spacing: 0) {
-                            ForEach(FDFoot.allCases, id: \.self) { foot in
-                                FDFootChoice(foot: foot, selected: draft.foot == foot) {
-                                    FDHaptics.tap()
-                                    draft.foot = foot
-                                }
-                                if foot != FDFoot.allCases.last {
-                                    Rectangle().fill(Color.white.opacity(0.06)).frame(width: 1, height: 40)
-                                }
-                            }
-                        }
-                    }
-                    .fdCardSurface()
                 }
                 .padding(.horizontal, 14)
                 .padding(.top, 8)
@@ -673,30 +677,6 @@ private func fdPositionIcon(_ position: FDPosition) -> String {
     case .defenseur: return "shield.fill"
     case .milieu: return "arrow.triangle.swap"
     case .attaquant: return "soccerball"
-    }
-}
-
-private struct FDFootChoice: View {
-    let foot: FDFoot
-    let selected: Bool
-    let action: () -> Void
-
-    var body: some View {
-        Button(action: action) {
-            VStack(spacing: 4) {
-                Image(systemName: foot == .droit ? "hand.point.right.fill" : "hand.point.left.fill")
-                    .font(.title3)
-                    .foregroundStyle(selected ? FDTheme.primary : .secondary)
-                Text(foot.rawValue)
-                    .font(FDFont.body(15, black: selected))
-                    .foregroundStyle(selected ? FDTheme.textPrimary : .secondary)
-            }
-            .frame(maxWidth: .infinity)
-            .padding(.vertical, 12)
-            .background(selected ? FDTheme.primary.opacity(0.12) : Color.clear)
-        }
-        .buttonStyle(FDChoiceButtonStyle())
-        .animation(.fdSnap, value: selected)
     }
 }
 

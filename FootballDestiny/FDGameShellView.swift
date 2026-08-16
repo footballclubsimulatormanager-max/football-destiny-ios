@@ -98,7 +98,9 @@ struct FDStatusHeader: View {
                 .frame(height: 2)
 
                 HStack {
-                    Text("\(fdSeasonLabel(p.calendar.season))  ·  \(p.age) ans  ·  Sem. \(p.calendar.week)/\(p.calendar.seasonWeeks)")
+                    // The progress bar above already shows where the season stands; the week
+                    // number was noise on top of it.
+                    Text("\(fdSeasonLabel(p.calendar.season))  ·  \(p.age) ans")
                         .foregroundStyle(.secondary)
                     Spacer()
                     HStack(spacing: 3) {
@@ -466,7 +468,8 @@ struct FDStoryCard: View {
                 .font(.system(size: 16))
                 .lineSpacing(2)
                 .foregroundStyle(FDTheme.textPrimary)
-                .fixedSize(horizontal: false, vertical: true)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .minimumScaleFactor(0.72)
                 .padding(.horizontal, 13).padding(.vertical, 12)
 
             Rectangle().fill(Color.white.opacity(0.06)).frame(height: 1)
@@ -524,6 +527,9 @@ struct FDStoryCard: View {
                 }
             }
         }
+        // The scene card owns the bottom half of the screen down to the tab bar:
+        // it stretches to whatever height it is offered, content pinned to the top.
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
         .fdCardSurface()
     }
 }
@@ -561,7 +567,8 @@ struct FDOutcomeCard: View {
                 .font(.system(size: 16))
                 .lineSpacing(2)
                 .foregroundStyle(FDTheme.textPrimary)
-                .fixedSize(horizontal: false, vertical: true)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .minimumScaleFactor(0.72)
                 .padding(14)
 
             if !outcome.pills.isEmpty {
@@ -596,6 +603,9 @@ struct FDOutcomeCard: View {
                 .padding(14)
             }
         }
+        // The scene card owns the bottom half of the screen down to the tab bar:
+        // it stretches to whatever height it is offered, content pinned to the top.
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
         .fdCardSurface()
     }
 }
@@ -692,6 +702,9 @@ struct FDMatchCard: View {
             }
             .buttonStyle(FDRowButtonStyle())
         }
+        // The scene card owns the bottom half of the screen down to the tab bar:
+        // it stretches to whatever height it is offered, content pinned to the top.
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
         .fdCardSurface()
     }
 }
@@ -765,6 +778,9 @@ struct FDSeasonCard: View {
             }
             .buttonStyle(FDRowButtonStyle())
         }
+        // The scene card owns the bottom half of the screen down to the tab bar:
+        // it stretches to whatever height it is offered, content pinned to the top.
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
         .fdCardSurface()
         .overlay(
             RoundedRectangle(cornerRadius: FDTheme.radiusCard)
@@ -831,6 +847,9 @@ struct FDTournamentCard: View {
             }
             .buttonStyle(FDRowButtonStyle())
         }
+        // The scene card owns the bottom half of the screen down to the tab bar:
+        // it stretches to whatever height it is offered, content pinned to the top.
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
         .fdCardSurface()
     }
 }
@@ -1034,20 +1053,18 @@ struct FDCarriereTab: View {
                                     .padding(7)
                                 }
                             }
-                            // The player box takes whatever the scene leaves: it can never be
-                            // squeezed below a readable third of the screen, and when the
-                            // scene is short it grows to fill the page instead of leaving a
-                            // dead gap at the bottom.
-                            .frame(minHeight: geo.size.height * 0.30, maxHeight: .infinity)
+                            // The player box gets a fixed share of the screen — never less
+                            // than a readable 190pt, never more than a third and a bit. The
+                            // rest belongs to the scene, which runs down to the tab bar.
+                            .frame(height: min(max(geo.size.height * 0.38, 190), 320))
                             .background(FDTheme.card.opacity(0.6), in: RoundedRectangle(cornerRadius: FDTheme.radiusCard))
                             .overlay(
                                 RoundedRectangle(cornerRadius: FDTheme.radiusCard)
                                     .stroke(Color.white.opacity(0.07), lineWidth: 1)
                             )
 
-                            // The narrative gets first claim on the remaining height, so a
-                            // long scene pushes the player box down to its minimum rather
-                            // than being clipped.
+                            // The scene takes everything the player box leaves, so the card
+                            // ends flush with the tab bar instead of floating mid-screen.
                             Group {
                                 switch engine.currentScene {
                                 case .none:
@@ -1072,10 +1089,9 @@ struct FDCarriereTab: View {
                                     )
                                 }
                             }
-                            .fixedSize(horizontal: false, vertical: true)
+                            .frame(maxWidth: .infinity, maxHeight: .infinity)
                             .layoutPriority(1)
                         }
-                        .frame(maxHeight: .infinity, alignment: .top)
                     }
                     .padding(.horizontal, 12)
                     .padding(.top, 6)
