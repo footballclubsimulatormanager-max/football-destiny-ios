@@ -20,6 +20,7 @@ struct FDGameShellView: View {
                 .tag(2)
         }
         .tint(FDTheme.primary)
+        .background(FDTheme.bg.ignoresSafeArea())
         .safeAreaInset(edge: .top, spacing: 0) {
             FDStatusHeader(engine: engine)
         }
@@ -1164,7 +1165,7 @@ struct FDCarriereTab: View {
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
                 }
             }
-            .background(FDTheme.bg)
+            .background(FDTheme.bg.ignoresSafeArea())
             .navigationTitle("Carrière")
             .navigationBarTitleDisplayMode(.inline)
         }
@@ -1750,7 +1751,7 @@ struct FDJournalTab: View {
                         .frame(maxWidth: .infinity, maxHeight: .infinity)
                 }
             }
-            .background(FDTheme.bg)
+            .background(FDTheme.bg.ignoresSafeArea())
             .navigationTitle("Journal")
             .navigationBarTitleDisplayMode(.inline)
         }
@@ -1879,7 +1880,7 @@ struct FDOptionsTab: View {
                 .padding(.top, 8)
                 .padding(.bottom, 20)
             }
-            .background(FDTheme.bg)
+            .background(FDTheme.bg.ignoresSafeArea())
             .navigationTitle("Options")
             .navigationBarTitleDisplayMode(.inline)
             .confirmationDialog("Raccrocher les crampons ?", isPresented: $showRetireConfirm, titleVisibility: .visible) {
