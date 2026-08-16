@@ -1131,7 +1131,12 @@ struct FDCarriereTab: View {
     @State private var subTab: FDCarriereSubTab = .stats
 
     var body: some View {
-        NavigationView {
+        // No NavigationView here: nothing on this tab navigates, and its bar only stole
+        // height. The background is painted inside the tab — behind the TabView it was
+        // hidden by the tab controller's own opaque black.
+        ZStack {
+            FDTheme.bg.ignoresSafeArea()
+
             Group {
                 if let p = engine.player, p.retired {
                     ScrollView {
@@ -1169,13 +1174,8 @@ struct FDCarriereTab: View {
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
                 }
             }
-            .background(FDTheme.bg.ignoresSafeArea())
-            // No navigation bar here: it carried no title anyone could read — same colour as
-            // the background — while stealing 44pt at the top of every screen, which pushed
-            // the content down and left a band of empty background above the tab bar.
-            .navigationBarHidden(true)
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
         }
-        .navigationViewStyle(.stack)
     }
 
     /// A labelled bar, used only by the player sheet header.
@@ -1757,6 +1757,7 @@ struct FDJournalTab: View {
                         .frame(maxWidth: .infinity, maxHeight: .infinity)
                 }
             }
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
             .background(FDTheme.bg.ignoresSafeArea())
             .navigationTitle("Journal")
             .navigationBarTitleDisplayMode(.inline)
@@ -1886,6 +1887,7 @@ struct FDOptionsTab: View {
                 .padding(.top, 8)
                 .padding(.bottom, 20)
             }
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
             .background(FDTheme.bg.ignoresSafeArea())
             .navigationTitle("Options")
             .navigationBarTitleDisplayMode(.inline)

@@ -79,5 +79,10 @@ enum FDAppearance {
 
         UITableView.appearance().backgroundColor = UIColor(FDTheme.bg)
         UITableViewCell.appearance().backgroundColor = .clear
+
+        // The window itself defaults to black, and any area a screen doesn't cover — around
+        // a tab's content, during a transition — shows that black unless it is painted too.
+        // (Only views have an appearance proxy; view controllers do not.)
+        UIWindow.appearance().backgroundColor = UIColor(FDTheme.bg)
     }
 }
