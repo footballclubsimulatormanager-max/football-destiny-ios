@@ -1159,7 +1159,7 @@ struct FDCarriereTab: View {
                     }
                 }
                 .padding(.horizontal, 12)
-                .padding(.top, 6)
+                .padding(.top, 12)
                 .padding(.bottom, 8)
             } else {
                 VStack(spacing: 12) {
