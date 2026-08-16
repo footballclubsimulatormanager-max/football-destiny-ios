@@ -467,18 +467,19 @@ struct FDStoryCard: View {
 
             Rectangle().fill(Color.white.opacity(0.06)).frame(height: 1)
 
-            // The scene itself: big, aired out, the thing you actually came to read.
-            Text(scene.text)
-                .font(FDFont.story(20))
-                .lineSpacing(6)
-                .foregroundStyle(FDTheme.textPrimary)
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .minimumScaleFactor(0.65)
-                .padding(.horizontal, 16).padding(.top, 16).padding(.bottom, 12)
-
-            // The choices sit at the bottom of the card, whatever height it gets, so the
-            // page never ends on a block of empty background.
-            Spacer(minLength: 8)
+            // The scene itself: big, aired out, the thing you actually came to read. It
+            // takes the height the choices leave, and scrolls only when a long scene meets
+            // a small screen — the choices stay reachable at the bottom either way.
+            ScrollView {
+                Text(scene.text)
+                    .font(FDFont.story(20))
+                    .lineSpacing(6)
+                    .foregroundStyle(FDTheme.textPrimary)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .fixedSize(horizontal: false, vertical: true)
+                    .padding(.horizontal, 16).padding(.top, 16).padding(.bottom, 12)
+            }
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
 
             VStack(spacing: 9) {
                 ForEach(Array(scene.choices.enumerated()), id: \.offset) { idx, choice in
