@@ -26,7 +26,12 @@ struct FDMainMenuView: View {
                         greetingHeader
                             .fdAppear()
 
+                        // Two blocks, deliberately different: playing a career, then
+                        // everything that surrounds it. The break is visual, not just
+                        // spacing — full-width rows above, a compact grid below.
                         VStack(spacing: 12) {
+                            menuSectionLabel("Jouer", icon: "sportscourt.fill")
+
                             FDMenuRow(
                                 icon: "sportscourt.fill",
                                 iconTint: FDTheme.primary,
@@ -63,55 +68,63 @@ struct FDMainMenuView: View {
                                 showDefis = true
                             }
                             .fdAppear(delay: 0.15)
+                        }
 
-                            FDMenuRow(
-                                icon: "cart.fill",
-                                iconTint: FDTheme.blueGlow,
-                                title: "Boutique",
-                                subtitle: "Compétences permanentes",
-                                badge: (text: "\(engine.legendCoins)", icon: "seal.fill", tint: FDTheme.blueGlow),
-                                disabled: false
-                            ) {
-                                FDHaptics.tap()
-                                showBoutique = true
-                            }
-                            .fdAppear(delay: 0.20)
+                        VStack(spacing: 10) {
+                            menuSectionLabel("Ton univers", icon: "square.grid.2x2.fill")
 
-                            FDMenuRow(
-                                icon: "list.number",
-                                iconTint: FDTheme.warning,
-                                title: "Classement",
-                                subtitle: engine.archivedCareers.isEmpty ? "Termine une carrière pour y entrer" : "Les 100 meilleures carrières",
-                                disabled: engine.archivedCareers.isEmpty
-                            ) {
-                                FDHaptics.tap()
-                                showClassement = true
-                            }
-                            .fdAppear(delay: 0.25)
+                            LazyVGrid(columns: [GridItem(.flexible(), spacing: 10),
+                                                GridItem(.flexible(), spacing: 10)], spacing: 10) {
+                                FDMenuTile(
+                                    icon: "cart.fill",
+                                    tint: FDTheme.blueGlow,
+                                    title: "Boutique",
+                                    detail: "\(engine.legendCoins) pièce(s)",
+                                    disabled: false
+                                ) {
+                                    FDHaptics.tap()
+                                    showBoutique = true
+                                }
+                                .fdAppear(delay: 0.20)
 
-                            FDMenuRow(
-                                icon: "book.fill",
-                                iconTint: FDTheme.textMuted,
-                                title: "Règles",
-                                subtitle: "Modes de jeu, monnaies, classement",
-                                disabled: false
-                            ) {
-                                FDHaptics.tap()
-                                showRegles = true
-                            }
-                            .fdAppear(delay: 0.30)
+                                FDMenuTile(
+                                    icon: "list.number",
+                                    tint: FDTheme.warning,
+                                    title: "Classement",
+                                    detail: engine.archivedCareers.isEmpty ? "Vide" : "Top 100",
+                                    disabled: engine.archivedCareers.isEmpty
+                                ) {
+                                    FDHaptics.tap()
+                                    showClassement = true
+                                }
+                                .fdAppear(delay: 0.24)
 
-                            FDMenuRow(
-                                icon: "clock.arrow.circlepath",
-                                iconTint: FDTheme.accentTeal,
-                                title: "Historique",
-                                subtitle: engine.archivedCareers.isEmpty ? "Aucune carrière terminée" : "\(engine.archivedCareers.count) carrière(s) terminée(s)",
-                                disabled: false
-                            ) {
-                                FDHaptics.tap()
-                                showHistorique = true
+                                FDMenuTile(
+                                    icon: "clock.arrow.circlepath",
+                                    tint: FDTheme.accentTeal,
+                                    title: "Historique",
+                                    detail: engine.archivedCareers.isEmpty
+                                        ? "Aucune carrière"
+                                        : "\(engine.archivedCareers.count) carrière(s)",
+                                    disabled: false
+                                ) {
+                                    FDHaptics.tap()
+                                    showHistorique = true
+                                }
+                                .fdAppear(delay: 0.28)
+
+                                FDMenuTile(
+                                    icon: "book.fill",
+                                    tint: FDTheme.textMuted,
+                                    title: "Règles",
+                                    detail: "Comment ça marche",
+                                    disabled: false
+                                ) {
+                                    FDHaptics.tap()
+                                    showRegles = true
+                                }
+                                .fdAppear(delay: 0.32)
                             }
-                            .fdAppear(delay: 0.35)
                         }
                     }
                     .padding(.horizontal, 20)
@@ -238,6 +251,72 @@ struct FDMainMenuView: View {
             RoundedRectangle(cornerRadius: 20, style: .continuous)
                 .stroke(Color.white.opacity(0.10), lineWidth: 1)
         )
+    }
+}
+
+
+/// The thin heading that separates the two halves of the menu.
+private func menuSectionLabel(_ text: String, icon: String) -> some View {
+    HStack(spacing: 7) {
+        Image(systemName: icon)
+            .font(.system(size: 11, weight: .bold))
+        Text(text.uppercased())
+            .font(FDFont.body(13, black: true))
+            .tracking(1.4)
+        Rectangle()
+            .fill(Color.white.opacity(0.10))
+            .frame(height: 1)
+    }
+    .foregroundStyle(.white.opacity(0.45))
+    .padding(.horizontal, 2)
+}
+
+/// Compact square used by the second half of the menu: everything that surrounds a career
+/// rather than being one, so it reads as a different kind of destination.
+private struct FDMenuTile: View {
+    let icon: String
+    let tint: Color
+    let title: String
+    let detail: String
+    let disabled: Bool
+    let action: () -> Void
+
+    var body: some View {
+        Button(action: action) {
+            VStack(alignment: .leading, spacing: 8) {
+                Image(systemName: icon)
+                    .font(.system(size: 17, weight: .semibold))
+                    .foregroundStyle(tint)
+                    .frame(width: 34, height: 34)
+                    .background(tint.opacity(0.14), in: RoundedRectangle(cornerRadius: 11, style: .continuous))
+
+                VStack(alignment: .leading, spacing: 1) {
+                    Text(title)
+                        .font(FDFont.body(15, black: true))
+                        .foregroundStyle(.white)
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.8)
+                    Text(detail)
+                        .font(.footnote)
+                        .foregroundStyle(.white.opacity(0.5))
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.75)
+                }
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(12)
+            .background(
+                RoundedRectangle(cornerRadius: 16, style: .continuous)
+                    .fill(Color.white.opacity(0.035))
+            )
+            .overlay(
+                RoundedRectangle(cornerRadius: 16, style: .continuous)
+                    .stroke(Color.white.opacity(0.07), lineWidth: 1)
+            )
+        }
+        .buttonStyle(FDRowButtonStyle())
+        .disabled(disabled)
+        .opacity(disabled ? 0.4 : 1)
     }
 }
 
