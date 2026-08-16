@@ -452,21 +452,19 @@ struct FDStoryCard: View {
 
             Rectangle().fill(Color.white.opacity(0.06)).frame(height: 1)
 
-            // The scene itself: big, aired out, the thing you actually came to read. It
-            // takes the height the choices leave, and scrolls only when a long scene meets
-            // a small screen — the choices stay reachable at the bottom either way.
-            ScrollView {
-                Text(scene.text)
-                    .font(FDFont.story(20))
-                    .lineSpacing(6)
-                    .foregroundStyle(FDTheme.textPrimary)
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .fixedSize(horizontal: false, vertical: true)
-                    .padding(.horizontal, 16).padding(.top, 16).padding(.bottom, 12)
-            }
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            // The scene takes the height it needs and no more, so the choices sit right
+            // under it instead of being pushed to the bottom of the card with a hole in
+            // between. A very long scene shrinks slightly rather than pushing them off.
+            Text(scene.text)
+                .font(FDFont.story(20))
+                .lineSpacing(6)
+                .foregroundStyle(FDTheme.textPrimary)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .fixedSize(horizontal: false, vertical: true)
+                .minimumScaleFactor(0.6)
+                .padding(.horizontal, 16).padding(.top, 16).padding(.bottom, 14)
 
-            VStack(spacing: 8) {
+            VStack(spacing: 10) {
                 ForEach(Array(scene.choices.enumerated()), id: \.offset) { idx, choice in
                     // Each choice is a filled button in its own colour — pressable at a
                     // glance, no hunting for the tappable part of a row.
@@ -488,13 +486,13 @@ struct FDStoryCard: View {
                                     .foregroundStyle(tint.opacity(0.85))
                             }
                             Text(choice.label)
-                                .font(FDFont.body(17, black: true))
+                                .font(FDFont.body(18, black: true))
                                 .foregroundStyle(tint)
                                 .multilineTextAlignment(.center)
                                 .fixedSize(horizontal: false, vertical: true)
                         }
                         .frame(maxWidth: .infinity)
-                        .padding(.vertical, 13)
+                        .padding(.vertical, 15)
                         .padding(.horizontal, 12)
                         .background(
                             RoundedRectangle(cornerRadius: 14, style: .continuous)
@@ -511,6 +509,8 @@ struct FDStoryCard: View {
             }
             .padding(.horizontal, 11)
             .padding(.bottom, 12)
+
+            Spacer(minLength: 0)
         }
         // The scene card owns the bottom half of the screen down to the tab bar:
         // it stretches to whatever height it is offered, content pinned to the top.

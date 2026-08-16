@@ -588,7 +588,7 @@ let FDScenesPack1: [FDSceneDef] = [
             FDChoice(label: "Dire que ça ne fait rien",
                      effects: [FDEffect(cond: "moral", delta: -2), FDEffect(rel: "famille", delta: 3)]),
             FDChoice(label: "Avouer que ça fait mal",
-                     effects: [FDEffect(rel: "famille", delta: 6), FDEffect(cond: "moral", delta: 2)]),
+                     effects: [FDEffect(rel: "famille", delta: 6), FDEffect(cond: "moral", delta: 2), FDEffect(cond: "fatigue", delta: 4)]),
             FDChoice(label: "Se refermer",
                      effects: [FDEffect(cond: "moral", delta: -5), FDEffect(attr: .determination, delta: 2)]),
         ]),
@@ -644,7 +644,7 @@ let FDScenesPack1: [FDSceneDef] = [
             FDChoice(label: "Refuser gentiment",
                      effects: [FDEffect(rel: "famille", delta: -5), FDEffect(rel: "agent", delta: 4)]),
             FDChoice(label: "Lui proposer un rôle d'assistant",
-                     effects: [FDEffect(rel: "famille", delta: 3), FDEffect(rel: "agent", delta: 1)]),
+                     effects: [FDEffect(rel: "famille", delta: 3), FDEffect(rel: "agent", delta: 1), FDEffect(cond: "fatigue", delta: 4)]),
         ]),
     FDSceneDef(
         id: "fam_noel", category: "Famille", minAge: 16, maxAge: 34,
@@ -676,7 +676,7 @@ let FDScenesPack1: [FDSceneDef] = [
             FDChoice(label: "Écouter et encaisser",
                      effects: [FDEffect(cond: "moral", delta: -4), FDEffect(attr: .sangfroid, delta: 3)]),
             FDChoice(label: "Lui demander de venir aux entraînements",
-                     effects: [FDEffect(rel: "famille", delta: 5), FDEffect(attr: .determination, delta: 2)]),
+                     effects: [FDEffect(rel: "famille", delta: 5), FDEffect(attr: .determination, delta: 2), FDEffect(cond: "moral", delta: -3)]),
         ]),
     FDSceneDef(
         id: "fam_soeur_jalouse", category: "Famille", minAge: 16, maxAge: 26,
@@ -684,7 +684,7 @@ let FDScenesPack1: [FDSceneDef] = [
         text: "Ta sœur te reproche d'avoir volé toute l'attention de la famille depuis dix ans.",
         choices: [
             FDChoice(label: "Lui présenter des excuses sincères",
-                     effects: [FDEffect(rel: "famille", delta: 6), FDEffect(cond: "moral", delta: 2)]),
+                     effects: [FDEffect(rel: "famille", delta: 6), FDEffect(cond: "moral", delta: 2), FDEffect(cond: "fatigue", delta: 4)]),
             FDChoice(label: "Répondre que tu n'as rien demandé",
                      effects: [FDEffect(rel: "famille", delta: -6)]),
             FDChoice(label: "Lui offrir un voyage",
@@ -730,7 +730,7 @@ let FDScenesPack1: [FDSceneDef] = [
         text: "Un photographe vous suit depuis le début du dîner. Ta compagne déteste ça.",
         choices: [
             FDChoice(label: "Aller lui parler calmement",
-                     effects: [FDEffect(attr: .sangfroid, delta: 3), FDEffect(rel: "media", delta: 2)]),
+                     effects: [FDEffect(attr: .sangfroid, delta: 3), FDEffect(rel: "media", delta: 2), FDEffect(cond: "fatigue", delta: 5)]),
             FDChoice(label: "Casser l'ambiance et partir",
                      effects: [FDEffect(rel: "media", delta: -5), FDEffect(cond: "moral", delta: -3)]),
             FDChoice(label: "Poser volontairement",
@@ -752,7 +752,7 @@ let FDScenesPack1: [FDSceneDef] = [
         text: "Tu enchaînes les matchs sans marquer. Elle te dit qu'elle ne sait plus comment t'aider.",
         choices: [
             FDChoice(label: "Tout lui raconter",
-                     effects: [FDEffect(cond: "moral", delta: 6), FDEffect(attr: .sangfroid, delta: 2)]),
+                     effects: [FDEffect(cond: "moral", delta: 6), FDEffect(attr: .sangfroid, delta: 2), FDEffect(rel: "famille", delta: -4)]),
             FDChoice(label: "Prétendre que tout va bien",
                      effects: [FDEffect(cond: "moral", delta: -4), FDEffect(cond: "confiance", delta: -3)]),
         ]),
@@ -764,7 +764,7 @@ let FDScenesPack1: [FDSceneDef] = [
             FDChoice(label: "Y aller discrètement",
                      effects: [FDEffect(cond: "moral", delta: 6), FDEffect(rel: "coach", delta: -6), FDEffect(cond: "fatigue", delta: 8)]),
             FDChoice(label: "Venir encourager sans jouer",
-                     effects: [FDEffect(cond: "moral", delta: 3), FDEffect(rel: "coach", delta: 1)]),
+                     effects: [FDEffect(cond: "moral", delta: 3), FDEffect(rel: "coach", delta: 1), FDEffect(cond: "fatigue", delta: 5)]),
             FDChoice(label: "Refuser franchement",
                      effects: [FDEffect(cond: "moral", delta: -3), FDEffect(rel: "coach", delta: 3)]),
         ]),
@@ -788,7 +788,7 @@ let FDScenesPack1: [FDSceneDef] = [
             FDChoice(label: "Répondre sèchement",
                      effects: [FDEffect(cond: "moral", delta: -4), FDEffect(attr: .leadership, delta: 2)]),
             FDChoice(label: "Le prendre à part après",
-                     effects: [FDEffect(cond: "moral", delta: 4), FDEffect(attr: .sangfroid, delta: 3)]),
+                     effects: [FDEffect(cond: "moral", delta: 4), FDEffect(attr: .sangfroid, delta: 3), FDEffect(cond: "fatigue", delta: 5)]),
             FDChoice(label: "Payer la tournée en riant",
                      effects: [FDEffect(money: -800, delta: 0), FDEffect(cond: "moral", delta: 2), FDEffect(cond: "reputation", delta: 1)]),
         ]),
@@ -810,7 +810,7 @@ let FDScenesPack1: [FDSceneDef] = [
         text: "Le directeur du centre pose devant toi un contrat aspirant. Trois ans, salaire minime, avenir incertain.",
         choices: [
             FDChoice(label: "Signer immédiatement",
-                     effects: [FDEffect(attr: .determination, delta: 3), FDEffect(cond: "confiance", delta: 4), FDEffect(rel: "coach", delta: 4)]),
+                     effects: [FDEffect(attr: .determination, delta: 3), FDEffect(cond: "confiance", delta: 4), FDEffect(rel: "coach", delta: 4), FDEffect(cond: "fatigue", delta: 8)]),
             FDChoice(label: "Demander à consulter un conseil",
                      effects: [FDEffect(attr: .sangfroid, delta: 3), FDEffect(rel: "coach", delta: -2), FDEffect(rel: "agent", delta: 4)]),
         ]),
@@ -832,7 +832,7 @@ let FDScenesPack1: [FDSceneDef] = [
             FDChoice(label: "Réclamer le brassard des jeunes",
                      effects: [FDEffect(attr: .leadership, delta: 3), FDEffect(rel: "vestiaire", delta: -3), FDEffect(cond: "confiance", delta: 5)]),
             FDChoice(label: "Rester discret et écouter",
-                     effects: [FDEffect(attr: .placement, delta: 2), FDEffect(rel: "vestiaire", delta: 4)]),
+                     effects: [FDEffect(attr: .placement, delta: 2), FDEffect(rel: "vestiaire", delta: 4), FDEffect(cond: "fatigue", delta: 8)]),
         ]),
     FDSceneDef(
         id: "form_conflit_educateur", category: "Formation", minAge: 15, maxAge: 18,
@@ -842,7 +842,7 @@ let FDScenesPack1: [FDSceneDef] = [
             FDChoice(label: "Exiger une explication",
                      effects: [FDEffect(rel: "coach", delta: -5), FDEffect(attr: .leadership, delta: 2), FDEffect(cond: "confiance", delta: 2)]),
             FDChoice(label: "Rester sur le banc sans broncher",
-                     effects: [FDEffect(attr: .sangfroid, delta: 4), FDEffect(rel: "coach", delta: 4)]),
+                     effects: [FDEffect(attr: .sangfroid, delta: 4), FDEffect(rel: "coach", delta: 4), FDEffect(cond: "fatigue", delta: 8)]),
             FDChoice(label: "Balancer ta chasuble",
                      effects: [FDEffect(rel: "coach", delta: -8), FDEffect(cond: "reputation", delta: -3), FDEffect(cond: "moral", delta: -2)]),
         ]),
@@ -864,7 +864,7 @@ let FDScenesPack1: [FDSceneDef] = [
         text: "Le club te propose ton premier contrat professionnel. Un autre club de l'étranger t'observe aussi.",
         choices: [
             FDChoice(label: "Signer chez toi",
-                     effects: [FDEffect(rel: "coach", delta: 6), FDEffect(cond: "moral", delta: 6), FDEffect(rel: "president", delta: 6)]),
+                     effects: [FDEffect(rel: "coach", delta: 6), FDEffect(cond: "moral", delta: 6), FDEffect(rel: "president", delta: 6), FDEffect(cond: "confiance", delta: -3)]),
             FDChoice(label: "Attendre l'offre étrangère",
                      effects: [FDEffect(cond: "confiance", delta: 4), FDEffect(rel: "coach", delta: -5), FDEffect(rel: "agent", delta: 5)]),
         ]),
@@ -897,7 +897,7 @@ let FDScenesPack1: [FDSceneDef] = [
             FDChoice(label: "Forcer ton jeu pour l'impressionner",
                      effects: [FDEffect(attr: .dribble, delta: 2), FDEffect(rel: "vestiaire", delta: -3), FDEffect(cond: "confiance", delta: 3)]),
             FDChoice(label: "Jouer ton match normalement",
-                     effects: [FDEffect(attr: .placement, delta: 2), FDEffect(rel: "coach", delta: 3), FDEffect(attr: .sangfroid, delta: 2)]),
+                     effects: [FDEffect(attr: .placement, delta: 2), FDEffect(rel: "coach", delta: 3), FDEffect(attr: .sangfroid, delta: 2), FDEffect(cond: "confiance", delta: -3)]),
         ]),
     FDSceneDef(
         id: "form_blessure_croissance", category: "Formation", minAge: 15, maxAge: 18,
@@ -905,7 +905,7 @@ let FDScenesPack1: [FDSceneDef] = [
         text: "Douleurs de croissance aux genoux. Le médecin parle de trois semaines d'arrêt, tu parles de trois jours.",
         choices: [
             FDChoice(label: "Respecter l'arrêt",
-                     effects: [FDEffect(cond: "forme", delta: 6), FDEffect(cond: "fatigue", delta: -12), FDEffect(rel: "coach", delta: 2)]),
+                     effects: [FDEffect(cond: "forme", delta: 6), FDEffect(cond: "fatigue", delta: -12), FDEffect(rel: "coach", delta: 2), FDEffect(cond: "confiance", delta: -3)]),
             FDChoice(label: "Reprendre trop tôt",
                      effects: [FDEffect(cond: "forme", delta: -8), FDEffect(attr: .determination, delta: 3)]),
         ]),
@@ -937,7 +937,7 @@ let FDScenesPack1: [FDSceneDef] = [
         text: "Premier stage avec les pros. Le capitaine te demande de porter les sacs de tout le groupe.",
         choices: [
             FDChoice(label: "Le faire en souriant",
-                     effects: [FDEffect(rel: "vestiaire", delta: 6), FDEffect(rel: "capitaine", delta: 5)]),
+                     effects: [FDEffect(rel: "vestiaire", delta: 6), FDEffect(rel: "capitaine", delta: 5), FDEffect(rel: "coach", delta: -3)]),
             FDChoice(label: "Refuser poliment",
                      effects: [FDEffect(rel: "vestiaire", delta: -5), FDEffect(attr: .leadership, delta: 3)]),
         ]),
@@ -949,7 +949,7 @@ let FDScenesPack1: [FDSceneDef] = [
             FDChoice(label: "Prendre le jeu à ton compte",
                      effects: [FDEffect(attr: .dribble, delta: 2), FDEffect(attr: .tir, delta: 2), FDEffect(cond: "fatigue", delta: 8)]),
             FDChoice(label: "Faire briller tes coéquipiers",
-                     effects: [FDEffect(attr: .vision, delta: 3), FDEffect(rel: "vestiaire", delta: 5)]),
+                     effects: [FDEffect(attr: .vision, delta: 3), FDEffect(rel: "vestiaire", delta: 5), FDEffect(cond: "confiance", delta: -3)]),
         ]),
     FDSceneDef(
         id: "form_mentor_ancien", category: "Formation", minAge: 17, maxAge: 24,
@@ -957,7 +957,7 @@ let FDScenesPack1: [FDSceneDef] = [
         text: "Un ancien du club, en fin de carrière, te propose de le suivre partout pendant un mois.",
         choices: [
             FDChoice(label: "Accepter et tout observer",
-                     effects: [FDEffect(attr: .placement, delta: 3), FDEffect(attr: .sangfroid, delta: 2), FDEffect(rel: "vestiaire", delta: 4)]),
+                     effects: [FDEffect(attr: .placement, delta: 3), FDEffect(attr: .sangfroid, delta: 2), FDEffect(rel: "vestiaire", delta: 4), FDEffect(cond: "confiance", delta: -3)]),
             FDChoice(label: "Décliner, tu apprends en jouant",
                      effects: [FDEffect(attr: .determination, delta: 2), FDEffect(rel: "vestiaire", delta: -2)]),
         ]),
@@ -989,7 +989,7 @@ let FDScenesPack1: [FDSceneDef] = [
         text: "L'analyste passe vingt minutes à décortiquer tes erreurs devant tout le groupe.",
         choices: [
             FDChoice(label: "Prendre des notes",
-                     effects: [FDEffect(attr: .vision, delta: 3), FDEffect(attr: .placement, delta: 2), FDEffect(rel: "coach", delta: 4)]),
+                     effects: [FDEffect(attr: .vision, delta: 3), FDEffect(attr: .placement, delta: 2), FDEffect(rel: "coach", delta: 4), FDEffect(cond: "confiance", delta: -3)]),
             FDChoice(label: "Contester une séquence",
                      effects: [FDEffect(attr: .leadership, delta: 2), FDEffect(rel: "coach", delta: -4)]),
             FDChoice(label: "Encaisser en silence",
@@ -1001,9 +1001,9 @@ let FDScenesPack1: [FDSceneDef] = [
         text: "Ton nom apparaît pour la première fois sur une feuille de match professionnelle. Sur le banc.",
         choices: [
             FDChoice(label: "Prévenir toute ta famille",
-                     effects: [FDEffect(rel: "famille", delta: 8), FDEffect(cond: "moral", delta: 6)]),
+                     effects: [FDEffect(rel: "famille", delta: 8), FDEffect(cond: "moral", delta: 6), FDEffect(cond: "fatigue", delta: 8)]),
             FDChoice(label: "Ne rien dire tant que tu n'as pas joué",
-                     effects: [FDEffect(attr: .sangfroid, delta: 3), FDEffect(cond: "confiance", delta: 2)]),
+                     effects: [FDEffect(attr: .sangfroid, delta: 3), FDEffect(cond: "confiance", delta: 2), FDEffect(cond: "fatigue", delta: 8)]),
         ]),
     FDSceneDef(
         id: "form_premiere_entree", category: "Formation", minAge: 17, maxAge: 23, once: true,
@@ -1013,7 +1013,7 @@ let FDScenesPack1: [FDSceneDef] = [
             FDChoice(label: "Réclamer le ballon dès la première seconde",
                      effects: [FDEffect(attr: .dribble, delta: 2), FDEffect(cond: "confiance", delta: 5), FDEffect(rel: "vestiaire", delta: -2)]),
             FDChoice(label: "Jouer simple et propre",
-                     effects: [FDEffect(attr: .passe, delta: 2), FDEffect(rel: "coach", delta: 5), FDEffect(attr: .placement, delta: 1)]),
+                     effects: [FDEffect(attr: .passe, delta: 2), FDEffect(rel: "coach", delta: 5), FDEffect(attr: .placement, delta: 1), FDEffect(cond: "confiance", delta: -3)]),
         ]),
     FDSceneDef(
         id: "form_selection_jeune", category: "Formation", minAge: 16, maxAge: 21,
@@ -1023,7 +1023,7 @@ let FDScenesPack1: [FDSceneDef] = [
             FDChoice(label: "T'imposer dès le premier entraînement",
                      effects: [FDEffect(attr: .determination, delta: 3), FDEffect(cond: "fatigue", delta: 8), FDEffect(rel: "coach", delta: 3)]),
             FDChoice(label: "Observer la hiérarchie avant d'agir",
-                     effects: [FDEffect(attr: .sangfroid, delta: 3), FDEffect(attr: .vision, delta: 2)]),
+                     effects: [FDEffect(attr: .sangfroid, delta: 3), FDEffect(attr: .vision, delta: 2), FDEffect(cond: "fatigue", delta: 8)]),
         ]),
     FDSceneDef(
         id: "form_rejet_essai", category: "Formation", minAge: 15, maxAge: 18,
@@ -1033,7 +1033,7 @@ let FDScenesPack1: [FDSceneDef] = [
             FDChoice(label: "En faire une obsession",
                      effects: [FDEffect(attr: .determination, delta: 5), FDEffect(attr: .force, delta: 2), FDEffect(cond: "fatigue", delta: 8)]),
             FDChoice(label: "Accepter et travailler sereinement",
-                     effects: [FDEffect(attr: .sangfroid, delta: 3), FDEffect(cond: "moral", delta: 2)]),
+                     effects: [FDEffect(attr: .sangfroid, delta: 3), FDEffect(cond: "moral", delta: 2), FDEffect(cond: "fatigue", delta: 8)]),
             FDChoice(label: "Douter sérieusement",
                      effects: [FDEffect(cond: "confiance", delta: -6), FDEffect(cond: "moral", delta: -4)]),
         ]),
@@ -1043,7 +1043,7 @@ let FDScenesPack1: [FDSceneDef] = [
         text: "Un agent glisse sa carte à ta mère à la sortie d'un match de jeunes. Tu as seize ans.",
         choices: [
             FDChoice(label: "Le rencontrer avec tes parents",
-                     effects: [FDEffect(rel: "agent", delta: 5), FDEffect(rel: "famille", delta: 3)]),
+                     effects: [FDEffect(rel: "agent", delta: 5), FDEffect(rel: "famille", delta: 3), FDEffect(cond: "fatigue", delta: 8)]),
             FDChoice(label: "Jeter la carte",
                      effects: [FDEffect(rel: "agent", delta: -3), FDEffect(attr: .sangfroid, delta: 2)]),
         ]),
@@ -1053,7 +1053,7 @@ let FDScenesPack1: [FDSceneDef] = [
         text: "Le club veut inclure tes droits à l'image dans le contrat, sans surcoût.",
         choices: [
             FDChoice(label: "Signer sans discuter",
-                     effects: [FDEffect(rel: "president", delta: 5), FDEffect(money: 0, delta: 0)]),
+                     effects: [FDEffect(rel: "president", delta: 5), FDEffect(money: 0, delta: 0), FDEffect(rel: "coach", delta: -3)]),
             FDChoice(label: "Négocier une clause",
                      effects: [FDEffect(rel: "agent", delta: 5), FDEffect(rel: "president", delta: -4), FDEffect(money: 12000, delta: 0)]),
         ]),
@@ -1063,7 +1063,7 @@ let FDScenesPack1: [FDSceneDef] = [
         text: "Un coéquipier de ton âge est objectivement meilleur que toi. Tout le centre en parle.",
         choices: [
             FDChoice(label: "T'entraîner avec lui chaque jour",
-                     effects: [FDEffect(attr: .control, delta: 2), FDEffect(attr: .determination, delta: 3), FDEffect(rel: "vestiaire", delta: 4)]),
+                     effects: [FDEffect(attr: .control, delta: 2), FDEffect(attr: .determination, delta: 3), FDEffect(rel: "vestiaire", delta: 4), FDEffect(cond: "fatigue", delta: 8)]),
             FDChoice(label: "Le prendre comme rival personnel",
                      effects: [FDEffect(attr: .tir, delta: 2), FDEffect(rel: "vestiaire", delta: -4), FDEffect(cond: "confiance", delta: 2)]),
         ]),
@@ -1073,7 +1073,7 @@ let FDScenesPack1: [FDSceneDef] = [
         text: "Fin de formation. Le club ne te garde pas. Trois clubs de division inférieure t'attendent.",
         choices: [
             FDChoice(label: "Descendre d'un niveau pour jouer",
-                     effects: [FDEffect(attr: .determination, delta: 3), FDEffect(cond: "confiance", delta: 3), FDEffect(rel: "coach", delta: 2)]),
+                     effects: [FDEffect(attr: .determination, delta: 3), FDEffect(cond: "confiance", delta: 3), FDEffect(rel: "coach", delta: 2), FDEffect(cond: "fatigue", delta: 8)]),
             FDChoice(label: "Tenter un essai à l'étranger",
                      effects: [FDEffect(cond: "moral", delta: -2), FDEffect(attr: .vision, delta: 2), FDEffect(rel: "agent", delta: 4)]),
         ]),
@@ -1103,7 +1103,7 @@ let FDScenesPack1: [FDSceneDef] = [
         text: "Le préparateur mental découvre que tu dors cinq heures par nuit depuis des mois.",
         choices: [
             FDChoice(label: "Accepter un protocole de sommeil",
-                     effects: [FDEffect(cond: "fatigue", delta: -14), FDEffect(attr: .sangfroid, delta: 2)]),
+                     effects: [FDEffect(cond: "fatigue", delta: -14), FDEffect(attr: .sangfroid, delta: 2), FDEffect(cond: "confiance", delta: -3)]),
             FDChoice(label: "Balayer le sujet",
                      effects: [FDEffect(cond: "fatigue", delta: 8), FDEffect(cond: "forme", delta: -4)]),
         ]),
@@ -1175,7 +1175,7 @@ let FDScenesPack1: [FDSceneDef] = [
         text: "Ton meilleur ami de formation joue en face ce week-end, et il traverse une saison difficile.",
         choices: [
             FDChoice(label: "Aller le voir avant le match",
-                     effects: [FDEffect(rel: "vestiaire", delta: 2), FDEffect(cond: "moral", delta: 4)]),
+                     effects: [FDEffect(rel: "vestiaire", delta: 2), FDEffect(cond: "moral", delta: 4), FDEffect(cond: "fatigue", delta: 5)]),
             FDChoice(label: "Le mettre en difficulté toute la rencontre",
                      effects: [FDEffect(attr: .tacle, delta: 2), FDEffect(cond: "confiance", delta: 3), FDEffect(cond: "moral", delta: -3)]),
         ]),
@@ -1209,7 +1209,7 @@ let FDScenesPack1: [FDSceneDef] = [
             FDChoice(label: "Foncer sans réfléchir",
                      effects: [FDEffect(cond: "confiance", delta: 5), FDEffect(attr: .vitesse, delta: 1), FDEffect(cond: "fatigue", delta: 8)]),
             FDChoice(label: "Demander deux consignes précises",
-                     effects: [FDEffect(attr: .placement, delta: 3), FDEffect(rel: "coach", delta: 4)]),
+                     effects: [FDEffect(attr: .placement, delta: 3), FDEffect(rel: "coach", delta: 4), FDEffect(cond: "confiance", delta: -3)]),
         ]),
     FDSceneDef(
         id: "form_prime_signature", category: "Formation", minAge: 18, maxAge: 26,
@@ -1227,7 +1227,7 @@ let FDScenesPack1: [FDSceneDef] = [
         text: "Un ami te propose de parier sur des matchs d'un autre championnat. « Aucun risque, tu n'y joues pas. »",
         choices: [
             FDChoice(label: "Refuser catégoriquement",
-                     effects: [FDEffect(attr: .sangfroid, delta: 4), FDEffect(cond: "reputation", delta: 2)]),
+                     effects: [FDEffect(attr: .sangfroid, delta: 4), FDEffect(cond: "reputation", delta: 2), FDEffect(cond: "fatigue", delta: 5)]),
             FDChoice(label: "Accepter une fois",
                      effects: [FDEffect(money: 5000, delta: 0), FDEffect(cond: "reputation", delta: -8), FDEffect(rel: "president", delta: -6)]),
         ]),
@@ -1249,7 +1249,7 @@ let FDScenesPack1: [FDSceneDef] = [
         text: "Elle te propose une règle simple : pas de football à la maison, jamais.",
         choices: [
             FDChoice(label: "Accepter la règle",
-                     effects: [FDEffect(cond: "moral", delta: 6), FDEffect(attr: .sangfroid, delta: 2)]),
+                     effects: [FDEffect(cond: "moral", delta: 6), FDEffect(attr: .sangfroid, delta: 2), FDEffect(rel: "famille", delta: -4)]),
             FDChoice(label: "Refuser, c'est toute ta vie",
                      effects: [FDEffect(cond: "moral", delta: -3), FDEffect(attr: .determination, delta: 2), FDEffect(rel: "famille", delta: -4)]),
         ]),
@@ -1262,9 +1262,9 @@ let FDScenesPack2: [FDSceneDef] = [
         text: "Bizutage classique : chanter debout sur une table devant tout le groupe, micro dans la main.",
         choices: [
             FDChoice(label: "Y aller à fond",
-                     effects: [FDEffect(rel: "vestiaire", delta: 8), FDEffect(cond: "moral", delta: 4)]),
+                     effects: [FDEffect(rel: "vestiaire", delta: 8), FDEffect(cond: "moral", delta: 4), FDEffect(cond: "fatigue", delta: 4)]),
             FDChoice(label: "Chanter en bâclant",
-                     effects: [FDEffect(rel: "vestiaire", delta: 1)]),
+                     effects: [FDEffect(rel: "vestiaire", delta: 1), FDEffect(cond: "fatigue", delta: 4)]),
             FDChoice(label: "Refuser",
                      effects: [FDEffect(rel: "vestiaire", delta: -8), FDEffect(attr: .leadership, delta: 2)]),
         ]),
@@ -1278,7 +1278,7 @@ let FDScenesPack2: [FDSceneDef] = [
             FDChoice(label: "Rejoindre les jeunes",
                      effects: [FDEffect(rel: "vestiaire", delta: 5), FDEffect(rel: "capitaine", delta: -4)]),
             FDChoice(label: "Refuser de choisir",
-                     effects: [FDEffect(attr: .leadership, delta: 4), FDEffect(rel: "vestiaire", delta: 2), FDEffect(rel: "capitaine", delta: 2)]),
+                     effects: [FDEffect(attr: .leadership, delta: 4), FDEffect(rel: "vestiaire", delta: 2), FDEffect(rel: "capitaine", delta: 2), FDEffect(cond: "fatigue", delta: 4)]),
         ]),
     FDSceneDef(
         id: "ves_musique", category: "Vestiaire", minAge: 18, maxAge: 30,
@@ -1288,7 +1288,7 @@ let FDScenesPack2: [FDSceneDef] = [
             FDChoice(label: "Imposer ta playlist",
                      effects: [FDEffect(attr: .leadership, delta: 2), FDEffect(rel: "vestiaire", delta: -2), FDEffect(cond: "confiance", delta: 3)]),
             FDChoice(label: "Laisser les anciens décider",
-                     effects: [FDEffect(rel: "capitaine", delta: 4), FDEffect(rel: "vestiaire", delta: 2)]),
+                     effects: [FDEffect(rel: "capitaine", delta: 4), FDEffect(rel: "vestiaire", delta: 2), FDEffect(cond: "fatigue", delta: 4)]),
         ]),
     FDSceneDef(
         id: "ves_retard_repete", category: "Vestiaire", minAge: 18, maxAge: 32,
@@ -1300,7 +1300,7 @@ let FDScenesPack2: [FDSceneDef] = [
             FDChoice(label: "Le couvrir",
                      effects: [FDEffect(rel: "vestiaire", delta: 6), FDEffect(rel: "coach", delta: -5)]),
             FDChoice(label: "Lui parler en privé",
-                     effects: [FDEffect(attr: .leadership, delta: 4), FDEffect(rel: "vestiaire", delta: 3)]),
+                     effects: [FDEffect(attr: .leadership, delta: 4), FDEffect(rel: "vestiaire", delta: 3), FDEffect(rel: "capitaine", delta: -3)]),
         ]),
     FDSceneDef(
         id: "ves_nouveau_star", category: "Vestiaire", minAge: 20, maxAge: 33,
@@ -1308,7 +1308,7 @@ let FDScenesPack2: [FDSceneDef] = [
         text: "Le club recrute une star à ton poste. Elle prend ton casier et ton numéro.",
         choices: [
             FDChoice(label: "Aller lui serrer la main",
-                     effects: [FDEffect(attr: .sangfroid, delta: 3), FDEffect(rel: "vestiaire", delta: 4)]),
+                     effects: [FDEffect(attr: .sangfroid, delta: 3), FDEffect(rel: "vestiaire", delta: 4), FDEffect(cond: "fatigue", delta: 4)]),
             FDChoice(label: "Demander des comptes au coach",
                      effects: [FDEffect(rel: "coach", delta: -5), FDEffect(attr: .leadership, delta: 3), FDEffect(cond: "confiance", delta: 3)]),
             FDChoice(label: "Redoubler d'efforts en silence",
@@ -1322,7 +1322,7 @@ let FDScenesPack2: [FDSceneDef] = [
             FDChoice(label: "Répondre physiquement",
                      effects: [FDEffect(rel: "vestiaire", delta: -6), FDEffect(cond: "reputation", delta: -4), FDEffect(attr: .force, delta: 2)]),
             FDChoice(label: "Le calmer et parler après",
-                     effects: [FDEffect(attr: .sangfroid, delta: 4), FDEffect(rel: "vestiaire", delta: 5), FDEffect(attr: .leadership, delta: 3)]),
+                     effects: [FDEffect(attr: .sangfroid, delta: 4), FDEffect(rel: "vestiaire", delta: 5), FDEffect(attr: .leadership, delta: 3), FDEffect(rel: "capitaine", delta: -3)]),
         ]),
     FDSceneDef(
         id: "ves_greve_entrainement", category: "Vestiaire", minAge: 20, maxAge: 34,
@@ -1334,7 +1334,7 @@ let FDScenesPack2: [FDSceneDef] = [
             FDChoice(label: "T'entraîner quand même",
                      effects: [FDEffect(rel: "president", delta: 6), FDEffect(rel: "vestiaire", delta: -8)]),
             FDChoice(label: "Proposer une médiation",
-                     effects: [FDEffect(attr: .leadership, delta: 5), FDEffect(rel: "president", delta: 2), FDEffect(rel: "vestiaire", delta: 2)]),
+                     effects: [FDEffect(attr: .leadership, delta: 5), FDEffect(rel: "president", delta: 2), FDEffect(rel: "vestiaire", delta: 2), FDEffect(rel: "capitaine", delta: -3)]),
         ]),
     FDSceneDef(
         id: "ves_brassard", category: "Vestiaire", minAge: 22, maxAge: 35,
@@ -1344,7 +1344,7 @@ let FDScenesPack2: [FDSceneDef] = [
             FDChoice(label: "Défendre ta candidature",
                      effects: [FDEffect(attr: .leadership, delta: 5), FDEffect(rel: "capitaine", delta: -4), FDEffect(cond: "confiance", delta: 4)]),
             FDChoice(label: "Soutenir l'ancien",
-                     effects: [FDEffect(rel: "vestiaire", delta: 6), FDEffect(rel: "capitaine", delta: 8), FDEffect(attr: .leadership, delta: 1)]),
+                     effects: [FDEffect(rel: "vestiaire", delta: 6), FDEffect(rel: "capitaine", delta: 8), FDEffect(attr: .leadership, delta: 1), FDEffect(cond: "fatigue", delta: 4)]),
         ]),
     FDSceneDef(
         id: "ves_jeune_perdu", category: "Vestiaire", minAge: 24, maxAge: 36,
@@ -1352,7 +1352,7 @@ let FDScenesPack2: [FDSceneDef] = [
         text: "Un jeune du centre débarque, terrorisé, et personne ne lui parle.",
         choices: [
             FDChoice(label: "Le prendre sous ton aile",
-                     effects: [FDEffect(attr: .leadership, delta: 4), FDEffect(rel: "vestiaire", delta: 4), FDEffect(cond: "moral", delta: 3)]),
+                     effects: [FDEffect(attr: .leadership, delta: 4), FDEffect(rel: "vestiaire", delta: 4), FDEffect(cond: "moral", delta: 3), FDEffect(rel: "capitaine", delta: -3)]),
             FDChoice(label: "Le laisser se débrouiller",
                      effects: [FDEffect(cond: "moral", delta: -2)]),
         ]),
@@ -1362,7 +1362,7 @@ let FDScenesPack2: [FDSceneDef] = [
         text: "Une recrue ne parle pas un mot de la langue et se retrouve isolée depuis un mois.",
         choices: [
             FDChoice(label: "L'inviter chez toi",
-                     effects: [FDEffect(rel: "vestiaire", delta: 6), FDEffect(cond: "moral", delta: 4)]),
+                     effects: [FDEffect(rel: "vestiaire", delta: 6), FDEffect(cond: "moral", delta: 4), FDEffect(rel: "capitaine", delta: -3)]),
             FDChoice(label: "Lui payer des cours",
                      effects: [FDEffect(money: -3000, delta: 0), FDEffect(rel: "vestiaire", delta: 4)]),
             FDChoice(label: "Ne pas t'en mêler",
@@ -1374,7 +1374,7 @@ let FDScenesPack2: [FDSceneDef] = [
         text: "Le coach change de système et ton poste disparaît du tableau.",
         choices: [
             FDChoice(label: "Demander un entretien",
-                     effects: [FDEffect(rel: "coach", delta: 2), FDEffect(attr: .leadership, delta: 3)]),
+                     effects: [FDEffect(rel: "coach", delta: 2), FDEffect(attr: .leadership, delta: 3), FDEffect(cond: "confiance", delta: -3)]),
             FDChoice(label: "Apprendre le nouveau rôle",
                      effects: [FDEffect(attr: .placement, delta: 4), FDEffect(attr: .vision, delta: 2), FDEffect(cond: "fatigue", delta: 6)]),
             FDChoice(label: "Bouder",
@@ -1388,7 +1388,7 @@ let FDScenesPack2: [FDSceneDef] = [
             FDChoice(label: "Le défendre publiquement",
                      effects: [FDEffect(rel: "coach", delta: 8), FDEffect(rel: "president", delta: -6), FDEffect(cond: "reputation", delta: 3)]),
             FDChoice(label: "Rester neutre",
-                     effects: [FDEffect(attr: .sangfroid, delta: 3)]),
+                     effects: [FDEffect(attr: .sangfroid, delta: 3), FDEffect(cond: "fatigue", delta: 6)]),
             FDChoice(label: "Prendre le camp du président",
                      effects: [FDEffect(rel: "president", delta: 7), FDEffect(rel: "coach", delta: -9), FDEffect(rel: "vestiaire", delta: -4)]),
         ]),
@@ -1410,7 +1410,7 @@ let FDScenesPack2: [FDSceneDef] = [
             FDChoice(label: "Répondre du tac au tac",
                      effects: [FDEffect(rel: "coach", delta: -8), FDEffect(attr: .leadership, delta: 3), FDEffect(rel: "vestiaire", delta: 4)]),
             FDChoice(label: "Baisser la tête et répondre sur le terrain",
-                     effects: [FDEffect(attr: .determination, delta: 4), FDEffect(rel: "coach", delta: 5)]),
+                     effects: [FDEffect(attr: .determination, delta: 4), FDEffect(rel: "coach", delta: 5), FDEffect(cond: "confiance", delta: -3)]),
             FDChoice(label: "Demander à sortir",
                      effects: [FDEffect(rel: "coach", delta: -10), FDEffect(cond: "moral", delta: -6)]),
         ]),
@@ -1432,7 +1432,7 @@ let FDScenesPack2: [FDSceneDef] = [
             FDChoice(label: "Demander à partir en prêt",
                      effects: [FDEffect(rel: "coach", delta: -3), FDEffect(cond: "confiance", delta: 2), FDEffect(rel: "agent", delta: 5)]),
             FDChoice(label: "Demander ce qu'il attend de toi",
-                     effects: [FDEffect(rel: "coach", delta: 5), FDEffect(attr: .determination, delta: 3)]),
+                     effects: [FDEffect(rel: "coach", delta: 5), FDEffect(attr: .determination, delta: 3), FDEffect(cond: "fatigue", delta: 6)]),
             FDChoice(label: "Menacer de ne plus t'entraîner",
                      effects: [FDEffect(rel: "coach", delta: -10), FDEffect(cond: "reputation", delta: -4)]),
         ]),
@@ -1464,7 +1464,7 @@ let FDScenesPack2: [FDSceneDef] = [
             FDChoice(label: "Frapper en puissance",
                      effects: [FDEffect(attr: .tir, delta: 3), FDEffect(cond: "fatigue", delta: 5)]),
             FDChoice(label: "Travailler le placement du ballon",
-                     effects: [FDEffect(attr: .tir, delta: 1), FDEffect(attr: .placement, delta: 2), FDEffect(attr: .sangfroid, delta: 2)]),
+                     effects: [FDEffect(attr: .tir, delta: 1), FDEffect(attr: .placement, delta: 2), FDEffect(attr: .sangfroid, delta: 2), FDEffect(cond: "fatigue", delta: 9)]),
         ]),
     FDSceneDef(
         id: "ent_duels", category: "Entraînement", minAge: 16, maxAge: 36,
@@ -1474,7 +1474,7 @@ let FDScenesPack2: [FDSceneDef] = [
             FDChoice(label: "Chercher le contact",
                      effects: [FDEffect(attr: .force, delta: 3), FDEffect(cond: "fatigue", delta: 8), FDEffect(rel: "vestiaire", delta: -2)]),
             FDChoice(label: "Jouer sur la vitesse",
-                     effects: [FDEffect(attr: .vitesse, delta: 2), FDEffect(attr: .agilite, delta: 2)]),
+                     effects: [FDEffect(attr: .vitesse, delta: 2), FDEffect(attr: .agilite, delta: 2), FDEffect(cond: "forme", delta: -3)]),
         ]),
     FDSceneDef(
         id: "ent_coups_francs", category: "Entraînement", minAge: 16, maxAge: 36,
@@ -1484,7 +1484,7 @@ let FDScenesPack2: [FDSceneDef] = [
             FDChoice(label: "Rester une heure de plus chaque soir",
                      effects: [FDEffect(attr: .tir, delta: 3), FDEffect(cond: "fatigue", delta: 10), FDEffect(attr: .determination, delta: 2)]),
             FDChoice(label: "Laisser la place au spécialiste",
-                     effects: [FDEffect(rel: "vestiaire", delta: 3), FDEffect(attr: .sangfroid, delta: 1)]),
+                     effects: [FDEffect(rel: "vestiaire", delta: 3), FDEffect(attr: .sangfroid, delta: 1), FDEffect(cond: "forme", delta: -3)]),
         ]),
     FDSceneDef(
         id: "ent_gardien_specifique", category: "Entraînement", minAge: 16, maxAge: 36,
@@ -1537,7 +1537,7 @@ let FDScenesPack2: [FDSceneDef] = [
             FDChoice(label: "Accepter",
                      effects: [FDEffect(attr: .vision, delta: 3), FDEffect(attr: .placement, delta: 2), FDEffect(cond: "fatigue", delta: 6)]),
             FDChoice(label: "Refuser, tu préfères récupérer",
-                     effects: [FDEffect(cond: "fatigue", delta: -6)]),
+                     effects: [FDEffect(cond: "fatigue", delta: -6), FDEffect(rel: "coach", delta: -2)]),
         ]),
     FDSceneDef(
         id: "ent_musculation", category: "Entraînement", minAge: 17, maxAge: 34,
@@ -1555,9 +1555,9 @@ let FDScenesPack2: [FDSceneDef] = [
         text: "Le kiné t'impose cryothérapie et massages tous les deux jours. C'est long et ennuyeux.",
         choices: [
             FDChoice(label: "Tout suivre à la lettre",
-                     effects: [FDEffect(cond: "fatigue", delta: -16), FDEffect(cond: "forme", delta: 5)]),
+                     effects: [FDEffect(cond: "fatigue", delta: -16), FDEffect(cond: "forme", delta: 5), FDEffect(rel: "coach", delta: -2)]),
             FDChoice(label: "Y aller quand tu y penses",
-                     effects: [FDEffect(cond: "fatigue", delta: -4)]),
+                     effects: [FDEffect(cond: "fatigue", delta: -4), FDEffect(cond: "forme", delta: -3)]),
         ]),
     FDSceneDef(
         id: "ent_jeune_prodige", category: "Entraînement", minAge: 24, maxAge: 36,
@@ -1565,11 +1565,11 @@ let FDScenesPack2: [FDSceneDef] = [
         text: "Un gamin de dix-sept ans t'élimine deux fois de suite devant tout le groupe.",
         choices: [
             FDChoice(label: "Le féliciter franchement",
-                     effects: [FDEffect(rel: "vestiaire", delta: 5), FDEffect(attr: .leadership, delta: 3)]),
+                     effects: [FDEffect(rel: "vestiaire", delta: 5), FDEffect(attr: .leadership, delta: 3), FDEffect(cond: "fatigue", delta: 9)]),
             FDChoice(label: "Le corriger au duel suivant",
                      effects: [FDEffect(attr: .tacle, delta: 2), FDEffect(rel: "vestiaire", delta: -3), FDEffect(cond: "confiance", delta: 2)]),
             FDChoice(label: "Lui demander de te montrer son geste",
-                     effects: [FDEffect(attr: .dribble, delta: 2), FDEffect(rel: "vestiaire", delta: 4)]),
+                     effects: [FDEffect(attr: .dribble, delta: 2), FDEffect(rel: "vestiaire", delta: 4), FDEffect(rel: "coach", delta: -2)]),
         ]),
     FDSceneDef(
         id: "ent_double_seance", category: "Entraînement", minAge: 17, maxAge: 34,
@@ -1589,7 +1589,7 @@ let FDScenesPack2: [FDSceneDef] = [
             FDChoice(label: "Prendre la parole devant le groupe",
                      effects: [FDEffect(attr: .leadership, delta: 5), FDEffect(rel: "vestiaire", delta: 5), FDEffect(cond: "fatigue", delta: 4)]),
             FDChoice(label: "Laisser les cadres gérer",
-                     effects: [FDEffect(attr: .sangfroid, delta: 2)]),
+                     effects: [FDEffect(attr: .sangfroid, delta: 2), FDEffect(cond: "fatigue", delta: 5)]),
             FDChoice(label: "Te concentrer sur ton propre match",
                      effects: [FDEffect(attr: .determination, delta: 3), FDEffect(rel: "vestiaire", delta: -3)]),
         ]),
@@ -1611,7 +1611,7 @@ let FDScenesPack2: [FDSceneDef] = [
             FDChoice(label: "Demander des garanties écrites",
                      effects: [FDEffect(rel: "president", delta: -3), FDEffect(rel: "agent", delta: 5), FDEffect(attr: .sangfroid, delta: 2)]),
             FDChoice(label: "Faire confiance au projet",
-                     effects: [FDEffect(rel: "president", delta: 6), FDEffect(cond: "confiance", delta: 2)]),
+                     effects: [FDEffect(rel: "president", delta: 6), FDEffect(cond: "confiance", delta: 2), FDEffect(cond: "fatigue", delta: 5)]),
         ]),
     FDSceneDef(
         id: "cri_supporters_bus", category: "Crise", minAge: 19, maxAge: 35,
@@ -1635,7 +1635,7 @@ let FDScenesPack2: [FDSceneDef] = [
             FDChoice(label: "Refuser",
                      effects: [FDEffect(rel: "president", delta: -7), FDEffect(money: 0, delta: 0)]),
             FDChoice(label: "Accepter contre une prolongation",
-                     effects: [FDEffect(rel: "president", delta: 5), FDEffect(rel: "agent", delta: 4)]),
+                     effects: [FDEffect(rel: "president", delta: 5), FDEffect(rel: "agent", delta: 4), FDEffect(cond: "fatigue", delta: 5)]),
         ]),
     FDSceneDef(
         id: "cri_entraineur_interim", category: "Crise", minAge: 19, maxAge: 35,
@@ -1653,11 +1653,11 @@ let FDScenesPack2: [FDSceneDef] = [
         text: "Avant le match le plus important de la saison, le vestiaire est silencieux. Tout le monde regarde le sol.",
         choices: [
             FDChoice(label: "Prendre la parole",
-                     effects: [FDEffect(attr: .leadership, delta: 5), FDEffect(rel: "vestiaire", delta: 6), FDEffect(cond: "confiance", delta: 4)]),
+                     effects: [FDEffect(attr: .leadership, delta: 5), FDEffect(rel: "vestiaire", delta: 6), FDEffect(cond: "confiance", delta: 4), FDEffect(cond: "moral", delta: -3)]),
             FDChoice(label: "Mettre la musique à fond",
-                     effects: [FDEffect(rel: "vestiaire", delta: 3), FDEffect(cond: "moral", delta: 3)]),
+                     effects: [FDEffect(rel: "vestiaire", delta: 3), FDEffect(cond: "moral", delta: 3), FDEffect(cond: "fatigue", delta: 6)]),
             FDChoice(label: "Rester dans ta bulle",
-                     effects: [FDEffect(attr: .sangfroid, delta: 3), FDEffect(cond: "confiance", delta: 2)]),
+                     effects: [FDEffect(attr: .sangfroid, delta: 3), FDEffect(cond: "confiance", delta: 2), FDEffect(cond: "fatigue", delta: 6)]),
         ]),
     FDSceneDef(
         id: "lea_erreur_coequipier", category: "Leadership", minAge: 20, maxAge: 36,
@@ -1665,7 +1665,7 @@ let FDScenesPack2: [FDSceneDef] = [
         text: "Un coéquipier offre un but à l'adversaire. Le stade le siffle.",
         choices: [
             FDChoice(label: "Aller le relever devant tout le monde",
-                     effects: [FDEffect(attr: .leadership, delta: 4), FDEffect(rel: "vestiaire", delta: 7), FDEffect(rel: "fans", delta: 3)]),
+                     effects: [FDEffect(attr: .leadership, delta: 4), FDEffect(rel: "vestiaire", delta: 7), FDEffect(rel: "fans", delta: 3), FDEffect(cond: "moral", delta: -3)]),
             FDChoice(label: "L'engueuler pour le réveiller",
                      effects: [FDEffect(attr: .leadership, delta: 2), FDEffect(rel: "vestiaire", delta: -4)]),
             FDChoice(label: "Ne rien faire",
@@ -1677,7 +1677,7 @@ let FDScenesPack2: [FDSceneDef] = [
         text: "Penalty à la 89e, score nul. Le tireur habituel est sorti. Le ballon est dans tes mains.",
         choices: [
             FDChoice(label: "Le tirer",
-                     effects: [FDEffect(attr: .sangfroid, delta: 4), FDEffect(cond: "confiance", delta: 5), FDEffect(attr: .tir, delta: 2)]),
+                     effects: [FDEffect(attr: .sangfroid, delta: 4), FDEffect(cond: "confiance", delta: 5), FDEffect(attr: .tir, delta: 2), FDEffect(rel: "vestiaire", delta: -3)]),
             FDChoice(label: "Le donner à un coéquipier",
                      effects: [FDEffect(rel: "vestiaire", delta: 5), FDEffect(attr: .sangfroid, delta: -1)]),
         ]),
@@ -1689,7 +1689,7 @@ let FDScenesPack2: [FDSceneDef] = [
             FDChoice(label: "Organiser une discussion",
                      effects: [FDEffect(attr: .leadership, delta: 5), FDEffect(rel: "coach", delta: 4), FDEffect(rel: "vestiaire", delta: 5), FDEffect(cond: "fatigue", delta: 3)]),
             FDChoice(label: "Rester en dehors",
-                     effects: [FDEffect(attr: .sangfroid, delta: 1)]),
+                     effects: [FDEffect(attr: .sangfroid, delta: 1), FDEffect(rel: "vestiaire", delta: -3)]),
         ]),
     FDSceneDef(
         id: "lea_jeune_transfert", category: "Leadership", minAge: 24, maxAge: 36,
@@ -1697,9 +1697,9 @@ let FDScenesPack2: [FDSceneDef] = [
         text: "Un jeune que tu as formé hésite à partir pour un club plus riche. Il te demande conseil.",
         choices: [
             FDChoice(label: "Lui conseiller de partir",
-                     effects: [FDEffect(rel: "vestiaire", delta: 4), FDEffect(attr: .leadership, delta: 3)]),
+                     effects: [FDEffect(rel: "vestiaire", delta: 4), FDEffect(attr: .leadership, delta: 3), FDEffect(cond: "moral", delta: -3)]),
             FDChoice(label: "Le convaincre de rester",
-                     effects: [FDEffect(rel: "president", delta: 5), FDEffect(rel: "vestiaire", delta: 2)]),
+                     effects: [FDEffect(rel: "president", delta: 5), FDEffect(rel: "vestiaire", delta: 2), FDEffect(cond: "fatigue", delta: 6)]),
             FDChoice(label: "Refuser de répondre",
                      effects: [FDEffect(rel: "vestiaire", delta: -3)]),
         ]),
@@ -1711,7 +1711,7 @@ let FDScenesPack2: [FDSceneDef] = [
             FDChoice(label: "Le porter et haranguer le groupe",
                      effects: [FDEffect(attr: .leadership, delta: 6), FDEffect(cond: "confiance", delta: 5), FDEffect(cond: "fatigue", delta: 4)]),
             FDChoice(label: "Le porter sans rien changer",
-                     effects: [FDEffect(attr: .leadership, delta: 2), FDEffect(attr: .sangfroid, delta: 3)]),
+                     effects: [FDEffect(attr: .leadership, delta: 2), FDEffect(attr: .sangfroid, delta: 3), FDEffect(cond: "moral", delta: -3)]),
         ]),
     FDSceneDef(
         id: "ves_anniversaire_club", category: "Vestiaire", minAge: 19, maxAge: 35,
@@ -1719,7 +1719,7 @@ let FDScenesPack2: [FDSceneDef] = [
         text: "Le club fête ses cent ans. On te demande de représenter les joueurs au micro.",
         choices: [
             FDChoice(label: "Faire un discours travaillé",
-                     effects: [FDEffect(attr: .leadership, delta: 4), FDEffect(rel: "president", delta: 6), FDEffect(rel: "fans", delta: 5)]),
+                     effects: [FDEffect(attr: .leadership, delta: 4), FDEffect(rel: "president", delta: 6), FDEffect(rel: "fans", delta: 5), FDEffect(rel: "vestiaire", delta: -3)]),
             FDChoice(label: "Décliner",
                      effects: [FDEffect(rel: "president", delta: -4), FDEffect(cond: "moral", delta: 1)]),
         ]),
@@ -1729,7 +1729,7 @@ let FDScenesPack2: [FDSceneDef] = [
         text: "Le club invite un arbitre à expliquer les nouvelles règles. Une partie du groupe ricane.",
         choices: [
             FDChoice(label: "Poser des questions sérieuses",
-                     effects: [FDEffect(attr: .vision, delta: 2), FDEffect(attr: .sangfroid, delta: 2), FDEffect(rel: "coach", delta: 3)]),
+                     effects: [FDEffect(attr: .vision, delta: 2), FDEffect(attr: .sangfroid, delta: 2), FDEffect(rel: "coach", delta: 3), FDEffect(cond: "fatigue", delta: 9)]),
             FDChoice(label: "Rire avec les autres",
                      effects: [FDEffect(rel: "vestiaire", delta: 3), FDEffect(rel: "coach", delta: -3)]),
         ]),
@@ -1759,7 +1759,7 @@ let FDScenesPack2: [FDSceneDef] = [
         text: "Un ancien cadre du vestiaire ne joue plus et devient toxique. Le groupe attend une réaction.",
         choices: [
             FDChoice(label: "Lui parler seul à seul",
-                     effects: [FDEffect(attr: .leadership, delta: 4), FDEffect(rel: "vestiaire", delta: 4)]),
+                     effects: [FDEffect(attr: .leadership, delta: 4), FDEffect(rel: "vestiaire", delta: 4), FDEffect(rel: "capitaine", delta: -3)]),
             FDChoice(label: "Alerter le coach",
                      effects: [FDEffect(rel: "coach", delta: 5), FDEffect(rel: "vestiaire", delta: -6)]),
             FDChoice(label: "Ignorer",
@@ -1783,7 +1783,7 @@ let FDScenesPack2: [FDSceneDef] = [
             FDChoice(label: "Le confronter devant le groupe",
                      effects: [FDEffect(rel: "coach", delta: -8), FDEffect(rel: "vestiaire", delta: 4), FDEffect(attr: .leadership, delta: 3)]),
             FDChoice(label: "Demander un rendez-vous",
-                     effects: [FDEffect(rel: "coach", delta: 3), FDEffect(attr: .sangfroid, delta: 3)]),
+                     effects: [FDEffect(rel: "coach", delta: 3), FDEffect(attr: .sangfroid, delta: 3), FDEffect(cond: "confiance", delta: -3)]),
             FDChoice(label: "Passer par ton agent",
                      effects: [FDEffect(rel: "agent", delta: 5), FDEffect(rel: "coach", delta: -4)]),
         ]),
@@ -1795,7 +1795,7 @@ let FDScenesPack2: [FDSceneDef] = [
             FDChoice(label: "Assumer et répondre",
                      effects: [FDEffect(attr: .leadership, delta: 4), FDEffect(rel: "capitaine", delta: -6), FDEffect(cond: "confiance", delta: 3)]),
             FDChoice(label: "Reconnaître et rectifier",
-                     effects: [FDEffect(rel: "capitaine", delta: 6), FDEffect(rel: "vestiaire", delta: 4), FDEffect(attr: .leadership, delta: 2)]),
+                     effects: [FDEffect(rel: "capitaine", delta: 6), FDEffect(rel: "vestiaire", delta: 4), FDEffect(attr: .leadership, delta: 2), FDEffect(cond: "fatigue", delta: 6)]),
         ]),
     FDSceneDef(
         id: "ves_photo_officielle", category: "Vestiaire", minAge: 18, maxAge: 36,
@@ -1803,7 +1803,7 @@ let FDScenesPack2: [FDSceneDef] = [
         text: "Photo officielle de l'équipe. On te place au dernier rang, tout au bord.",
         choices: [
             FDChoice(label: "Ne rien dire",
-                     effects: [FDEffect(attr: .sangfroid, delta: 2)]),
+                     effects: [FDEffect(attr: .sangfroid, delta: 2), FDEffect(rel: "vestiaire", delta: -3)]),
             FDChoice(label: "Demander une meilleure place",
                      effects: [FDEffect(cond: "confiance", delta: 3), FDEffect(rel: "vestiaire", delta: -3)]),
         ]),
@@ -1823,9 +1823,9 @@ let FDScenesPack2: [FDSceneDef] = [
         text: "Un inconnu te propose une somme à six chiffres pour « lever le pied » sur un match sans enjeu.",
         choices: [
             FDChoice(label: "Refuser et prévenir le club",
-                     effects: [FDEffect(cond: "reputation", delta: 8), FDEffect(rel: "president", delta: 8), FDEffect(attr: .sangfroid, delta: 4)]),
+                     effects: [FDEffect(cond: "reputation", delta: 8), FDEffect(rel: "president", delta: 8), FDEffect(attr: .sangfroid, delta: 4), FDEffect(cond: "fatigue", delta: 5)]),
             FDChoice(label: "Refuser et se taire",
-                     effects: [FDEffect(attr: .sangfroid, delta: 3)]),
+                     effects: [FDEffect(attr: .sangfroid, delta: 3), FDEffect(cond: "fatigue", delta: 5)]),
             FDChoice(label: "Accepter",
                      effects: [FDEffect(money: 150000, delta: 0), FDEffect(cond: "reputation", delta: -25), FDEffect(rel: "president", delta: -15)]),
         ]),
@@ -1845,9 +1845,9 @@ let FDScenesPack2: [FDSceneDef] = [
         text: "Repas d'équipe imposé après une série de défaites. Personne n'a envie d'y être.",
         choices: [
             FDChoice(label: "Détendre l'atmosphère",
-                     effects: [FDEffect(rel: "vestiaire", delta: 6), FDEffect(attr: .leadership, delta: 3), FDEffect(cond: "moral", delta: 4)]),
+                     effects: [FDEffect(rel: "vestiaire", delta: 6), FDEffect(attr: .leadership, delta: 3), FDEffect(cond: "moral", delta: 4), FDEffect(rel: "capitaine", delta: -3)]),
             FDChoice(label: "Manger et rentrer",
-                     effects: [FDEffect(cond: "fatigue", delta: -3)]),
+                     effects: [FDEffect(cond: "fatigue", delta: -3), FDEffect(rel: "capitaine", delta: -3)]),
         ]),
     FDSceneDef(
         id: "ent_test_vma", category: "Entraînement", minAge: 16, maxAge: 34,
@@ -1865,7 +1865,7 @@ let FDScenesPack2: [FDSceneDef] = [
         text: "L'arbitre vient de refuser un but valable. Tout le stade hurle et tes coéquipiers l'encerclent.",
         choices: [
             FDChoice(label: "Aller calmer tes coéquipiers",
-                     effects: [FDEffect(attr: .leadership, delta: 4), FDEffect(attr: .sangfroid, delta: 3), FDEffect(rel: "coach", delta: 3)]),
+                     effects: [FDEffect(attr: .leadership, delta: 4), FDEffect(attr: .sangfroid, delta: 3), FDEffect(rel: "coach", delta: 3), FDEffect(cond: "fatigue", delta: 6)]),
             FDChoice(label: "Rejoindre la protestation",
                      effects: [FDEffect(cond: "reputation", delta: -3), FDEffect(rel: "vestiaire", delta: 3)]),
         ]),
@@ -1877,7 +1877,7 @@ let FDScenesPack2: [FDSceneDef] = [
             FDChoice(label: "Prendre la parole en permanence",
                      effects: [FDEffect(attr: .leadership, delta: 4), FDEffect(cond: "fatigue", delta: 6)]),
             FDChoice(label: "Jouer en silence",
-                     effects: [FDEffect(attr: .sangfroid, delta: 3), FDEffect(attr: .placement, delta: 2)]),
+                     effects: [FDEffect(attr: .sangfroid, delta: 3), FDEffect(attr: .placement, delta: 2), FDEffect(rel: "president", delta: -4)]),
         ]),
     FDSceneDef(
         id: "ent_retour_blessure", category: "Entraînement", minAge: 17, maxAge: 36,
@@ -1895,7 +1895,7 @@ let FDScenesPack2: [FDSceneDef] = [
         text: "Le coach t'offre un rôle de joker de luxe : entrer en jeu et faire basculer les matchs.",
         choices: [
             FDChoice(label: "Accepter le rôle",
-                     effects: [FDEffect(attr: .tir, delta: 2), FDEffect(cond: "confiance", delta: 3), FDEffect(rel: "coach", delta: 5)]),
+                     effects: [FDEffect(attr: .tir, delta: 2), FDEffect(cond: "confiance", delta: 3), FDEffect(rel: "coach", delta: 5), FDEffect(cond: "fatigue", delta: 6)]),
             FDChoice(label: "Refuser, tu veux être titulaire",
                      effects: [FDEffect(rel: "coach", delta: -5), FDEffect(attr: .determination, delta: 3)]),
         ]),
@@ -1910,9 +1910,9 @@ let FDScenesPack3: [FDSceneDef] = [
             FDChoice(label: "Sortir les narguer",
                      effects: [FDEffect(rel: "fans", delta: 4), FDEffect(cond: "reputation", delta: -3), FDEffect(cond: "fatigue", delta: 4)]),
             FDChoice(label: "Mettre des bouchons et dormir",
-                     effects: [FDEffect(cond: "fatigue", delta: -6), FDEffect(attr: .sangfroid, delta: 3)]),
+                     effects: [FDEffect(cond: "fatigue", delta: -6), FDEffect(attr: .sangfroid, delta: 3), FDEffect(rel: "fans", delta: -3)]),
             FDChoice(label: "Réunir le groupe pour en rire",
-                     effects: [FDEffect(rel: "vestiaire", delta: 5), FDEffect(cond: "moral", delta: 4)]),
+                     effects: [FDEffect(rel: "vestiaire", delta: 5), FDEffect(cond: "moral", delta: 4), FDEffect(cond: "reputation", delta: -3)]),
         ]),
     FDSceneDef(
         id: "mat_derby_provocation", category: "Derby", minAge: 18, maxAge: 36,
@@ -1922,9 +1922,9 @@ let FDScenesPack3: [FDSceneDef] = [
             FDChoice(label: "Répondre sur le même ton",
                      effects: [FDEffect(cond: "confiance", delta: 3), FDEffect(cond: "reputation", delta: -2), FDEffect(rel: "vestiaire", delta: 3)]),
             FDChoice(label: "Ne rien dire et le regarder",
-                     effects: [FDEffect(attr: .sangfroid, delta: 4)]),
+                     effects: [FDEffect(attr: .sangfroid, delta: 4), FDEffect(cond: "reputation", delta: -3)]),
             FDChoice(label: "Le prendre au jeu et sourire",
-                     effects: [FDEffect(attr: .sangfroid, delta: 2), FDEffect(cond: "moral", delta: 3)]),
+                     effects: [FDEffect(attr: .sangfroid, delta: 2), FDEffect(cond: "moral", delta: 3), FDEffect(rel: "fans", delta: -3)]),
         ]),
     FDSceneDef(
         id: "mat_derby_but", category: "Derby", minAge: 18, maxAge: 36,
@@ -1932,9 +1932,9 @@ let FDScenesPack3: [FDSceneDef] = [
         text: "Tu viens de marquer devant le parcage adverse. Ils t'insultent depuis quatre-vingts minutes.",
         choices: [
             FDChoice(label: "Célébrer devant eux",
-                     effects: [FDEffect(rel: "fans", delta: 8), FDEffect(cond: "reputation", delta: 4), FDEffect(cond: "moral", delta: 5)]),
+                     effects: [FDEffect(rel: "fans", delta: 8), FDEffect(cond: "reputation", delta: 4), FDEffect(cond: "moral", delta: 5), FDEffect(cond: "fatigue", delta: 7)]),
             FDChoice(label: "Ne pas célébrer",
-                     effects: [FDEffect(attr: .sangfroid, delta: 4), FDEffect(rel: "media", delta: 3)]),
+                     effects: [FDEffect(attr: .sangfroid, delta: 4), FDEffect(rel: "media", delta: 3), FDEffect(rel: "fans", delta: -3)]),
         ]),
     FDSceneDef(
         id: "mat_derby_carton", category: "Derby", minAge: 18, maxAge: 36,
@@ -1942,9 +1942,9 @@ let FDScenesPack3: [FDSceneDef] = [
         text: "Averti dès la dixième minute dans un derby bouillant. Le prochain contact peut tout changer.",
         choices: [
             FDChoice(label: "Continuer à jouer dur",
-                     effects: [FDEffect(attr: .tacle, delta: 2), FDEffect(cond: "confiance", delta: 3)]),
+                     effects: [FDEffect(attr: .tacle, delta: 2), FDEffect(cond: "confiance", delta: 3), FDEffect(cond: "reputation", delta: -3)]),
             FDChoice(label: "Lever le pied sur les duels",
-                     effects: [FDEffect(attr: .sangfroid, delta: 3), FDEffect(attr: .placement, delta: 2)]),
+                     effects: [FDEffect(attr: .sangfroid, delta: 3), FDEffect(attr: .placement, delta: 2), FDEffect(cond: "reputation", delta: -3)]),
         ]),
     FDSceneDef(
         id: "mat_coupe_petit_club", category: "Coupe", minAge: 18, maxAge: 36,
@@ -1962,9 +1962,9 @@ let FDScenesPack3: [FDSceneDef] = [
         text: "Finale de coupe nationale. Le coach te confie le premier discours du groupe.",
         choices: [
             FDChoice(label: "Parler du club et des supporters",
-                     effects: [FDEffect(attr: .leadership, delta: 4), FDEffect(rel: "fans", delta: 6), FDEffect(cond: "moral", delta: 4)]),
+                     effects: [FDEffect(attr: .leadership, delta: 4), FDEffect(rel: "fans", delta: 6), FDEffect(cond: "moral", delta: 4), FDEffect(cond: "fatigue", delta: 8)]),
             FDChoice(label: "Parler de vous, de votre groupe",
-                     effects: [FDEffect(rel: "vestiaire", delta: 7), FDEffect(attr: .leadership, delta: 3)]),
+                     effects: [FDEffect(rel: "vestiaire", delta: 7), FDEffect(attr: .leadership, delta: 3), FDEffect(cond: "fatigue", delta: 8)]),
         ]),
     FDSceneDef(
         id: "mat_coupe_prolongation", category: "Coupe", minAge: 18, maxAge: 36,
@@ -1982,11 +1982,11 @@ let FDScenesPack3: [FDSceneDef] = [
         text: "Tirs au but. Cinquième tireur : c'est toi, pour la victoire.",
         choices: [
             FDChoice(label: "Frapper en force",
-                     effects: [FDEffect(attr: .tir, delta: 3), FDEffect(cond: "confiance", delta: 5)]),
+                     effects: [FDEffect(attr: .tir, delta: 3), FDEffect(cond: "confiance", delta: 5), FDEffect(cond: "forme", delta: -3)]),
             FDChoice(label: "Placer tranquillement",
-                     effects: [FDEffect(attr: .sangfroid, delta: 5), FDEffect(cond: "confiance", delta: 3)]),
+                     effects: [FDEffect(attr: .sangfroid, delta: 5), FDEffect(cond: "confiance", delta: 3), FDEffect(cond: "forme", delta: -3)]),
             FDChoice(label: "Tenter la panenka",
-                     effects: [FDEffect(attr: .sangfroid, delta: 2), FDEffect(cond: "confiance", delta: 6), FDEffect(cond: "reputation", delta: 4)]),
+                     effects: [FDEffect(attr: .sangfroid, delta: 2), FDEffect(cond: "confiance", delta: 6), FDEffect(cond: "reputation", delta: 4), FDEffect(cond: "forme", delta: -3)]),
         ]),
     FDSceneDef(
         id: "mat_europe_premiere", category: "Europe", minAge: 18, maxAge: 36, once: true,
@@ -1994,9 +1994,9 @@ let FDScenesPack3: [FDSceneDef] = [
         text: "Premier match européen de ta carrière. L'hymne résonne, tu sens tes jambes trembler.",
         choices: [
             FDChoice(label: "Chanter avec les supporters",
-                     effects: [FDEffect(cond: "moral", delta: 6), FDEffect(rel: "fans", delta: 5)]),
+                     effects: [FDEffect(cond: "moral", delta: 6), FDEffect(rel: "fans", delta: 5), FDEffect(cond: "fatigue", delta: 8)]),
             FDChoice(label: "Fermer les yeux et respirer",
-                     effects: [FDEffect(attr: .sangfroid, delta: 4), FDEffect(cond: "confiance", delta: 3)]),
+                     effects: [FDEffect(attr: .sangfroid, delta: 4), FDEffect(cond: "confiance", delta: 3), FDEffect(cond: "fatigue", delta: 8)]),
         ]),
     FDSceneDef(
         id: "mat_europe_deplacement", category: "Europe", minAge: 18, maxAge: 36,
@@ -2004,9 +2004,9 @@ let FDScenesPack3: [FDSceneDef] = [
         text: "Déplacement européen dans un stade réputé imprenable. Soixante mille personnes contre onze.",
         choices: [
             FDChoice(label: "Prendre le ballon dès la première minute",
-                     effects: [FDEffect(attr: .sangfroid, delta: 3), FDEffect(cond: "confiance", delta: 4)]),
+                     effects: [FDEffect(attr: .sangfroid, delta: 3), FDEffect(cond: "confiance", delta: 4), FDEffect(cond: "forme", delta: -3)]),
             FDChoice(label: "Rester bas et attendre",
-                     effects: [FDEffect(attr: .placement, delta: 3), FDEffect(attr: .endurance, delta: 2)]),
+                     effects: [FDEffect(attr: .placement, delta: 3), FDEffect(attr: .endurance, delta: 2), FDEffect(cond: "fatigue", delta: 8)]),
         ]),
     FDSceneDef(
         id: "mat_europe_retour", category: "Europe", minAge: 18, maxAge: 36,
@@ -2014,9 +2014,9 @@ let FDScenesPack3: [FDSceneDef] = [
         text: "Match retour, trois buts à remonter. Personne n'y croit à l'extérieur du vestiaire.",
         choices: [
             FDChoice(label: "Y croire à voix haute",
-                     effects: [FDEffect(attr: .leadership, delta: 5), FDEffect(cond: "moral", delta: 6), FDEffect(rel: "vestiaire", delta: 5)]),
+                     effects: [FDEffect(attr: .leadership, delta: 5), FDEffect(cond: "moral", delta: 6), FDEffect(rel: "vestiaire", delta: 5), FDEffect(cond: "forme", delta: -3)]),
             FDChoice(label: "Rester lucide",
-                     effects: [FDEffect(attr: .sangfroid, delta: 3)]),
+                     effects: [FDEffect(attr: .sangfroid, delta: 3), FDEffect(cond: "fatigue", delta: 8)]),
         ]),
     FDSceneDef(
         id: "mat_avant_gros_match", category: "Match important", minAge: 17, maxAge: 36,
@@ -2026,9 +2026,9 @@ let FDScenesPack3: [FDSceneDef] = [
             FDChoice(label: "Revoir les vidéos de l'adversaire",
                      effects: [FDEffect(attr: .vision, delta: 3), FDEffect(cond: "fatigue", delta: 6)]),
             FDChoice(label: "Appeler ta famille",
-                     effects: [FDEffect(cond: "moral", delta: 5), FDEffect(rel: "famille", delta: 4)]),
+                     effects: [FDEffect(cond: "moral", delta: 5), FDEffect(rel: "famille", delta: 4), FDEffect(cond: "forme", delta: -3)]),
             FDChoice(label: "Forcer le sommeil",
-                     effects: [FDEffect(cond: "fatigue", delta: -8), FDEffect(cond: "confiance", delta: 2)]),
+                     effects: [FDEffect(cond: "fatigue", delta: -8), FDEffect(cond: "confiance", delta: 2), FDEffect(cond: "forme", delta: -3)]),
         ]),
     FDSceneDef(
         id: "mat_echauffement_siffle", category: "Match important", minAge: 18, maxAge: 36,
@@ -2036,7 +2036,7 @@ let FDScenesPack3: [FDSceneDef] = [
         text: "Tu es sifflé par tes propres supporters dès l'échauffement.",
         choices: [
             FDChoice(label: "Aller les applaudir",
-                     effects: [FDEffect(rel: "fans", delta: 6), FDEffect(attr: .sangfroid, delta: 3)]),
+                     effects: [FDEffect(rel: "fans", delta: 6), FDEffect(attr: .sangfroid, delta: 3), FDEffect(cond: "forme", delta: -3)]),
             FDChoice(label: "Les ignorer complètement",
                      effects: [FDEffect(attr: .sangfroid, delta: 2), FDEffect(cond: "moral", delta: -3)]),
             FDChoice(label: "Répondre par un geste",
@@ -2060,7 +2060,7 @@ let FDScenesPack3: [FDSceneDef] = [
             FDChoice(label: "Lui demander son maillot",
                      effects: [FDEffect(cond: "moral", delta: 5), FDEffect(rel: "vestiaire", delta: -2)]),
             FDChoice(label: "Rester froid, c'est un adversaire",
-                     effects: [FDEffect(attr: .determination, delta: 3), FDEffect(cond: "confiance", delta: 2)]),
+                     effects: [FDEffect(attr: .determination, delta: 3), FDEffect(cond: "confiance", delta: 2), FDEffect(cond: "forme", delta: -3)]),
         ]),
     FDSceneDef(
         id: "mat_score_lourd", category: "Match important", minAge: 18, maxAge: 36,
@@ -2072,7 +2072,7 @@ let FDScenesPack3: [FDSceneDef] = [
             FDChoice(label: "Sauver l'honneur tout seul",
                      effects: [FDEffect(attr: .tir, delta: 2), FDEffect(cond: "fatigue", delta: 8), FDEffect(rel: "vestiaire", delta: -2)]),
             FDChoice(label: "Assurer et éviter le ridicule",
-                     effects: [FDEffect(attr: .placement, delta: 2), FDEffect(attr: .sangfroid, delta: 2)]),
+                     effects: [FDEffect(attr: .placement, delta: 2), FDEffect(attr: .sangfroid, delta: 2), FDEffect(cond: "fatigue", delta: 8)]),
         ]),
     FDSceneDef(
         id: "mat_remplacement_precoce", category: "Match important", minAge: 18, maxAge: 36,
@@ -2080,7 +2080,7 @@ let FDScenesPack3: [FDSceneDef] = [
         text: "Tu es remplacé à la 35e minute, sans blessure. Le stade murmure.",
         choices: [
             FDChoice(label: "Sortir en applaudissant le public",
-                     effects: [FDEffect(rel: "fans", delta: 5), FDEffect(attr: .sangfroid, delta: 4), FDEffect(rel: "coach", delta: 3)]),
+                     effects: [FDEffect(rel: "fans", delta: 5), FDEffect(attr: .sangfroid, delta: 4), FDEffect(rel: "coach", delta: 3), FDEffect(cond: "confiance", delta: -3)]),
             FDChoice(label: "Jeter tes gants dans le banc",
                      effects: [FDEffect(rel: "coach", delta: -8), FDEffect(cond: "reputation", delta: -4), FDEffect(rel: "vestiaire", delta: -2)]),
             FDChoice(label: "Sortir en silence",
@@ -2094,7 +2094,7 @@ let FDScenesPack3: [FDSceneDef] = [
             FDChoice(label: "Jouer pour gagner dès la première minute",
                      effects: [FDEffect(attr: .determination, delta: 4), FDEffect(cond: "fatigue", delta: 10)]),
             FDChoice(label: "Contrôler et gérer",
-                     effects: [FDEffect(attr: .sangfroid, delta: 3), FDEffect(attr: .placement, delta: 3)]),
+                     effects: [FDEffect(attr: .sangfroid, delta: 3), FDEffect(attr: .placement, delta: 3), FDEffect(cond: "confiance", delta: -3)]),
         ]),
     FDSceneDef(
         id: "mat_barrages", category: "Match important", minAge: 18, maxAge: 36,
@@ -2104,7 +2104,7 @@ let FDScenesPack3: [FDSceneDef] = [
             FDChoice(label: "Monter et tout tenter",
                      effects: [FDEffect(attr: .determination, delta: 4), FDEffect(cond: "confiance", delta: 4), FDEffect(cond: "fatigue", delta: 10)]),
             FDChoice(label: "Sécuriser le nul",
-                     effects: [FDEffect(attr: .placement, delta: 3), FDEffect(attr: .sangfroid, delta: 3)]),
+                     effects: [FDEffect(attr: .placement, delta: 3), FDEffect(attr: .sangfroid, delta: 3), FDEffect(cond: "forme", delta: -3)]),
         ]),
     FDSceneDef(
         id: "mat_arbitrage_scandale", category: "Match important", minAge: 18, maxAge: 36,
@@ -2112,7 +2112,7 @@ let FDScenesPack3: [FDSceneDef] = [
         text: "Deuxième décision litigieuse contre toi dans le même match. Ton banc explose.",
         choices: [
             FDChoice(label: "Aller parler à l'arbitre calmement",
-                     effects: [FDEffect(attr: .leadership, delta: 3), FDEffect(attr: .sangfroid, delta: 3)]),
+                     effects: [FDEffect(attr: .leadership, delta: 3), FDEffect(attr: .sangfroid, delta: 3), FDEffect(cond: "forme", delta: -3)]),
             FDChoice(label: "Exploser",
                      effects: [FDEffect(cond: "reputation", delta: -5), FDEffect(rel: "vestiaire", delta: 2), FDEffect(cond: "moral", delta: -4)]),
         ]),
@@ -2122,7 +2122,7 @@ let FDScenesPack3: [FDSceneDef] = [
         text: "Terrain gorgé d'eau, ballon qui s'arrête dans les flaques. Ton jeu technique ne sert plus à rien.",
         choices: [
             FDChoice(label: "Jouer long et simple",
-                     effects: [FDEffect(attr: .force, delta: 2), FDEffect(attr: .passe, delta: 1), FDEffect(rel: "coach", delta: 4)]),
+                     effects: [FDEffect(attr: .force, delta: 2), FDEffect(attr: .passe, delta: 1), FDEffect(rel: "coach", delta: 4), FDEffect(cond: "confiance", delta: -3)]),
             FDChoice(label: "Insister sur ton jeu habituel",
                      effects: [FDEffect(attr: .dribble, delta: 2), FDEffect(rel: "coach", delta: -3), FDEffect(cond: "fatigue", delta: 6)]),
         ]),
@@ -2142,7 +2142,7 @@ let FDScenesPack3: [FDSceneDef] = [
         text: "Tu retrouves ton ancien club, celui qui t'a formé, avec le maillot d'en face.",
         choices: [
             FDChoice(label: "Ne pas célébrer si tu marques",
-                     effects: [FDEffect(rel: "fans", delta: 6), FDEffect(cond: "reputation", delta: 4)]),
+                     effects: [FDEffect(rel: "fans", delta: 6), FDEffect(cond: "reputation", delta: 4), FDEffect(cond: "confiance", delta: -3)]),
             FDChoice(label: "Célébrer comme n'importe quel but",
                      effects: [FDEffect(cond: "confiance", delta: 4), FDEffect(rel: "fans", delta: -6)]),
         ]),
@@ -2154,7 +2154,7 @@ let FDScenesPack3: [FDSceneDef] = [
             FDChoice(label: "Jouer pour le record",
                      effects: [FDEffect(attr: .tir, delta: 3), FDEffect(rel: "vestiaire", delta: -3), FDEffect(cond: "confiance", delta: 4)]),
             FDChoice(label: "Jouer pour l'équipe",
-                     effects: [FDEffect(attr: .vision, delta: 3), FDEffect(rel: "vestiaire", delta: 6)]),
+                     effects: [FDEffect(attr: .vision, delta: 3), FDEffect(rel: "vestiaire", delta: 6), FDEffect(cond: "confiance", delta: -3)]),
         ]),
     FDSceneDef(
         id: "sel_premiere_convocation", category: "Sélection", minAge: 18, maxAge: 33, once: true,
@@ -2162,9 +2162,9 @@ let FDScenesPack3: [FDSceneDef] = [
         text: "Première convocation en équipe nationale A. Ton nom apparaît à la télévision.",
         choices: [
             FDChoice(label: "Appeler ta famille avant tout le monde",
-                     effects: [FDEffect(rel: "famille", delta: 8), FDEffect(cond: "moral", delta: 8)]),
+                     effects: [FDEffect(rel: "famille", delta: 8), FDEffect(cond: "moral", delta: 8), FDEffect(rel: "coach", delta: -3)]),
             FDChoice(label: "Rester concentré et préparer",
-                     effects: [FDEffect(attr: .determination, delta: 3), FDEffect(cond: "confiance", delta: 4)]),
+                     effects: [FDEffect(attr: .determination, delta: 3), FDEffect(cond: "confiance", delta: 4), FDEffect(rel: "coach", delta: -3)]),
         ]),
     FDSceneDef(
         id: "sel_hymne", category: "Sélection", minAge: 18, maxAge: 36,
@@ -2172,9 +2172,9 @@ let FDScenesPack3: [FDSceneDef] = [
         text: "Premier hymne national avec le maillot de ton pays. Ta gorge se serre.",
         choices: [
             FDChoice(label: "Chanter à pleine voix",
-                     effects: [FDEffect(cond: "moral", delta: 6), FDEffect(rel: "fans", delta: 5), FDEffect(cond: "reputation", delta: 3)]),
+                     effects: [FDEffect(cond: "moral", delta: 6), FDEffect(rel: "fans", delta: 5), FDEffect(cond: "reputation", delta: 3), FDEffect(cond: "fatigue", delta: 9)]),
             FDChoice(label: "Rester silencieux et concentré",
-                     effects: [FDEffect(attr: .sangfroid, delta: 4)]),
+                     effects: [FDEffect(attr: .sangfroid, delta: 4), FDEffect(rel: "coach", delta: -3)]),
         ]),
     FDSceneDef(
         id: "sel_concurrence", category: "Sélection", minAge: 19, maxAge: 34,
@@ -2184,7 +2184,7 @@ let FDScenesPack3: [FDSceneDef] = [
             FDChoice(label: "Le défier à l'entraînement",
                      effects: [FDEffect(attr: .determination, delta: 4), FDEffect(rel: "vestiaire", delta: -3)]),
             FDChoice(label: "Apprendre de lui",
-                     effects: [FDEffect(attr: .placement, delta: 3), FDEffect(rel: "vestiaire", delta: 4)]),
+                     effects: [FDEffect(attr: .placement, delta: 3), FDEffect(rel: "vestiaire", delta: 4), FDEffect(cond: "fatigue", delta: 9)]),
         ]),
     FDSceneDef(
         id: "sel_mondial_liste", category: "Sélection", minAge: 20, maxAge: 36,
@@ -2192,9 +2192,9 @@ let FDScenesPack3: [FDSceneDef] = [
         text: "La liste pour la Coupe du monde tombe demain. Le sélectionneur t'appelle en privé ce soir.",
         choices: [
             FDChoice(label: "Plaider ta cause",
-                     effects: [FDEffect(attr: .leadership, delta: 3), FDEffect(cond: "confiance", delta: 3)]),
+                     effects: [FDEffect(attr: .leadership, delta: 3), FDEffect(cond: "confiance", delta: 3), FDEffect(cond: "moral", delta: -3)]),
             FDChoice(label: "Écouter sans rien demander",
-                     effects: [FDEffect(attr: .sangfroid, delta: 3), FDEffect(rel: "coach", delta: 3)]),
+                     effects: [FDEffect(attr: .sangfroid, delta: 3), FDEffect(rel: "coach", delta: 3), FDEffect(cond: "fatigue", delta: 9)]),
         ]),
     FDSceneDef(
         id: "sel_forfait", category: "Sélection", minAge: 19, maxAge: 36,
@@ -2232,7 +2232,7 @@ let FDScenesPack3: [FDSceneDef] = [
         text: "Deux fédérations te veulent. L'une est le pays de ta famille, l'autre celui où tu as grandi.",
         choices: [
             FDChoice(label: "Choisir le pays de ta famille",
-                     effects: [FDEffect(rel: "famille", delta: 10), FDEffect(cond: "reputation", delta: 3)]),
+                     effects: [FDEffect(rel: "famille", delta: 10), FDEffect(cond: "reputation", delta: 3), FDEffect(rel: "coach", delta: -3)]),
             FDChoice(label: "Choisir le pays où tu as grandi",
                      effects: [FDEffect(cond: "reputation", delta: 5), FDEffect(rel: "famille", delta: -5), FDEffect(rel: "fans", delta: 4)]),
         ]),
@@ -2254,7 +2254,7 @@ let FDScenesPack3: [FDSceneDef] = [
             FDChoice(label: "Prendre le jeu à ton compte",
                      effects: [FDEffect(attr: .dribble, delta: 2), FDEffect(attr: .tir, delta: 2), FDEffect(cond: "fatigue", delta: 10)]),
             FDChoice(label: "Jouer pour le collectif",
-                     effects: [FDEffect(attr: .vision, delta: 3), FDEffect(rel: "vestiaire", delta: 6)]),
+                     effects: [FDEffect(attr: .vision, delta: 3), FDEffect(rel: "vestiaire", delta: 6), FDEffect(cond: "fatigue", delta: 9)]),
         ]),
     FDSceneDef(
         id: "dec_dernier_ballon", category: "Moment décisif", minAge: 18, maxAge: 36,
@@ -2262,9 +2262,9 @@ let FDScenesPack3: [FDSceneDef] = [
         text: "Dernière seconde, ballon dans la surface, un défenseur au marquage, un coéquipier seul à gauche.",
         choices: [
             FDChoice(label: "Frapper",
-                     effects: [FDEffect(attr: .tir, delta: 3), FDEffect(cond: "confiance", delta: 4)]),
+                     effects: [FDEffect(attr: .tir, delta: 3), FDEffect(cond: "confiance", delta: 4), FDEffect(cond: "fatigue", delta: 6)]),
             FDChoice(label: "Servir le coéquipier",
-                     effects: [FDEffect(attr: .vision, delta: 3), FDEffect(rel: "vestiaire", delta: 5)]),
+                     effects: [FDEffect(attr: .vision, delta: 3), FDEffect(rel: "vestiaire", delta: 5), FDEffect(cond: "confiance", delta: -3)]),
         ]),
     FDSceneDef(
         id: "dec_main_surface", category: "Moment décisif", minAge: 18, maxAge: 36,
@@ -2282,7 +2282,7 @@ let FDScenesPack3: [FDSceneDef] = [
         text: "Léger contact dans la surface à la 88e minute. Tu peux tomber.",
         choices: [
             FDChoice(label: "Rester debout",
-                     effects: [FDEffect(cond: "reputation", delta: 6), FDEffect(attr: .sangfroid, delta: 3)]),
+                     effects: [FDEffect(cond: "reputation", delta: 6), FDEffect(attr: .sangfroid, delta: 3), FDEffect(cond: "fatigue", delta: 6)]),
             FDChoice(label: "Tomber",
                      effects: [FDEffect(cond: "reputation", delta: -6), FDEffect(cond: "confiance", delta: 3), FDEffect(rel: "fans", delta: 2)]),
         ]),
@@ -2312,7 +2312,7 @@ let FDScenesPack3: [FDSceneDef] = [
         text: "Rouge direct pour un tacle en retard, à la demi-heure de jeu, dans un match capital.",
         choices: [
             FDChoice(label: "Sortir sans protester",
-                     effects: [FDEffect(attr: .sangfroid, delta: 3), FDEffect(rel: "coach", delta: 2)]),
+                     effects: [FDEffect(attr: .sangfroid, delta: 3), FDEffect(rel: "coach", delta: 2), FDEffect(cond: "confiance", delta: -3)]),
             FDChoice(label: "Contester longuement",
                      effects: [FDEffect(cond: "reputation", delta: -5), FDEffect(rel: "coach", delta: -4)]),
         ]),
@@ -2322,9 +2322,9 @@ let FDScenesPack3: [FDSceneDef] = [
         text: "Penalty à arrêter dans les arrêts de jeu, pour sauver le match.",
         choices: [
             FDChoice(label: "Plonger tôt d'un côté",
-                     effects: [FDEffect(attr: .agilite, delta: 3), FDEffect(cond: "confiance", delta: 4)]),
+                     effects: [FDEffect(attr: .agilite, delta: 3), FDEffect(cond: "confiance", delta: 4), FDEffect(cond: "reputation", delta: -3)]),
             FDChoice(label: "Attendre la dernière fraction de seconde",
-                     effects: [FDEffect(attr: .sangfroid, delta: 4), FDEffect(attr: .placement, delta: 2)]),
+                     effects: [FDEffect(attr: .sangfroid, delta: 4), FDEffect(attr: .placement, delta: 2), FDEffect(cond: "reputation", delta: -3)]),
         ],
         positions: [.gardien]),
     FDSceneDef(
@@ -2333,9 +2333,9 @@ let FDScenesPack3: [FDSceneDef] = [
         text: "Corner à la dernière minute, l'attaquant adverse est lancé sur ta trajectoire.",
         choices: [
             FDChoice(label: "Sortir au poing",
-                     effects: [FDEffect(attr: .force, delta: 2), FDEffect(attr: .agilite, delta: 2), FDEffect(cond: "confiance", delta: 3)]),
+                     effects: [FDEffect(attr: .force, delta: 2), FDEffect(attr: .agilite, delta: 2), FDEffect(cond: "confiance", delta: 3), FDEffect(cond: "reputation", delta: -3)]),
             FDChoice(label: "Rester sur ta ligne",
-                     effects: [FDEffect(attr: .placement, delta: 3), FDEffect(attr: .sangfroid, delta: 2)]),
+                     effects: [FDEffect(attr: .placement, delta: 3), FDEffect(attr: .sangfroid, delta: 2), FDEffect(cond: "confiance", delta: -3)]),
         ],
         positions: [.gardien]),
     FDSceneDef(
@@ -2367,7 +2367,7 @@ let FDScenesPack3: [FDSceneDef] = [
             FDChoice(label: "Tenter le troisième dribble",
                      effects: [FDEffect(attr: .dribble, delta: 3), FDEffect(rel: "vestiaire", delta: -3), FDEffect(cond: "confiance", delta: 3)]),
             FDChoice(label: "Servir simple",
-                     effects: [FDEffect(attr: .passe, delta: 2), FDEffect(rel: "vestiaire", delta: 5), FDEffect(rel: "coach", delta: 3)]),
+                     effects: [FDEffect(attr: .passe, delta: 2), FDEffect(rel: "vestiaire", delta: 5), FDEffect(rel: "coach", delta: 3), FDEffect(cond: "fatigue", delta: 6)]),
         ]),
     FDSceneDef(
         id: "mat_serie_defaites", category: "Match important", minAge: 18, maxAge: 36,
@@ -2387,7 +2387,7 @@ let FDScenesPack3: [FDSceneDef] = [
             FDChoice(label: "Promettre le titre",
                      effects: [FDEffect(rel: "media", delta: 5), FDEffect(cond: "reputation", delta: 5), FDEffect(rel: "vestiaire", delta: -3)]),
             FDChoice(label: "Rester prudent",
-                     effects: [FDEffect(attr: .sangfroid, delta: 3), FDEffect(rel: "coach", delta: 4)]),
+                     effects: [FDEffect(attr: .sangfroid, delta: 3), FDEffect(rel: "coach", delta: 4), FDEffect(cond: "confiance", delta: -3)]),
         ]),
     FDSceneDef(
         id: "mat_but_contre_camp", category: "Moment décisif", minAge: 18, maxAge: 36,
@@ -2407,7 +2407,7 @@ let FDScenesPack3: [FDSceneDef] = [
             FDChoice(label: "Tirer et chercher le triplé",
                      effects: [FDEffect(attr: .tir, delta: 2), FDEffect(cond: "confiance", delta: 5), FDEffect(rel: "vestiaire", delta: -4)]),
             FDChoice(label: "Lui laisser le ballon",
-                     effects: [FDEffect(rel: "vestiaire", delta: 8), FDEffect(attr: .leadership, delta: 4)]),
+                     effects: [FDEffect(rel: "vestiaire", delta: 8), FDEffect(attr: .leadership, delta: 4), FDEffect(cond: "fatigue", delta: 6)]),
         ]),
     FDSceneDef(
         id: "mat_hostilite_exterieur", category: "Match important", minAge: 18, maxAge: 36,
@@ -2415,7 +2415,7 @@ let FDScenesPack3: [FDSceneDef] = [
         text: "Cris racistes depuis une tribune. L'arbitre hésite à arrêter le match.",
         choices: [
             FDChoice(label: "Demander l'arrêt du match",
-                     effects: [FDEffect(cond: "reputation", delta: 8), FDEffect(rel: "media", delta: 6), FDEffect(rel: "fans", delta: 3)]),
+                     effects: [FDEffect(cond: "reputation", delta: 8), FDEffect(rel: "media", delta: 6), FDEffect(rel: "fans", delta: 3), FDEffect(cond: "forme", delta: -3)]),
             FDChoice(label: "Continuer à jouer",
                      effects: [FDEffect(attr: .sangfroid, delta: 2), FDEffect(cond: "moral", delta: -6)]),
         ]),
@@ -2427,7 +2427,7 @@ let FDScenesPack3: [FDSceneDef] = [
             FDChoice(label: "Accepter tout de suite",
                      effects: [FDEffect(cond: "moral", delta: 4), FDEffect(rel: "vestiaire", delta: -3), FDEffect(rel: "media", delta: -2)]),
             FDChoice(label: "Lui dire après le match",
-                     effects: [FDEffect(attr: .sangfroid, delta: 2), FDEffect(rel: "vestiaire", delta: 3)]),
+                     effects: [FDEffect(attr: .sangfroid, delta: 2), FDEffect(rel: "vestiaire", delta: 3), FDEffect(cond: "forme", delta: -3)]),
         ]),
     FDSceneDef(
         id: "mat_capitaine_blesse", category: "Match important", minAge: 20, maxAge: 36,
@@ -2437,7 +2437,7 @@ let FDScenesPack3: [FDSceneDef] = [
             FDChoice(label: "Le ramasser",
                      effects: [FDEffect(attr: .leadership, delta: 5), FDEffect(cond: "confiance", delta: 4), FDEffect(cond: "fatigue", delta: 4)]),
             FDChoice(label: "Le laisser à un ancien",
-                     effects: [FDEffect(rel: "vestiaire", delta: 4), FDEffect(attr: .sangfroid, delta: 2)]),
+                     effects: [FDEffect(rel: "vestiaire", delta: 4), FDEffect(attr: .sangfroid, delta: 2), FDEffect(cond: "fatigue", delta: 8)]),
         ]),
     FDSceneDef(
         id: "mat_but_annonce", category: "Match important", minAge: 19, maxAge: 36,
@@ -2455,7 +2455,7 @@ let FDScenesPack3: [FDSceneDef] = [
         text: "Le sélectionneur te propose un dernier match d'adieu avec la sélection.",
         choices: [
             FDChoice(label: "Accepter et raccrocher en beauté",
-                     effects: [FDEffect(cond: "reputation", delta: 8), FDEffect(cond: "moral", delta: 8), FDEffect(rel: "fans", delta: 6)]),
+                     effects: [FDEffect(cond: "reputation", delta: 8), FDEffect(cond: "moral", delta: 8), FDEffect(rel: "fans", delta: 6), FDEffect(cond: "fatigue", delta: 9)]),
             FDChoice(label: "Refuser, tu veux encore te battre pour une place",
                      effects: [FDEffect(attr: .determination, delta: 4), FDEffect(cond: "fatigue", delta: 6)]),
         ]),
@@ -2475,7 +2475,7 @@ let FDScenesPack3: [FDSceneDef] = [
         text: "Le président promet une prime exceptionnelle en cas de victoire ce soir.",
         choices: [
             FDChoice(label: "Motiver le groupe avec",
-                     effects: [FDEffect(rel: "vestiaire", delta: 4), FDEffect(cond: "moral", delta: 4), FDEffect(rel: "president", delta: 3)]),
+                     effects: [FDEffect(rel: "vestiaire", delta: 4), FDEffect(cond: "moral", delta: 4), FDEffect(rel: "president", delta: 3), FDEffect(cond: "fatigue", delta: 8)]),
             FDChoice(label: "Trouver ça déplacé et le dire",
                      effects: [FDEffect(rel: "president", delta: -6), FDEffect(attr: .leadership, delta: 3), FDEffect(rel: "vestiaire", delta: 3)]),
         ]),
@@ -2498,7 +2498,7 @@ let FDScenesPack4: [FDSceneDef] = [
         text: "Première offre concrète d'un club plus huppé. Salaire triplé, temps de jeu incertain.",
         choices: [
             FDChoice(label: "Partir pour le prestige",
-                     effects: [FDEffect(cond: "reputation", delta: 5), FDEffect(cond: "confiance", delta: 3), FDEffect(rel: "coach", delta: -3)]),
+                     effects: [FDEffect(cond: "reputation", delta: 5), FDEffect(cond: "confiance", delta: 3), FDEffect(rel: "coach", delta: -3), FDEffect(money: 8000, delta: 0)]),
             FDChoice(label: "Rester pour jouer",
                      effects: [FDEffect(rel: "coach", delta: 6), FDEffect(attr: .determination, delta: 3), FDEffect(cond: "reputation", delta: -2)]),
         ]),
@@ -2508,7 +2508,7 @@ let FDScenesPack4: [FDSceneDef] = [
         text: "Le club propose un prêt d'une saison dans un club de division inférieure pour t'aguerrir.",
         choices: [
             FDChoice(label: "Accepter le prêt",
-                     effects: [FDEffect(attr: .determination, delta: 3), FDEffect(cond: "confiance", delta: 3), FDEffect(rel: "coach", delta: 4)]),
+                     effects: [FDEffect(attr: .determination, delta: 3), FDEffect(cond: "confiance", delta: 3), FDEffect(rel: "coach", delta: 4), FDEffect(cond: "moral", delta: -3), FDEffect(money: 20000, delta: 0)]),
             FDChoice(label: "Refuser et rester sur le banc",
                      effects: [FDEffect(cond: "confiance", delta: -3), FDEffect(rel: "coach", delta: -4)]),
         ]),
@@ -2518,7 +2518,7 @@ let FDScenesPack4: [FDSceneDef] = [
         text: "Un club ambitieux te déroule un projet sur trois ans, avec toi au centre.",
         choices: [
             FDChoice(label: "Signer",
-                     effects: [FDEffect(cond: "confiance", delta: 5), FDEffect(rel: "president", delta: -6), FDEffect(rel: "agent", delta: 5)]),
+                     effects: [FDEffect(cond: "confiance", delta: 5), FDEffect(rel: "president", delta: -6), FDEffect(rel: "agent", delta: 5), FDEffect(money: 35000, delta: 0)]),
             FDChoice(label: "Demander à voir en fin de saison",
                      effects: [FDEffect(attr: .sangfroid, delta: 3), FDEffect(rel: "agent", delta: -3)]),
         ]),
@@ -2530,7 +2530,7 @@ let FDScenesPack4: [FDSceneDef] = [
             FDChoice(label: "Tenter l'aventure",
                      effects: [FDEffect(cond: "confiance", delta: 4), FDEffect(rel: "famille", delta: -5), FDEffect(money: 60000, delta: 0)]),
             FDChoice(label: "Rester dans ton pays",
-                     effects: [FDEffect(rel: "famille", delta: 6), FDEffect(cond: "moral", delta: 3)]),
+                     effects: [FDEffect(rel: "famille", delta: 6), FDEffect(cond: "moral", delta: 3), FDEffect(rel: "vestiaire", delta: -3)]),
         ]),
     FDSceneDef(
         id: "tra_petrodollars", category: "Transfert", minAge: 26, maxAge: 36,
@@ -2540,7 +2540,7 @@ let FDScenesPack4: [FDSceneDef] = [
             FDChoice(label: "Accepter",
                      effects: [FDEffect(money: 400000, delta: 0), FDEffect(cond: "reputation", delta: -6), FDEffect(cond: "confiance", delta: 2)]),
             FDChoice(label: "Refuser pour le niveau sportif",
-                     effects: [FDEffect(cond: "reputation", delta: 6), FDEffect(attr: .determination, delta: 3)]),
+                     effects: [FDEffect(cond: "reputation", delta: 6), FDEffect(attr: .determination, delta: 3), FDEffect(rel: "vestiaire", delta: -3)]),
         ]),
     FDSceneDef(
         id: "tra_clause_liberatoire", category: "Transfert", minAge: 20, maxAge: 32,
@@ -2548,7 +2548,7 @@ let FDScenesPack4: [FDSceneDef] = [
         text: "Ton agent veut inscrire une clause libératoire basse pour te garantir un départ.",
         choices: [
             FDChoice(label: "Accepter la clause",
-                     effects: [FDEffect(rel: "agent", delta: 6), FDEffect(rel: "president", delta: -5)]),
+                     effects: [FDEffect(rel: "agent", delta: 6), FDEffect(rel: "president", delta: -5), FDEffect(money: 35000, delta: 0)]),
             FDChoice(label: "Refuser, tu veux du poids dans la négociation",
                      effects: [FDEffect(rel: "president", delta: 5), FDEffect(rel: "agent", delta: -4), FDEffect(attr: .sangfroid, delta: 3)]),
         ]),
@@ -2570,7 +2570,7 @@ let FDScenesPack4: [FDSceneDef] = [
             FDChoice(label: "Signer chez le rival",
                      effects: [FDEffect(money: 150000, delta: 0), FDEffect(rel: "fans", delta: -15), FDEffect(cond: "reputation", delta: -5)]),
             FDChoice(label: "Refuser publiquement",
-                     effects: [FDEffect(rel: "fans", delta: 12), FDEffect(cond: "reputation", delta: 6), FDEffect(money: 0, delta: 0)]),
+                     effects: [FDEffect(rel: "fans", delta: 12), FDEffect(cond: "reputation", delta: 6), FDEffect(money: 0, delta: 0), FDEffect(cond: "moral", delta: -3)]),
         ]),
     FDSceneDef(
         id: "tra_retour_formateur", category: "Transfert", minAge: 27, maxAge: 36,
@@ -2588,7 +2588,7 @@ let FDScenesPack4: [FDSceneDef] = [
         text: "Tu découvres que ton agent négocie aussi pour le club qui te recrute.",
         choices: [
             FDChoice(label: "Le virer sur-le-champ",
-                     effects: [FDEffect(rel: "agent", delta: -12), FDEffect(attr: .sangfroid, delta: 3), FDEffect(cond: "confiance", delta: 2)]),
+                     effects: [FDEffect(rel: "agent", delta: -12), FDEffect(attr: .sangfroid, delta: 3), FDEffect(cond: "confiance", delta: 2), FDEffect(money: 35000, delta: 0)]),
             FDChoice(label: "Exiger une renégociation",
                      effects: [FDEffect(rel: "agent", delta: -4), FDEffect(money: 20000, delta: 0)]),
             FDChoice(label: "Fermer les yeux",
@@ -2600,11 +2600,11 @@ let FDScenesPack4: [FDSceneDef] = [
         text: "Le club veut prolonger deux ans, sans augmentation, avec des primes de match.",
         choices: [
             FDChoice(label: "Signer tel quel",
-                     effects: [FDEffect(rel: "president", delta: 7), FDEffect(cond: "confiance", delta: 2)]),
+                     effects: [FDEffect(rel: "president", delta: 7), FDEffect(cond: "confiance", delta: 2), FDEffect(money: -6000, delta: 0)]),
             FDChoice(label: "Exiger une augmentation",
                      effects: [FDEffect(rel: "president", delta: -4), FDEffect(money: 50000, delta: 0), FDEffect(rel: "agent", delta: 5)]),
             FDChoice(label: "Refuser et attendre",
-                     effects: [FDEffect(rel: "president", delta: -6), FDEffect(cond: "confiance", delta: 3)]),
+                     effects: [FDEffect(rel: "president", delta: -6), FDEffect(cond: "confiance", delta: 3), FDEffect(money: 20000, delta: 0)]),
         ]),
     FDSceneDef(
         id: "con_bonus_buts", category: "Contrat", minAge: 19, maxAge: 34,
@@ -2614,7 +2614,7 @@ let FDScenesPack4: [FDSceneDef] = [
             FDChoice(label: "Accepter le pari",
                      effects: [FDEffect(money: -20000, delta: 0), FDEffect(attr: .tir, delta: 2), FDEffect(cond: "confiance", delta: 3)]),
             FDChoice(label: "Garder le fixe",
-                     effects: [FDEffect(money: 20000, delta: 0), FDEffect(attr: .sangfroid, delta: 2)]),
+                     effects: [FDEffect(money: 20000, delta: 0), FDEffect(attr: .sangfroid, delta: 2), FDEffect(rel: "agent", delta: -3)]),
         ]),
     FDSceneDef(
         id: "con_fin_contrat", category: "Contrat", minAge: 21, maxAge: 35,
@@ -2624,7 +2624,7 @@ let FDScenesPack4: [FDSceneDef] = [
             FDChoice(label: "Attendre la fin et partir libre",
                      effects: [FDEffect(money: 120000, delta: 0), FDEffect(rel: "president", delta: -8)]),
             FDChoice(label: "Prolonger maintenant",
-                     effects: [FDEffect(rel: "president", delta: 8), FDEffect(money: 30000, delta: 0)]),
+                     effects: [FDEffect(rel: "president", delta: 8), FDEffect(money: 30000, delta: 0), FDEffect(rel: "agent", delta: -3)]),
         ]),
     FDSceneDef(
         id: "con_baisse_salaire", category: "Contrat", minAge: 28, maxAge: 36,
@@ -2644,7 +2644,7 @@ let FDScenesPack4: [FDSceneDef] = [
             FDChoice(label: "Négocier ferme",
                      effects: [FDEffect(money: 40000, delta: 0), FDEffect(rel: "president", delta: -4), FDEffect(rel: "agent", delta: 5)]),
             FDChoice(label: "Accepter pour la visibilité",
-                     effects: [FDEffect(cond: "reputation", delta: 5), FDEffect(rel: "media", delta: 4)]),
+                     effects: [FDEffect(cond: "reputation", delta: 5), FDEffect(rel: "media", delta: 4), FDEffect(rel: "agent", delta: -3)]),
         ]),
     FDSceneDef(
         id: "age_changement", category: "Agent", minAge: 19, maxAge: 34,
@@ -2654,7 +2654,7 @@ let FDScenesPack4: [FDSceneDef] = [
             FDChoice(label: "Changer d'agent",
                      effects: [FDEffect(rel: "agent", delta: -8), FDEffect(cond: "confiance", delta: 3), FDEffect(money: -15000, delta: 0)]),
             FDChoice(label: "Rester fidèle",
-                     effects: [FDEffect(rel: "agent", delta: 8), FDEffect(cond: "moral", delta: 3)]),
+                     effects: [FDEffect(rel: "agent", delta: 8), FDEffect(cond: "moral", delta: 3), FDEffect(money: -9000, delta: 0)]),
         ]),
     FDSceneDef(
         id: "age_commission", category: "Agent", minAge: 19, maxAge: 34,
@@ -2682,7 +2682,7 @@ let FDScenesPack4: [FDSceneDef] = [
         text: "Ton agent t'impose une formation média avant ta première grande interview.",
         choices: [
             FDChoice(label: "Suivre la formation",
-                     effects: [FDEffect(rel: "media", delta: 6), FDEffect(attr: .sangfroid, delta: 2), FDEffect(cond: "fatigue", delta: 4)]),
+                     effects: [FDEffect(rel: "media", delta: 6), FDEffect(attr: .sangfroid, delta: 2), FDEffect(cond: "fatigue", delta: 4), FDEffect(money: 8000, delta: 0)]),
             FDChoice(label: "Y aller à l'instinct",
                      effects: [FDEffect(rel: "media", delta: -3), FDEffect(cond: "confiance", delta: 3)]),
         ]),
@@ -2692,7 +2692,7 @@ let FDScenesPack4: [FDSceneDef] = [
         text: "Premier vrai salaire de professionnel. Le conseiller parle placements, ta famille parle voiture.",
         choices: [
             FDChoice(label: "Placer prudemment",
-                     effects: [FDEffect(money: 20000, delta: 0), FDEffect(attr: .sangfroid, delta: 3)]),
+                     effects: [FDEffect(money: 20000, delta: 0), FDEffect(attr: .sangfroid, delta: 3), FDEffect(rel: "famille", delta: -3)]),
             FDChoice(label: "Acheter la voiture de tes rêves",
                      effects: [FDEffect(money: -70000, delta: 0), FDEffect(cond: "moral", delta: 6), FDEffect(cond: "reputation", delta: 2)]),
             FDChoice(label: "Aider ta famille d'abord",
@@ -2706,7 +2706,7 @@ let FDScenesPack4: [FDSceneDef] = [
             FDChoice(label: "Investir",
                      effects: [FDEffect(money: -60000, delta: 0), FDEffect(cond: "reputation", delta: 2)]),
             FDChoice(label: "Refuser poliment",
-                     effects: [FDEffect(attr: .sangfroid, delta: 2)]),
+                     effects: [FDEffect(attr: .sangfroid, delta: 2), FDEffect(cond: "moral", delta: -3)]),
             FDChoice(label: "Investir petit pour voir",
                      effects: [FDEffect(money: -15000, delta: 0)]),
         ]),
@@ -2750,7 +2750,7 @@ let FDScenesPack4: [FDSceneDef] = [
             FDChoice(label: "Financer discrètement",
                      effects: [FDEffect(money: -25000, delta: 0), FDEffect(cond: "moral", delta: 5)]),
             FDChoice(label: "Ne rien faire",
-                     effects: [FDEffect(cond: "moral", delta: -2)]),
+                     effects: [FDEffect(cond: "moral", delta: -2), FDEffect(money: 20000, delta: 0)]),
         ]),
     FDSceneDef(
         id: "spo_premier_contrat", category: "Sponsor", minAge: 18, maxAge: 30,
@@ -2758,9 +2758,9 @@ let FDScenesPack4: [FDSceneDef] = [
         text: "Un équipementier te propose ton premier contrat de chaussures.",
         choices: [
             FDChoice(label: "Signer avec la grande marque",
-                     effects: [FDEffect(money: 60000, delta: 0), FDEffect(cond: "reputation", delta: 4), FDEffect(rel: "media", delta: 4)]),
+                     effects: [FDEffect(money: 60000, delta: 0), FDEffect(cond: "reputation", delta: 4), FDEffect(rel: "media", delta: 4), FDEffect(cond: "fatigue", delta: 6)]),
             FDChoice(label: "Signer avec une marque plus petite mais impliquée",
-                     effects: [FDEffect(money: 25000, delta: 0), FDEffect(cond: "moral", delta: 4), FDEffect(rel: "fans", delta: 4)]),
+                     effects: [FDEffect(money: 25000, delta: 0), FDEffect(cond: "moral", delta: 4), FDEffect(rel: "fans", delta: 4), FDEffect(cond: "fatigue", delta: 6)]),
         ]),
     FDSceneDef(
         id: "spo_pub_douteuse", category: "Sponsor", minAge: 20, maxAge: 34,
@@ -2768,7 +2768,7 @@ let FDScenesPack4: [FDSceneDef] = [
         text: "Une marque de paris sportifs t'offre une somme importante pour une campagne.",
         choices: [
             FDChoice(label: "Refuser",
-                     effects: [FDEffect(cond: "reputation", delta: 6), FDEffect(attr: .sangfroid, delta: 3)]),
+                     effects: [FDEffect(cond: "reputation", delta: 6), FDEffect(attr: .sangfroid, delta: 3), FDEffect(cond: "fatigue", delta: 6), FDEffect(money: 12000, delta: 0)]),
             FDChoice(label: "Accepter",
                      effects: [FDEffect(money: 120000, delta: 0), FDEffect(cond: "reputation", delta: -8), FDEffect(rel: "fans", delta: -4)]),
         ]),
@@ -2788,9 +2788,9 @@ let FDScenesPack4: [FDSceneDef] = [
         text: "Une marque exige l'exclusivité totale : plus aucun autre partenariat pendant trois ans.",
         choices: [
             FDChoice(label: "Signer l'exclusivité",
-                     effects: [FDEffect(money: 200000, delta: 0), FDEffect(cond: "reputation", delta: 3)]),
+                     effects: [FDEffect(money: 200000, delta: 0), FDEffect(cond: "reputation", delta: 3), FDEffect(rel: "coach", delta: -3)]),
             FDChoice(label: "Refuser pour garder ta liberté",
-                     effects: [FDEffect(attr: .sangfroid, delta: 3), FDEffect(money: 0, delta: 0)]),
+                     effects: [FDEffect(attr: .sangfroid, delta: 3), FDEffect(money: 0, delta: 0), FDEffect(rel: "coach", delta: -3)]),
         ]),
     FDSceneDef(
         id: "spo_jeu_video", category: "Sponsor", minAge: 21, maxAge: 34,
@@ -2798,9 +2798,9 @@ let FDScenesPack4: [FDSceneDef] = [
         text: "Un studio de jeu vidéo veut scanner ton visage et tes gestes pour une édition spéciale.",
         choices: [
             FDChoice(label: "Accepter",
-                     effects: [FDEffect(money: 70000, delta: 0), FDEffect(cond: "reputation", delta: 5), FDEffect(rel: "fans", delta: 5)]),
+                     effects: [FDEffect(money: 70000, delta: 0), FDEffect(cond: "reputation", delta: 5), FDEffect(rel: "fans", delta: 5), FDEffect(cond: "fatigue", delta: 6)]),
             FDChoice(label: "Refuser",
-                     effects: [FDEffect(attr: .sangfroid, delta: 2)]),
+                     effects: [FDEffect(attr: .sangfroid, delta: 2), FDEffect(money: -5000, delta: 0)]),
         ]),
     FDSceneDef(
         id: "tra_mercato_rumeurs", category: "Transfert", minAge: 19, maxAge: 34,
@@ -2808,7 +2808,7 @@ let FDScenesPack4: [FDSceneDef] = [
         text: "Ton nom est cité dans trois clubs différents en une semaine. Le vestiaire commence à te regarder autrement.",
         choices: [
             FDChoice(label: "Démentir publiquement",
-                     effects: [FDEffect(rel: "vestiaire", delta: 5), FDEffect(rel: "president", delta: 5), FDEffect(rel: "agent", delta: -3)]),
+                     effects: [FDEffect(rel: "vestiaire", delta: 5), FDEffect(rel: "president", delta: 5), FDEffect(rel: "agent", delta: -3), FDEffect(money: 35000, delta: 0)]),
             FDChoice(label: "Ne rien démentir",
                      effects: [FDEffect(rel: "vestiaire", delta: -4), FDEffect(cond: "reputation", delta: 3)]),
         ]),
@@ -2830,7 +2830,7 @@ let FDScenesPack4: [FDSceneDef] = [
             FDChoice(label: "Lui proposer de le racheter",
                      effects: [FDEffect(money: -15000, delta: 0), FDEffect(rel: "vestiaire", delta: -2), FDEffect(cond: "confiance", delta: 3)]),
             FDChoice(label: "Prendre un autre numéro",
-                     effects: [FDEffect(rel: "vestiaire", delta: 5), FDEffect(attr: .sangfroid, delta: 2)]),
+                     effects: [FDEffect(rel: "vestiaire", delta: 5), FDEffect(attr: .sangfroid, delta: 2), FDEffect(money: -8000, delta: 0)]),
         ]),
     FDSceneDef(
         id: "tra_presentation", category: "Transfert", minAge: 18, maxAge: 34,
@@ -2838,9 +2838,9 @@ let FDScenesPack4: [FDSceneDef] = [
         text: "Présentation officielle devant vingt mille supporters. On te tend un micro.",
         choices: [
             FDChoice(label: "Promettre des titres",
-                     effects: [FDEffect(rel: "fans", delta: 8), FDEffect(cond: "reputation", delta: 4), FDEffect(rel: "vestiaire", delta: -3)]),
+                     effects: [FDEffect(rel: "fans", delta: 8), FDEffect(cond: "reputation", delta: 4), FDEffect(rel: "vestiaire", delta: -3), FDEffect(money: 35000, delta: 0)]),
             FDChoice(label: "Rester humble",
-                     effects: [FDEffect(rel: "fans", delta: 4), FDEffect(rel: "vestiaire", delta: 4), FDEffect(attr: .sangfroid, delta: 2)]),
+                     effects: [FDEffect(rel: "fans", delta: 4), FDEffect(rel: "vestiaire", delta: 4), FDEffect(attr: .sangfroid, delta: 2), FDEffect(money: -8000, delta: 0)]),
         ]),
     FDSceneDef(
         id: "con_prime_fidelite", category: "Contrat", minAge: 24, maxAge: 35,
@@ -2872,7 +2872,7 @@ let FDScenesPack4: [FDSceneDef] = [
             FDChoice(label: "Investir une petite somme",
                      effects: [FDEffect(money: -20000, delta: 0)]),
             FDChoice(label: "Refuser et prévenir tes coéquipiers",
-                     effects: [FDEffect(rel: "vestiaire", delta: 8), FDEffect(attr: .sangfroid, delta: 4)]),
+                     effects: [FDEffect(rel: "vestiaire", delta: 8), FDEffect(attr: .sangfroid, delta: 4), FDEffect(cond: "moral", delta: -3), FDEffect(money: 35000, delta: 0)]),
         ]),
     FDSceneDef(
         id: "spo_reseaux_contrat", category: "Sponsor", minAge: 19, maxAge: 32,
@@ -2882,7 +2882,7 @@ let FDScenesPack4: [FDSceneDef] = [
             FDChoice(label: "Accepter et publier",
                      effects: [FDEffect(money: 45000, delta: 0), FDEffect(rel: "media", delta: 4), FDEffect(cond: "fatigue", delta: 3)]),
             FDChoice(label: "Refuser, tu détestes ça",
-                     effects: [FDEffect(attr: .sangfroid, delta: 2), FDEffect(cond: "moral", delta: 2)]),
+                     effects: [FDEffect(attr: .sangfroid, delta: 2), FDEffect(cond: "moral", delta: 2), FDEffect(cond: "fatigue", delta: 6)]),
         ]),
     FDSceneDef(
         id: "tra_capitaine_depart", category: "Transfert", minAge: 22, maxAge: 35,
@@ -2890,7 +2890,7 @@ let FDScenesPack4: [FDSceneDef] = [
         text: "Le capitaine part et le club te propose son rôle pour te retenir.",
         choices: [
             FDChoice(label: "Rester et prendre le brassard",
-                     effects: [FDEffect(attr: .leadership, delta: 6), FDEffect(rel: "president", delta: 8), FDEffect(money: 0, delta: 0)]),
+                     effects: [FDEffect(attr: .leadership, delta: 6), FDEffect(rel: "president", delta: 8), FDEffect(money: 0, delta: 0), FDEffect(rel: "vestiaire", delta: -3)]),
             FDChoice(label: "Partir quand même",
                      effects: [FDEffect(money: 100000, delta: 0), FDEffect(rel: "fans", delta: -6)]),
         ]),
@@ -2920,11 +2920,11 @@ let FDScenesPack4: [FDSceneDef] = [
         text: "On te propose de devenir ambassadeur d'une grande cause internationale.",
         choices: [
             FDChoice(label: "Accepter et t'engager vraiment",
-                     effects: [FDEffect(cond: "reputation", delta: 10), FDEffect(cond: "fatigue", delta: 6), FDEffect(rel: "media", delta: 6)]),
+                     effects: [FDEffect(cond: "reputation", delta: 10), FDEffect(cond: "fatigue", delta: 6), FDEffect(rel: "media", delta: 6), FDEffect(money: 8000, delta: 0)]),
             FDChoice(label: "Accepter symboliquement",
-                     effects: [FDEffect(cond: "reputation", delta: 4)]),
+                     effects: [FDEffect(cond: "reputation", delta: 4), FDEffect(cond: "fatigue", delta: 6)]),
             FDChoice(label: "Refuser par manque de temps",
-                     effects: [FDEffect(cond: "reputation", delta: -2), FDEffect(cond: "fatigue", delta: -2)]),
+                     effects: [FDEffect(cond: "reputation", delta: -2), FDEffect(cond: "fatigue", delta: -2), FDEffect(money: 20000, delta: 0)]),
         ]),
     FDSceneDef(
         id: "tra_famille_opposee", category: "Transfert", minAge: 19, maxAge: 30,
@@ -2932,7 +2932,7 @@ let FDScenesPack4: [FDSceneDef] = [
         text: "Toute ta famille est contre ce transfert à l'étranger. Toi, tu en rêves.",
         choices: [
             FDChoice(label: "Partir malgré tout",
-                     effects: [FDEffect(rel: "famille", delta: -8), FDEffect(cond: "confiance", delta: 4), FDEffect(cond: "reputation", delta: 3)]),
+                     effects: [FDEffect(rel: "famille", delta: -8), FDEffect(cond: "confiance", delta: 4), FDEffect(cond: "reputation", delta: 3), FDEffect(money: 35000, delta: 0)]),
             FDChoice(label: "Renoncer",
                      effects: [FDEffect(rel: "famille", delta: 8), FDEffect(cond: "moral", delta: -4), FDEffect(attr: .determination, delta: -1)]),
         ]),
@@ -2942,7 +2942,7 @@ let FDScenesPack4: [FDSceneDef] = [
         text: "Ton agent s'est fâché avec ta direction. Le club refuse désormais de lui parler.",
         choices: [
             FDChoice(label: "Défendre ton agent",
-                     effects: [FDEffect(rel: "agent", delta: 8), FDEffect(rel: "president", delta: -7)]),
+                     effects: [FDEffect(rel: "agent", delta: 8), FDEffect(rel: "president", delta: -7), FDEffect(money: 35000, delta: 0)]),
             FDChoice(label: "Négocier seul",
                      effects: [FDEffect(attr: .leadership, delta: 4), FDEffect(rel: "agent", delta: -6), FDEffect(attr: .sangfroid, delta: 3)]),
         ]),
@@ -2954,7 +2954,7 @@ let FDScenesPack4: [FDSceneDef] = [
             FDChoice(label: "Accepter le blocage",
                      effects: [FDEffect(money: -80000, delta: 0), FDEffect(attr: .sangfroid, delta: 4)]),
             FDChoice(label: "Refuser, tu veux profiter maintenant",
-                     effects: [FDEffect(money: 0, delta: 0), FDEffect(cond: "moral", delta: 4)]),
+                     effects: [FDEffect(money: 0, delta: 0), FDEffect(cond: "moral", delta: 4), FDEffect(rel: "famille", delta: -3)]),
         ]),
     FDSceneDef(
         id: "con_salaire_public", category: "Contrat", minAge: 20, maxAge: 34,
@@ -2962,7 +2962,7 @@ let FDScenesPack4: [FDSceneDef] = [
         text: "Ton salaire fuite dans la presse. Les supporters trouvent le montant indécent.",
         choices: [
             FDChoice(label: "T'expliquer publiquement",
-                     effects: [FDEffect(rel: "media", delta: 4), FDEffect(rel: "fans", delta: 3), FDEffect(cond: "reputation", delta: 2)]),
+                     effects: [FDEffect(rel: "media", delta: 4), FDEffect(rel: "fans", delta: 3), FDEffect(cond: "reputation", delta: 2), FDEffect(money: -6000, delta: 0)]),
             FDChoice(label: "Ne rien dire",
                      effects: [FDEffect(rel: "fans", delta: -4)]),
             FDChoice(label: "Reverser une part à une association",
@@ -2974,9 +2974,9 @@ let FDScenesPack4: [FDSceneDef] = [
         text: "Le club t'offre le numéro 10, symbole lourd à porter dans cette ville.",
         choices: [
             FDChoice(label: "Le prendre",
-                     effects: [FDEffect(cond: "confiance", delta: 5), FDEffect(rel: "fans", delta: 6), FDEffect(cond: "moral", delta: -2)]),
+                     effects: [FDEffect(cond: "confiance", delta: 5), FDEffect(rel: "fans", delta: 6), FDEffect(cond: "moral", delta: -2), FDEffect(money: 8000, delta: 0)]),
             FDChoice(label: "Le refuser",
-                     effects: [FDEffect(attr: .sangfroid, delta: 3), FDEffect(rel: "vestiaire", delta: 3)]),
+                     effects: [FDEffect(attr: .sangfroid, delta: 3), FDEffect(rel: "vestiaire", delta: 3), FDEffect(cond: "moral", delta: -3)]),
         ]),
     FDSceneDef(
         id: "age_procès", category: "Agent", minAge: 22, maxAge: 36,
@@ -2998,7 +2998,7 @@ let FDScenesPack4: [FDSceneDef] = [
             FDChoice(label: "Revenir chaque mois sans caméra",
                      effects: [FDEffect(cond: "moral", delta: 10), FDEffect(cond: "fatigue", delta: 3)]),
             FDChoice(label: "Passer à autre chose",
-                     effects: [FDEffect(cond: "moral", delta: -3)]),
+                     effects: [FDEffect(cond: "moral", delta: -3), FDEffect(money: 35000, delta: 0)]),
         ]),
 ]
 
@@ -3009,7 +3009,7 @@ let FDScenesPack5: [FDSceneDef] = [
         text: "Première interview télévisée de ta carrière. Trois caméras, une question piège d'entrée.",
         choices: [
             FDChoice(label: "Répondre franchement",
-                     effects: [FDEffect(rel: "media", delta: 5), FDEffect(cond: "reputation", delta: 3)]),
+                     effects: [FDEffect(rel: "media", delta: 5), FDEffect(cond: "reputation", delta: 3), FDEffect(cond: "moral", delta: -3)]),
             FDChoice(label: "Botter en touche",
                      effects: [FDEffect(attr: .sangfroid, delta: 3), FDEffect(rel: "media", delta: -2)]),
         ]),
@@ -3021,7 +3021,7 @@ let FDScenesPack5: [FDSceneDef] = [
             FDChoice(label: "Défendre le coach",
                      effects: [FDEffect(rel: "coach", delta: 8), FDEffect(rel: "media", delta: -2)]),
             FDChoice(label: "Rester évasif",
-                     effects: [FDEffect(attr: .sangfroid, delta: 3)]),
+                     effects: [FDEffect(attr: .sangfroid, delta: 3), FDEffect(cond: "reputation", delta: -3)]),
             FDChoice(label: "Laisser planer le doute",
                      effects: [FDEffect(rel: "coach", delta: -9), FDEffect(rel: "media", delta: 6), FDEffect(cond: "reputation", delta: 2)]),
         ]),
@@ -3035,7 +3035,7 @@ let FDScenesPack5: [FDSceneDef] = [
             FDChoice(label: "Répondre sur le terrain",
                      effects: [FDEffect(attr: .determination, delta: 5), FDEffect(cond: "fatigue", delta: 6)]),
             FDChoice(label: "L'inviter à te suivre une semaine",
-                     effects: [FDEffect(rel: "media", delta: 8), FDEffect(cond: "reputation", delta: 5)]),
+                     effects: [FDEffect(rel: "media", delta: 8), FDEffect(cond: "reputation", delta: 5), FDEffect(cond: "moral", delta: -3)]),
         ]),
     FDSceneDef(
         id: "pre_exclusivite", category: "Presse", minAge: 20, maxAge: 34,
@@ -3045,7 +3045,7 @@ let FDScenesPack5: [FDSceneDef] = [
             FDChoice(label: "Tout raconter",
                      effects: [FDEffect(rel: "media", delta: 8), FDEffect(cond: "reputation", delta: 5), FDEffect(rel: "president", delta: -5)]),
             FDChoice(label: "Un entretien lisse",
-                     effects: [FDEffect(rel: "media", delta: 3), FDEffect(rel: "president", delta: 3)]),
+                     effects: [FDEffect(rel: "media", delta: 3), FDEffect(rel: "president", delta: 3), FDEffect(cond: "reputation", delta: -3)]),
             FDChoice(label: "Refuser",
                      effects: [FDEffect(rel: "media", delta: -4), FDEffect(attr: .sangfroid, delta: 2)]),
         ]),
@@ -3057,9 +3057,9 @@ let FDScenesPack5: [FDSceneDef] = [
             FDChoice(label: "Accepter tout",
                      effects: [FDEffect(money: 120000, delta: 0), FDEffect(cond: "reputation", delta: 8), FDEffect(rel: "vestiaire", delta: -6)]),
             FDChoice(label: "Accepter sans le vestiaire",
-                     effects: [FDEffect(money: 60000, delta: 0), FDEffect(cond: "reputation", delta: 4)]),
+                     effects: [FDEffect(money: 60000, delta: 0), FDEffect(cond: "reputation", delta: 4), FDEffect(rel: "media", delta: -4)]),
             FDChoice(label: "Refuser",
-                     effects: [FDEffect(attr: .sangfroid, delta: 3), FDEffect(rel: "vestiaire", delta: 4)]),
+                     effects: [FDEffect(attr: .sangfroid, delta: 3), FDEffect(rel: "vestiaire", delta: 4), FDEffect(rel: "media", delta: -4)]),
         ]),
     FDSceneDef(
         id: "pre_lapsus", category: "Presse", minAge: 18, maxAge: 36,
@@ -3067,7 +3067,7 @@ let FDScenesPack5: [FDSceneDef] = [
         text: "En zone mixte, épuisé, tu lâches une phrase maladroite sur un coéquipier.",
         choices: [
             FDChoice(label: "T'excuser immédiatement",
-                     effects: [FDEffect(rel: "vestiaire", delta: 4), FDEffect(rel: "media", delta: 2), FDEffect(cond: "reputation", delta: 2)]),
+                     effects: [FDEffect(rel: "vestiaire", delta: 4), FDEffect(rel: "media", delta: 2), FDEffect(cond: "reputation", delta: 2), FDEffect(cond: "moral", delta: -3)]),
             FDChoice(label: "Assumer",
                      effects: [FDEffect(rel: "vestiaire", delta: -7), FDEffect(cond: "reputation", delta: -3), FDEffect(cond: "confiance", delta: 2)]),
         ]),
@@ -3077,7 +3077,7 @@ let FDScenesPack5: [FDSceneDef] = [
         text: "Un site publie une fausse info sur ta vie privée. Elle tourne partout en trois heures.",
         choices: [
             FDChoice(label: "Démentir avec humour",
-                     effects: [FDEffect(rel: "media", delta: 6), FDEffect(cond: "reputation", delta: 4)]),
+                     effects: [FDEffect(rel: "media", delta: 6), FDEffect(cond: "reputation", delta: 4), FDEffect(cond: "moral", delta: -3)]),
             FDChoice(label: "Menacer de poursuites",
                      effects: [FDEffect(rel: "media", delta: -4), FDEffect(cond: "reputation", delta: 3)]),
             FDChoice(label: "Ignorer",
@@ -3089,7 +3089,7 @@ let FDScenesPack5: [FDSceneDef] = [
         text: "Tu récoltes la pire note du week-end dans tous les journaux.",
         choices: [
             FDChoice(label: "Afficher la note dans ton casier",
-                     effects: [FDEffect(attr: .determination, delta: 4), FDEffect(rel: "vestiaire", delta: 4)]),
+                     effects: [FDEffect(attr: .determination, delta: 4), FDEffect(rel: "vestiaire", delta: 4), FDEffect(cond: "moral", delta: -3)]),
             FDChoice(label: "Éviter la presse une semaine",
                      effects: [FDEffect(cond: "moral", delta: -2), FDEffect(attr: .sangfroid, delta: 2)]),
         ]),
@@ -3099,7 +3099,7 @@ let FDScenesPack5: [FDSceneDef] = [
         text: "Un compte anonyme t'insulte tous les jours depuis six mois.",
         choices: [
             FDChoice(label: "Le signaler et bloquer",
-                     effects: [FDEffect(attr: .sangfroid, delta: 3), FDEffect(cond: "moral", delta: 2)]),
+                     effects: [FDEffect(attr: .sangfroid, delta: 3), FDEffect(cond: "moral", delta: 2), FDEffect(cond: "reputation", delta: -3)]),
             FDChoice(label: "Répondre publiquement",
                      effects: [FDEffect(rel: "media", delta: 4), FDEffect(cond: "reputation", delta: -3), FDEffect(cond: "moral", delta: -2)]),
             FDChoice(label: "Fermer tes comptes",
@@ -3113,7 +3113,7 @@ let FDScenesPack5: [FDSceneDef] = [
             FDChoice(label: "Surfer dessus",
                      effects: [FDEffect(cond: "reputation", delta: 6), FDEffect(rel: "media", delta: 5), FDEffect(rel: "vestiaire", delta: -2)]),
             FDChoice(label: "Rester discret",
-                     effects: [FDEffect(attr: .sangfroid, delta: 3), FDEffect(rel: "vestiaire", delta: 3)]),
+                     effects: [FDEffect(attr: .sangfroid, delta: 3), FDEffect(rel: "vestiaire", delta: 3), FDEffect(cond: "reputation", delta: -3)]),
         ]),
     FDSceneDef(
         id: "res_polemique_like", category: "Réseaux", minAge: 18, maxAge: 32,
@@ -3121,7 +3121,7 @@ let FDScenesPack5: [FDSceneDef] = [
         text: "Tu as liké par erreur un message polémique. Les captures d'écran circulent.",
         choices: [
             FDChoice(label: "T'expliquer clairement",
-                     effects: [FDEffect(cond: "reputation", delta: 3), FDEffect(rel: "media", delta: 3)]),
+                     effects: [FDEffect(cond: "reputation", delta: 3), FDEffect(rel: "media", delta: 3), FDEffect(cond: "moral", delta: -3)]),
             FDChoice(label: "Supprimer et se taire",
                      effects: [FDEffect(cond: "reputation", delta: -4)]),
         ]),
@@ -3143,7 +3143,7 @@ let FDScenesPack5: [FDSceneDef] = [
             FDChoice(label: "Accepter et gagner",
                      effects: [FDEffect(cond: "reputation", delta: 5), FDEffect(attr: .tir, delta: 2), FDEffect(rel: "coach", delta: -2)]),
             FDChoice(label: "Refuser",
-                     effects: [FDEffect(attr: .sangfroid, delta: 2)]),
+                     effects: [FDEffect(attr: .sangfroid, delta: 2), FDEffect(cond: "reputation", delta: -3)]),
         ]),
     FDSceneDef(
         id: "res_message_prive", category: "Réseaux", minAge: 18, maxAge: 30,
@@ -3163,7 +3163,7 @@ let FDScenesPack5: [FDSceneDef] = [
         text: "Les ultras préparent un tifo à ton effigie pour le prochain match.",
         choices: [
             FDChoice(label: "Aller les remercier après le match",
-                     effects: [FDEffect(rel: "fans", delta: 10), FDEffect(cond: "moral", delta: 6)]),
+                     effects: [FDEffect(rel: "fans", delta: 10), FDEffect(cond: "moral", delta: 6), FDEffect(cond: "fatigue", delta: 5)]),
             FDChoice(label: "Ne pas réagir",
                      effects: [FDEffect(rel: "fans", delta: -3)]),
         ]),
@@ -3173,7 +3173,7 @@ let FDScenesPack5: [FDSceneDef] = [
         text: "Les ultras convoquent les joueurs après une série noire. Certains coéquipiers refusent d'y aller.",
         choices: [
             FDChoice(label: "Y aller",
-                     effects: [FDEffect(rel: "fans", delta: 8), FDEffect(cond: "reputation", delta: 4), FDEffect(rel: "vestiaire", delta: 2)]),
+                     effects: [FDEffect(rel: "fans", delta: 8), FDEffect(cond: "reputation", delta: 4), FDEffect(rel: "vestiaire", delta: 2), FDEffect(cond: "fatigue", delta: 5)]),
             FDChoice(label: "Refuser d'y aller",
                      effects: [FDEffect(rel: "fans", delta: -8), FDEffect(attr: .sangfroid, delta: 2)]),
         ]),
@@ -3185,7 +3185,7 @@ let FDScenesPack5: [FDSceneDef] = [
             FDChoice(label: "Aller t'expliquer sur place",
                      effects: [FDEffect(rel: "fans", delta: 8), FDEffect(cond: "reputation", delta: 5), FDEffect(cond: "moral", delta: -3)]),
             FDChoice(label: "Publier un communiqué",
-                     effects: [FDEffect(rel: "media", delta: 3), FDEffect(rel: "fans", delta: 2)]),
+                     effects: [FDEffect(rel: "media", delta: 3), FDEffect(rel: "fans", delta: 2), FDEffect(cond: "moral", delta: -2)]),
             FDChoice(label: "Ne rien faire",
                      effects: [FDEffect(rel: "fans", delta: -8), FDEffect(cond: "moral", delta: -5)]),
         ]),
@@ -3197,7 +3197,7 @@ let FDScenesPack5: [FDSceneDef] = [
             FDChoice(label: "Y aller entre deux entraînements",
                      effects: [FDEffect(cond: "moral", delta: 8), FDEffect(rel: "fans", delta: 8), FDEffect(cond: "fatigue", delta: 4)]),
             FDChoice(label: "Envoyer un maillot dédicacé",
-                     effects: [FDEffect(rel: "fans", delta: 3), FDEffect(cond: "moral", delta: 2)]),
+                     effects: [FDEffect(rel: "fans", delta: 3), FDEffect(cond: "moral", delta: 2), FDEffect(cond: "fatigue", delta: 5)]),
         ]),
     FDSceneDef(
         id: "sup_deplacement_lointain", category: "Supporters", minAge: 19, maxAge: 36,
@@ -3205,7 +3205,7 @@ let FDScenesPack5: [FDSceneDef] = [
         text: "Deux cents supporters ont fait mille kilomètres pour un match perdu 4-0.",
         choices: [
             FDChoice(label: "Aller les saluer et t'excuser",
-                     effects: [FDEffect(rel: "fans", delta: 10), FDEffect(cond: "reputation", delta: 5)]),
+                     effects: [FDEffect(rel: "fans", delta: 10), FDEffect(cond: "reputation", delta: 5), FDEffect(cond: "moral", delta: -2)]),
             FDChoice(label: "Filer au bus",
                      effects: [FDEffect(rel: "fans", delta: -8)]),
         ]),
@@ -3215,9 +3215,9 @@ let FDScenesPack5: [FDSceneDef] = [
         text: "Le kop a créé un chant à ton nom. Il résonne à chaque touche de balle.",
         choices: [
             FDChoice(label: "Le saluer à chaque fois",
-                     effects: [FDEffect(rel: "fans", delta: 8), FDEffect(cond: "confiance", delta: 5)]),
+                     effects: [FDEffect(rel: "fans", delta: 8), FDEffect(cond: "confiance", delta: 5), FDEffect(cond: "moral", delta: -2)]),
             FDChoice(label: "Rester concentré",
-                     effects: [FDEffect(attr: .sangfroid, delta: 3), FDEffect(rel: "fans", delta: 1)]),
+                     effects: [FDEffect(attr: .sangfroid, delta: 3), FDEffect(rel: "fans", delta: 1), FDEffect(cond: "fatigue", delta: 5)]),
         ]),
     FDSceneDef(
         id: "sup_critique_ancien", category: "Supporters", minAge: 22, maxAge: 36,
@@ -3225,11 +3225,11 @@ let FDScenesPack5: [FDSceneDef] = [
         text: "Une légende du club te descend en direct à la télévision.",
         choices: [
             FDChoice(label: "Lui répondre avec respect",
-                     effects: [FDEffect(cond: "reputation", delta: 5), FDEffect(rel: "media", delta: 4)]),
+                     effects: [FDEffect(cond: "reputation", delta: 5), FDEffect(rel: "media", delta: 4), FDEffect(cond: "fatigue", delta: 5)]),
             FDChoice(label: "Le contredire frontalement",
                      effects: [FDEffect(rel: "media", delta: 5), FDEffect(rel: "fans", delta: -5), FDEffect(cond: "confiance", delta: 3)]),
             FDChoice(label: "Demander à le rencontrer",
-                     effects: [FDEffect(cond: "reputation", delta: 6), FDEffect(rel: "fans", delta: 4)]),
+                     effects: [FDEffect(cond: "reputation", delta: 6), FDEffect(rel: "fans", delta: 4), FDEffect(cond: "moral", delta: -2)]),
         ]),
     FDSceneDef(
         id: "riv_nouveau_venu", category: "Rivalité", minAge: 18, maxAge: 32,
@@ -3241,7 +3241,7 @@ let FDScenesPack5: [FDSceneDef] = [
             FDChoice(label: "Répondre dans la presse",
                      effects: [FDEffect(rel: "media", delta: 4), FDEffect(rel: "vestiaire", delta: -4)]),
             FDChoice(label: "Aller lui parler en face",
-                     effects: [FDEffect(attr: .leadership, delta: 4), FDEffect(rel: "vestiaire", delta: 3)]),
+                     effects: [FDEffect(attr: .leadership, delta: 4), FDEffect(rel: "vestiaire", delta: 3), FDEffect(cond: "moral", delta: -3)]),
         ]),
     FDSceneDef(
         id: "riv_duel_stats", category: "Rivalité", minAge: 19, maxAge: 34,
@@ -3251,7 +3251,7 @@ let FDScenesPack5: [FDSceneDef] = [
             FDChoice(label: "En faire un moteur",
                      effects: [FDEffect(attr: .determination, delta: 4), FDEffect(attr: .tir, delta: 2), FDEffect(cond: "fatigue", delta: 6)]),
             FDChoice(label: "Refuser de comparer",
-                     effects: [FDEffect(attr: .sangfroid, delta: 4), FDEffect(cond: "moral", delta: 2)]),
+                     effects: [FDEffect(attr: .sangfroid, delta: 4), FDEffect(cond: "moral", delta: 2), FDEffect(rel: "vestiaire", delta: -3)]),
         ]),
     FDSceneDef(
         id: "riv_selection_place", category: "Rivalité", minAge: 20, maxAge: 34,
@@ -3261,7 +3261,7 @@ let FDScenesPack5: [FDSceneDef] = [
             FDChoice(label: "Tout donner",
                      effects: [FDEffect(attr: .determination, delta: 5), FDEffect(cond: "fatigue", delta: 12), FDEffect(cond: "confiance", delta: 4)]),
             FDChoice(label: "Jouer ton jeu sans surjouer",
-                     effects: [FDEffect(attr: .sangfroid, delta: 3), FDEffect(attr: .placement, delta: 2)]),
+                     effects: [FDEffect(attr: .sangfroid, delta: 3), FDEffect(attr: .placement, delta: 2), FDEffect(cond: "moral", delta: -3)]),
         ]),
     FDSceneDef(
         id: "riv_provocation_publique", category: "Rivalité", minAge: 19, maxAge: 34,
@@ -3271,7 +3271,7 @@ let FDScenesPack5: [FDSceneDef] = [
             FDChoice(label: "Répondre du tac au tac",
                      effects: [FDEffect(rel: "media", delta: 6), FDEffect(cond: "reputation", delta: 3), FDEffect(cond: "moral", delta: -2)]),
             FDChoice(label: "Le laisser parler",
-                     effects: [FDEffect(attr: .sangfroid, delta: 5)]),
+                     effects: [FDEffect(attr: .sangfroid, delta: 5), FDEffect(cond: "fatigue", delta: 5)]),
             FDChoice(label: "Le provoquer sur le terrain",
                      effects: [FDEffect(attr: .tacle, delta: 2), FDEffect(cond: "reputation", delta: -3), FDEffect(rel: "fans", delta: 4)]),
         ]),
@@ -3281,7 +3281,7 @@ let FDScenesPack5: [FDSceneDef] = [
         text: "Ton ancien meilleur ami au club est devenu ton concurrent direct. Vous ne vous parlez plus.",
         choices: [
             FDChoice(label: "Rétablir le dialogue",
-                     effects: [FDEffect(rel: "vestiaire", delta: 6), FDEffect(cond: "moral", delta: 5)]),
+                     effects: [FDEffect(rel: "vestiaire", delta: 6), FDEffect(cond: "moral", delta: 5), FDEffect(cond: "fatigue", delta: 5)]),
             FDChoice(label: "Assumer la guerre froide",
                      effects: [FDEffect(attr: .determination, delta: 3), FDEffect(rel: "vestiaire", delta: -3)]),
         ]),
@@ -3295,7 +3295,7 @@ let FDScenesPack5: [FDSceneDef] = [
             FDChoice(label: "Le signaler à l'arbitre",
                      effects: [FDEffect(attr: .sangfroid, delta: 2), FDEffect(rel: "fans", delta: -2)]),
             FDChoice(label: "Ne rien faire et jouer",
-                     effects: [FDEffect(attr: .sangfroid, delta: 4), FDEffect(attr: .determination, delta: 2)]),
+                     effects: [FDEffect(attr: .sangfroid, delta: 4), FDEffect(attr: .determination, delta: 2), FDEffect(cond: "fatigue", delta: 5)]),
         ]),
     FDSceneDef(
         id: "riv_transfert_meme_club", category: "Rivalité", minAge: 20, maxAge: 34,
@@ -3303,7 +3303,7 @@ let FDScenesPack5: [FDSceneDef] = [
         text: "Ton rival signe dans ton club. Vous allez vous partager le même poste.",
         choices: [
             FDChoice(label: "Proposer une trêve",
-                     effects: [FDEffect(rel: "vestiaire", delta: 6), FDEffect(attr: .leadership, delta: 3)]),
+                     effects: [FDEffect(rel: "vestiaire", delta: 6), FDEffect(attr: .leadership, delta: 3), FDEffect(cond: "fatigue", delta: 5)]),
             FDChoice(label: "Le prendre comme un défi personnel",
                      effects: [FDEffect(attr: .determination, delta: 4), FDEffect(cond: "fatigue", delta: 8)]),
         ]),
@@ -3315,9 +3315,9 @@ let FDScenesPack5: [FDSceneDef] = [
             FDChoice(label: "Tout raconter",
                      effects: [FDEffect(money: 150000, delta: 0), FDEffect(cond: "reputation", delta: 5), FDEffect(rel: "vestiaire", delta: -8), FDEffect(rel: "president", delta: -6)]),
             FDChoice(label: "Écrire une version sage",
-                     effects: [FDEffect(money: 60000, delta: 0), FDEffect(cond: "reputation", delta: 3)]),
+                     effects: [FDEffect(money: 60000, delta: 0), FDEffect(cond: "reputation", delta: 3), FDEffect(cond: "moral", delta: -3)]),
             FDChoice(label: "Refuser pour l'instant",
-                     effects: [FDEffect(attr: .sangfroid, delta: 2)]),
+                     effects: [FDEffect(attr: .sangfroid, delta: 2), FDEffect(rel: "media", delta: -4)]),
         ]),
     FDSceneDef(
         id: "pre_langue_etrangere", category: "Presse", minAge: 19, maxAge: 34,
@@ -3347,7 +3347,7 @@ let FDScenesPack5: [FDSceneDef] = [
             FDChoice(label: "Y aller une heure",
                      effects: [FDEffect(rel: "fans", delta: 6), FDEffect(cond: "fatigue", delta: 3)]),
             FDChoice(label: "Envoyer un message vidéo",
-                     effects: [FDEffect(rel: "fans", delta: 2)]),
+                     effects: [FDEffect(rel: "fans", delta: 2), FDEffect(cond: "moral", delta: -2)]),
             FDChoice(label: "Décliner",
                      effects: [FDEffect(rel: "fans", delta: -4), FDEffect(cond: "fatigue", delta: -1)]),
         ]),
@@ -3359,7 +3359,7 @@ let FDScenesPack5: [FDSceneDef] = [
             FDChoice(label: "Accuser l'arbitre",
                      effects: [FDEffect(rel: "media", delta: 5), FDEffect(cond: "reputation", delta: -4), FDEffect(rel: "fans", delta: 5)]),
             FDChoice(label: "Parler du match de ton équipe",
-                     effects: [FDEffect(attr: .sangfroid, delta: 4), FDEffect(rel: "coach", delta: 4)]),
+                     effects: [FDEffect(attr: .sangfroid, delta: 4), FDEffect(rel: "coach", delta: 4), FDEffect(cond: "moral", delta: -3)]),
         ]),
     FDSceneDef(
         id: "riv_record_battu", category: "Rivalité", minAge: 22, maxAge: 36,
@@ -3367,9 +3367,9 @@ let FDScenesPack5: [FDSceneDef] = [
         text: "Ton rival vient de battre le record que tu détenais depuis trois ans.",
         choices: [
             FDChoice(label: "Le féliciter publiquement",
-                     effects: [FDEffect(cond: "reputation", delta: 6), FDEffect(rel: "media", delta: 4), FDEffect(attr: .sangfroid, delta: 3)]),
+                     effects: [FDEffect(cond: "reputation", delta: 6), FDEffect(rel: "media", delta: 4), FDEffect(attr: .sangfroid, delta: 3), FDEffect(rel: "vestiaire", delta: -3)]),
             FDChoice(label: "Promettre de le reprendre",
-                     effects: [FDEffect(attr: .determination, delta: 5), FDEffect(cond: "confiance", delta: 4)]),
+                     effects: [FDEffect(attr: .determination, delta: 5), FDEffect(cond: "confiance", delta: 4), FDEffect(cond: "fatigue", delta: 5)]),
         ]),
     FDSceneDef(
         id: "pre_photo_soiree", category: "Presse", minAge: 19, maxAge: 32,
@@ -3391,7 +3391,7 @@ let FDScenesPack5: [FDSceneDef] = [
             FDChoice(label: "Commencer maintenant",
                      effects: [FDEffect(money: 40000, delta: 0), FDEffect(cond: "fatigue", delta: 6), FDEffect(rel: "coach", delta: -3)]),
             FDChoice(label: "Attendre la fin de carrière",
-                     effects: [FDEffect(attr: .determination, delta: 3)]),
+                     effects: [FDEffect(attr: .determination, delta: 3), FDEffect(cond: "reputation", delta: -3)]),
         ]),
     FDSceneDef(
         id: "sup_boycott", category: "Supporters", minAge: 20, maxAge: 36,
@@ -3401,7 +3401,7 @@ let FDScenesPack5: [FDSceneDef] = [
             FDChoice(label: "Les soutenir publiquement",
                      effects: [FDEffect(rel: "fans", delta: 10), FDEffect(rel: "president", delta: -8)]),
             FDChoice(label: "Rester neutre",
-                     effects: [FDEffect(attr: .sangfroid, delta: 2)]),
+                     effects: [FDEffect(attr: .sangfroid, delta: 2), FDEffect(rel: "fans", delta: -3)]),
             FDChoice(label: "Soutenir la direction",
                      effects: [FDEffect(rel: "president", delta: 7), FDEffect(rel: "fans", delta: -10)]),
         ]),
@@ -3411,7 +3411,7 @@ let FDScenesPack5: [FDSceneDef] = [
         text: "Tu reçois un trophée individuel et le micro reste entre tes mains plus longtemps que prévu.",
         choices: [
             FDChoice(label: "Remercier tes coéquipiers un par un",
-                     effects: [FDEffect(rel: "vestiaire", delta: 8), FDEffect(cond: "reputation", delta: 5)]),
+                     effects: [FDEffect(rel: "vestiaire", delta: 8), FDEffect(cond: "reputation", delta: 5), FDEffect(rel: "media", delta: -4)]),
             FDChoice(label: "Parler de tes ambitions",
                      effects: [FDEffect(cond: "confiance", delta: 5), FDEffect(rel: "vestiaire", delta: -3), FDEffect(rel: "media", delta: 4)]),
         ]),
@@ -3421,7 +3421,7 @@ let FDScenesPack5: [FDSceneDef] = [
         text: "Vous vous croisez dans le tunnel avant le derby. Il te tend la main devant les caméras.",
         choices: [
             FDChoice(label: "La serrer",
-                     effects: [FDEffect(cond: "reputation", delta: 4), FDEffect(rel: "media", delta: 3)]),
+                     effects: [FDEffect(cond: "reputation", delta: 4), FDEffect(rel: "media", delta: 3), FDEffect(rel: "vestiaire", delta: -3)]),
             FDChoice(label: "L'ignorer",
                      effects: [FDEffect(cond: "reputation", delta: -3), FDEffect(rel: "fans", delta: 5), FDEffect(cond: "confiance", delta: 2)]),
         ]),
@@ -3431,7 +3431,7 @@ let FDScenesPack5: [FDSceneDef] = [
         text: "Une traduction déforme tes propos et fait croire que tu critiques la ville.",
         choices: [
             FDChoice(label: "Rectifier immédiatement en public",
-                     effects: [FDEffect(rel: "fans", delta: 6), FDEffect(rel: "media", delta: 4)]),
+                     effects: [FDEffect(rel: "fans", delta: 6), FDEffect(rel: "media", delta: 4), FDEffect(cond: "moral", delta: -3)]),
             FDChoice(label: "Laisser passer",
                      effects: [FDEffect(rel: "fans", delta: -6)]),
         ]),
@@ -3441,7 +3441,7 @@ let FDScenesPack5: [FDSceneDef] = [
         text: "Un supporter t'attend au parking et devient agressif devant ta famille.",
         choices: [
             FDChoice(label: "Rester calme et partir",
-                     effects: [FDEffect(attr: .sangfroid, delta: 4), FDEffect(rel: "famille", delta: 3)]),
+                     effects: [FDEffect(attr: .sangfroid, delta: 4), FDEffect(rel: "famille", delta: 3), FDEffect(rel: "fans", delta: -3)]),
             FDChoice(label: "Le confronter",
                      effects: [FDEffect(cond: "reputation", delta: -5), FDEffect(rel: "famille", delta: -3), FDEffect(cond: "confiance", delta: 2)]),
         ]),
@@ -3451,9 +3451,9 @@ let FDScenesPack5: [FDSceneDef] = [
         text: "Une émission consacre un hommage à un joueur disparu que tu admirais.",
         choices: [
             FDChoice(label: "Y participer et parler de lui",
-                     effects: [FDEffect(cond: "reputation", delta: 5), FDEffect(cond: "moral", delta: 4), FDEffect(rel: "media", delta: 5)]),
+                     effects: [FDEffect(cond: "reputation", delta: 5), FDEffect(cond: "moral", delta: 4), FDEffect(rel: "media", delta: 5), FDEffect(cond: "fatigue", delta: 5)]),
             FDChoice(label: "Décliner, trop intime",
-                     effects: [FDEffect(cond: "moral", delta: 2)]),
+                     effects: [FDEffect(cond: "moral", delta: 2), FDEffect(cond: "reputation", delta: -3)]),
         ]),
     FDSceneDef(
         id: "res_compte_pirate", category: "Réseaux", minAge: 19, maxAge: 32,
@@ -3461,7 +3461,7 @@ let FDScenesPack5: [FDSceneDef] = [
         text: "Ton compte est piraté et publie des messages injurieux pendant deux heures.",
         choices: [
             FDChoice(label: "Communiquer vite et clairement",
-                     effects: [FDEffect(rel: "media", delta: 4), FDEffect(cond: "reputation", delta: 2)]),
+                     effects: [FDEffect(rel: "media", delta: 4), FDEffect(cond: "reputation", delta: 2), FDEffect(cond: "moral", delta: -3)]),
             FDChoice(label: "Tout supprimer et disparaître",
                      effects: [FDEffect(rel: "media", delta: -4), FDEffect(cond: "moral", delta: -3)]),
         ]),
@@ -3473,7 +3473,7 @@ let FDScenesPack5: [FDSceneDef] = [
             FDChoice(label: "Donner ton avis",
                      effects: [FDEffect(cond: "reputation", delta: 4), FDEffect(rel: "media", delta: 5), FDEffect(rel: "president", delta: -5)]),
             FDChoice(label: "Recadrer poliment",
-                     effects: [FDEffect(attr: .sangfroid, delta: 4), FDEffect(rel: "president", delta: 3)]),
+                     effects: [FDEffect(attr: .sangfroid, delta: 4), FDEffect(rel: "president", delta: 3), FDEffect(cond: "reputation", delta: -3)]),
         ]),
     FDSceneDef(
         id: "sup_retour_blessure_ovation", category: "Supporters", minAge: 19, maxAge: 36,
@@ -3481,9 +3481,9 @@ let FDScenesPack5: [FDSceneDef] = [
         text: "Ton retour après six mois d'absence est salué par une ovation debout de tout le stade.",
         choices: [
             FDChoice(label: "Saluer les quatre tribunes",
-                     effects: [FDEffect(rel: "fans", delta: 8), FDEffect(cond: "moral", delta: 8), FDEffect(cond: "confiance", delta: 5)]),
+                     effects: [FDEffect(rel: "fans", delta: 8), FDEffect(cond: "moral", delta: 8), FDEffect(cond: "confiance", delta: 5), FDEffect(cond: "fatigue", delta: 5)]),
             FDChoice(label: "Rester concentré sur le jeu",
-                     effects: [FDEffect(attr: .sangfroid, delta: 3), FDEffect(cond: "confiance", delta: 3)]),
+                     effects: [FDEffect(attr: .sangfroid, delta: 3), FDEffect(cond: "confiance", delta: 3), FDEffect(cond: "fatigue", delta: 5)]),
         ]),
 ]
 
@@ -3494,7 +3494,7 @@ let FDScenesPack6: [FDSceneDef] = [
         text: "Rupture des ligaments croisés. Six à huit mois d'absence, et une question qui revient : après, seras-tu le même ?",
         choices: [
             FDChoice(label: "Suivre la rééducation à la lettre",
-                     effects: [FDEffect(cond: "forme", delta: 8), FDEffect(attr: .determination, delta: 4), FDEffect(cond: "fatigue", delta: -10)]),
+                     effects: [FDEffect(cond: "forme", delta: 8), FDEffect(attr: .determination, delta: 4), FDEffect(cond: "fatigue", delta: -10), FDEffect(cond: "moral", delta: -3)]),
             FDChoice(label: "Accélérer le protocole",
                      effects: [FDEffect(attr: .determination, delta: 5), FDEffect(cond: "forme", delta: -8), FDEffect(cond: "confiance", delta: 4)]),
         ]),
@@ -3558,7 +3558,7 @@ let FDScenesPack6: [FDSceneDef] = [
             FDChoice(label: "Aller à l'hôpital après le match",
                      effects: [FDEffect(rel: "vestiaire", delta: 8), FDEffect(cond: "moral", delta: -4), FDEffect(cond: "fatigue", delta: 3)]),
             FDChoice(label: "Rester avec le groupe",
-                     effects: [FDEffect(rel: "vestiaire", delta: 2)]),
+                     effects: [FDEffect(rel: "vestiaire", delta: 2), FDEffect(cond: "moral", delta: -3)]),
         ]),
     FDSceneDef(
         id: "ble_operation_reportee", category: "Blessure", minAge: 22, maxAge: 36,
@@ -3578,7 +3578,7 @@ let FDScenesPack6: [FDSceneDef] = [
             FDChoice(label: "Suivre à cent pour cent",
                      effects: [FDEffect(cond: "forme", delta: 8), FDEffect(attr: .endurance, delta: 2), FDEffect(cond: "moral", delta: -3)]),
             FDChoice(label: "Suivre à moitié",
-                     effects: [FDEffect(cond: "forme", delta: 3)]),
+                     effects: [FDEffect(cond: "forme", delta: 3), FDEffect(cond: "moral", delta: -3)]),
             FDChoice(label: "Refuser",
                      effects: [FDEffect(cond: "forme", delta: -4), FDEffect(cond: "moral", delta: 3)]),
         ]),
@@ -3602,7 +3602,7 @@ let FDScenesPack6: [FDSceneDef] = [
             FDChoice(label: "Rester à l'eau",
                      effects: [FDEffect(cond: "forme", delta: 3), FDEffect(rel: "vestiaire", delta: -2), FDEffect(attr: .determination, delta: 2)]),
             FDChoice(label: "Partir tôt",
-                     effects: [FDEffect(cond: "fatigue", delta: -4), FDEffect(rel: "vestiaire", delta: 1)]),
+                     effects: [FDEffect(cond: "fatigue", delta: -4), FDEffect(rel: "vestiaire", delta: 1), FDEffect(cond: "forme", delta: -3)]),
         ]),
     FDSceneDef(
         id: "san_addiction_jeux", category: "Hygiène de vie", minAge: 20, maxAge: 34,
@@ -3622,7 +3622,7 @@ let FDScenesPack6: [FDSceneDef] = [
         text: "Deux coéquipiers fument en cachette après les matchs. Ils t'invitent.",
         choices: [
             FDChoice(label: "Refuser",
-                     effects: [FDEffect(cond: "forme", delta: 2), FDEffect(attr: .determination, delta: 2)]),
+                     effects: [FDEffect(cond: "forme", delta: 2), FDEffect(attr: .determination, delta: 2), FDEffect(cond: "moral", delta: -3)]),
             FDChoice(label: "Accepter de temps en temps",
                      effects: [FDEffect(rel: "vestiaire", delta: 3), FDEffect(cond: "forme", delta: -4), FDEffect(attr: .endurance, delta: -1)]),
         ]),
@@ -3644,7 +3644,7 @@ let FDScenesPack6: [FDSceneDef] = [
             FDChoice(label: "Essayer",
                      effects: [FDEffect(cond: "forme", delta: 4), FDEffect(rel: "coach", delta: -3), FDEffect(money: -8000, delta: 0)]),
             FDChoice(label: "S'en tenir au staff médical",
-                     effects: [FDEffect(rel: "coach", delta: 4), FDEffect(cond: "forme", delta: 2)]),
+                     effects: [FDEffect(rel: "coach", delta: 4), FDEffect(cond: "forme", delta: 2), FDEffect(cond: "fatigue", delta: 6)]),
         ]),
     FDSceneDef(
         id: "men_pression", category: "Mental", minAge: 18, maxAge: 34,
@@ -3652,7 +3652,7 @@ let FDScenesPack6: [FDSceneDef] = [
         text: "Tu n'arrives plus à dormir avant les matchs. Le préparateur mental propose un suivi.",
         choices: [
             FDChoice(label: "Accepter le suivi",
-                     effects: [FDEffect(attr: .sangfroid, delta: 4), FDEffect(cond: "fatigue", delta: -8), FDEffect(cond: "moral", delta: 4)]),
+                     effects: [FDEffect(attr: .sangfroid, delta: 4), FDEffect(cond: "fatigue", delta: -8), FDEffect(cond: "moral", delta: 4), FDEffect(cond: "confiance", delta: -3)]),
             FDChoice(label: "Refuser, ça passera",
                      effects: [FDEffect(cond: "fatigue", delta: 6), FDEffect(cond: "moral", delta: -4)]),
         ]),
@@ -3664,7 +3664,7 @@ let FDScenesPack6: [FDSceneDef] = [
             FDChoice(label: "En parler au club",
                      effects: [FDEffect(cond: "moral", delta: 8), FDEffect(rel: "coach", delta: 3), FDEffect(cond: "reputation", delta: -2)]),
             FDChoice(label: "En parler à tes proches",
-                     effects: [FDEffect(cond: "moral", delta: 6), FDEffect(rel: "famille", delta: 6)]),
+                     effects: [FDEffect(cond: "moral", delta: 6), FDEffect(rel: "famille", delta: 6), FDEffect(cond: "confiance", delta: -3)]),
             FDChoice(label: "Faire semblant",
                      effects: [FDEffect(cond: "moral", delta: -8), FDEffect(cond: "forme", delta: -4)]),
         ]),
@@ -3674,7 +3674,7 @@ let FDScenesPack6: [FDSceneDef] = [
         text: "Tu évites de réclamer le ballon dans les moments chauds depuis un mois.",
         choices: [
             FDChoice(label: "Travailler ça en séance",
-                     effects: [FDEffect(attr: .sangfroid, delta: 4), FDEffect(cond: "confiance", delta: 4)]),
+                     effects: [FDEffect(attr: .sangfroid, delta: 4), FDEffect(cond: "confiance", delta: 4), FDEffect(cond: "fatigue", delta: 5)]),
             FDChoice(label: "Forcer le passage en match",
                      effects: [FDEffect(cond: "confiance", delta: 5), FDEffect(cond: "fatigue", delta: 6), FDEffect(attr: .determination, delta: 3)]),
         ]),
@@ -3684,7 +3684,7 @@ let FDScenesPack6: [FDSceneDef] = [
         text: "Ta routine d'avant-match est cassée : bus en retard, échauffement écourté.",
         choices: [
             FDChoice(label: "T'adapter sans broncher",
-                     effects: [FDEffect(attr: .sangfroid, delta: 4)]),
+                     effects: [FDEffect(attr: .sangfroid, delta: 4), FDEffect(cond: "moral", delta: -3)]),
             FDChoice(label: "Perdre tes repères",
                      effects: [FDEffect(cond: "confiance", delta: -5), FDEffect(cond: "moral", delta: -3)]),
         ]),
@@ -3694,7 +3694,7 @@ let FDScenesPack6: [FDSceneDef] = [
         text: "Dix matchs sans marquer. Le coach te propose de reculer d'un cran pour te relancer.",
         choices: [
             FDChoice(label: "Accepter le repositionnement",
-                     effects: [FDEffect(attr: .passe, delta: 2), FDEffect(attr: .vision, delta: 2), FDEffect(cond: "confiance", delta: 3)]),
+                     effects: [FDEffect(attr: .passe, delta: 2), FDEffect(attr: .vision, delta: 2), FDEffect(cond: "confiance", delta: 3), FDEffect(cond: "fatigue", delta: 5)]),
             FDChoice(label: "Refuser, tu veux rester devant",
                      effects: [FDEffect(attr: .tir, delta: 2), FDEffect(cond: "confiance", delta: -3), FDEffect(rel: "coach", delta: -3)]),
         ]),
@@ -3706,7 +3706,7 @@ let FDScenesPack6: [FDSceneDef] = [
             FDChoice(label: "Participer sérieusement",
                      effects: [FDEffect(attr: .sangfroid, delta: 4), FDEffect(rel: "vestiaire", delta: -2), FDEffect(cond: "fatigue", delta: -6)]),
             FDChoice(label: "Faire semblant",
-                     effects: [FDEffect(rel: "vestiaire", delta: 3)]),
+                     effects: [FDEffect(rel: "vestiaire", delta: 3), FDEffect(cond: "confiance", delta: -3)]),
         ]),
     FDSceneDef(
         id: "men_objectifs", category: "Mental", minAge: 18, maxAge: 34,
@@ -3716,7 +3716,7 @@ let FDScenesPack6: [FDSceneDef] = [
             FDChoice(label: "Écrire des objectifs très ambitieux",
                      effects: [FDEffect(attr: .determination, delta: 4), FDEffect(cond: "confiance", delta: 3), FDEffect(cond: "fatigue", delta: 3)]),
             FDChoice(label: "Écrire des objectifs modestes",
-                     effects: [FDEffect(attr: .sangfroid, delta: 3), FDEffect(cond: "confiance", delta: 1)]),
+                     effects: [FDEffect(attr: .sangfroid, delta: 3), FDEffect(cond: "confiance", delta: 1), FDEffect(cond: "fatigue", delta: 5)]),
         ]),
     FDSceneDef(
         id: "men_burnout", category: "Mental", minAge: 24, maxAge: 36,
@@ -3746,7 +3746,7 @@ let FDScenesPack6: [FDSceneDef] = [
             FDChoice(label: "En chercher des identiques partout",
                      effects: [FDEffect(cond: "confiance", delta: 4), FDEffect(cond: "fatigue", delta: 3), FDEffect(money: -500, delta: 0)]),
             FDChoice(label: "Tourner la page",
-                     effects: [FDEffect(attr: .sangfroid, delta: 4)]),
+                     effects: [FDEffect(attr: .sangfroid, delta: 4), FDEffect(cond: "moral", delta: -2)]),
         ]),
     FDSceneDef(
         id: "sup_rituel_groupe", category: "Superstition", minAge: 18, maxAge: 36,
@@ -3754,7 +3754,7 @@ let FDScenesPack6: [FDSceneDef] = [
         text: "Le groupe adopte un rituel d'avant-match que tu trouves ridicule.",
         choices: [
             FDChoice(label: "Y participer",
-                     effects: [FDEffect(rel: "vestiaire", delta: 5), FDEffect(cond: "moral", delta: 2)]),
+                     effects: [FDEffect(rel: "vestiaire", delta: 5), FDEffect(cond: "moral", delta: 2), FDEffect(cond: "confiance", delta: -3)]),
             FDChoice(label: "T'en tenir à l'écart",
                      effects: [FDEffect(rel: "vestiaire", delta: -3), FDEffect(attr: .sangfroid, delta: 2)]),
         ]),
@@ -3764,9 +3764,9 @@ let FDScenesPack6: [FDSceneDef] = [
         text: "On te propose le maillot numéro 13, refusé par tout le monde.",
         choices: [
             FDChoice(label: "Le prendre et en faire ta marque",
-                     effects: [FDEffect(cond: "confiance", delta: 4), FDEffect(cond: "reputation", delta: 3), FDEffect(rel: "fans", delta: 3)]),
+                     effects: [FDEffect(cond: "confiance", delta: 4), FDEffect(cond: "reputation", delta: 3), FDEffect(rel: "fans", delta: 3), FDEffect(cond: "moral", delta: -2)]),
             FDChoice(label: "Refuser",
-                     effects: [FDEffect(attr: .sangfroid, delta: 1)]),
+                     effects: [FDEffect(attr: .sangfroid, delta: 1), FDEffect(cond: "confiance", delta: -3)]),
         ]),
     FDSceneDef(
         id: "men_retour_apres_echec", category: "Mental", minAge: 19, maxAge: 36,
@@ -3774,7 +3774,7 @@ let FDScenesPack6: [FDSceneDef] = [
         text: "Tu as raté le penalty décisif la semaine dernière. Le coach te redonne le ballon à l'entraînement.",
         choices: [
             FDChoice(label: "Reprendre les tirs immédiatement",
-                     effects: [FDEffect(attr: .sangfroid, delta: 5), FDEffect(attr: .tir, delta: 2), FDEffect(cond: "confiance", delta: 5)]),
+                     effects: [FDEffect(attr: .sangfroid, delta: 5), FDEffect(attr: .tir, delta: 2), FDEffect(cond: "confiance", delta: 5), FDEffect(cond: "fatigue", delta: 5)]),
             FDChoice(label: "Laisser passer quelques jours",
                      effects: [FDEffect(cond: "confiance", delta: -2), FDEffect(cond: "moral", delta: 2)]),
         ]),
@@ -3784,7 +3784,7 @@ let FDScenesPack6: [FDSceneDef] = [
         text: "Huit heures de décalage horaire, match trois jours plus tard.",
         choices: [
             FDChoice(label: "Suivre le protocole de lumière et de sommeil",
-                     effects: [FDEffect(cond: "fatigue", delta: -10), FDEffect(cond: "forme", delta: 4)]),
+                     effects: [FDEffect(cond: "fatigue", delta: -10), FDEffect(cond: "forme", delta: 4), FDEffect(cond: "moral", delta: -3)]),
             FDChoice(label: "Dormir quand tu peux",
                      effects: [FDEffect(cond: "fatigue", delta: 6), FDEffect(cond: "forme", delta: -3)]),
         ]),
@@ -3825,9 +3825,9 @@ let FDScenesPack6: [FDSceneDef] = [
         text: "Ta boulette a coûté le match. Les réseaux ne parlent que de ça.",
         choices: [
             FDChoice(label: "Analyser froidement la vidéo",
-                     effects: [FDEffect(attr: .sangfroid, delta: 4), FDEffect(attr: .placement, delta: 2), FDEffect(cond: "confiance", delta: 2)]),
+                     effects: [FDEffect(attr: .sangfroid, delta: 4), FDEffect(attr: .placement, delta: 2), FDEffect(cond: "confiance", delta: 2), FDEffect(cond: "fatigue", delta: 5)]),
             FDChoice(label: "Couper complètement pendant deux jours",
-                     effects: [FDEffect(cond: "moral", delta: 5), FDEffect(cond: "fatigue", delta: -6)]),
+                     effects: [FDEffect(cond: "moral", delta: 5), FDEffect(cond: "fatigue", delta: -6), FDEffect(cond: "confiance", delta: -3)]),
         ],
         positions: [.gardien]),
     FDSceneDef(
@@ -3838,7 +3838,7 @@ let FDScenesPack6: [FDSceneDef] = [
             FDChoice(label: "Travailler le duel toute la semaine",
                      effects: [FDEffect(attr: .tacle, delta: 3), FDEffect(attr: .vitesse, delta: 1), FDEffect(cond: "fatigue", delta: 8)]),
             FDChoice(label: "Travailler le placement pour ne plus subir",
-                     effects: [FDEffect(attr: .placement, delta: 3), FDEffect(attr: .vision, delta: 2)]),
+                     effects: [FDEffect(attr: .placement, delta: 3), FDEffect(attr: .vision, delta: 2), FDEffect(cond: "fatigue", delta: 5)]),
         ],
         positions: [.defenseur]),
     FDSceneDef(
@@ -3849,7 +3849,7 @@ let FDScenesPack6: [FDSceneDef] = [
             FDChoice(label: "Rester une heure de plus à la finition",
                      effects: [FDEffect(attr: .tir, delta: 3), FDEffect(cond: "fatigue", delta: 10), FDEffect(attr: .determination, delta: 3)]),
             FDChoice(label: "Se libérer et jouer pour les autres",
-                     effects: [FDEffect(attr: .vision, delta: 3), FDEffect(rel: "vestiaire", delta: 5), FDEffect(cond: "confiance", delta: 2)]),
+                     effects: [FDEffect(attr: .vision, delta: 3), FDEffect(rel: "vestiaire", delta: 5), FDEffect(cond: "confiance", delta: 2), FDEffect(cond: "fatigue", delta: 5)]),
         ],
         positions: [.attaquant]),
     FDSceneDef(
@@ -3860,7 +3860,7 @@ let FDScenesPack6: [FDSceneDef] = [
             FDChoice(label: "Reprendre le travail foncier",
                      effects: [FDEffect(attr: .endurance, delta: 3), FDEffect(cond: "fatigue", delta: 12)]),
             FDChoice(label: "Économiser et jouer plus juste",
-                     effects: [FDEffect(attr: .vision, delta: 3), FDEffect(attr: .passe, delta: 2)]),
+                     effects: [FDEffect(attr: .vision, delta: 3), FDEffect(attr: .passe, delta: 2), FDEffect(cond: "moral", delta: -3)]),
         ],
         positions: [.milieu]),
     FDSceneDef(
@@ -3891,7 +3891,7 @@ let FDScenesPack6: [FDSceneDef] = [
             FDChoice(label: "L'engager quand même",
                      effects: [FDEffect(money: -40000, delta: 0), FDEffect(cond: "forme", delta: 8), FDEffect(rel: "coach", delta: -4)]),
             FDChoice(label: "Rester avec le staff du club",
-                     effects: [FDEffect(rel: "coach", delta: 5), FDEffect(cond: "forme", delta: 2)]),
+                     effects: [FDEffect(rel: "coach", delta: 5), FDEffect(cond: "forme", delta: 2), FDEffect(cond: "fatigue", delta: 6)]),
         ]),
     FDSceneDef(
         id: "san_reveil_matinal", category: "Hygiène de vie", minAge: 17, maxAge: 34,
@@ -3911,7 +3911,7 @@ let FDScenesPack6: [FDSceneDef] = [
             FDChoice(label: "Planifier une dernière grande saison",
                      effects: [FDEffect(attr: .determination, delta: 5), FDEffect(cond: "fatigue", delta: 8), FDEffect(cond: "confiance", delta: 4)]),
             FDChoice(label: "Envisager la retraite sereinement",
-                     effects: [FDEffect(cond: "moral", delta: 6), FDEffect(attr: .sangfroid, delta: 3)]),
+                     effects: [FDEffect(cond: "moral", delta: 6), FDEffect(attr: .sangfroid, delta: 3), FDEffect(cond: "fatigue", delta: 5)]),
         ]),
     FDSceneDef(
         id: "men_jeune_pression", category: "Mental", minAge: 17, maxAge: 22,
@@ -3941,7 +3941,7 @@ let FDScenesPack6: [FDSceneDef] = [
             FDChoice(label: "Donner quand même",
                      effects: [FDEffect(cond: "reputation", delta: 5), FDEffect(cond: "forme", delta: -3), FDEffect(rel: "fans", delta: 4)]),
             FDChoice(label: "Attendre la trêve",
-                     effects: [FDEffect(attr: .sangfroid, delta: 2)]),
+                     effects: [FDEffect(attr: .sangfroid, delta: 2), FDEffect(cond: "forme", delta: -3)]),
         ]),
     FDSceneDef(
         id: "men_psy_public", category: "Mental", minAge: 21, maxAge: 36,
@@ -3951,7 +3951,7 @@ let FDScenesPack6: [FDSceneDef] = [
             FDChoice(label: "Répondre honnêtement",
                      effects: [FDEffect(cond: "reputation", delta: 8), FDEffect(rel: "media", delta: 6), FDEffect(rel: "vestiaire", delta: -2)]),
             FDChoice(label: "Éluder",
-                     effects: [FDEffect(attr: .sangfroid, delta: 2)]),
+                     effects: [FDEffect(attr: .sangfroid, delta: 2), FDEffect(cond: "moral", delta: -3)]),
         ]),
     FDSceneDef(
         id: "sup_maillot_fetiche", category: "Superstition", minAge: 18, maxAge: 36,
@@ -3961,7 +3961,7 @@ let FDScenesPack6: [FDSceneDef] = [
             FDChoice(label: "Le garder",
                      effects: [FDEffect(cond: "confiance", delta: 3), FDEffect(rel: "staff", delta: -2)]),
             FDChoice(label: "Le laisser partir",
-                     effects: [FDEffect(attr: .sangfroid, delta: 3)]),
+                     effects: [FDEffect(attr: .sangfroid, delta: 3), FDEffect(cond: "confiance", delta: -3)]),
         ]),
     FDSceneDef(
         id: "men_rechute_confiance", category: "Mental", minAge: 19, maxAge: 36,
@@ -3969,7 +3969,7 @@ let FDScenesPack6: [FDSceneDef] = [
         text: "L'adjoint te dit que tu joues « la peur au ventre » depuis un mois.",
         choices: [
             FDChoice(label: "Reconnaître et travailler",
-                     effects: [FDEffect(attr: .sangfroid, delta: 4), FDEffect(cond: "confiance", delta: 4), FDEffect(rel: "coach", delta: 4)]),
+                     effects: [FDEffect(attr: .sangfroid, delta: 4), FDEffect(cond: "confiance", delta: 4), FDEffect(rel: "coach", delta: 4), FDEffect(cond: "fatigue", delta: 5)]),
             FDChoice(label: "Nier en bloc",
                      effects: [FDEffect(cond: "confiance", delta: -3), FDEffect(rel: "coach", delta: -3)]),
         ]),
@@ -3999,7 +3999,7 @@ let FDScenesPack6: [FDSceneDef] = [
         text: "Depuis que tu portes le brassard, tu gères tout le monde sauf toi.",
         choices: [
             FDChoice(label: "Déléguer une partie du rôle",
-                     effects: [FDEffect(attr: .leadership, delta: 3), FDEffect(cond: "fatigue", delta: -8), FDEffect(rel: "vestiaire", delta: 3)]),
+                     effects: [FDEffect(attr: .leadership, delta: 3), FDEffect(cond: "fatigue", delta: -8), FDEffect(rel: "vestiaire", delta: 3), FDEffect(cond: "confiance", delta: -3)]),
             FDChoice(label: "Tout assumer",
                      effects: [FDEffect(attr: .leadership, delta: 5), FDEffect(cond: "fatigue", delta: 12), FDEffect(cond: "moral", delta: -3)]),
         ]),
@@ -4012,7 +4012,7 @@ let FDScenesPack7: [FDSceneDef] = [
         text: "Nouvelle ville, nouveau club. Tu dois choisir où t'installer.",
         choices: [
             FDChoice(label: "Un appartement en centre-ville",
-                     effects: [FDEffect(cond: "moral", delta: 5), FDEffect(cond: "fatigue", delta: 3), FDEffect(rel: "fans", delta: 3)]),
+                     effects: [FDEffect(cond: "moral", delta: 5), FDEffect(cond: "fatigue", delta: 3), FDEffect(rel: "fans", delta: 3), FDEffect(money: 20000, delta: 0)]),
             FDChoice(label: "Une maison isolée à la campagne",
                      effects: [FDEffect(cond: "fatigue", delta: -6), FDEffect(cond: "moral", delta: 2), FDEffect(rel: "fans", delta: -2)]),
             FDChoice(label: "Rester à l'hôtel du club",
@@ -4034,7 +4034,7 @@ let FDScenesPack7: [FDSceneDef] = [
         text: "Le climat local est brutal : humidité, chaleur, tout te coûte le double.",
         choices: [
             FDChoice(label: "Adapter ton alimentation et ton sommeil",
-                     effects: [FDEffect(cond: "forme", delta: 6), FDEffect(cond: "fatigue", delta: -8)]),
+                     effects: [FDEffect(cond: "forme", delta: 6), FDEffect(cond: "fatigue", delta: -8), FDEffect(cond: "moral", delta: -2)]),
             FDChoice(label: "Serrer les dents",
                      effects: [FDEffect(attr: .determination, delta: 3), FDEffect(cond: "fatigue", delta: 10)]),
         ]),
@@ -4048,7 +4048,7 @@ let FDScenesPack7: [FDSceneDef] = [
             FDChoice(label: "Faire livrer et ne plus sortir",
                      effects: [FDEffect(cond: "moral", delta: -4), FDEffect(cond: "fatigue", delta: -2)]),
             FDChoice(label: "Sortir avec une casquette et assumer",
-                     effects: [FDEffect(cond: "moral", delta: 2), FDEffect(rel: "fans", delta: 2)]),
+                     effects: [FDEffect(cond: "moral", delta: 2), FDEffect(rel: "fans", delta: 2), FDEffect(cond: "fatigue", delta: 5)]),
         ]),
     FDSceneDef(
         id: "vil_quartier_difficile", category: "Ville", minAge: 19, maxAge: 32,
@@ -4068,9 +4068,9 @@ let FDScenesPack7: [FDSceneDef] = [
             FDChoice(label: "Rejoindre la partie de cartes",
                      effects: [FDEffect(rel: "vestiaire", delta: 5), FDEffect(cond: "fatigue", delta: 2)]),
             FDChoice(label: "Revoir les consignes",
-                     effects: [FDEffect(attr: .vision, delta: 2), FDEffect(rel: "coach", delta: 4)]),
+                     effects: [FDEffect(attr: .vision, delta: 2), FDEffect(rel: "coach", delta: 4), FDEffect(cond: "forme", delta: -3)]),
             FDChoice(label: "Dormir",
-                     effects: [FDEffect(cond: "fatigue", delta: -6)]),
+                     effects: [FDEffect(cond: "fatigue", delta: -6), FDEffect(cond: "forme", delta: -3)]),
         ]),
     FDSceneDef(
         id: "voy_avion_peur", category: "Voyage", minAge: 18, maxAge: 36,
@@ -4078,9 +4078,9 @@ let FDScenesPack7: [FDSceneDef] = [
         text: "Fortes turbulences. Un coéquipier panique et te prend le bras.",
         choices: [
             FDChoice(label: "Le rassurer",
-                     effects: [FDEffect(rel: "vestiaire", delta: 6), FDEffect(attr: .sangfroid, delta: 3)]),
+                     effects: [FDEffect(rel: "vestiaire", delta: 6), FDEffect(attr: .sangfroid, delta: 3), FDEffect(cond: "fatigue", delta: 8)]),
             FDChoice(label: "Mettre ton casque",
-                     effects: [FDEffect(cond: "fatigue", delta: -3)]),
+                     effects: [FDEffect(cond: "fatigue", delta: -3), FDEffect(cond: "forme", delta: -3)]),
         ]),
     FDSceneDef(
         id: "voy_hotel", category: "Voyage", minAge: 18, maxAge: 36,
@@ -4098,7 +4098,7 @@ let FDScenesPack7: [FDSceneDef] = [
         text: "Contrôle interminable à la douane, l'équipe est bloquée deux heures.",
         choices: [
             FDChoice(label: "Détendre le groupe",
-                     effects: [FDEffect(rel: "vestiaire", delta: 5), FDEffect(cond: "moral", delta: 3)]),
+                     effects: [FDEffect(rel: "vestiaire", delta: 5), FDEffect(cond: "moral", delta: 3), FDEffect(cond: "fatigue", delta: 8)]),
             FDChoice(label: "Râler ouvertement",
                      effects: [FDEffect(rel: "vestiaire", delta: -2), FDEffect(cond: "moral", delta: -2)]),
         ]),
@@ -4128,9 +4128,9 @@ let FDScenesPack7: [FDSceneDef] = [
         text: "Le cuisinier du club te prépare ton plat préféré en secret depuis des mois.",
         choices: [
             FDChoice(label: "Le remercier publiquement",
-                     effects: [FDEffect(rel: "staff", delta: 8), FDEffect(cond: "moral", delta: 4)]),
+                     effects: [FDEffect(rel: "staff", delta: 8), FDEffect(cond: "moral", delta: 4), FDEffect(cond: "fatigue", delta: 4)]),
             FDChoice(label: "Garder ça entre vous",
-                     effects: [FDEffect(rel: "staff", delta: 4), FDEffect(cond: "moral", delta: 3)]),
+                     effects: [FDEffect(rel: "staff", delta: 4), FDEffect(cond: "moral", delta: 3), FDEffect(cond: "fatigue", delta: 4)]),
         ]),
     FDSceneDef(
         id: "sta_analyste_jeune", category: "Staff", minAge: 19, maxAge: 36,
@@ -4138,9 +4138,9 @@ let FDScenesPack7: [FDSceneDef] = [
         text: "Un jeune analyste a préparé un dossier de vingt pages rien que pour toi.",
         choices: [
             FDChoice(label: "Le lire entièrement",
-                     effects: [FDEffect(attr: .vision, delta: 3), FDEffect(attr: .placement, delta: 2), FDEffect(rel: "staff", delta: 5)]),
+                     effects: [FDEffect(attr: .vision, delta: 3), FDEffect(attr: .placement, delta: 2), FDEffect(rel: "staff", delta: 5), FDEffect(cond: "fatigue", delta: 4)]),
             FDChoice(label: "Le survoler",
-                     effects: [FDEffect(attr: .vision, delta: 1)]),
+                     effects: [FDEffect(attr: .vision, delta: 1), FDEffect(cond: "fatigue", delta: 4)]),
         ]),
     FDSceneDef(
         id: "sta_medecin_conflit", category: "Staff", minAge: 20, maxAge: 36,
@@ -4148,7 +4148,7 @@ let FDScenesPack7: [FDSceneDef] = [
         text: "Le médecin du club et ton kiné personnel se contredisent sur ton protocole.",
         choices: [
             FDChoice(label: "Trancher pour le club",
-                     effects: [FDEffect(rel: "staff", delta: 5), FDEffect(cond: "forme", delta: 3)]),
+                     effects: [FDEffect(rel: "staff", delta: 5), FDEffect(cond: "forme", delta: 3), FDEffect(cond: "fatigue", delta: 4)]),
             FDChoice(label: "Trancher pour ton kiné",
                      effects: [FDEffect(rel: "staff", delta: -5), FDEffect(cond: "forme", delta: 5)]),
             FDChoice(label: "Les réunir",
@@ -4212,7 +4212,7 @@ let FDScenesPack7: [FDSceneDef] = [
             FDChoice(label: "Rester s'entraîner sur place",
                      effects: [FDEffect(attr: .determination, delta: 3), FDEffect(cond: "fatigue", delta: 6)]),
             FDChoice(label: "Rentrer et couper",
-                     effects: [FDEffect(cond: "fatigue", delta: -6), FDEffect(cond: "moral", delta: 2)]),
+                     effects: [FDEffect(cond: "fatigue", delta: -6), FDEffect(cond: "moral", delta: 2), FDEffect(cond: "forme", delta: -3)]),
         ]),
     FDSceneDef(
         id: "arb_discussion", category: "Arbitrage", minAge: 18, maxAge: 36,
@@ -4220,7 +4220,7 @@ let FDScenesPack7: [FDSceneDef] = [
         text: "L'arbitre te prend à part et te demande d'aider à calmer le jeu.",
         choices: [
             FDChoice(label: "Accepter le rôle",
-                     effects: [FDEffect(attr: .leadership, delta: 4), FDEffect(rel: "coach", delta: 3), FDEffect(cond: "reputation", delta: 3)]),
+                     effects: [FDEffect(attr: .leadership, delta: 4), FDEffect(rel: "coach", delta: 3), FDEffect(cond: "reputation", delta: 3), FDEffect(cond: "moral", delta: -2)]),
             FDChoice(label: "Refuser sèchement",
                      effects: [FDEffect(cond: "reputation", delta: -3), FDEffect(rel: "vestiaire", delta: 2)]),
         ]),
@@ -4230,7 +4230,7 @@ let FDScenesPack7: [FDSceneDef] = [
         text: "Trois minutes d'attente pour un contrôle vidéo sur ton but. Le stade retient son souffle.",
         choices: [
             FDChoice(label: "Rester concentré et prêt",
-                     effects: [FDEffect(attr: .sangfroid, delta: 4)]),
+                     effects: [FDEffect(attr: .sangfroid, delta: 4), FDEffect(cond: "reputation", delta: -3)]),
             FDChoice(label: "Aller mettre la pression sur l'arbitre",
                      effects: [FDEffect(cond: "reputation", delta: -3), FDEffect(rel: "fans", delta: 4)]),
         ]),
@@ -4240,11 +4240,11 @@ let FDScenesPack7: [FDSceneDef] = [
         text: "Tu croises l'arbitre après un match qu'il a mal dirigé. Personne autour.",
         choices: [
             FDChoice(label: "Lui dire calmement ce que tu penses",
-                     effects: [FDEffect(attr: .sangfroid, delta: 3), FDEffect(cond: "reputation", delta: 2)]),
+                     effects: [FDEffect(attr: .sangfroid, delta: 3), FDEffect(cond: "reputation", delta: 2), FDEffect(cond: "moral", delta: -2)]),
             FDChoice(label: "Le prendre à partie",
                      effects: [FDEffect(cond: "reputation", delta: -6)]),
             FDChoice(label: "Passer ton chemin",
-                     effects: [FDEffect(attr: .sangfroid, delta: 2)]),
+                     effects: [FDEffect(attr: .sangfroid, delta: 2), FDEffect(cond: "moral", delta: -2)]),
         ]),
     FDSceneDef(
         id: "jeu_academie_visite", category: "Jeunes", minAge: 22, maxAge: 36,
@@ -4254,7 +4254,7 @@ let FDScenesPack7: [FDSceneDef] = [
             FDChoice(label: "Accepter et t'impliquer",
                      effects: [FDEffect(cond: "reputation", delta: 6), FDEffect(attr: .leadership, delta: 4), FDEffect(cond: "fatigue", delta: 4)]),
             FDChoice(label: "Accepter symboliquement",
-                     effects: [FDEffect(cond: "reputation", delta: 2)]),
+                     effects: [FDEffect(cond: "reputation", delta: 2), FDEffect(money: -5000, delta: 0)]),
             FDChoice(label: "Refuser",
                      effects: [FDEffect(cond: "reputation", delta: -2), FDEffect(cond: "fatigue", delta: -1)]),
         ]),
@@ -4266,7 +4266,7 @@ let FDScenesPack7: [FDSceneDef] = [
             FDChoice(label: "Lui dire la vérité, même dure",
                      effects: [FDEffect(attr: .leadership, delta: 4), FDEffect(rel: "vestiaire", delta: 5), FDEffect(rel: "president", delta: -3)]),
             FDChoice(label: "Le pousser à rester",
-                     effects: [FDEffect(rel: "president", delta: 5), FDEffect(rel: "vestiaire", delta: 2)]),
+                     effects: [FDEffect(rel: "president", delta: 5), FDEffect(rel: "vestiaire", delta: 2), FDEffect(cond: "fatigue", delta: 6)]),
         ]),
     FDSceneDef(
         id: "jeu_stage_ete", category: "Jeunes", minAge: 25, maxAge: 36,
@@ -4284,9 +4284,9 @@ let FDScenesPack7: [FDSceneDef] = [
         text: "Le club inaugure son nouveau stade et te demande de porter le projet publiquement.",
         choices: [
             FDChoice(label: "Devenir le visage du projet",
-                     effects: [FDEffect(rel: "president", delta: 8), FDEffect(cond: "reputation", delta: 6), FDEffect(rel: "fans", delta: 5)]),
+                     effects: [FDEffect(rel: "president", delta: 8), FDEffect(cond: "reputation", delta: 6), FDEffect(rel: "fans", delta: 5), FDEffect(cond: "fatigue", delta: 5), FDEffect(money: 8000, delta: 0)]),
             FDChoice(label: "Rester en retrait",
-                     effects: [FDEffect(attr: .sangfroid, delta: 2)]),
+                     effects: [FDEffect(attr: .sangfroid, delta: 2), FDEffect(rel: "president", delta: -3)]),
         ]),
     FDSceneDef(
         id: "club_maillot_design", category: "Club", minAge: 19, maxAge: 36,
@@ -4294,9 +4294,9 @@ let FDScenesPack7: [FDSceneDef] = [
         text: "Le club consulte les joueurs sur le maillot de la saison prochaine. Le projet est affreux.",
         choices: [
             FDChoice(label: "Le dire franchement",
-                     effects: [FDEffect(rel: "president", delta: -3), FDEffect(rel: "fans", delta: 5), FDEffect(attr: .leadership, delta: 2)]),
+                     effects: [FDEffect(rel: "president", delta: -3), FDEffect(rel: "fans", delta: 5), FDEffect(attr: .leadership, delta: 2), FDEffect(money: 12000, delta: 0)]),
             FDChoice(label: "Approuver poliment",
-                     effects: [FDEffect(rel: "president", delta: 4)]),
+                     effects: [FDEffect(rel: "president", delta: 4), FDEffect(money: -6000, delta: 0)]),
         ]),
     FDSceneDef(
         id: "club_hymne", category: "Club", minAge: 19, maxAge: 36,
@@ -4304,9 +4304,9 @@ let FDScenesPack7: [FDSceneDef] = [
         text: "Le club change l'hymne d'avant-match. Les ultras sont furieux.",
         choices: [
             FDChoice(label: "Soutenir les ultras",
-                     effects: [FDEffect(rel: "fans", delta: 8), FDEffect(rel: "president", delta: -6)]),
+                     effects: [FDEffect(rel: "fans", delta: 8), FDEffect(rel: "president", delta: -6), FDEffect(money: 12000, delta: 0)]),
             FDChoice(label: "Rester neutre",
-                     effects: [FDEffect(attr: .sangfroid, delta: 2)]),
+                     effects: [FDEffect(attr: .sangfroid, delta: 2), FDEffect(rel: "president", delta: -3)]),
         ]),
     FDSceneDef(
         id: "club_boutique", category: "Club", minAge: 19, maxAge: 36,
@@ -4324,9 +4324,9 @@ let FDScenesPack7: [FDSceneDef] = [
         text: "Une école de supporters t'invite à parler devant deux cents enfants.",
         choices: [
             FDChoice(label: "Y aller et rester longtemps",
-                     effects: [FDEffect(rel: "fans", delta: 8), FDEffect(cond: "moral", delta: 5), FDEffect(cond: "fatigue", delta: 3)]),
+                     effects: [FDEffect(rel: "fans", delta: 8), FDEffect(cond: "moral", delta: 5), FDEffect(cond: "fatigue", delta: 3), FDEffect(money: 12000, delta: 0)]),
             FDChoice(label: "Envoyer un message vidéo",
-                     effects: [FDEffect(rel: "fans", delta: 2)]),
+                     effects: [FDEffect(rel: "fans", delta: 2), FDEffect(rel: "president", delta: -3)]),
         ]),
     FDSceneDef(
         id: "club_conflit_president", category: "Club", minAge: 21, maxAge: 36,
@@ -4334,7 +4334,7 @@ let FDScenesPack7: [FDSceneDef] = [
         text: "Le président te reproche publiquement ton salaire lors d'une réunion d'actionnaires.",
         choices: [
             FDChoice(label: "Lui répondre en privé",
-                     effects: [FDEffect(attr: .sangfroid, delta: 4), FDEffect(rel: "president", delta: 2)]),
+                     effects: [FDEffect(attr: .sangfroid, delta: 4), FDEffect(rel: "president", delta: 2), FDEffect(money: -6000, delta: 0)]),
             FDChoice(label: "Lui répondre dans la presse",
                      effects: [FDEffect(rel: "media", delta: 6), FDEffect(rel: "president", delta: -9), FDEffect(rel: "fans", delta: 4)]),
         ]),
@@ -4344,7 +4344,7 @@ let FDScenesPack7: [FDSceneDef] = [
         text: "Soirée de gala obligatoire, cravate et sourires, la veille d'une séance matinale.",
         choices: [
             FDChoice(label: "Rester jusqu'au bout",
-                     effects: [FDEffect(rel: "president", delta: 5), FDEffect(cond: "fatigue", delta: 8)]),
+                     effects: [FDEffect(rel: "president", delta: 5), FDEffect(cond: "fatigue", delta: 8), FDEffect(money: 8000, delta: 0)]),
             FDChoice(label: "Partir discrètement après une heure",
                      effects: [FDEffect(cond: "fatigue", delta: 2), FDEffect(rel: "president", delta: -3)]),
         ]),
@@ -4354,9 +4354,9 @@ let FDScenesPack7: [FDSceneDef] = [
         text: "Un supporter n'a jamais raté un match depuis quarante ans. Le club t'envoie le saluer.",
         choices: [
             FDChoice(label: "Passer une heure avec lui",
-                     effects: [FDEffect(rel: "fans", delta: 8), FDEffect(cond: "moral", delta: 5)]),
+                     effects: [FDEffect(rel: "fans", delta: 8), FDEffect(cond: "moral", delta: 5), FDEffect(money: -6000, delta: 0)]),
             FDChoice(label: "Une photo rapide",
-                     effects: [FDEffect(rel: "fans", delta: 2)]),
+                     effects: [FDEffect(rel: "fans", delta: 2), FDEffect(rel: "president", delta: -3)]),
         ]),
     FDSceneDef(
         id: "voy_retour_pays", category: "Voyage", minAge: 20, maxAge: 36,
@@ -4366,7 +4366,7 @@ let FDScenesPack7: [FDSceneDef] = [
             FDChoice(label: "Les inviter tous",
                      effects: [FDEffect(money: -8000, delta: 0), FDEffect(rel: "famille", delta: 10), FDEffect(cond: "moral", delta: 6)]),
             FDChoice(label: "Rester concentré et les voir après",
-                     effects: [FDEffect(attr: .sangfroid, delta: 3), FDEffect(rel: "famille", delta: 2)]),
+                     effects: [FDEffect(attr: .sangfroid, delta: 3), FDEffect(rel: "famille", delta: 2), FDEffect(cond: "fatigue", delta: 8)]),
         ]),
     FDSceneDef(
         id: "cal_match_hommage", category: "Calendrier", minAge: 19, maxAge: 36,
@@ -4374,9 +4374,9 @@ let FDScenesPack7: [FDSceneDef] = [
         text: "Minute de silence avant le match pour une tragédie locale. Le stade est glacé.",
         choices: [
             FDChoice(label: "Prendre la parole au micro",
-                     effects: [FDEffect(attr: .leadership, delta: 4), FDEffect(cond: "reputation", delta: 6), FDEffect(rel: "fans", delta: 8)]),
+                     effects: [FDEffect(attr: .leadership, delta: 4), FDEffect(cond: "reputation", delta: 6), FDEffect(rel: "fans", delta: 8), FDEffect(cond: "fatigue", delta: 8)]),
             FDChoice(label: "Rester dans le rang",
-                     effects: [FDEffect(attr: .sangfroid, delta: 2)]),
+                     effects: [FDEffect(attr: .sangfroid, delta: 2), FDEffect(cond: "fatigue", delta: 8)]),
         ]),
     FDSceneDef(
         id: "sta_kine_confidence", category: "Staff", minAge: 19, maxAge: 36,
@@ -4384,7 +4384,7 @@ let FDScenesPack7: [FDSceneDef] = [
         text: "Le kiné, qui t'entend te plaindre chaque jour, te dit une vérité que personne n'ose te dire.",
         choices: [
             FDChoice(label: "L'écouter et changer",
-                     effects: [FDEffect(attr: .determination, delta: 4), FDEffect(cond: "forme", delta: 5), FDEffect(rel: "staff", delta: 5)]),
+                     effects: [FDEffect(attr: .determination, delta: 4), FDEffect(cond: "forme", delta: 5), FDEffect(rel: "staff", delta: 5), FDEffect(cond: "fatigue", delta: 4)]),
             FDChoice(label: "Le prendre mal",
                      effects: [FDEffect(rel: "staff", delta: -5), FDEffect(cond: "moral", delta: -3)]),
         ]),
@@ -4394,9 +4394,9 @@ let FDScenesPack7: [FDSceneDef] = [
         text: "Le club veut donner ton nom à un terrain du centre de formation.",
         choices: [
             FDChoice(label: "Accepter avec émotion",
-                     effects: [FDEffect(cond: "reputation", delta: 8), FDEffect(cond: "moral", delta: 8), FDEffect(rel: "fans", delta: 6)]),
+                     effects: [FDEffect(cond: "reputation", delta: 8), FDEffect(cond: "moral", delta: 8), FDEffect(rel: "fans", delta: 6), FDEffect(rel: "president", delta: -3), FDEffect(money: 12000, delta: 0)]),
             FDChoice(label: "Demander qu'on attende ta retraite",
-                     effects: [FDEffect(attr: .sangfroid, delta: 3), FDEffect(cond: "reputation", delta: 2)]),
+                     effects: [FDEffect(attr: .sangfroid, delta: 3), FDEffect(cond: "reputation", delta: 2), FDEffect(money: -6000, delta: 0)]),
         ]),
     FDSceneDef(
         id: "vil_ecole_enfants", category: "Ville", minAge: 26, maxAge: 36,
@@ -4428,7 +4428,7 @@ let FDScenesPack7: [FDSceneDef] = [
             FDChoice(label: "Étudier leurs habitudes en détail",
                      effects: [FDEffect(attr: .vision, delta: 3), FDEffect(attr: .placement, delta: 2), FDEffect(cond: "fatigue", delta: 4)]),
             FDChoice(label: "Jouer à l'instinct",
-                     effects: [FDEffect(cond: "confiance", delta: 3), FDEffect(attr: .dribble, delta: 1)]),
+                     effects: [FDEffect(cond: "confiance", delta: 3), FDEffect(attr: .dribble, delta: 1), FDEffect(cond: "forme", delta: -3)]),
         ]),
     FDSceneDef(
         id: "club_photo_calendrier", category: "Club", minAge: 19, maxAge: 34,
@@ -4436,7 +4436,7 @@ let FDScenesPack7: [FDSceneDef] = [
         text: "Séance photo pour le calendrier du club. On te demande une pose que tu trouves ridicule.",
         choices: [
             FDChoice(label: "Jouer le jeu",
-                     effects: [FDEffect(rel: "president", delta: 4), FDEffect(rel: "fans", delta: 4), FDEffect(cond: "moral", delta: -1)]),
+                     effects: [FDEffect(rel: "president", delta: 4), FDEffect(rel: "fans", delta: 4), FDEffect(cond: "moral", delta: -1), FDEffect(money: 20000, delta: 0)]),
             FDChoice(label: "Refuser la pose",
                      effects: [FDEffect(rel: "president", delta: -3), FDEffect(attr: .sangfroid, delta: 2)]),
         ]),
@@ -4487,7 +4487,7 @@ let FDScenesPack7: [FDSceneDef] = [
         text: "Veille de derby, le staff impose une sieste collective de deux heures.",
         choices: [
             FDChoice(label: "Dormir vraiment",
-                     effects: [FDEffect(cond: "fatigue", delta: -8), FDEffect(cond: "forme", delta: 3)]),
+                     effects: [FDEffect(cond: "fatigue", delta: -8), FDEffect(cond: "forme", delta: 3), FDEffect(cond: "moral", delta: -3)]),
             FDChoice(label: "Regarder des vidéos de l'adversaire",
                      effects: [FDEffect(attr: .vision, delta: 3), FDEffect(cond: "fatigue", delta: 3)]),
         ]),
@@ -4509,7 +4509,7 @@ let FDScenesPack7: [FDSceneDef] = [
             FDChoice(label: "Rester avec lui pour l'aider",
                      effects: [FDEffect(rel: "vestiaire", delta: 8), FDEffect(cond: "fatigue", delta: 6), FDEffect(rel: "coach", delta: -2)]),
             FDChoice(label: "Partir avec le groupe",
-                     effects: [FDEffect(rel: "coach", delta: 3)]),
+                     effects: [FDEffect(rel: "coach", delta: 3), FDEffect(cond: "forme", delta: -3)]),
         ]),
 ]
 
@@ -4520,9 +4520,9 @@ let FDScenesPack8: [FDSceneDef] = [
         text: "Tu fais partie des trois finalistes d'un grand trophée individuel. La salle attend le nom.",
         choices: [
             FDChoice(label: "Préparer un discours",
-                     effects: [FDEffect(cond: "confiance", delta: 4), FDEffect(cond: "reputation", delta: 4)]),
+                     effects: [FDEffect(cond: "confiance", delta: 4), FDEffect(cond: "reputation", delta: 4), FDEffect(rel: "vestiaire", delta: -3)]),
             FDChoice(label: "Ne rien préparer",
-                     effects: [FDEffect(attr: .sangfroid, delta: 3)]),
+                     effects: [FDEffect(attr: .sangfroid, delta: 3), FDEffect(rel: "vestiaire", delta: -3)]),
         ]),
     FDSceneDef(
         id: "sta_equipe_type", category: "Trophée", minAge: 21, maxAge: 36,
@@ -4530,9 +4530,9 @@ let FDScenesPack8: [FDSceneDef] = [
         text: "Tu es élu dans l'équipe type de la saison, à la place d'un coéquipier qui y croyait.",
         choices: [
             FDChoice(label: "Lui dédier le trophée",
-                     effects: [FDEffect(rel: "vestiaire", delta: 8), FDEffect(cond: "reputation", delta: 4)]),
+                     effects: [FDEffect(rel: "vestiaire", delta: 8), FDEffect(cond: "reputation", delta: 4), FDEffect(cond: "fatigue", delta: 5)]),
             FDChoice(label: "Savourer sans rien dire",
-                     effects: [FDEffect(cond: "confiance", delta: 4)]),
+                     effects: [FDEffect(cond: "confiance", delta: 4), FDEffect(rel: "vestiaire", delta: -3)]),
         ]),
     FDSceneDef(
         id: "sta_meilleur_buteur", category: "Trophée", minAge: 21, maxAge: 36,
@@ -4542,7 +4542,7 @@ let FDScenesPack8: [FDSceneDef] = [
             FDChoice(label: "Réclamer chaque ballon",
                      effects: [FDEffect(attr: .tir, delta: 2), FDEffect(rel: "vestiaire", delta: -4), FDEffect(cond: "confiance", delta: 4)]),
             FDChoice(label: "Laisser le jeu se dérouler",
-                     effects: [FDEffect(rel: "vestiaire", delta: 6), FDEffect(attr: .sangfroid, delta: 3)]),
+                     effects: [FDEffect(rel: "vestiaire", delta: 6), FDEffect(attr: .sangfroid, delta: 3), FDEffect(cond: "fatigue", delta: 5)]),
         ]),
     FDSceneDef(
         id: "sta_titre_champion", category: "Trophée", minAge: 20, maxAge: 36,
@@ -4550,9 +4550,9 @@ let FDScenesPack8: [FDSceneDef] = [
         text: "Titre de champion acquis. Le capitaine te propose de soulever le trophée avec lui.",
         choices: [
             FDChoice(label: "Le soulever ensemble",
-                     effects: [FDEffect(rel: "vestiaire", delta: 8), FDEffect(cond: "moral", delta: 10), FDEffect(rel: "fans", delta: 6)]),
+                     effects: [FDEffect(rel: "vestiaire", delta: 8), FDEffect(cond: "moral", delta: 10), FDEffect(rel: "fans", delta: 6), FDEffect(cond: "fatigue", delta: 5)]),
             FDChoice(label: "Laisser l'honneur aux anciens",
-                     effects: [FDEffect(rel: "vestiaire", delta: 6), FDEffect(cond: "reputation", delta: 3)]),
+                     effects: [FDEffect(rel: "vestiaire", delta: 6), FDEffect(cond: "reputation", delta: 3), FDEffect(cond: "fatigue", delta: 5)]),
         ]),
     FDSceneDef(
         id: "sta_celebrite", category: "Star", minAge: 21, maxAge: 36,
@@ -4560,7 +4560,7 @@ let FDScenesPack8: [FDSceneDef] = [
         text: "Un inconnu s'assoit à ta table et te raconte sa vie pendant vingt minutes.",
         choices: [
             FDChoice(label: "L'écouter",
-                     effects: [FDEffect(rel: "fans", delta: 5), FDEffect(cond: "fatigue", delta: 2)]),
+                     effects: [FDEffect(rel: "fans", delta: 5), FDEffect(cond: "fatigue", delta: 2), FDEffect(money: 35000, delta: 0)]),
             FDChoice(label: "Demander poliment à être tranquille",
                      effects: [FDEffect(attr: .sangfroid, delta: 3), FDEffect(rel: "fans", delta: -2)]),
         ]),
@@ -4572,7 +4572,7 @@ let FDScenesPack8: [FDSceneDef] = [
             FDChoice(label: "Accepter",
                      effects: [FDEffect(money: -60000, delta: 0), FDEffect(cond: "moral", delta: -2), FDEffect(rel: "famille", delta: 5)]),
             FDChoice(label: "Refuser",
-                     effects: [FDEffect(cond: "moral", delta: 3), FDEffect(cond: "reputation", delta: 2)]),
+                     effects: [FDEffect(cond: "moral", delta: 3), FDEffect(cond: "reputation", delta: 2), FDEffect(money: -10000, delta: 0)]),
         ]),
     FDSceneDef(
         id: "sta_imitation", category: "Star", minAge: 22, maxAge: 36,
@@ -4580,7 +4580,7 @@ let FDScenesPack8: [FDSceneDef] = [
         text: "Un humoriste célèbre t'imite chaque semaine à la télévision, de façon peu flatteuse.",
         choices: [
             FDChoice(label: "En rire publiquement",
-                     effects: [FDEffect(cond: "reputation", delta: 6), FDEffect(rel: "media", delta: 6)]),
+                     effects: [FDEffect(cond: "reputation", delta: 6), FDEffect(rel: "media", delta: 6), FDEffect(rel: "vestiaire", delta: -3), FDEffect(money: 20000, delta: 0)]),
             FDChoice(label: "Demander à ce que ça cesse",
                      effects: [FDEffect(rel: "media", delta: -5), FDEffect(cond: "reputation", delta: -3)]),
         ]),
@@ -4590,9 +4590,9 @@ let FDScenesPack8: [FDSceneDef] = [
         text: "Le club veut ériger une statue à ton effigie devant le stade.",
         choices: [
             FDChoice(label: "Accepter",
-                     effects: [FDEffect(cond: "reputation", delta: 8), FDEffect(rel: "fans", delta: 8), FDEffect(rel: "vestiaire", delta: -3)]),
+                     effects: [FDEffect(cond: "reputation", delta: 8), FDEffect(rel: "fans", delta: 8), FDEffect(rel: "vestiaire", delta: -3), FDEffect(money: 35000, delta: 0)]),
             FDChoice(label: "Demander qu'on attende",
-                     effects: [FDEffect(attr: .sangfroid, delta: 3), FDEffect(cond: "reputation", delta: 3)]),
+                     effects: [FDEffect(attr: .sangfroid, delta: 3), FDEffect(cond: "reputation", delta: 3), FDEffect(rel: "vestiaire", delta: -3)]),
         ]),
     FDSceneDef(
         id: "sta_rumeur_depart_star", category: "Star", minAge: 23, maxAge: 36,
@@ -4600,7 +4600,7 @@ let FDScenesPack8: [FDSceneDef] = [
         text: "Tu es devenu le joueur le plus cher du championnat. Chaque déclaration est disséquée.",
         choices: [
             FDChoice(label: "Parler moins et jouer plus",
-                     effects: [FDEffect(attr: .determination, delta: 4), FDEffect(rel: "media", delta: -2)]),
+                     effects: [FDEffect(attr: .determination, delta: 4), FDEffect(rel: "media", delta: -2), FDEffect(money: 12000, delta: 0)]),
             FDChoice(label: "Assumer le statut publiquement",
                      effects: [FDEffect(cond: "reputation", delta: 5), FDEffect(cond: "confiance", delta: 4), FDEffect(rel: "vestiaire", delta: -2)]),
         ]),
@@ -4620,7 +4620,7 @@ let FDScenesPack8: [FDSceneDef] = [
         text: "Le jeune qui prend ta place te demande des conseils sur son placement.",
         choices: [
             FDChoice(label: "Tout lui transmettre",
-                     effects: [FDEffect(attr: .leadership, delta: 5), FDEffect(rel: "vestiaire", delta: 8), FDEffect(cond: "moral", delta: 4)]),
+                     effects: [FDEffect(attr: .leadership, delta: 5), FDEffect(rel: "vestiaire", delta: 8), FDEffect(cond: "moral", delta: 4), FDEffect(cond: "confiance", delta: -3)]),
             FDChoice(label: "Rester évasif",
                      effects: [FDEffect(rel: "vestiaire", delta: -4), FDEffect(cond: "confiance", delta: 2)]),
         ]),
@@ -4640,9 +4640,9 @@ let FDScenesPack8: [FDSceneDef] = [
         text: "Le club te propose une dernière saison avec un rôle d'ambassadeur inclus.",
         choices: [
             FDChoice(label: "Accepter",
-                     effects: [FDEffect(money: 40000, delta: 0), FDEffect(cond: "reputation", delta: 5), FDEffect(cond: "moral", delta: 5)]),
+                     effects: [FDEffect(money: 40000, delta: 0), FDEffect(cond: "reputation", delta: 5), FDEffect(cond: "moral", delta: 5), FDEffect(cond: "fatigue", delta: 7)]),
             FDChoice(label: "Refuser, tu veux jouer, rien d'autre",
-                     effects: [FDEffect(attr: .determination, delta: 5), FDEffect(cond: "confiance", delta: 4)]),
+                     effects: [FDEffect(attr: .determination, delta: 5), FDEffect(cond: "confiance", delta: 4), FDEffect(cond: "fatigue", delta: 7)]),
         ]),
     FDSceneDef(
         id: "vet_entraineur_futur", category: "Vétéran", minAge: 31, maxAge: 36,
@@ -4652,7 +4652,7 @@ let FDScenesPack8: [FDSceneDef] = [
             FDChoice(label: "Commencer maintenant",
                      effects: [FDEffect(attr: .vision, delta: 3), FDEffect(cond: "fatigue", delta: 8), FDEffect(cond: "moral", delta: 4)]),
             FDChoice(label: "Attendre la fin de carrière",
-                     effects: [FDEffect(cond: "fatigue", delta: -2), FDEffect(attr: .determination, delta: 2)]),
+                     effects: [FDEffect(cond: "fatigue", delta: -2), FDEffect(attr: .determination, delta: 2), FDEffect(cond: "confiance", delta: -3)]),
         ]),
     FDSceneDef(
         id: "vet_capitaine_transmission", category: "Vétéran", minAge: 31, maxAge: 36,
@@ -4660,9 +4660,9 @@ let FDScenesPack8: [FDSceneDef] = [
         text: "Il est temps de désigner ton successeur au brassard.",
         choices: [
             FDChoice(label: "Choisir le plus talentueux",
-                     effects: [FDEffect(rel: "vestiaire", delta: 4), FDEffect(attr: .leadership, delta: 3)]),
+                     effects: [FDEffect(rel: "vestiaire", delta: 4), FDEffect(attr: .leadership, delta: 3), FDEffect(cond: "confiance", delta: -3)]),
             FDChoice(label: "Choisir le plus fédérateur",
-                     effects: [FDEffect(rel: "vestiaire", delta: 8), FDEffect(attr: .leadership, delta: 5)]),
+                     effects: [FDEffect(rel: "vestiaire", delta: 8), FDEffect(attr: .leadership, delta: 5), FDEffect(cond: "fatigue", delta: 7)]),
         ]),
     FDSceneDef(
         id: "vet_retour_division_inferieure", category: "Vétéran", minAge: 32, maxAge: 36,
@@ -4672,7 +4672,7 @@ let FDScenesPack8: [FDSceneDef] = [
             FDChoice(label: "Accepter et être le patron",
                      effects: [FDEffect(attr: .leadership, delta: 5), FDEffect(cond: "moral", delta: 6), FDEffect(cond: "reputation", delta: -3)]),
             FDChoice(label: "Refuser, tu vises encore le haut niveau",
-                     effects: [FDEffect(attr: .determination, delta: 4), FDEffect(cond: "confiance", delta: 3)]),
+                     effects: [FDEffect(attr: .determination, delta: 4), FDEffect(cond: "confiance", delta: 3), FDEffect(cond: "fatigue", delta: 7)]),
         ]),
     FDSceneDef(
         id: "fin_annonce", category: "Retraite", minAge: 31, maxAge: 36,
@@ -4682,7 +4682,7 @@ let FDScenesPack8: [FDSceneDef] = [
             FDChoice(label: "Annoncer maintenant",
                      effects: [FDEffect(cond: "reputation", delta: 6), FDEffect(rel: "fans", delta: 8), FDEffect(cond: "moral", delta: -3)]),
             FDChoice(label: "Attendre le dernier match",
-                     effects: [FDEffect(attr: .sangfroid, delta: 3), FDEffect(cond: "moral", delta: 3)]),
+                     effects: [FDEffect(attr: .sangfroid, delta: 3), FDEffect(cond: "moral", delta: 3), FDEffect(cond: "fatigue", delta: 5)]),
         ]),
     FDSceneDef(
         id: "fin_dernier_match", category: "Retraite", minAge: 31, maxAge: 36,
@@ -4690,9 +4690,9 @@ let FDScenesPack8: [FDSceneDef] = [
         text: "Dernier match de ta carrière, à domicile, stade plein, banderoles à ton nom.",
         choices: [
             FDChoice(label: "Faire un tour d'honneur avec ta famille",
-                     effects: [FDEffect(rel: "famille", delta: 10), FDEffect(rel: "fans", delta: 10), FDEffect(cond: "moral", delta: 10)]),
+                     effects: [FDEffect(rel: "famille", delta: 10), FDEffect(rel: "fans", delta: 10), FDEffect(cond: "moral", delta: 10), FDEffect(cond: "fatigue", delta: 5)]),
             FDChoice(label: "Rester sobre et saluer",
-                     effects: [FDEffect(attr: .sangfroid, delta: 4), FDEffect(cond: "reputation", delta: 4)]),
+                     effects: [FDEffect(attr: .sangfroid, delta: 4), FDEffect(cond: "reputation", delta: 4), FDEffect(cond: "fatigue", delta: 5)]),
         ]),
     FDSceneDef(
         id: "fin_jubile", category: "Retraite", minAge: 32, maxAge: 36,
@@ -4702,7 +4702,7 @@ let FDScenesPack8: [FDSceneDef] = [
             FDChoice(label: "Accepter et tout organiser toi-même",
                      effects: [FDEffect(cond: "moral", delta: 8), FDEffect(rel: "vestiaire", delta: 8), FDEffect(cond: "fatigue", delta: 6)]),
             FDChoice(label: "Laisser le club gérer",
-                     effects: [FDEffect(cond: "moral", delta: 5), FDEffect(rel: "president", delta: 4)]),
+                     effects: [FDEffect(cond: "moral", delta: 5), FDEffect(rel: "president", delta: 4), FDEffect(cond: "fatigue", delta: 5)]),
         ]),
     FDSceneDef(
         id: "fin_reconversion_choix", category: "Retraite", minAge: 32, maxAge: 36,
@@ -4712,9 +4712,9 @@ let FDScenesPack8: [FDSceneDef] = [
             FDChoice(label: "Entraîneur",
                      effects: [FDEffect(attr: .leadership, delta: 5), FDEffect(cond: "fatigue", delta: 6)]),
             FDChoice(label: "Consultant",
-                     effects: [FDEffect(rel: "media", delta: 8), FDEffect(money: 60000, delta: 0)]),
+                     effects: [FDEffect(rel: "media", delta: 8), FDEffect(money: 60000, delta: 0), FDEffect(cond: "moral", delta: -3)]),
             FDChoice(label: "Directeur sportif",
-                     effects: [FDEffect(attr: .vision, delta: 4), FDEffect(rel: "president", delta: 6)]),
+                     effects: [FDEffect(attr: .vision, delta: 4), FDEffect(rel: "president", delta: 6), FDEffect(cond: "fatigue", delta: 5)]),
         ]),
     FDSceneDef(
         id: "fin_academie_perso", category: "Retraite", minAge: 32, maxAge: 36,
@@ -4732,9 +4732,9 @@ let FDScenesPack8: [FDSceneDef] = [
         text: "Dernier discours dans le vestiaire, devant des joueurs dont certains avaient dix ans quand tu as débuté.",
         choices: [
             FDChoice(label: "Parler du chemin parcouru",
-                     effects: [FDEffect(rel: "vestiaire", delta: 10), FDEffect(cond: "moral", delta: 8)]),
+                     effects: [FDEffect(rel: "vestiaire", delta: 10), FDEffect(cond: "moral", delta: 8), FDEffect(cond: "fatigue", delta: 5)]),
             FDChoice(label: "Rester bref",
-                     effects: [FDEffect(attr: .sangfroid, delta: 3), FDEffect(rel: "vestiaire", delta: 4)]),
+                     effects: [FDEffect(attr: .sangfroid, delta: 3), FDEffect(rel: "vestiaire", delta: 4), FDEffect(cond: "fatigue", delta: 5)]),
         ]),
     FDSceneDef(
         id: "gar_penalty_serie", category: "Poste", minAge: 18, maxAge: 36,
@@ -4744,7 +4744,7 @@ let FDScenesPack8: [FDSceneDef] = [
             FDChoice(label: "Étudier tous les tireurs adverses",
                      effects: [FDEffect(attr: .vision, delta: 3), FDEffect(attr: .placement, delta: 2), FDEffect(cond: "fatigue", delta: 4)]),
             FDChoice(label: "Rester à l'instinct",
-                     effects: [FDEffect(attr: .agilite, delta: 2), FDEffect(cond: "confiance", delta: 3)]),
+                     effects: [FDEffect(attr: .agilite, delta: 2), FDEffect(cond: "confiance", delta: 3), FDEffect(cond: "fatigue", delta: 7)]),
         ],
         positions: [.gardien]),
     FDSceneDef(
@@ -4755,7 +4755,7 @@ let FDScenesPack8: [FDSceneDef] = [
             FDChoice(label: "Accepter le brassard",
                      effects: [FDEffect(attr: .leadership, delta: 5), FDEffect(rel: "vestiaire", delta: -3), FDEffect(cond: "confiance", delta: 4)]),
             FDChoice(label: "Refuser",
-                     effects: [FDEffect(rel: "vestiaire", delta: 3), FDEffect(attr: .sangfroid, delta: 2)]),
+                     effects: [FDEffect(rel: "vestiaire", delta: 3), FDEffect(attr: .sangfroid, delta: 2), FDEffect(cond: "confiance", delta: -3)]),
         ],
         positions: [.gardien]),
     FDSceneDef(
@@ -4777,7 +4777,7 @@ let FDScenesPack8: [FDSceneDef] = [
             FDChoice(label: "Le coller partout, quitte à te faire avertir",
                      effects: [FDEffect(attr: .tacle, delta: 3), FDEffect(cond: "reputation", delta: -2), FDEffect(rel: "coach", delta: 4)]),
             FDChoice(label: "Jouer l'anticipation",
-                     effects: [FDEffect(attr: .interception, delta: 3), FDEffect(attr: .placement, delta: 2)]),
+                     effects: [FDEffect(attr: .interception, delta: 3), FDEffect(attr: .placement, delta: 2), FDEffect(cond: "fatigue", delta: 7)]),
         ],
         positions: [.defenseur]),
     FDSceneDef(
@@ -4788,7 +4788,7 @@ let FDScenesPack8: [FDSceneDef] = [
             FDChoice(label: "Monter à chaque fois",
                      effects: [FDEffect(attr: .tir, delta: 2), FDEffect(attr: .force, delta: 2), FDEffect(cond: "fatigue", delta: 6)]),
             FDChoice(label: "Rester derrière",
-                     effects: [FDEffect(attr: .placement, delta: 3), FDEffect(rel: "coach", delta: 3)]),
+                     effects: [FDEffect(attr: .placement, delta: 3), FDEffect(rel: "coach", delta: 3), FDEffect(cond: "fatigue", delta: 7)]),
         ],
         positions: [.defenseur]),
     FDSceneDef(
@@ -4799,7 +4799,7 @@ let FDScenesPack8: [FDSceneDef] = [
             FDChoice(label: "Travailler la relance chaque jour",
                      effects: [FDEffect(attr: .passe, delta: 3), FDEffect(attr: .control, delta: 2), FDEffect(cond: "fatigue", delta: 8)]),
             FDChoice(label: "Assumer un jeu simple",
-                     effects: [FDEffect(attr: .placement, delta: 2), FDEffect(attr: .force, delta: 1)]),
+                     effects: [FDEffect(attr: .placement, delta: 2), FDEffect(attr: .force, delta: 1), FDEffect(cond: "confiance", delta: -3)]),
         ],
         positions: [.defenseur]),
     FDSceneDef(
@@ -4821,7 +4821,7 @@ let FDScenesPack8: [FDSceneDef] = [
             FDChoice(label: "Prendre les responsabilités",
                      effects: [FDEffect(attr: .vision, delta: 4), FDEffect(attr: .passe, delta: 2), FDEffect(cond: "fatigue", delta: 6)]),
             FDChoice(label: "Préférer un rôle plus discret",
-                     effects: [FDEffect(attr: .placement, delta: 2), FDEffect(attr: .sangfroid, delta: 2)]),
+                     effects: [FDEffect(attr: .placement, delta: 2), FDEffect(attr: .sangfroid, delta: 2), FDEffect(cond: "confiance", delta: -3)]),
         ],
         positions: [.milieu]),
     FDSceneDef(
@@ -4876,7 +4876,7 @@ let FDScenesPack8: [FDSceneDef] = [
             FDChoice(label: "Accepter",
                      effects: [FDEffect(cond: "reputation", delta: 8), FDEffect(money: 80000, delta: 0), FDEffect(cond: "fatigue", delta: 6)]),
             FDChoice(label: "Refuser pour rester concentré",
-                     effects: [FDEffect(attr: .determination, delta: 3)]),
+                     effects: [FDEffect(attr: .determination, delta: 3), FDEffect(cond: "fatigue", delta: 6)]),
         ]),
     FDSceneDef(
         id: "sta_syndicat", category: "Star", minAge: 24, maxAge: 36,
@@ -4884,9 +4884,9 @@ let FDScenesPack8: [FDSceneDef] = [
         text: "Le syndicat des joueurs te propose de le représenter sur la question du calendrier.",
         choices: [
             FDChoice(label: "Accepter et t'engager",
-                     effects: [FDEffect(cond: "reputation", delta: 8), FDEffect(rel: "vestiaire", delta: 8), FDEffect(rel: "president", delta: -5), FDEffect(cond: "fatigue", delta: 6)]),
+                     effects: [FDEffect(cond: "reputation", delta: 8), FDEffect(rel: "vestiaire", delta: 8), FDEffect(rel: "president", delta: -5), FDEffect(cond: "fatigue", delta: 6), FDEffect(money: 35000, delta: 0)]),
             FDChoice(label: "Refuser",
-                     effects: [FDEffect(attr: .sangfroid, delta: 2)]),
+                     effects: [FDEffect(attr: .sangfroid, delta: 2), FDEffect(money: -10000, delta: 0)]),
         ]),
     FDSceneDef(
         id: "sta_grand_club_refus", category: "Star", minAge: 23, maxAge: 33,
@@ -4896,7 +4896,7 @@ let FDScenesPack8: [FDSceneDef] = [
             FDChoice(label: "Accepter le défi",
                      effects: [FDEffect(cond: "reputation", delta: 8), FDEffect(cond: "confiance", delta: -3), FDEffect(money: 200000, delta: 0)]),
             FDChoice(label: "Refuser pour rester titulaire",
-                     effects: [FDEffect(attr: .determination, delta: 4), FDEffect(cond: "confiance", delta: 4)]),
+                     effects: [FDEffect(attr: .determination, delta: 4), FDEffect(cond: "confiance", delta: 4), FDEffect(cond: "fatigue", delta: 6)]),
         ]),
     FDSceneDef(
         id: "fin_blessure_fin", category: "Retraite", minAge: 29, maxAge: 36,
@@ -4924,9 +4924,9 @@ let FDScenesPack8: [FDSceneDef] = [
         text: "Le club te consulte sur les recrues à venir. Un de tes amis figure sur la liste.",
         choices: [
             FDChoice(label: "Le recommander",
-                     effects: [FDEffect(rel: "vestiaire", delta: 5), FDEffect(rel: "president", delta: -2)]),
+                     effects: [FDEffect(rel: "vestiaire", delta: 5), FDEffect(rel: "president", delta: -2), FDEffect(money: 35000, delta: 0)]),
             FDChoice(label: "Rester objectif",
-                     effects: [FDEffect(attr: .leadership, delta: 4), FDEffect(rel: "president", delta: 6)]),
+                     effects: [FDEffect(attr: .leadership, delta: 4), FDEffect(rel: "president", delta: 6), FDEffect(rel: "vestiaire", delta: -3)]),
         ]),
     FDSceneDef(
         id: "trophee_coupe_monde", category: "Trophée", minAge: 22, maxAge: 36,
@@ -4936,7 +4936,7 @@ let FDScenesPack8: [FDSceneDef] = [
             FDChoice(label: "Le convaincre que tu es prêt",
                      effects: [FDEffect(cond: "confiance", delta: 5), FDEffect(cond: "forme", delta: -6), FDEffect(attr: .determination, delta: 5)]),
             FDChoice(label: "Reconnaître que tu n'es pas à cent pour cent",
-                     effects: [FDEffect(attr: .sangfroid, delta: 4), FDEffect(rel: "coach", delta: 5)]),
+                     effects: [FDEffect(attr: .sangfroid, delta: 4), FDEffect(rel: "coach", delta: 5), FDEffect(cond: "fatigue", delta: 5)]),
         ]),
     FDSceneDef(
         id: "trophee_defaite_finale", category: "Trophée", minAge: 21, maxAge: 36,
@@ -4966,7 +4966,7 @@ let FDScenesPack8: [FDSceneDef] = [
             FDChoice(label: "Partir",
                      effects: [FDEffect(money: 300000, delta: 0), FDEffect(rel: "famille", delta: -6), FDEffect(cond: "reputation", delta: -3)]),
             FDChoice(label: "Finir chez toi",
-                     effects: [FDEffect(cond: "moral", delta: 8), FDEffect(rel: "fans", delta: 8)]),
+                     effects: [FDEffect(cond: "moral", delta: 8), FDEffect(rel: "fans", delta: 8), FDEffect(cond: "forme", delta: -3)]),
         ]),
     FDSceneDef(
         id: "fin_livre_transmission", category: "Retraite", minAge: 32, maxAge: 36,
@@ -4976,7 +4976,7 @@ let FDScenesPack8: [FDSceneDef] = [
             FDChoice(label: "L'écrire sérieusement",
                      effects: [FDEffect(cond: "reputation", delta: 6), FDEffect(attr: .vision, delta: 3), FDEffect(cond: "fatigue", delta: 6)]),
             FDChoice(label: "Refuser",
-                     effects: [FDEffect(attr: .sangfroid, delta: 1)]),
+                     effects: [FDEffect(attr: .sangfroid, delta: 1), FDEffect(cond: "moral", delta: -3)]),
         ]),
     FDSceneDef(
         id: "sta_agent_sportif_futur", category: "Star", minAge: 28, maxAge: 36,
@@ -5006,7 +5006,7 @@ let FDScenesPack8: [FDSceneDef] = [
             FDChoice(label: "Demander à jouer ces trois matchs",
                      effects: [FDEffect(cond: "reputation", delta: 5), FDEffect(rel: "coach", delta: -3), FDEffect(cond: "confiance", delta: 3)]),
             FDChoice(label: "Laisser la place aux jeunes",
-                     effects: [FDEffect(cond: "reputation", delta: 8), FDEffect(attr: .leadership, delta: 4)]),
+                     effects: [FDEffect(cond: "reputation", delta: 8), FDEffect(attr: .leadership, delta: 4), FDEffect(rel: "vestiaire", delta: -3)]),
         ]),
     FDSceneDef(
         id: "sta_investissement_club", category: "Star", minAge: 29, maxAge: 36,
@@ -5016,7 +5016,7 @@ let FDScenesPack8: [FDSceneDef] = [
             FDChoice(label: "Investir",
                      effects: [FDEffect(money: -150000, delta: 0), FDEffect(attr: .vision, delta: 3), FDEffect(cond: "reputation", delta: 4)]),
             FDChoice(label: "Refuser",
-                     effects: [FDEffect(attr: .sangfroid, delta: 2)]),
+                     effects: [FDEffect(attr: .sangfroid, delta: 2), FDEffect(money: -10000, delta: 0)]),
         ]),
     FDSceneDef(
         id: "fin_retour_terrain", category: "Retraite", minAge: 33, maxAge: 36,
@@ -5026,7 +5026,7 @@ let FDScenesPack8: [FDSceneDef] = [
             FDChoice(label: "Accepter",
                      effects: [FDEffect(cond: "moral", delta: 10), FDEffect(rel: "fans", delta: 6), FDEffect(cond: "reputation", delta: -2)]),
             FDChoice(label: "Refuser, la page est tournée",
-                     effects: [FDEffect(attr: .sangfroid, delta: 3), FDEffect(cond: "moral", delta: 3)]),
+                     effects: [FDEffect(attr: .sangfroid, delta: 3), FDEffect(cond: "moral", delta: 3), FDEffect(cond: "fatigue", delta: 5)]),
         ]),
     FDSceneDef(
         id: "sta_pression_stats", category: "Star", minAge: 22, maxAge: 34,
@@ -5034,9 +5034,9 @@ let FDScenesPack8: [FDSceneDef] = [
         text: "Les statistiques avancées disent que tu baisses, alors que tes buts restent au même niveau.",
         choices: [
             FDChoice(label: "Travailler ce que disent les données",
-                     effects: [FDEffect(attr: .endurance, delta: 2), FDEffect(attr: .placement, delta: 2), FDEffect(cond: "fatigue", delta: 6)]),
+                     effects: [FDEffect(attr: .endurance, delta: 2), FDEffect(attr: .placement, delta: 2), FDEffect(cond: "fatigue", delta: 6), FDEffect(money: 20000, delta: 0)]),
             FDChoice(label: "Te fier à tes sensations",
-                     effects: [FDEffect(cond: "confiance", delta: 4), FDEffect(attr: .tir, delta: 1)]),
+                     effects: [FDEffect(cond: "confiance", delta: 4), FDEffect(attr: .tir, delta: 1), FDEffect(cond: "fatigue", delta: 6)]),
         ]),
     FDSceneDef(
         id: "vet_conflit_jeune_star", category: "Vétéran", minAge: 30, maxAge: 36,
@@ -5046,7 +5046,7 @@ let FDScenesPack8: [FDSceneDef] = [
             FDChoice(label: "Le recadrer devant le groupe",
                      effects: [FDEffect(attr: .leadership, delta: 4), FDEffect(rel: "vestiaire", delta: 4), FDEffect(cond: "moral", delta: -2)]),
             FDChoice(label: "Le prendre à part",
-                     effects: [FDEffect(attr: .leadership, delta: 5), FDEffect(rel: "vestiaire", delta: 6)]),
+                     effects: [FDEffect(attr: .leadership, delta: 5), FDEffect(rel: "vestiaire", delta: 6), FDEffect(cond: "fatigue", delta: 7)]),
             FDChoice(label: "Laisser le staff gérer",
                      effects: [FDEffect(rel: "coach", delta: 2), FDEffect(rel: "vestiaire", delta: -3)]),
         ]),
@@ -5058,7 +5058,7 @@ let FDScenesPack8: [FDSceneDef] = [
             FDChoice(label: "Le revendiquer",
                      effects: [FDEffect(cond: "reputation", delta: 6), FDEffect(rel: "vestiaire", delta: -2)]),
             FDChoice(label: "En rire avec eux",
-                     effects: [FDEffect(rel: "vestiaire", delta: 5), FDEffect(cond: "reputation", delta: 2)]),
+                     effects: [FDEffect(rel: "vestiaire", delta: 5), FDEffect(cond: "reputation", delta: 2), FDEffect(cond: "fatigue", delta: 5)]),
         ]),
     FDSceneDef(
         id: "sta_conflit_marque", category: "Star", minAge: 22, maxAge: 34,
@@ -5068,7 +5068,7 @@ let FDScenesPack8: [FDSceneDef] = [
             FDChoice(label: "Porter le modèle",
                      effects: [FDEffect(money: 60000, delta: 0), FDEffect(cond: "confiance", delta: -3)]),
             FDChoice(label: "Négocier une version personnalisée",
-                     effects: [FDEffect(money: 20000, delta: 0), FDEffect(rel: "agent", delta: 4), FDEffect(cond: "confiance", delta: 2)]),
+                     effects: [FDEffect(money: 20000, delta: 0), FDEffect(rel: "agent", delta: 4), FDEffect(cond: "confiance", delta: 2), FDEffect(cond: "fatigue", delta: 6)]),
         ]),
     FDSceneDef(
         id: "fin_hommage_club", category: "Retraite", minAge: 32, maxAge: 36,
@@ -5076,9 +5076,9 @@ let FDScenesPack8: [FDSceneDef] = [
         text: "Le club retire ton numéro de maillot lors d'une cérémonie d'avant-match.",
         choices: [
             FDChoice(label: "Prendre le micro",
-                     effects: [FDEffect(cond: "reputation", delta: 8), FDEffect(rel: "fans", delta: 10), FDEffect(cond: "moral", delta: 8)]),
+                     effects: [FDEffect(cond: "reputation", delta: 8), FDEffect(rel: "fans", delta: 10), FDEffect(cond: "moral", delta: 8), FDEffect(cond: "fatigue", delta: 5)]),
             FDChoice(label: "Saluer sans parler",
-                     effects: [FDEffect(attr: .sangfroid, delta: 4), FDEffect(cond: "moral", delta: 5)]),
+                     effects: [FDEffect(attr: .sangfroid, delta: 4), FDEffect(cond: "moral", delta: 5), FDEffect(cond: "fatigue", delta: 5)]),
         ]),
     FDSceneDef(
         id: "vet_salaire_jeune", category: "Vétéran", minAge: 30, maxAge: 36,
@@ -5086,11 +5086,11 @@ let FDScenesPack8: [FDSceneDef] = [
         text: "Un jeune de vingt ans gagne le double de ton salaire et le fait savoir.",
         choices: [
             FDChoice(label: "Ne rien dire",
-                     effects: [FDEffect(attr: .sangfroid, delta: 4)]),
+                     effects: [FDEffect(attr: .sangfroid, delta: 4), FDEffect(cond: "forme", delta: -3)]),
             FDChoice(label: "Aller voir la direction",
                      effects: [FDEffect(rel: "president", delta: -4), FDEffect(money: 30000, delta: 0)]),
             FDChoice(label: "Le recadrer",
-                     effects: [FDEffect(attr: .leadership, delta: 3), FDEffect(rel: "vestiaire", delta: 2)]),
+                     effects: [FDEffect(attr: .leadership, delta: 3), FDEffect(rel: "vestiaire", delta: 2), FDEffect(cond: "forme", delta: -3)]),
         ]),
     FDSceneDef(
         id: "sta_visite_officielle", category: "Star", minAge: 23, maxAge: 36,
@@ -5098,9 +5098,9 @@ let FDScenesPack8: [FDSceneDef] = [
         text: "L'équipe est reçue officiellement après un titre. On te demande de représenter le groupe.",
         choices: [
             FDChoice(label: "Faire le discours",
-                     effects: [FDEffect(attr: .leadership, delta: 4), FDEffect(cond: "reputation", delta: 6), FDEffect(rel: "media", delta: 5)]),
+                     effects: [FDEffect(attr: .leadership, delta: 4), FDEffect(cond: "reputation", delta: 6), FDEffect(rel: "media", delta: 5), FDEffect(money: -10000, delta: 0)]),
             FDChoice(label: "Laisser le capitaine parler",
-                     effects: [FDEffect(rel: "capitaine", delta: 5), FDEffect(attr: .sangfroid, delta: 2)]),
+                     effects: [FDEffect(rel: "capitaine", delta: 5), FDEffect(attr: .sangfroid, delta: 2), FDEffect(rel: "vestiaire", delta: -3)]),
         ]),
     FDSceneDef(
         id: "fin_derniere_blessure", category: "Retraite", minAge: 30, maxAge: 36,
@@ -5108,7 +5108,7 @@ let FDScenesPack8: [FDSceneDef] = [
         text: "Nouvelle blessure musculaire, la cinquième de la saison. Ton corps parle clairement.",
         choices: [
             FDChoice(label: "Écouter ton corps et planifier la fin",
-                     effects: [FDEffect(cond: "moral", delta: 4), FDEffect(attr: .sangfroid, delta: 4)]),
+                     effects: [FDEffect(cond: "moral", delta: 4), FDEffect(attr: .sangfroid, delta: 4), FDEffect(cond: "fatigue", delta: 5)]),
             FDChoice(label: "Repousser encore l'échéance",
                      effects: [FDEffect(attr: .determination, delta: 4), FDEffect(cond: "forme", delta: -6)]),
         ]),
@@ -5118,9 +5118,9 @@ let FDScenesPack8: [FDSceneDef] = [
         text: "On te demande de parler de ton parcours devant des lycéens d'un quartier difficile.",
         choices: [
             FDChoice(label: "Raconter les échecs autant que les réussites",
-                     effects: [FDEffect(cond: "reputation", delta: 8), FDEffect(cond: "moral", delta: 6), FDEffect(rel: "fans", delta: 5)]),
+                     effects: [FDEffect(cond: "reputation", delta: 8), FDEffect(cond: "moral", delta: 6), FDEffect(rel: "fans", delta: 5), FDEffect(rel: "vestiaire", delta: -3), FDEffect(money: 12000, delta: 0)]),
             FDChoice(label: "Faire court",
-                     effects: [FDEffect(cond: "reputation", delta: 2)]),
+                     effects: [FDEffect(cond: "reputation", delta: 2), FDEffect(rel: "vestiaire", delta: -3)]),
         ]),
     FDSceneDef(
         id: "vet_choix_numero", category: "Vétéran", minAge: 30, maxAge: 36,
@@ -5140,7 +5140,7 @@ let FDScenesPack8: [FDSceneDef] = [
             FDChoice(label: "Tout miser sur les buts",
                      effects: [FDEffect(attr: .tir, delta: 3), FDEffect(rel: "vestiaire", delta: -3), FDEffect(cond: "fatigue", delta: 8)]),
             FDChoice(label: "Continuer à jouer collectif",
-                     effects: [FDEffect(attr: .vision, delta: 3), FDEffect(rel: "vestiaire", delta: 6)]),
+                     effects: [FDEffect(attr: .vision, delta: 3), FDEffect(rel: "vestiaire", delta: 6), FDEffect(cond: "fatigue", delta: 5)]),
         ]),
     FDSceneDef(
         id: "sta_charite_mondiale", category: "Star", minAge: 24, maxAge: 36,
@@ -5148,7 +5148,7 @@ let FDScenesPack8: [FDSceneDef] = [
         text: "Une ONG t'invite à un match caritatif dans un camp de réfugiés, en pleine saison.",
         choices: [
             FDChoice(label: "Y aller",
-                     effects: [FDEffect(cond: "reputation", delta: 10), FDEffect(cond: "moral", delta: 8), FDEffect(cond: "fatigue", delta: 8), FDEffect(rel: "coach", delta: -3)]),
+                     effects: [FDEffect(cond: "reputation", delta: 10), FDEffect(cond: "moral", delta: 8), FDEffect(cond: "fatigue", delta: 8), FDEffect(rel: "coach", delta: -3), FDEffect(money: 20000, delta: 0)]),
             FDChoice(label: "Envoyer un don",
                      effects: [FDEffect(money: -50000, delta: 0), FDEffect(cond: "reputation", delta: 4)]),
         ]),
@@ -5158,7 +5158,7 @@ let FDScenesPack8: [FDSceneDef] = [
         text: "Une nuit, tu déroules ta carrière dans ta tête : ce que tu as gagné, ce que tu as manqué.",
         choices: [
             FDChoice(label: "En tirer de la fierté",
-                     effects: [FDEffect(cond: "moral", delta: 8), FDEffect(cond: "confiance", delta: 4)]),
+                     effects: [FDEffect(cond: "moral", delta: 8), FDEffect(cond: "confiance", delta: 4), FDEffect(cond: "fatigue", delta: 5)]),
             FDChoice(label: "En tirer des regrets",
                      effects: [FDEffect(cond: "moral", delta: -4), FDEffect(attr: .determination, delta: 4)]),
         ]),
@@ -5178,9 +5178,9 @@ let FDScenesPack8: [FDSceneDef] = [
         text: "Ton dernier derby. Le capitaine adverse te dit que le championnat ne sera plus le même sans toi.",
         choices: [
             FDChoice(label: "Le remercier",
-                     effects: [FDEffect(cond: "reputation", delta: 5), FDEffect(cond: "moral", delta: 5)]),
+                     effects: [FDEffect(cond: "reputation", delta: 5), FDEffect(cond: "moral", delta: 5), FDEffect(rel: "vestiaire", delta: -3), FDEffect(money: 20000, delta: 0)]),
             FDChoice(label: "Lui répondre que tu n'as pas fini",
-                     effects: [FDEffect(attr: .determination, delta: 4), FDEffect(cond: "confiance", delta: 4)]),
+                     effects: [FDEffect(attr: .determination, delta: 4), FDEffect(cond: "confiance", delta: 4), FDEffect(money: -10000, delta: 0)]),
         ]),
     FDSceneDef(
         id: "fin_famille_soulagee", category: "Retraite", minAge: 31, maxAge: 36,
@@ -5198,7 +5198,7 @@ let FDScenesPack8: [FDSceneDef] = [
         text: "Finale, dernière minute, une frappe lointaine te file entre les mains.",
         choices: [
             FDChoice(label: "Repartir immédiatement au combat",
-                     effects: [FDEffect(attr: .determination, delta: 5), FDEffect(cond: "confiance", delta: 2)]),
+                     effects: [FDEffect(attr: .determination, delta: 5), FDEffect(cond: "confiance", delta: 2), FDEffect(cond: "fatigue", delta: 7)]),
             FDChoice(label: "Rester à terre",
                      effects: [FDEffect(cond: "moral", delta: -8), FDEffect(cond: "confiance", delta: -6)]),
         ],
@@ -5233,7 +5233,7 @@ let FDScenesPack8: [FDSceneDef] = [
             FDChoice(label: "Te déclarer candidat",
                      effects: [FDEffect(attr: .sangfroid, delta: 3), FDEffect(cond: "confiance", delta: 4), FDEffect(rel: "vestiaire", delta: -2)]),
             FDChoice(label: "Soutenir un coéquipier",
-                     effects: [FDEffect(rel: "vestiaire", delta: 6), FDEffect(attr: .leadership, delta: 2)]),
+                     effects: [FDEffect(rel: "vestiaire", delta: 6), FDEffect(attr: .leadership, delta: 2), FDEffect(cond: "fatigue", delta: 7)]),
         ],
         positions: [.attaquant]),
     FDSceneDef(
@@ -5242,9 +5242,9 @@ let FDScenesPack8: [FDSceneDef] = [
         text: "Tu veux organiser ta propre conférence de presse pour répondre à une polémique.",
         choices: [
             FDChoice(label: "La tenir seul, sans le club",
-                     effects: [FDEffect(rel: "media", delta: 6), FDEffect(rel: "president", delta: -6), FDEffect(cond: "reputation", delta: 4)]),
+                     effects: [FDEffect(rel: "media", delta: 6), FDEffect(rel: "president", delta: -6), FDEffect(cond: "reputation", delta: 4), FDEffect(money: 35000, delta: 0)]),
             FDChoice(label: "Passer par le service com du club",
-                     effects: [FDEffect(rel: "president", delta: 5), FDEffect(rel: "media", delta: 2)]),
+                     effects: [FDEffect(rel: "president", delta: 5), FDEffect(rel: "media", delta: 2), FDEffect(rel: "vestiaire", delta: -3)]),
         ]),
     FDSceneDef(
         id: "vet_avant_derniere_saison", category: "Vétéran", minAge: 30, maxAge: 36,
@@ -5276,7 +5276,7 @@ let FDScenesPack8: [FDSceneDef] = [
             FDChoice(label: "Donner ta part",
                      effects: [FDEffect(money: -15000, delta: 0), FDEffect(rel: "staff", delta: 6)]),
             FDChoice(label: "Refuser le principe",
-                     effects: [FDEffect(rel: "staff", delta: -8), FDEffect(rel: "vestiaire", delta: -5)]),
+                     effects: [FDEffect(rel: "staff", delta: -8), FDEffect(rel: "vestiaire", delta: -5), FDEffect(money: 35000, delta: 0)]),
         ]),
     FDSceneDef(
         id: "vet_selection_rappel", category: "Vétéran", minAge: 31, maxAge: 36,
@@ -5286,7 +5286,7 @@ let FDScenesPack8: [FDSceneDef] = [
             FDChoice(label: "Accepter avec émotion",
                      effects: [FDEffect(cond: "moral", delta: 10), FDEffect(cond: "reputation", delta: 6), FDEffect(cond: "fatigue", delta: 6)]),
             FDChoice(label: "Refuser pour préserver ton club",
-                     effects: [FDEffect(rel: "coach", delta: 6), FDEffect(cond: "fatigue", delta: -4)]),
+                     effects: [FDEffect(rel: "coach", delta: 6), FDEffect(cond: "fatigue", delta: -4), FDEffect(cond: "forme", delta: -3)]),
         ]),
     FDSceneDef(
         id: "fin_dernier_but", category: "Retraite", minAge: 31, maxAge: 36,
@@ -5296,7 +5296,7 @@ let FDScenesPack8: [FDSceneDef] = [
             FDChoice(label: "Frapper pour finir sur un but",
                      effects: [FDEffect(attr: .tir, delta: 3), FDEffect(cond: "confiance", delta: 5), FDEffect(rel: "vestiaire", delta: -3)]),
             FDChoice(label: "Servir ton coéquipier",
-                     effects: [FDEffect(attr: .vision, delta: 3), FDEffect(rel: "vestiaire", delta: 10), FDEffect(cond: "moral", delta: 6)]),
+                     effects: [FDEffect(attr: .vision, delta: 3), FDEffect(rel: "vestiaire", delta: 10), FDEffect(cond: "moral", delta: 6), FDEffect(cond: "fatigue", delta: 5)]),
         ]),
     FDSceneDef(
         id: "sta_conflit_sponsor_club", category: "Star", minAge: 23, maxAge: 36,
@@ -5314,7 +5314,7 @@ let FDScenesPack8: [FDSceneDef] = [
         text: "Le club te propose un contrat à l'année, renouvelable selon tes performances.",
         choices: [
             FDChoice(label: "Accepter ce pari",
-                     effects: [FDEffect(attr: .determination, delta: 4), FDEffect(cond: "confiance", delta: 3)]),
+                     effects: [FDEffect(attr: .determination, delta: 4), FDEffect(cond: "confiance", delta: 3), FDEffect(cond: "fatigue", delta: 7)]),
             FDChoice(label: "Demander deux ans fermes",
                      effects: [FDEffect(rel: "president", delta: -5), FDEffect(money: 40000, delta: 0)]),
         ]),
@@ -5324,7 +5324,7 @@ let FDScenesPack8: [FDSceneDef] = [
         text: "Ta célébration de but a été jugée provocante. La commission de discipline s'en mêle.",
         choices: [
             FDChoice(label: "T'excuser",
-                     effects: [FDEffect(cond: "reputation", delta: 3), FDEffect(rel: "fans", delta: -2)]),
+                     effects: [FDEffect(cond: "reputation", delta: 3), FDEffect(rel: "fans", delta: -2), FDEffect(money: 12000, delta: 0)]),
             FDChoice(label: "Assumer complètement",
                      effects: [FDEffect(cond: "reputation", delta: -3), FDEffect(rel: "fans", delta: 8), FDEffect(cond: "confiance", delta: 4)]),
         ]),
@@ -5334,9 +5334,9 @@ let FDScenesPack8: [FDSceneDef] = [
         text: "Deux dernières offres : finir dans ton club formateur ou dans un club de haut de tableau.",
         choices: [
             FDChoice(label: "Le club formateur",
-                     effects: [FDEffect(rel: "fans", delta: 12), FDEffect(cond: "moral", delta: 10), FDEffect(cond: "reputation", delta: 2)]),
+                     effects: [FDEffect(rel: "fans", delta: 12), FDEffect(cond: "moral", delta: 10), FDEffect(cond: "reputation", delta: 2), FDEffect(cond: "fatigue", delta: 5)]),
             FDChoice(label: "Le haut de tableau",
-                     effects: [FDEffect(cond: "reputation", delta: 6), FDEffect(cond: "confiance", delta: 4), FDEffect(money: 60000, delta: 0)]),
+                     effects: [FDEffect(cond: "reputation", delta: 6), FDEffect(cond: "confiance", delta: 4), FDEffect(money: 60000, delta: 0), FDEffect(cond: "moral", delta: -3)]),
         ]),
     FDSceneDef(
         id: "sta_retour_gagnant", category: "Star", minAge: 22, maxAge: 36,
@@ -5344,9 +5344,9 @@ let FDScenesPack8: [FDSceneDef] = [
         text: "Premier match après trois mois d'absence, et le club joue sa saison ce soir.",
         choices: [
             FDChoice(label: "Demander à débuter",
-                     effects: [FDEffect(attr: .determination, delta: 4), FDEffect(cond: "forme", delta: -4), FDEffect(cond: "confiance", delta: 4)]),
+                     effects: [FDEffect(attr: .determination, delta: 4), FDEffect(cond: "forme", delta: -4), FDEffect(cond: "confiance", delta: 4), FDEffect(money: 12000, delta: 0)]),
             FDChoice(label: "Accepter d'entrer en jeu",
-                     effects: [FDEffect(attr: .sangfroid, delta: 3), FDEffect(cond: "forme", delta: 3)]),
+                     effects: [FDEffect(attr: .sangfroid, delta: 3), FDEffect(cond: "forme", delta: 3), FDEffect(cond: "fatigue", delta: 6)]),
         ]),
     FDSceneDef(
         id: "ves_tournoi_interne", category: "Vestiaire", minAge: 18, maxAge: 36,
@@ -5356,7 +5356,7 @@ let FDScenesPack8: [FDSceneDef] = [
             FDChoice(label: "Prendre ça très au sérieux",
                      effects: [FDEffect(attr: .dribble, delta: 2), FDEffect(cond: "fatigue", delta: 6), FDEffect(rel: "vestiaire", delta: 3)]),
             FDChoice(label: "Jouer pour l'ambiance",
-                     effects: [FDEffect(rel: "vestiaire", delta: 6), FDEffect(cond: "moral", delta: 4)]),
+                     effects: [FDEffect(rel: "vestiaire", delta: 6), FDEffect(cond: "moral", delta: 4), FDEffect(cond: "fatigue", delta: 4)]),
         ]),
     FDSceneDef(
         id: "cal_veille_reprise", category: "Calendrier", minAge: 17, maxAge: 36,
@@ -5364,12 +5364,11 @@ let FDScenesPack8: [FDSceneDef] = [
         text: "Dernier jour de vacances, dernière soirée tranquille avant six mois de rythme infernal.",
         choices: [
             FDChoice(label: "La passer en famille",
-                     effects: [FDEffect(rel: "famille", delta: 8), FDEffect(cond: "moral", delta: 6)]),
+                     effects: [FDEffect(rel: "famille", delta: 8), FDEffect(cond: "moral", delta: 6), FDEffect(cond: "forme", delta: -3)]),
             FDChoice(label: "Reprendre l'entraînement un jour plus tôt",
                      effects: [FDEffect(attr: .determination, delta: 4), FDEffect(cond: "forme", delta: 4), FDEffect(rel: "famille", delta: -3)]),
         ]),
 ]
-
 
 // MARK: - Scènes de défi
 //
