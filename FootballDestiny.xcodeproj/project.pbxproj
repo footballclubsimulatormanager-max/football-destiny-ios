@@ -24,6 +24,8 @@
 		CC538B45CC2940F78FA165B0 /* Lora-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 1D3DB7190FC54684BE4445D5 /* Lora-Regular.ttf */; };
 		A5FA119CE5404A0481F7F94F /* Lora-Bold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = E1B06F5444D244D69DB25F89 /* Lora-Bold.ttf */; };
 		008D1C723D4A4E4FAA192022 /* Lora-Italic.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 89A92DAA75A5435A94337763 /* Lora-Italic.ttf */; };
+		B850C0D060C24B898A5F4A3A /* Fraunces-SemiBold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 8099105E49EC499A954CE12B /* Fraunces-SemiBold.ttf */; };
+		DFC59F72E1A5442BACD3D9F2 /* Fraunces-SemiBoldItalic.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 00C0A743B8964F2AB1DBD72C /* Fraunces-SemiBoldItalic.ttf */; };
 		AC4906096EA042C9B1518A53 /* Barlow-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 5293567490F44819B2B3E49C /* Barlow-Regular.ttf */; };
 		E5C3ABF343C440EA861E34FB /* Barlow-Black.ttf in Resources */ = {isa = PBXBuildFile; fileRef = E330A646A5B74E47AA0B671C /* Barlow-Black.ttf */; };
 		3ABBC05094494D91A2EF8D23 /* BarlowSemiCondensed-Black.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 260A2604AB974E7488E28F5C /* BarlowSemiCondensed-Black.ttf */; };
@@ -50,6 +52,8 @@
 		1D3DB7190FC54684BE4445D5 /* Lora-Regular.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "FootballDestiny/Fonts/Lora-Regular.ttf"; sourceTree = "<group>"; };
 		E1B06F5444D244D69DB25F89 /* Lora-Bold.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "FootballDestiny/Fonts/Lora-Bold.ttf"; sourceTree = "<group>"; };
 		89A92DAA75A5435A94337763 /* Lora-Italic.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "FootballDestiny/Fonts/Lora-Italic.ttf"; sourceTree = "<group>"; };
+		8099105E49EC499A954CE12B /* Fraunces-SemiBold.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "FootballDestiny/Fonts/Fraunces-SemiBold.ttf"; sourceTree = "<group>"; };
+		00C0A743B8964F2AB1DBD72C /* Fraunces-SemiBoldItalic.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "FootballDestiny/Fonts/Fraunces-SemiBoldItalic.ttf"; sourceTree = "<group>"; };
 		5293567490F44819B2B3E49C /* Barlow-Regular.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "FootballDestiny/Fonts/Barlow-Regular.ttf"; sourceTree = "<group>"; };
 		E330A646A5B74E47AA0B671C /* Barlow-Black.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "FootballDestiny/Fonts/Barlow-Black.ttf"; sourceTree = "<group>"; };
 		260A2604AB974E7488E28F5C /* BarlowSemiCondensed-Black.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "FootballDestiny/Fonts/BarlowSemiCondensed-Black.ttf"; sourceTree = "<group>"; };
@@ -100,6 +104,8 @@
 				1D3DB7190FC54684BE4445D5 /* Lora-Regular.ttf */,
 				E1B06F5444D244D69DB25F89 /* Lora-Bold.ttf */,
 				89A92DAA75A5435A94337763 /* Lora-Italic.ttf */,
+				8099105E49EC499A954CE12B /* Fraunces-SemiBold.ttf */,
+				00C0A743B8964F2AB1DBD72C /* Fraunces-SemiBoldItalic.ttf */,
 				5293567490F44819B2B3E49C /* Barlow-Regular.ttf */,
 				E330A646A5B74E47AA0B671C /* Barlow-Black.ttf */,
 				260A2604AB974E7488E28F5C /* BarlowSemiCondensed-Black.ttf */,
@@ -181,6 +187,8 @@
 				CC538B45CC2940F78FA165B0 /* Lora-Regular.ttf in Resources */,
 				A5FA119CE5404A0481F7F94F /* Lora-Bold.ttf in Resources */,
 				008D1C723D4A4E4FAA192022 /* Lora-Italic.ttf in Resources */,
+				B850C0D060C24B898A5F4A3A /* Fraunces-SemiBold.ttf in Resources */,
+				DFC59F72E1A5442BACD3D9F2 /* Fraunces-SemiBoldItalic.ttf in Resources */,
 				AC4906096EA042C9B1518A53 /* Barlow-Regular.ttf in Resources */,
 				E5C3ABF343C440EA861E34FB /* Barlow-Black.ttf in Resources */,
 				3ABBC05094494D91A2EF8D23 /* BarlowSemiCondensed-Black.ttf in Resources */,

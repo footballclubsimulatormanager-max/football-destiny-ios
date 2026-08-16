@@ -133,7 +133,7 @@ struct FDMainMenuView: View {
                 }
 
                 Text("Aucune inscription · Aucun compte · Sauvegarde locale")
-                    .font(.caption)
+                    .font(.subheadline)
                     .foregroundStyle(.white.opacity(0.35))
                     .padding(.bottom, 20)
             }
@@ -158,7 +158,7 @@ struct FDMainMenuView: View {
                     .font(FDFont.display(24))
                     .foregroundStyle(FDTheme.primaryTextGradient)
                 Text("DESTINY")
-                    .font(FDFont.body(12, black: true))
+                    .font(FDFont.body(14, black: true))
                     .tracking(5.5)
                     .foregroundStyle(.white.opacity(0.55))
             }
@@ -169,7 +169,7 @@ struct FDMainMenuView: View {
                 showAbout = true
             } label: {
                 Image(systemName: "info.circle")
-                    .font(.system(size: 17, weight: .semibold))
+                    .font(.system(size: 19, weight: .semibold))
                     .foregroundStyle(.white.opacity(0.65))
                     .frame(width: 32, height: 32)
                     .background(Color.white.opacity(0.06), in: Circle())
@@ -207,7 +207,7 @@ struct FDMainMenuView: View {
         VStack(alignment: .leading, spacing: 12) {
             VStack(alignment: .leading, spacing: 2) {
                 Text("SIMULATEUR DE CARRIÈRE")
-                    .font(.caption.weight(.bold))
+                    .font(.subheadline.weight(.bold))
                     .tracking(2)
                     .foregroundStyle(FDTheme.primary)
                 Text(greetingName.map { "Bonjour, \($0)" } ?? "Bonjour")
@@ -218,9 +218,9 @@ struct FDMainMenuView: View {
 
             HStack(spacing: 6) {
                 Image(systemName: statusLine.icon)
-                    .font(.system(size: 14, weight: .bold))
+                    .font(.system(size: 16, weight: .bold))
                 Text(statusLine.text)
-                    .font(.fdRounded(.footnote, weight: .semibold))
+                    .font(.fdRounded(.subheadline, weight: .semibold))
             }
             .foregroundStyle(statusLine.tint)
             .padding(.horizontal, 12)
@@ -230,13 +230,13 @@ struct FDMainMenuView: View {
             HStack(spacing: 3) {
                 ForEach(0..<FDPotentialShop.maxStars, id: \.self) { i in
                     Image(systemName: i < potentialStarsUnlocked ? "star.fill" : "star")
-                        .font(.system(size: 15))
+                        .font(.system(size: 17))
                         .foregroundStyle(i < potentialStarsUnlocked ? FDTheme.amber : Color.white.opacity(0.22))
                         .scaleEffect(i < potentialStarsUnlocked ? 1 : 0.85)
                         .fdAppear(delay: 0.3 + Double(i) * 0.04)
                 }
                 Text("Potentiel de départ")
-                    .font(.caption)
+                    .font(.subheadline)
                     .foregroundStyle(.white.opacity(0.45))
                     .padding(.leading, 4)
             }
@@ -259,9 +259,9 @@ struct FDMainMenuView: View {
 private func menuSectionLabel(_ text: String, icon: String) -> some View {
     HStack(spacing: 7) {
         Image(systemName: icon)
-            .font(.system(size: 11, weight: .bold))
+            .font(.system(size: 13, weight: .bold))
         Text(text.uppercased())
-            .font(FDFont.body(13, black: true))
+            .font(FDFont.body(15, black: true))
             .tracking(1.4)
         Rectangle()
             .fill(Color.white.opacity(0.10))
@@ -285,19 +285,19 @@ private struct FDMenuTile: View {
         Button(action: action) {
             VStack(alignment: .leading, spacing: 8) {
                 Image(systemName: icon)
-                    .font(.system(size: 17, weight: .semibold))
+                    .font(.system(size: 19, weight: .semibold))
                     .foregroundStyle(tint)
                     .frame(width: 34, height: 34)
                     .background(tint.opacity(0.14), in: RoundedRectangle(cornerRadius: 11, style: .continuous))
 
                 VStack(alignment: .leading, spacing: 1) {
                     Text(title)
-                        .font(FDFont.body(15, black: true))
+                        .font(FDFont.body(17, black: true))
                         .foregroundStyle(.white)
                         .lineLimit(1)
                         .minimumScaleFactor(0.8)
                     Text(detail)
-                        .font(.footnote)
+                        .font(.subheadline)
                         .foregroundStyle(.white.opacity(0.5))
                         .lineLimit(1)
                         .minimumScaleFactor(0.75)
@@ -335,8 +335,8 @@ private struct FDMenuRow: View {
                 FDIconBadge(symbol: icon, tint: iconTint, size: 44, isSystemImage: true)
 
                 VStack(alignment: .leading, spacing: 2) {
-                    Text(title).font(FDFont.display(19)).foregroundStyle(.white)
-                    Text(subtitle).font(.footnote).foregroundStyle(.white.opacity(0.55))
+                    Text(title).font(FDFont.display(20)).foregroundStyle(.white)
+                    Text(subtitle).font(.subheadline).foregroundStyle(.white.opacity(0.55))
                 }
 
                 Spacer()
@@ -344,9 +344,9 @@ private struct FDMenuRow: View {
                 if let badge {
                     HStack(spacing: 4) {
                         Image(systemName: badge.icon)
-                            .font(.system(size: 12, weight: .bold))
+                            .font(.system(size: 14, weight: .bold))
                         Text(badge.text)
-                            .font(FDFont.mono(14, bold: true))
+                            .font(FDFont.mono(16, bold: true))
                     }
                     .foregroundStyle(badge.tint)
                     .padding(.horizontal, 9)
@@ -355,7 +355,7 @@ private struct FDMenuRow: View {
                 }
 
                 Image(systemName: "chevron.right")
-                    .font(.footnote.weight(.bold))
+                    .font(.subheadline.weight(.bold))
                     .foregroundStyle(.white.opacity(0.35))
             }
             .padding(14)
@@ -418,7 +418,7 @@ struct FDAboutSheet: View {
                         Text("Aucune inscription, aucun compte, aucune donnée envoyée en ligne : tout est joué et sauvegardé directement sur cet appareil.")
                         Text("Les clubs utilisent des villes et championnats réels ; aucun écusson, maillot ou nom de compétition officiel n'est reproduit.")
                     }
-                    .font(.subheadline)
+                    .font(.body)
                     .foregroundStyle(.secondary)
                     .fdCard()
                 }

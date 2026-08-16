@@ -126,6 +126,12 @@ enum FDFont {
     static func story(_ size: CGFloat, bold: Bool = false, italic: Bool = false) -> Font {
         .custom(italic ? "Lora-Italic" : (bold ? "Lora-Bold" : "Lora-Regular"), size: size)
     }
+
+    /// Fraunces — the editorial voice: scene titles, chronicle headlines, the lines meant
+    /// to be read as a headline rather than as interface text.
+    static func headline(_ size: CGFloat, italic: Bool = true) -> Font {
+        .custom(italic ? "Fraunces-SemiBoldItalic" : "Fraunces-SemiBold", size: size)
+    }
 }
 
 extension Font {
@@ -205,7 +211,7 @@ struct FDSectionLabel: View {
 
     var body: some View {
         Text(text.uppercased())
-            .font(.caption.weight(.bold))
+            .font(.subheadline.weight(.bold))
             .tracking(1.2)
             .foregroundStyle(FDTheme.accentTeal)
     }
@@ -262,7 +268,7 @@ struct FDPrimaryButtonStyle: ButtonStyle {
 
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
-            .font(FDFont.body(17, black: true))
+            .font(FDFont.body(19, black: true))
             .foregroundStyle(FDTheme.ink)
             .frame(maxWidth: .infinity)
             .padding(.vertical, 15)
@@ -294,7 +300,7 @@ struct FDPrimaryButtonStyle: ButtonStyle {
 struct FDSecondaryButtonStyle: ButtonStyle {
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
-            .font(FDFont.body(17, black: true))
+            .font(FDFont.body(19, black: true))
             .foregroundStyle(FDTheme.textPrimary)
             .frame(maxWidth: .infinity)
             .padding(.vertical, 15)
@@ -316,7 +322,7 @@ struct FDSecondaryButtonStyle: ButtonStyle {
 struct FDSecondaryDarkButtonStyle: ButtonStyle {
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
-            .font(FDFont.body(17, black: true))
+            .font(FDFont.body(19, black: true))
             .foregroundStyle(.white)
             .frame(maxWidth: .infinity)
             .padding(.vertical, 15)
@@ -367,7 +373,7 @@ struct FDGhostButtonStyle: ButtonStyle {
 struct FDDestructiveButtonStyle: ButtonStyle {
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
-            .font(FDFont.body(16, black: true))
+            .font(FDFont.body(18, black: true))
             .foregroundStyle(FDTheme.destructive)
             .frame(maxWidth: .infinity)
             .padding(.vertical, 14)

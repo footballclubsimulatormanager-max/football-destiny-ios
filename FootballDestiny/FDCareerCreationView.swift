@@ -215,12 +215,12 @@ struct FDCareerCreationView: View {
 
                             VStack(alignment: .leading, spacing: 3) {
                                 Text("\(draft.firstName) \(draft.lastName)")
-                                    .font(FDFont.display(21))
+                                    .font(FDFont.display(22))
                                     .foregroundStyle(.white)
                                     .lineLimit(1)
                                     .minimumScaleFactor(0.7)
                                 Text("Né à \(draft.birthCity), \(draft.nationality)")
-                                    .font(.footnote)
+                                    .font(.subheadline)
                                     .foregroundStyle(.secondary)
                                     .lineLimit(1)
                                     .minimumScaleFactor(0.8)
@@ -228,9 +228,9 @@ struct FDCareerCreationView: View {
                                 // player still knows what they were given.
                                 HStack(spacing: 4) {
                                     Image(systemName: "figure.walk")
-                                        .font(.system(size: 11, weight: .bold))
+                                        .font(.system(size: 13, weight: .bold))
                                     Text("Pied \(draft.foot.rawValue.lowercased())")
-                                        .font(.footnote.weight(.semibold))
+                                        .font(.subheadline.weight(.semibold))
                                 }
                                 .foregroundStyle(FDTheme.accentTeal)
                             }
@@ -242,7 +242,7 @@ struct FDCareerCreationView: View {
                                 withAnimation(.fdSnap) { rollFullIdentity() }
                             } label: {
                                 Image(systemName: "dice.fill")
-                                    .font(.system(size: 17, weight: .semibold))
+                                    .font(.system(size: 19, weight: .semibold))
                                     .foregroundStyle(FDTheme.amber)
                                     .frame(width: 38, height: 38)
                                     .background(FDTheme.amber.opacity(0.14), in: Circle())
@@ -390,7 +390,7 @@ struct FDCareerCreationView: View {
 
                         Rectangle().fill(Color.white.opacity(0.06)).frame(height: 1)
                         Text(draft.personality.flavorText)
-                            .font(.footnote)
+                            .font(.subheadline)
                             .foregroundStyle(.secondary)
                             .frame(maxWidth: .infinity, alignment: .leading)
                             .padding(.horizontal, 14).padding(.vertical, 9)
@@ -418,7 +418,7 @@ struct FDCareerCreationView: View {
 
                         Rectangle().fill(Color.white.opacity(0.06)).frame(height: 1)
                         Text(draft.style.flavorText)
-                            .font(.footnote)
+                            .font(.subheadline)
                             .foregroundStyle(.secondary)
                             .frame(maxWidth: .infinity, alignment: .leading)
                             .padding(.horizontal, 14).padding(.vertical, 9)
@@ -455,9 +455,9 @@ struct FDCareerCreationView: View {
 
                         VStack(spacing: 10) {
                             HStack(spacing: 6) {
-                                Image(systemName: "trophy.fill").font(.footnote)
+                                Image(systemName: "trophy.fill").font(.subheadline)
                                 Text("\(engine.lifetimePoints) points de carrière cumulés")
-                                    .font(FDFont.body(15))
+                                    .font(FDFont.body(17))
                                 Spacer()
                             }
                             .foregroundStyle(FDTheme.amber)
@@ -482,30 +482,30 @@ struct FDCareerCreationView: View {
                                 Spacer()
                                 if draft.potentialStars > 0 {
                                     Text("+\(draft.potentialStars * 5) %")
-                                        .font(FDFont.mono(15, bold: true))
+                                        .font(FDFont.mono(17, bold: true))
                                         .foregroundStyle(FDTheme.success)
                                 }
                             }
 
                             if maxAffordable == 0 {
                                 Text("Il te faut \(FDPotentialShop.costOfStar(1)) points pour la première étoile. Termine une carrière pour en gagner.")
-                                    .font(.footnote)
+                                    .font(.subheadline)
                                     .foregroundStyle(.secondary)
                                     .fixedSize(horizontal: false, vertical: true)
                                     .frame(maxWidth: .infinity, alignment: .leading)
                             } else if draft.potentialStars > 0 {
                                 HStack {
                                     Text("Coût : \(FDPotentialShop.cumulativeCost(for: draft.potentialStars)) points")
-                                        .font(.footnote.weight(.semibold))
+                                        .font(.subheadline.weight(.semibold))
                                         .foregroundStyle(FDTheme.amber)
                                     Spacer()
                                     Text("Reste \(engine.lifetimePoints - FDPotentialShop.cumulativeCost(for: draft.potentialStars))")
-                                        .font(.footnote)
+                                        .font(.subheadline)
                                         .foregroundStyle(.secondary)
                                 }
                             } else {
                                 Text("Tu peux monter jusqu'à \(maxAffordable) étoile(s) avec tes points. Chaque étoile relève ton plafond de progression.")
-                                    .font(.footnote)
+                                    .font(.subheadline)
                                     .foregroundStyle(.secondary)
                                     .fixedSize(horizontal: false, vertical: true)
                                     .frame(maxWidth: .infinity, alignment: .leading)
@@ -523,12 +523,12 @@ struct FDCareerCreationView: View {
                                 .font(.system(size: 32))
                             VStack(alignment: .leading, spacing: 2) {
                                 Text("\(draft.firstName) \(draft.lastName)")
-                                    .font(FDFont.display(22))
+                                    .font(FDFont.display(23))
                                     .foregroundStyle(.white)
                                     .lineLimit(1)
                                     .minimumScaleFactor(0.7)
                                 Text("Né à \(draft.birthCity), \(draft.nationality)")
-                                    .font(.footnote)
+                                    .font(.subheadline)
                                     .foregroundStyle(.secondary)
                                     .lineLimit(1)
                                     .minimumScaleFactor(0.8)
@@ -536,10 +536,10 @@ struct FDCareerCreationView: View {
                             Spacer(minLength: 0)
                             VStack(spacing: 1) {
                                 Text(draft.position.rawValue.prefix(3).uppercased())
-                                    .font(FDFont.body(14, black: true))
+                                    .font(FDFont.body(16, black: true))
                                     .foregroundStyle(FDTheme.primary)
                                 Text("Pied \(draft.foot.rawValue.lowercased())")
-                                    .font(.system(size: 11, weight: .semibold))
+                                    .font(.system(size: 13, weight: .semibold))
                                     .foregroundStyle(.secondary)
                             }
                             .padding(.horizontal, 9).padding(.vertical, 6)
@@ -595,7 +595,7 @@ struct FDCareerCreationView: View {
 
                             Rectangle().fill(Color.white.opacity(0.06)).frame(height: 1)
                             Text("Une compétence à usage unique est consommée au lancement de la carrière. Celles achetées définitivement restent disponibles.")
-                                .font(.footnote)
+                                .font(.subheadline)
                                 .foregroundStyle(.secondary)
                                 .fixedSize(horizontal: false, vertical: true)
                                 .frame(maxWidth: .infinity, alignment: .leading)
@@ -617,24 +617,24 @@ struct FDCareerCreationView: View {
     private func ficheRow(icon: String, label: String, value: String, detail: String?, color: Color) -> some View {
         HStack(alignment: .top, spacing: 10) {
             Image(systemName: icon)
-                .font(.footnote.weight(.bold))
+                .font(.subheadline.weight(.bold))
                 .foregroundStyle(color)
                 .frame(width: 20)
                 .padding(.top, 2)
             VStack(alignment: .leading, spacing: 2) {
                 HStack(spacing: 6) {
                     Text(label.uppercased())
-                        .font(.system(size: 11, weight: .bold))
+                        .font(.system(size: 13, weight: .bold))
                         .foregroundStyle(.secondary)
                     Text(value)
-                        .font(FDFont.body(15, black: true))
+                        .font(FDFont.body(17, black: true))
                         .foregroundStyle(FDTheme.textPrimary)
                         .lineLimit(1)
                         .minimumScaleFactor(0.8)
                 }
                 if let detail {
                     Text(detail)
-                        .font(.footnote)
+                        .font(.subheadline)
                         .foregroundStyle(.secondary)
                         .fixedSize(horizontal: false, vertical: true)
                 }
@@ -661,9 +661,9 @@ struct FDCareerCreationView: View {
                     VStack(spacing: 0) {
                         HStack(spacing: 6) {
                             Image(systemName: "person.fill")
-                                .font(.footnote.weight(.bold)).foregroundStyle(FDTheme.primary)
+                                .font(.subheadline.weight(.bold)).foregroundStyle(FDTheme.primary)
                             Text("TON PROFIL")
-                                .font(FDFont.body(14, black: true)).foregroundStyle(FDTheme.primary)
+                                .font(FDFont.body(16, black: true)).foregroundStyle(FDTheme.primary)
                             Spacer()
                         }
                         .padding(.horizontal, 14).padding(.vertical, 8)
@@ -676,28 +676,28 @@ struct FDCareerCreationView: View {
                         HStack(spacing: 0) {
                             VStack(spacing: 2) {
                                 Text(draft.position.rawValue)
-                                    .font(FDFont.body(15, black: true)).foregroundStyle(FDTheme.primary)
+                                    .font(FDFont.body(17, black: true)).foregroundStyle(FDTheme.primary)
                                     .lineLimit(1).minimumScaleFactor(0.7)
-                                Text("POSTE").font(.system(size: 11, weight: .bold)).foregroundStyle(.secondary)
+                                Text("POSTE").font(.system(size: 13, weight: .bold)).foregroundStyle(.secondary)
                             }
                             .frame(maxWidth: .infinity)
                             Rectangle().fill(Color.white.opacity(0.08)).frame(width: 1, height: 32)
                             VStack(spacing: 2) {
                                 HStack(spacing: 4) {
-                                    Text(fdFlag(for: draft.nationality)).font(.system(size: 15))
+                                    Text(fdFlag(for: draft.nationality)).font(.system(size: 17))
                                     Text(draft.nationality)
-                                        .font(FDFont.body(15, black: true)).foregroundStyle(.white)
+                                        .font(FDFont.body(17, black: true)).foregroundStyle(.white)
                                         .lineLimit(1).minimumScaleFactor(0.7)
                                 }
-                                Text("NATION").font(.system(size: 11, weight: .bold)).foregroundStyle(.secondary)
+                                Text("NATION").font(.system(size: 13, weight: .bold)).foregroundStyle(.secondary)
                             }
                             .frame(maxWidth: .infinity)
                             Rectangle().fill(Color.white.opacity(0.08)).frame(width: 1, height: 32)
                             VStack(spacing: 2) {
                                 Text(draft.personality.rawValue)
-                                    .font(FDFont.body(15, black: true)).foregroundStyle(FDTheme.accentTeal)
+                                    .font(FDFont.body(17, black: true)).foregroundStyle(FDTheme.accentTeal)
                                     .lineLimit(1).minimumScaleFactor(0.7)
-                                Text("PERSO").font(.system(size: 11, weight: .bold)).foregroundStyle(.secondary)
+                                Text("PERSO").font(.system(size: 13, weight: .bold)).foregroundStyle(.secondary)
                             }
                             .frame(maxWidth: .infinity)
                         }
@@ -739,10 +739,10 @@ struct FDCareerCreationView: View {
     private func creationSectionHeader(icon: String, title: String) -> some View {
         HStack(spacing: 6) {
             Image(systemName: icon)
-                .font(.footnote.weight(.bold))
+                .font(.subheadline.weight(.bold))
                 .foregroundStyle(FDTheme.primary)
             Text(title.uppercased())
-                .font(FDFont.body(12, black: true))
+                .font(FDFont.body(14, black: true))
                 .foregroundStyle(FDTheme.primary)
             Spacer()
         }
@@ -776,13 +776,13 @@ private struct FDFlagChoice: View {
             // never stretched — with the country name on its own line underneath.
             VStack(spacing: 0) {
                 Text(flag)
-                    .font(.system(size: 30))
+                    .font(.system(size: 42))
                     .frame(maxWidth: .infinity)
-                    .padding(.vertical, 7)
+                    .padding(.vertical, 10)
                     .background(Color.black.opacity(0.22))
 
                 Text(name)
-                    .font(FDFont.body(12, black: selected))
+                    .font(FDFont.body(16, black: selected))
                     .foregroundStyle(selected ? .white : FDTheme.textMuted)
                     .lineLimit(1)
                     .minimumScaleFactor(0.65)
@@ -817,11 +817,11 @@ private struct FDPositionRow: View {
                         .fill(selected ? FDTheme.primary.opacity(0.2) : Color.white.opacity(0.06))
                         .frame(width: 36, height: 36)
                     Image(systemName: fdPositionIcon(position))
-                        .font(.system(size: 16, weight: .semibold))
+                        .font(.system(size: 18, weight: .semibold))
                         .foregroundStyle(selected ? FDTheme.primary : .secondary)
                 }
                 Text(position.rawValue)
-                    .font(FDFont.body(16, black: selected))
+                    .font(FDFont.body(18, black: selected))
                     .foregroundStyle(selected ? FDTheme.textPrimary : FDTheme.textMuted)
                 Spacer()
                 if selected {
@@ -829,7 +829,7 @@ private struct FDPositionRow: View {
                         .foregroundStyle(FDTheme.primary)
                 } else {
                     Image(systemName: "chevron.right")
-                        .font(.footnote.weight(.semibold))
+                        .font(.subheadline.weight(.semibold))
                         .foregroundStyle(.secondary)
                 }
             }
@@ -864,20 +864,20 @@ private struct FDClubChoiceRow: View {
                         .fill(selected ? FDTheme.primary.opacity(0.2) : Color.white.opacity(0.06))
                         .frame(width: 36, height: 36)
                     Text(fdFlag(for: club.country))
-                        .font(.system(size: 19))
+                        .font(.system(size: 20))
                 }
                 VStack(alignment: .leading, spacing: 3) {
                     Text(club.name)
-                        .font(FDFont.body(16, black: selected))
+                        .font(FDFont.body(18, black: selected))
                         .foregroundStyle(selected ? FDTheme.textPrimary : FDTheme.textMuted)
                         .fixedSize(horizontal: false, vertical: true)
                     Text("\(club.city) · \(club.leagueName)")
-                        .font(.footnote).foregroundStyle(.secondary)
+                        .font(.subheadline).foregroundStyle(.secondary)
                         .fixedSize(horizontal: false, vertical: true)
                 }
                 Spacer()
                 Text(club.tier.rawValue)
-                    .font(.system(size: 12, weight: .bold))
+                    .font(.system(size: 14, weight: .bold))
                     .padding(.horizontal, 8).padding(.vertical, 3)
                     .background(Capsule().fill(tint.opacity(0.2)))
                     .foregroundStyle(tint)
@@ -906,10 +906,10 @@ private struct FDProfileTile: View {
         Button(action: action) {
             VStack(spacing: 6) {
                 Image(systemName: icon)
-                    .font(.system(size: 17, weight: .semibold))
+                    .font(.system(size: 19, weight: .semibold))
                     .foregroundStyle(selected ? accent : .secondary)
                 Text(title)
-                    .font(FDFont.body(14, black: selected))
+                    .font(FDFont.body(16, black: selected))
                     .foregroundStyle(selected ? FDTheme.textPrimary : FDTheme.textMuted)
                     .multilineTextAlignment(.center)
                     .lineLimit(2)
@@ -949,22 +949,22 @@ private struct FDProfileChoiceRow: View {
                         .fill(selected ? accent.opacity(0.2) : Color.white.opacity(0.06))
                         .frame(width: 36, height: 36)
                     Image(systemName: icon)
-                        .font(.system(size: 16, weight: .semibold))
+                        .font(.system(size: 18, weight: .semibold))
                         .foregroundStyle(selected ? accent : .secondary)
                 }
                 VStack(alignment: .leading, spacing: 3) {
                     Text(title)
-                        .font(FDFont.body(16, black: selected))
+                        .font(FDFont.body(18, black: selected))
                         .foregroundStyle(selected ? FDTheme.textPrimary : FDTheme.textMuted)
                     Text(subtitle)
-                        .font(.footnote).foregroundStyle(.secondary).lineLimit(2)
+                        .font(.subheadline).foregroundStyle(.secondary).lineLimit(2)
                 }
                 Spacer()
                 if selected {
                     Image(systemName: "checkmark.circle.fill").foregroundStyle(accent)
                 } else if showChevronWhenUnselected {
                     Image(systemName: "chevron.right")
-                        .font(.footnote.weight(.semibold))
+                        .font(.subheadline.weight(.semibold))
                         .foregroundStyle(.secondary)
                 }
             }
@@ -992,17 +992,17 @@ private struct FDCreationStepHeader: View {
                     .fill(FDTheme.primary.opacity(0.15))
                     .frame(width: 52, height: 52)
                 Image(systemName: icon)
-                    .font(.system(size: 22, weight: .semibold))
+                    .font(.system(size: 23, weight: .semibold))
                     .foregroundStyle(FDTheme.primary)
             }
             VStack(alignment: .leading, spacing: 3) {
                 Text("Étape \(step)/\(of)")
-                    .font(.system(size: 12, weight: .bold))
+                    .font(.system(size: 14, weight: .bold))
                     .foregroundStyle(FDTheme.primary.opacity(0.7))
                 Text(title)
-                    .font(FDFont.display(20))
+                    .font(FDFont.display(21))
                 Text(subtitle)
-                    .font(.footnote)
+                    .font(.subheadline)
                     .foregroundStyle(.secondary)
             }
             Spacer()
@@ -1029,31 +1029,31 @@ private struct FDCompetenceChoiceRow: View {
                         .fill(selected ? FDTheme.primary.opacity(0.2) : Color.white.opacity(0.06))
                         .frame(width: 32, height: 32)
                     Image(systemName: competence.icon)
-                        .font(.system(size: 15, weight: .semibold))
+                        .font(.system(size: 17, weight: .semibold))
                         .foregroundStyle(selected ? FDTheme.primary : .secondary)
                 }
 
                 VStack(alignment: .leading, spacing: 2) {
                     HStack(spacing: 5) {
                         Text(competence.name)
-                            .font(FDFont.body(15, black: selected))
+                            .font(FDFont.body(17, black: selected))
                             .foregroundStyle(selected ? FDTheme.textPrimary : FDTheme.textMuted)
                         if let charges {
                             Text("×\(charges)")
-                                .font(FDFont.mono(12, bold: true))
+                                .font(FDFont.mono(14, bold: true))
                                 .foregroundStyle(FDTheme.success)
                                 .padding(.horizontal, 4).padding(.vertical, 1)
                                 .background(FDTheme.success.opacity(0.16), in: Capsule())
                         } else {
                             Text("ACQUISE")
-                                .font(.system(size: 10, weight: .black))
+                                .font(.system(size: 12, weight: .black))
                                 .foregroundStyle(FDTheme.amber)
                                 .padding(.horizontal, 5).padding(.vertical, 1)
                                 .background(FDTheme.amber.opacity(0.16), in: Capsule())
                         }
                     }
                     Text(competence.description)
-                        .font(.system(size: 12))
+                        .font(.system(size: 14))
                         .foregroundStyle(.secondary)
                         .fixedSize(horizontal: false, vertical: true)
                 }
@@ -1061,7 +1061,7 @@ private struct FDCompetenceChoiceRow: View {
                 Spacer(minLength: 4)
 
                 Image(systemName: selected ? "checkmark.circle.fill" : "circle")
-                    .font(.system(size: 16))
+                    .font(.system(size: 18))
                     .foregroundStyle(selected ? FDTheme.primary : Color.white.opacity(0.25))
             }
             .padding(.horizontal, 11).padding(.vertical, 8)
