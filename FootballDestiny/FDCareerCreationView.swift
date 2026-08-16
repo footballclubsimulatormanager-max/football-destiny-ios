@@ -25,19 +25,10 @@ struct FDCareerCreationView: View {
         self._draft = State(initialValue: initialDraft)
     }
 
-    /// The settings step only has something to say once the player owns potential stars or
-    /// competences; on a fresh install it renders an empty page, so it is dropped from the
-    /// flow entirely rather than shown as a dead screen.
-    private var hasSettingsToOffer: Bool {
-        FDPotentialShop.maxAffordableStars(points: engine.lifetimePoints) > 0
-            || !engine.equippableCompetences.isEmpty
-    }
-
-    private var steps: [FDCreationStep] {
-        hasSettingsToOffer
-            ? FDCreationStep.allCases
-            : FDCreationStep.allCases.filter { $0 != .settings }
-    }
+    /// The settings step now carries the player card — a recap of everything chosen so far —
+    /// so it always has something to show, even on a fresh install where no potential star
+    /// is affordable and no competence is owned.
+    private var steps: [FDCreationStep] { FDCreationStep.allCases }
 
     private var currentStep: FDCreationStep { steps[min(stepIndex, steps.count - 1)] }
 
@@ -445,73 +436,134 @@ struct FDCareerCreationView: View {
     // MARK: - Step 5: Settings (difficulté, mode, potentiel)
 
     private var settingsStep: some View {
-        VStack(spacing: 0) {
+        let maxAffordable = FDPotentialShop.maxAffordableStars(points: engine.lifetimePoints)
+        let available = engine.equippableCompetences
+
+        return VStack(spacing: 0) {
             ScrollView {
                 VStack(spacing: 12) {
                     FDCreationStepHeader(
                         step: stepNumber(.settings), of: steps.count,
-                        icon: "gearshape.fill",
-                        title: "Paramètres",
-                        subtitle: "Toujours narratif — ici, tu choisis ton potentiel de départ."
+                        icon: "person.text.rectangle.fill",
+                        title: "Ta fiche",
+                        subtitle: "Tout ce que tu as choisi, et le potentiel que tes points t'offrent."
                     )
 
-                    // Potentiel (méta-progression)
-                    let maxAffordable = FDPotentialShop.maxAffordableStars(points: engine.lifetimePoints)
-                    if maxAffordable > 0 {
-                        VStack(spacing: 0) {
-                            creationSectionHeader(icon: "crown.fill", title: "Potentiel de départ")
+                    // Potential comes first: it is the only thing still changeable here.
+                    VStack(spacing: 0) {
+                        creationSectionHeader(icon: "crown.fill", title: "Potentiel de départ")
 
-                            VStack(spacing: 12) {
-                                HStack(spacing: 6) {
-                                    Image(systemName: "trophy.fill").font(.footnote)
-                                    Text("\(engine.lifetimePoints) points de carrière cumulés")
-                                        .font(FDFont.body(15))
-                                    Spacer()
-                                }
-                                .foregroundStyle(FDTheme.amber)
+                        VStack(spacing: 10) {
+                            HStack(spacing: 6) {
+                                Image(systemName: "trophy.fill").font(.footnote)
+                                Text("\(engine.lifetimePoints) points de carrière cumulés")
+                                    .font(FDFont.body(15))
+                                Spacer()
+                            }
+                            .foregroundStyle(FDTheme.amber)
 
-                                HStack(spacing: 4) {
-                                    ForEach(0..<FDPotentialShop.maxStars, id: \.self) { i in
-                                        Image(systemName: i < draft.potentialStars ? "star.fill" : "star")
-                                            .font(.title2)
-                                            .foregroundStyle(i < draft.potentialStars ? FDTheme.amber : Color.white.opacity(0.2))
-                                            .onTapGesture {
-                                                let target = i + 1
-                                                if target <= maxAffordable {
-                                                    draft.potentialStars = draft.potentialStars == target ? 0 : target
-                                                }
+                            HStack(spacing: 6) {
+                                ForEach(0..<FDPotentialShop.maxStars, id: \.self) { i in
+                                    let target = i + 1
+                                    let affordable = target <= maxAffordable
+                                    Image(systemName: i < draft.potentialStars ? "star.fill" : "star")
+                                        .font(.title2)
+                                        .foregroundStyle(i < draft.potentialStars
+                                                         ? FDTheme.amber
+                                                         : Color.white.opacity(affordable ? 0.35 : 0.12))
+                                        .onTapGesture {
+                                            guard affordable else { return }
+                                            FDHaptics.tap()
+                                            withAnimation(.fdSnap) {
+                                                draft.potentialStars = draft.potentialStars == target ? 0 : target
                                             }
-                                    }
-                                }
-
-                                if draft.potentialStars > 0 {
-                                    HStack {
-                                        HStack(spacing: 4) {
-                                            Image(systemName: "trophy.fill").font(.caption)
-                                            Text("Coût : \(FDPotentialShop.cumulativeCost(for: draft.potentialStars)) points")
                                         }
+                                }
+                                Spacer()
+                                if draft.potentialStars > 0 {
+                                    Text("+\(draft.potentialStars * 5) %")
+                                        .font(FDFont.mono(15, bold: true))
+                                        .foregroundStyle(FDTheme.success)
+                                }
+                            }
+
+                            if maxAffordable == 0 {
+                                Text("Il te faut \(FDPotentialShop.costOfStar(1)) points pour la première étoile. Termine une carrière pour en gagner.")
+                                    .font(.footnote)
+                                    .foregroundStyle(.secondary)
+                                    .fixedSize(horizontal: false, vertical: true)
+                                    .frame(maxWidth: .infinity, alignment: .leading)
+                            } else if draft.potentialStars > 0 {
+                                HStack {
+                                    Text("Coût : \(FDPotentialShop.cumulativeCost(for: draft.potentialStars)) points")
                                         .font(.footnote.weight(.semibold))
                                         .foregroundStyle(FDTheme.amber)
-                                        Spacer()
-                                        Text("Potentiel +\(draft.potentialStars * 5)%")
-                                            .font(.footnote.weight(.semibold))
-                                            .foregroundStyle(FDTheme.success)
-                                    }
+                                    Spacer()
+                                    Text("Reste \(engine.lifetimePoints - FDPotentialShop.cumulativeCost(for: draft.potentialStars))")
+                                        .font(.footnote)
+                                        .foregroundStyle(.secondary)
                                 }
+                            } else {
+                                Text("Tu peux monter jusqu'à \(maxAffordable) étoile(s) avec tes points. Chaque étoile relève ton plafond de progression.")
+                                    .font(.footnote)
+                                    .foregroundStyle(.secondary)
+                                    .fixedSize(horizontal: false, vertical: true)
+                                    .frame(maxWidth: .infinity, alignment: .leading)
+                            }
+                        }
+                        .padding(13)
+                    }
+                    .fdCardSurface()
+                    .overlay(RoundedRectangle(cornerRadius: FDTheme.radiusCard).stroke(FDTheme.amber.opacity(0.22), lineWidth: 1))
 
-                                Text("Chaque étoile augmente ton plafond de potentiel — une carrière parfaite peut en valoir davantage.")
-                                    .font(.caption)
+                    // The player card: everything decided in the previous steps, in one place.
+                    VStack(spacing: 0) {
+                        HStack(spacing: 12) {
+                            Text(fdFlag(for: draft.nationality))
+                                .font(.system(size: 32))
+                            VStack(alignment: .leading, spacing: 2) {
+                                Text("\(draft.firstName) \(draft.lastName)")
+                                    .font(FDFont.display(22))
+                                    .foregroundStyle(.white)
+                                    .lineLimit(1)
+                                    .minimumScaleFactor(0.7)
+                                Text("Né à \(draft.birthCity), \(draft.nationality)")
+                                    .font(.footnote)
+                                    .foregroundStyle(.secondary)
+                                    .lineLimit(1)
+                                    .minimumScaleFactor(0.8)
+                            }
+                            Spacer(minLength: 0)
+                            VStack(spacing: 1) {
+                                Text(draft.position.rawValue.prefix(3).uppercased())
+                                    .font(FDFont.body(14, black: true))
+                                    .foregroundStyle(FDTheme.primary)
+                                Text("Pied \(draft.foot.rawValue.lowercased())")
+                                    .font(.system(size: 11, weight: .semibold))
                                     .foregroundStyle(.secondary)
                             }
-                            .padding(14)
+                            .padding(.horizontal, 9).padding(.vertical, 6)
+                            .background(FDTheme.primary.opacity(0.12), in: RoundedRectangle(cornerRadius: 10))
                         }
-                        .fdCardSurface()
-                        .overlay(RoundedRectangle(cornerRadius: FDTheme.radiusCard).stroke(FDTheme.amber.opacity(0.2), lineWidth: 1))
-                    }
+                        .padding(13)
 
-                    // Competences to carry into this career — at most FDMaxEquippedCompetences,
-                    // drawn from what the player owns outright or holds a charge for.
-                    let available = engine.equippableCompetences
+                        Rectangle().fill(Color.white.opacity(0.06)).frame(height: 1)
+
+                        ficheRow(icon: "figure.soccer", label: "Poste", value: draft.position.rawValue,
+                                 detail: nil, color: FDTheme.primary)
+                        Rectangle().fill(Color.white.opacity(0.04)).frame(height: 1)
+                        ficheRow(icon: draft.background.flavorIcon, label: "Origine", value: draft.background.rawValue,
+                                 detail: draft.background.flavorText, color: FDTheme.accentTeal)
+                        Rectangle().fill(Color.white.opacity(0.04)).frame(height: 1)
+                        ficheRow(icon: draft.personality.flavorIcon, label: "Personnalité", value: draft.personality.rawValue,
+                                 detail: draft.personality.flavorText, color: FDTheme.warning)
+                        Rectangle().fill(Color.white.opacity(0.04)).frame(height: 1)
+                        ficheRow(icon: draft.style.flavorIcon, label: "Style", value: draft.style.rawValue,
+                                 detail: draft.style.flavorText, color: FDTheme.destructive)
+                    }
+                    .fdCardSurface()
+
+                    // Competences carried into this career, when the player owns any.
                     if !available.isEmpty {
                         VStack(spacing: 0) {
                             creationSectionHeader(icon: "bolt.badge.a.fill", title: "Compétences (\(draft.equippedCompetenceIDs.count)/\(FDMaxEquippedCompetences))")
@@ -543,7 +595,7 @@ struct FDCareerCreationView: View {
 
                             Rectangle().fill(Color.white.opacity(0.06)).frame(height: 1)
                             Text("Une compétence à usage unique est consommée au lancement de la carrière. Celles achetées définitivement restent disponibles.")
-                                .font(.caption)
+                                .font(.footnote)
                                 .foregroundStyle(.secondary)
                                 .fixedSize(horizontal: false, vertical: true)
                                 .frame(maxWidth: .infinity, alignment: .leading)
@@ -558,6 +610,38 @@ struct FDCareerCreationView: View {
             }
             stickyFooter(title: "Continuer →", enabled: true) { advance() }
         }
+    }
+
+    /// One line of the player card: an icon, what it is, what was chosen, and the one-line
+    /// flavour text that came with it.
+    private func ficheRow(icon: String, label: String, value: String, detail: String?, color: Color) -> some View {
+        HStack(alignment: .top, spacing: 10) {
+            Image(systemName: icon)
+                .font(.footnote.weight(.bold))
+                .foregroundStyle(color)
+                .frame(width: 20)
+                .padding(.top, 2)
+            VStack(alignment: .leading, spacing: 2) {
+                HStack(spacing: 6) {
+                    Text(label.uppercased())
+                        .font(.system(size: 11, weight: .bold))
+                        .foregroundStyle(.secondary)
+                    Text(value)
+                        .font(FDFont.body(15, black: true))
+                        .foregroundStyle(FDTheme.textPrimary)
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.8)
+                }
+                if let detail {
+                    Text(detail)
+                        .font(.footnote)
+                        .foregroundStyle(.secondary)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+            }
+            Spacer(minLength: 0)
+        }
+        .padding(.horizontal, 12).padding(.vertical, 9)
     }
 
     // MARK: - Step 6: Club
