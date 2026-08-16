@@ -614,7 +614,7 @@ struct FDClassementView: View {
                                 Rectangle().fill(Color.white.opacity(0.06)).frame(height: 1)
                                 VStack(alignment: .leading, spacing: 6) {
                                     Text("Les 100 meilleures carrières terminées sur cet appareil. Le Ballon d'Or pèse le plus lourd, puis les titres internationaux, les titres de champion et de coupe, puis les sélections et les buts.")
-                                    Text("L'argent laissé à la retraite compte aussi, par paliers : jusqu'à \(FDWealthScale.bands.last?.points ?? 0) points, soit moins qu'un seul Ballon d'Or.")
+                                    Text("L'argent n'ajoute aucun point : il sert uniquement à départager deux carrières à égalité de score, par paliers de patrimoine.")
                                 }
                                 .font(.footnote)
                                 .foregroundStyle(.secondary)
@@ -960,16 +960,19 @@ struct FDReglesView: View {
             divider
             ruleRow("Par saison jouée", "10 pts")
             ruleRow("Réputation finale", "1 pt par point")
+            divider
+            labeled("À égalité", "Deux carrières au même score sont départagées par le patrimoine laissé à la retraite — jamais par autre chose.")
         }
     }
 
     private var financierCard: some View {
-        rulesCard(icon: "eurosign.circle.fill", title: "L'aspect financier", color: FDTheme.success) {
-            paragraph("L'argent laissé à la retraite compte aussi au Classement. Le barème est par paliers : bien gagner sa vie rapporte, mais une fortune ne remplacera jamais un palmarès.")
+        rulesCard(icon: "eurosign.circle.fill", title: "Départage : le patrimoine", color: FDTheme.success) {
+            paragraph("L'argent n'ajoute jamais de points au score : une carrière se classe sur ce qu'elle a gagné. Le patrimoine laissé à la retraite sert de départage quand deux carrières terminent à égalité de score.")
+            paragraph("On compare alors le palier de patrimoine, puis, si les deux sont dans le même palier, la fortune exacte.")
             ForEach(Array(FDWealthScale.rows.enumerated()), id: \.offset) { _, row in
                 ruleRow(row.label, "\(row.points) pts")
             }
-            paragraph("Le maximum financier vaut moins qu'un seul Ballon d'Or. Salaires, primes, sponsors et dépenses de ta carrière alimentent directement ce total.")
+            paragraph("Salaires, primes, sponsors et dépenses de ta carrière alimentent directement ce total.")
         }
     }
 

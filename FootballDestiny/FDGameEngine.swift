@@ -328,18 +328,23 @@ final class FDGameEngine: ObservableObject {
         // Longevity at a good level counts a little for everyone.
         score += seasons * 10 + p.cond.reputation
 
-        // What the career earned counts too, on a banded scale so a fortune never outweighs
-        // a Ballon d'Or on its own.
-        score += FDWealthScale.points(for: p.money)
-
         return score
     }
 
 
     /// Archived careers ranked best-first, capped at the top 100.
+    ///
+    /// Money never adds to the score — two careers are separated by what they won. It only
+    /// breaks a tie: at equal score, the wealthier band goes first, then the exact fortune.
     var leaderboard: [FDPlayer] {
         archivedCareers
-            .sorted { careerRankScore($0) > careerRankScore($1) }
+            .sorted { a, b in
+                let sa = careerRankScore(a), sb = careerRankScore(b)
+                if sa != sb { return sa > sb }
+                let wa = FDWealthScale.points(for: a.money), wb = FDWealthScale.points(for: b.money)
+                if wa != wb { return wa > wb }
+                return a.money > b.money
+            }
             .prefix(100)
             .map { $0 }
     }
@@ -1252,9 +1257,9 @@ func fdFormatMoney(_ v: Int) -> String {
 
 // MARK: - Wealth scale
 
-/// What a career earned is part of what it was worth, so the leaderboard weighs the money
-/// left at retirement — on bands rather than proportionally, so a fortune can never on its
-/// own outweigh a Ballon d'Or (600 points).
+/// Money never adds to a career's score: the leaderboard is decided by what was won. The
+/// fortune left at retirement is the tie-breaker — banded, so two careers only separate on
+/// money when they are otherwise strictly equal.
 enum FDWealthScale {
     /// Ordered low-to-high: the threshold a career must reach, and what it is worth.
     static let bands: [(threshold: Int, points: Int)] = [
