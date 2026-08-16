@@ -1132,50 +1132,48 @@ struct FDCarriereTab: View {
 
     var body: some View {
         // No NavigationView here: nothing on this tab navigates, and its bar only stole
-        // height. The background is painted inside the tab — behind the TabView it was
-        // hidden by the tab controller's own opaque black.
-        ZStack {
-            FDTheme.bg.ignoresSafeArea()
-
-            Group {
-                if let p = engine.player, p.retired {
-                    ScrollView {
-                        FDRetiredCard(engine: engine, screen: $screen)
-                            .padding()
-                    }
-                } else if let p = engine.player {
-                    // Two views, not one crowded screen. "Carrière" is the story: who the
-                    // player is, then the scene, which owns everything below. "Stats" holds
-                    // the five detail sections in the same shape, full height.
-                    VStack(spacing: 8) {
-                        Picker("", selection: $mainTab) {
-                            ForEach(FDCarriereMainTab.allCases) { tab in
-                                Text(tab.rawValue).tag(tab)
-                            }
-                        }
-                        .pickerStyle(.segmented)
-
-                        switch mainTab {
-                        case .carriere: carriereView(p)
-                        case .stats: statsView(p)
-                        }
-                    }
-                    .padding(.horizontal, 12)
-                    .padding(.top, 6)
-                    .padding(.bottom, 8)
-                } else {
-                    VStack(spacing: 12) {
-                        Image(systemName: "person.slash")
-                            .font(.system(size: 36))
-                            .foregroundStyle(.secondary)
-                        Text("Aucune carrière en cours")
-                            .foregroundStyle(.secondary)
-                    }
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+        // height. The background is applied as a modifier rather than as a ZStack layer
+        // ignoring the safe areas — that layer stretched the whole container and pulled the
+        // content up under the status bar.
+        Group {
+            if let p = engine.player, p.retired {
+                ScrollView {
+                    FDRetiredCard(engine: engine, screen: $screen)
+                        .padding()
                 }
+            } else if let p = engine.player {
+                // Two views, not one crowded screen. "Carrière" is the story: who the
+                // player is, then the scene, which owns everything below. "Stats" holds
+                // the five detail sections in the same shape, full height.
+                VStack(spacing: 8) {
+                    Picker("", selection: $mainTab) {
+                        ForEach(FDCarriereMainTab.allCases) { tab in
+                            Text(tab.rawValue).tag(tab)
+                        }
+                    }
+                    .pickerStyle(.segmented)
+
+                    switch mainTab {
+                    case .carriere: carriereView(p)
+                    case .stats: statsView(p)
+                    }
+                }
+                .padding(.horizontal, 12)
+                .padding(.top, 6)
+                .padding(.bottom, 8)
+            } else {
+                VStack(spacing: 12) {
+                    Image(systemName: "person.slash")
+                        .font(.system(size: 36))
+                        .foregroundStyle(.secondary)
+                    Text("Aucune carrière en cours")
+                        .foregroundStyle(.secondary)
+                }
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
             }
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
         }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .background(FDTheme.bg)
     }
 
     /// A labelled bar, used only by the player sheet header.
