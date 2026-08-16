@@ -555,7 +555,7 @@ enum FDCurrentScene {
     case none
     case story(FDSceneDef)
     case match(FDMatchResult)
-    case season([String])
+    case season(FDSeasonReport)
     case tournament(FDTournamentSummary)
     case outcome(FDChoiceOutcome)
 }
@@ -616,4 +616,149 @@ enum FDPotentialShop {
         while stars < maxStars && cumulativeCost(for: stars + 1) <= points { stars += 1 }
         return stars
     }
+}
+
+// MARK: - Chroniques
+
+/// Everything the end-of-season screen shows: a written piece, the four figures that
+/// summarise the year, and the event lines the engine produced along the way.
+struct FDSeasonReport {
+    var headline: String
+    var article: String
+    var apps: Int
+    var goals: Int
+    var assists: Int
+    var rating: Double
+    var leaguePosition: Int
+    var club: String
+    var seasonLabel: String
+    var lines: [String]
+}
+
+/// Writes the season up as a short press piece rather than a list of numbers. The tone
+/// follows the year the player actually had, and the phrasing is drawn from several
+/// variants so two seasons never read exactly alike.
+func fdSeasonChronicle(player p: FDPlayer, apps: Int, goals: Int, assists: Int,
+                       rating: Double, leaguePosition: Int, titles: [String]) -> (headline: String, article: String) {
+    let name = "\(p.firstName) \(p.lastName)"
+    let club = p.club.name
+    let attacking = p.position == .attaquant || p.position == .milieu
+
+    // How the season went, on one axis, so the headline and the body agree with each other.
+    enum Tone { case triumph, strong, correct, difficult, lost }
+    let tone: Tone
+    if !titles.isEmpty || (rating >= 7.4 && apps >= 20) {
+        tone = .triumph
+    } else if rating >= 7.0 && apps >= 15 {
+        tone = .strong
+    } else if apps < 8 {
+        tone = .lost
+    } else if rating >= 6.5 {
+        tone = .correct
+    } else {
+        tone = .difficult
+    }
+
+    let headline: String
+    switch tone {
+    case .triumph:
+        headline = [
+            "Le sacre de \(name) : une saison à part",
+            "\(name), la saison qui change une carrière",
+            "\(club) tient son homme : la saison référence de \(name)",
+        ].randomElement()!
+    case .strong:
+        headline = [
+            "\(name) s'installe : la saison de la confirmation",
+            "Régulier, décisif : \(name) a passé un cap",
+            "\(name), le patron discret de \(club)",
+        ].randomElement()!
+    case .correct:
+        headline = [
+            "\(name), une saison sans éclat mais sans faute",
+            "Entre bons matchs et soirées grises : la saison de \(name)",
+            "\(name) a tenu son rang, sans plus",
+        ].randomElement()!
+    case .difficult:
+        headline = [
+            "Doutes et remises en question : l'année compliquée de \(name)",
+            "\(name) n'a jamais trouvé son rythme",
+            "Saison à oublier pour \(name)",
+        ].randomElement()!
+    case .lost:
+        headline = [
+            "Banc, tribunes, doutes : l'hiver sans fin de \(name)",
+            "\(name), une saison passée à attendre son tour",
+            "Le temps long : \(name) a joué au compte-gouttes",
+        ].randomElement()!
+    }
+
+    var body = ""
+    switch tone {
+    case .triumph:
+        body = "\(name) a écrit l'une de ces saisons dont on reparle des années plus tard. \(apps) matchs, une note moyenne de \(String(format: "%.1f", rating)), et un poids sur le jeu de \(club) que personne ne conteste plus."
+        if !titles.isEmpty {
+            body += " Le vestiaire y a gagné " + (titles.count > 1 ? "plusieurs trophées" : "un trophée") + ", et \(p.firstName) y a gagné une réputation."
+        }
+    case .strong:
+        body = "Saison pleine pour \(name). \(apps) apparitions, \(String(format: "%.1f", rating)) de moyenne : le genre d'année qui ne fait pas les gros titres chaque semaine, mais qui construit une carrière."
+    case .correct:
+        body = "\(name) a fait le travail sans jamais s'échapper. \(apps) matchs pour \(String(format: "%.1f", rating)) de moyenne : correct, régulier, mais on l'attend encore ailleurs."
+    case .difficult:
+        body = "Rien n'est vraiment venu cette saison. \(apps) matchs, \(String(format: "%.1f", rating)) de moyenne, et une impression tenace de course après le rythme. \(club) a vu passer un joueur en dessous de ce qu'il vaut."
+    case .lost:
+        body = "\(apps) matchs seulement : la saison de \(name) s'est jouée surtout depuis le banc. Les semaines d'entraînement sans récompense finissent par peser, et le moral avec."
+    }
+
+    if attacking && goals + assists > 0 {
+        body += " Bilan offensif : \(goals) but\(goals > 1 ? "s" : "") et \(assists) passe\(assists > 1 ? "s" : "") décisive\(assists > 1 ? "s" : "")."
+    }
+    if leaguePosition == 1 {
+        body += " \(club) termine champion."
+    } else if leaguePosition > 0 {
+        body += " \(club) finit \(leaguePosition)\(leaguePosition == 1 ? "er" : "e") du championnat."
+    }
+
+    return (headline, body)
+}
+
+/// The piece that closes a career, written from everything it accumulated.
+func fdCareerChronicle(player p: FDPlayer) -> (headline: String, article: String) {
+    let name = "\(p.firstName) \(p.lastName)"
+    let ballons = p.awardCounts[FDAward.ballonDor.rawValue] ?? 0
+    let seasons = p.history.count
+    let avg = p.history.isEmpty
+        ? 0.0
+        : p.history.reduce(0.0) { $0 + $1.avgRating } / Double(p.history.count)
+    let trophies = p.leagueTitles + p.cupTitles
+
+    let headline: String
+    if ballons > 0 {
+        headline = "\(name) raccroche : la carrière d'un joueur d'exception"
+    } else if trophies >= 4 {
+        headline = "\(name) tire sa révérence, les mains pleines"
+    } else if trophies > 0 {
+        headline = "\(name) s'arrête : une carrière honorée"
+    } else if seasons >= 12 {
+        headline = "\(name) raccroche après \(seasons) saisons de métier"
+    } else {
+        headline = "\(name) met un terme à sa carrière"
+    }
+
+    var body = "\(seasons) saison\(seasons > 1 ? "s" : "") professionnelle\(seasons > 1 ? "s" : ""), \(p.careerApps) matchs, \(p.careerGoals) but\(p.careerGoals > 1 ? "s" : "") et \(p.careerAssists) passe\(p.careerAssists > 1 ? "s" : "") décisive\(p.careerAssists > 1 ? "s" : ""), pour une note moyenne de \(String(format: "%.1f", avg))."
+
+    if trophies > 0 {
+        body += " Au palmarès : \(p.leagueTitles) titre\(p.leagueTitles > 1 ? "s" : "") de champion et \(p.cupTitles) coupe\(p.cupTitles > 1 ? "s" : "")."
+    } else {
+        body += " Aucun grand trophée, mais une carrière tenue au bout."
+    }
+    if ballons > 0 {
+        body += " Et \(ballons) Ballon\(ballons > 1 ? "s" : "") d'Or, ce que presque personne n'atteint."
+    }
+    if p.nationalCaps > 0 {
+        body += " \(p.nationalCaps) sélection\(p.nationalCaps > 1 ? "s" : "") avec \(p.nationality)."
+    }
+    body += " Parti de \(p.birthCity), \(p.firstName) termine à \(p.age) ans, sous le maillot de \(p.club.name)."
+
+    return (headline, body)
 }

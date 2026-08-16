@@ -465,8 +465,8 @@ struct FDStoryCard: View {
 
             // Narrative text
             Text(scene.text)
-                .font(.system(size: 16))
-                .lineSpacing(2)
+                .font(FDFont.story(16))
+                .lineSpacing(3)
                 .foregroundStyle(FDTheme.textPrimary)
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .minimumScaleFactor(0.72)
@@ -564,8 +564,8 @@ struct FDOutcomeCard: View {
             Rectangle().fill(Color.white.opacity(0.06)).frame(height: 1)
 
             Text(outcome.narrative)
-                .font(.system(size: 16))
-                .lineSpacing(2)
+                .font(FDFont.story(16))
+                .lineSpacing(3)
                 .foregroundStyle(FDTheme.textPrimary)
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .minimumScaleFactor(0.72)
@@ -728,39 +728,98 @@ struct FDMatchStat: View {
 
 struct FDSeasonCard: View {
     @ObservedObject var engine: FDGameEngine
-    let lines: [String]
+    let report: FDSeasonReport
+
+    /// The engine's lines already start with their own emoji; the display keeps it and
+    /// never stacks a second icon on top, which is what made the old list read like code.
+    private func splitEmoji(_ line: String) -> (String, String) {
+        guard let first = line.unicodeScalars.first, first.properties.isEmoji, first.value > 0x238C else {
+            return ("•", line)
+        }
+        let symbol = String(line.prefix(while: { !$0.isWhitespace }))
+        let rest = line.dropFirst(symbol.count).trimmingCharacters(in: .whitespaces)
+        return (symbol, rest)
+    }
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
             HStack(spacing: 8) {
-                Image(systemName: "trophy.fill")
-                    .font(.footnote.weight(.bold))
-                    .foregroundStyle(FDTheme.amber)
+                Text("📰")
                 Text("BILAN DE SAISON")
                     .font(.system(size: 12, weight: .bold))
                     .foregroundStyle(FDTheme.amber)
                 Spacer()
-                Text("Saison \(fdSeasonLabel(max(1, (engine.player?.calendar.season ?? 1) - 1)))")
+                Text("\(report.seasonLabel) · \(report.club)")
                     .font(FDFont.mono(12)).foregroundStyle(.secondary)
+                    .lineLimit(1).minimumScaleFactor(0.7)
             }
             .padding(.horizontal, 14).padding(.vertical, 10)
             .background(FDTheme.amber.opacity(0.08))
 
             Rectangle().fill(Color.white.opacity(0.06)).frame(height: 1)
 
-            VStack(alignment: .leading, spacing: 8) {
-                ForEach(lines, id: \.self) { line in
-                    HStack(spacing: 8) {
-                        Image(systemName: "checkmark.circle.fill")
-                            .font(.footnote)
-                            .foregroundStyle(FDTheme.success)
-                        Text(line)
-                            .font(.body)
+            ScrollView {
+                VStack(alignment: .leading, spacing: 12) {
+                    // The written piece, in the serif — a chronicle, not a log.
+                    VStack(alignment: .leading, spacing: 7) {
+                        Text("« \(report.headline) »")
+                            .font(FDFont.story(17, bold: true, italic: true))
                             .foregroundStyle(FDTheme.textPrimary)
+                            .fixedSize(horizontal: false, vertical: true)
+                        Text(report.article)
+                            .font(FDFont.story(15))
+                            .lineSpacing(3)
+                            .foregroundStyle(FDTheme.textPrimary.opacity(0.88))
+                            .fixedSize(horizontal: false, vertical: true)
+                    }
+                    .padding(.horizontal, 14)
+                    .padding(.top, 12)
+
+                    // The four figures of the year, as tiles.
+                    HStack(spacing: 8) {
+                        FDSeasonTile(value: "\(report.apps)", label: "MATCHS", color: FDTheme.primary)
+                        FDSeasonTile(value: "\(report.goals)", label: "BUTS", color: FDTheme.success)
+                        FDSeasonTile(value: "\(report.assists)", label: "PASSES DÉC.", color: FDTheme.accentTeal)
+                        FDSeasonTile(value: String(format: "%.1f", report.rating), label: "NOTE", color: FDTheme.amber)
+                    }
+                    .padding(.horizontal, 12)
+
+                    if report.leaguePosition > 0 {
+                        HStack(spacing: 6) {
+                            Text("🏁")
+                            Text("Championnat :")
+                                .font(.footnote).foregroundStyle(.secondary)
+                            Text("\(report.leaguePosition)\(report.leaguePosition == 1 ? "er" : "e")")
+                                .font(FDFont.body(15, black: true))
+                                .foregroundStyle(report.leaguePosition <= 3 ? FDTheme.amber : FDTheme.textPrimary)
+                            Spacer()
+                        }
+                        .padding(.horizontal, 14)
+                    }
+
+                    if !report.lines.isEmpty {
+                        Rectangle().fill(Color.white.opacity(0.06)).frame(height: 1)
+                        VStack(alignment: .leading, spacing: 9) {
+                            ForEach(report.lines, id: \.self) { line in
+                                let parts = splitEmoji(line)
+                                HStack(alignment: .top, spacing: 8) {
+                                    Text(parts.0)
+                                        .font(.system(size: 15))
+                                        .frame(width: 20, alignment: .center)
+                                    Text(parts.1)
+                                        .font(.footnote)
+                                        .foregroundStyle(FDTheme.textPrimary.opacity(0.9))
+                                        .fixedSize(horizontal: false, vertical: true)
+                                    Spacer(minLength: 0)
+                                }
+                            }
+                        }
+                        .padding(.horizontal, 12)
+                        .padding(.bottom, 4)
                     }
                 }
+                .padding(.bottom, 10)
             }
-            .padding(14)
 
             Rectangle().fill(Color.white.opacity(0.06)).frame(height: 1)
             Button {
@@ -785,6 +844,35 @@ struct FDSeasonCard: View {
         .overlay(
             RoundedRectangle(cornerRadius: FDTheme.radiusCard)
                 .stroke(FDTheme.amber.opacity(0.15), lineWidth: 1)
+        )
+    }
+}
+
+/// One of the four figures at the top of a season report.
+private struct FDSeasonTile: View {
+    let value: String
+    let label: String
+    let color: Color
+
+    var body: some View {
+        VStack(spacing: 2) {
+            Text(value)
+                .font(FDFont.mono(19, bold: true))
+                .foregroundStyle(color)
+                .lineLimit(1)
+                .minimumScaleFactor(0.6)
+            Text(label)
+                .font(.system(size: 10, weight: .bold))
+                .foregroundStyle(.secondary)
+                .lineLimit(1)
+                .minimumScaleFactor(0.6)
+        }
+        .frame(maxWidth: .infinity)
+        .padding(.vertical, 9)
+        .background(FDTheme.bg.opacity(0.55), in: RoundedRectangle(cornerRadius: 12, style: .continuous))
+        .overlay(
+            RoundedRectangle(cornerRadius: 12, style: .continuous)
+                .strokeBorder(color.opacity(0.18), lineWidth: 1)
         )
     }
 }
@@ -818,8 +906,10 @@ struct FDTournamentCard: View {
             Rectangle().fill(Color.white.opacity(0.06)).frame(height: 1)
 
             Text(summary.narrative)
-                .font(.body)
+                .font(FDFont.story(16))
+                .lineSpacing(3)
                 .foregroundStyle(FDTheme.textPrimary)
+                .fixedSize(horizontal: false, vertical: true)
                 .padding(14)
 
             if summary.minutesPlayed > 0 {
@@ -891,6 +981,31 @@ struct FDCareerSummaryCard: View {
             }
             .padding(14)
             .background(FDTheme.card.opacity(0.5))
+
+            Rectangle().fill(Color.white.opacity(0.06)).frame(height: 1)
+
+            // The career, written up: the same press-piece treatment as an end of season,
+            // so a career closes on a text and not on a table.
+            let chronicle = fdCareerChronicle(player: player)
+            VStack(alignment: .leading, spacing: 7) {
+                HStack(spacing: 7) {
+                    Text("📰")
+                    Text("LA CHRONIQUE")
+                        .font(.system(size: 11, weight: .bold))
+                        .foregroundStyle(FDTheme.amber)
+                    Spacer()
+                }
+                Text("« \(chronicle.headline) »")
+                    .font(FDFont.story(17, bold: true, italic: true))
+                    .foregroundStyle(FDTheme.textPrimary)
+                    .fixedSize(horizontal: false, vertical: true)
+                Text(chronicle.article)
+                    .font(FDFont.story(15))
+                    .lineSpacing(3)
+                    .foregroundStyle(FDTheme.textPrimary.opacity(0.88))
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+            .padding(14)
 
             Rectangle().fill(Color.white.opacity(0.06)).frame(height: 1)
 
@@ -1254,8 +1369,8 @@ struct FDCarriereTab: View {
             FDStoryCard(engine: engine, scene: scene)
         case .match(let result):
             FDMatchCard(engine: engine, result: result)
-        case .season(let lines):
-            FDSeasonCard(engine: engine, lines: lines)
+        case .season(let report):
+            FDSeasonCard(engine: engine, report: report)
         case .tournament(let summary):
             FDTournamentCard(engine: engine, summary: summary)
         case .outcome(let outcome):

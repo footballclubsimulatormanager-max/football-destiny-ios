@@ -120,6 +120,12 @@ enum FDFont {
     static func mono(_ size: CGFloat, bold: Bool = false) -> Font {
         .custom(bold ? "JetBrainsMono-Bold" : "JetBrainsMono-Regular", size: size)
     }
+
+    /// Lora — the serif the story is told in. Narratives, season chronicles and the
+    /// end-of-career piece read like a written article rather than an interface.
+    static func story(_ size: CGFloat, bold: Bool = false, italic: Bool = false) -> Font {
+        .custom(italic ? "Lora-Italic" : (bold ? "Lora-Bold" : "Lora-Regular"), size: size)
+    }
 }
 
 extension Font {

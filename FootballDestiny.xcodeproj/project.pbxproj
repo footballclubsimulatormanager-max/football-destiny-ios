@@ -21,6 +21,9 @@
 		E33E782568CF1F49F0DC647A /* FDMetaProgression.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7D6235141E27A48AD1F5B4EF /* FDMetaProgression.swift */; };
 		9425E7C9AD24952D7B8A3DE0 /* FDMetaScreens.swift in Sources */ = {isa = PBXBuildFile; fileRef = 934EC8C5E2368513414AF5E7 /* FDMetaScreens.swift */; };
 		1030E28BDE5B7D66E7F6D503 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = E004B83FE32328616E724A8D /* Assets.xcassets */; };
+		CC538B45CC2940F78FA165B0 /* Lora-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 1D3DB7190FC54684BE4445D5 /* Lora-Regular.ttf */; };
+		A5FA119CE5404A0481F7F94F /* Lora-Bold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = E1B06F5444D244D69DB25F89 /* Lora-Bold.ttf */; };
+		008D1C723D4A4E4FAA192022 /* Lora-Italic.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 89A92DAA75A5435A94337763 /* Lora-Italic.ttf */; };
 		AC4906096EA042C9B1518A53 /* Barlow-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 5293567490F44819B2B3E49C /* Barlow-Regular.ttf */; };
 		E5C3ABF343C440EA861E34FB /* Barlow-Black.ttf in Resources */ = {isa = PBXBuildFile; fileRef = E330A646A5B74E47AA0B671C /* Barlow-Black.ttf */; };
 		3ABBC05094494D91A2EF8D23 /* BarlowSemiCondensed-Black.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 260A2604AB974E7488E28F5C /* BarlowSemiCondensed-Black.ttf */; };
@@ -44,6 +47,9 @@
 		7D6235141E27A48AD1F5B4EF /* FDMetaProgression.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "FootballDestiny/FDMetaProgression.swift"; sourceTree = "<group>"; };
 		934EC8C5E2368513414AF5E7 /* FDMetaScreens.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "FootballDestiny/FDMetaScreens.swift"; sourceTree = "<group>"; };
 		E004B83FE32328616E724A8D /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "FootballDestiny/Assets.xcassets"; sourceTree = "<group>"; };
+		1D3DB7190FC54684BE4445D5 /* Lora-Regular.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "FootballDestiny/Fonts/Lora-Regular.ttf"; sourceTree = "<group>"; };
+		E1B06F5444D244D69DB25F89 /* Lora-Bold.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "FootballDestiny/Fonts/Lora-Bold.ttf"; sourceTree = "<group>"; };
+		89A92DAA75A5435A94337763 /* Lora-Italic.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "FootballDestiny/Fonts/Lora-Italic.ttf"; sourceTree = "<group>"; };
 		5293567490F44819B2B3E49C /* Barlow-Regular.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "FootballDestiny/Fonts/Barlow-Regular.ttf"; sourceTree = "<group>"; };
 		E330A646A5B74E47AA0B671C /* Barlow-Black.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "FootballDestiny/Fonts/Barlow-Black.ttf"; sourceTree = "<group>"; };
 		260A2604AB974E7488E28F5C /* BarlowSemiCondensed-Black.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "FootballDestiny/Fonts/BarlowSemiCondensed-Black.ttf"; sourceTree = "<group>"; };
@@ -91,6 +97,9 @@
 		005B1604CE23404A86A6C50C /* Fonts */ = {
 			isa = PBXGroup;
 			children = (
+				1D3DB7190FC54684BE4445D5 /* Lora-Regular.ttf */,
+				E1B06F5444D244D69DB25F89 /* Lora-Bold.ttf */,
+				89A92DAA75A5435A94337763 /* Lora-Italic.ttf */,
 				5293567490F44819B2B3E49C /* Barlow-Regular.ttf */,
 				E330A646A5B74E47AA0B671C /* Barlow-Black.ttf */,
 				260A2604AB974E7488E28F5C /* BarlowSemiCondensed-Black.ttf */,
@@ -169,6 +178,9 @@
 			buildActionMask = 2147483647;
 			files = (
 				1030E28BDE5B7D66E7F6D503 /* Assets.xcassets in Resources */,
+				CC538B45CC2940F78FA165B0 /* Lora-Regular.ttf in Resources */,
+				A5FA119CE5404A0481F7F94F /* Lora-Bold.ttf in Resources */,
+				008D1C723D4A4E4FAA192022 /* Lora-Italic.ttf in Resources */,
 				AC4906096EA042C9B1518A53 /* Barlow-Regular.ttf in Resources */,
 				E5C3ABF343C440EA861E34FB /* Barlow-Black.ttf in Resources */,
 				3ABBC05094494D91A2EF8D23 /* BarlowSemiCondensed-Black.ttf in Resources */,

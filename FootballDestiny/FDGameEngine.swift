@@ -1017,6 +1017,15 @@ final class FDGameEngine: ObservableObject {
             }
         }
 
+        // The season's figures, kept before the counters reset, so the chronicle and the
+        // report tiles can be written from what actually happened this year.
+        let recApps = p.history[0].apps
+        let recGoals = p.history[0].goals
+        let recAssists = p.history[0].assists
+        let recRating = p.history[0].avgRating
+        let recClub = p.history[0].club
+        let recSeasonLabel = fdSeasonLabel(p.calendar.season)
+
         p.age += 1
         p.seasonMatches = 0; p.seasonGoals = 0; p.seasonAssists = 0; p.seasonForm = []; p.seasonStoryEvents = 0
         p.seasonMoneyDelta = 0
@@ -1124,8 +1133,22 @@ final class FDGameEngine: ObservableObject {
         }
 
         player = p
-        pushJournal(summary.joined(separator: " "), icon: "🏆")
-        currentScene = .season(summary)
+
+        // Trophies won this season, read from the lines the engine just produced, so the
+        // chronicle's tone matches the year.
+        let titles = summary.filter { $0.contains("Titre de champion") || $0.contains("Vainqueur de la Coupe") }
+        let chronicle = fdSeasonChronicle(player: p, apps: recApps, goals: recGoals, assists: recAssists,
+                                          rating: recRating, leaguePosition: leaguePosition, titles: titles)
+        let report = FDSeasonReport(
+            headline: chronicle.headline, article: chronicle.article,
+            apps: recApps, goals: recGoals, assists: recAssists, rating: recRating,
+            leaguePosition: leaguePosition, club: recClub, seasonLabel: recSeasonLabel,
+            // The two opening lines only restate the tiles and the chronicle, so they go.
+            lines: Array(summary.dropFirst(3))
+        )
+
+        pushJournal(chronicle.headline, icon: "📰")
+        currentScene = .season(report)
         saveGame()
     }
 
