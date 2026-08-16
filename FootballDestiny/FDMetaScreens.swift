@@ -703,12 +703,8 @@ private struct FDClassementRow: View {
                         .font(FDFont.body(16, black: true))
                         .foregroundStyle(FDTheme.textPrimary)
                         .lineLimit(1)
-                    if !player.alias.isEmpty {
-                        Text("\(player.firstName) \(player.lastName)")
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
-                            .lineLimit(1)
-                    }
+                    // Only the signature shows in the table: the real name belongs to the
+                    // career sheet, one tap away.
                 }
                 Text("\(fdFlag(for: player.nationality)) \(player.position.rawValue) · \(player.club.name)")
                     .font(.footnote)

@@ -876,6 +876,13 @@ struct FDCareerSummaryCard: View {
                 VStack(alignment: .leading, spacing: 2) {
                     Text("\(player.firstName) \(player.lastName)")
                         .font(FDFont.display(18))
+                    // The leaderboard only shows the signature; the real name and the
+                    // signature appear together here, on the career sheet.
+                    if !player.alias.isEmpty {
+                        Text("signé « \(player.alias) »")
+                            .font(.footnote.weight(.semibold))
+                            .foregroundStyle(FDTheme.amber)
+                    }
                     Text("\(fdFlag(for: player.nationality)) \(player.nationality) · \(player.position.rawValue) · retraité à \(player.age) ans")
                         .font(.footnote)
                         .foregroundStyle(.secondary)
@@ -994,6 +1001,12 @@ struct FDRetiredCard: View {
 
 // MARK: - Carrière Tab
 
+private enum FDCarriereMainTab: String, CaseIterable, Identifiable {
+    case carriere = "Carrière"
+    case stats = "Stats"
+    var id: String { rawValue }
+}
+
 private enum FDCarriereSubTab: String, CaseIterable, Identifiable {
     case stats = "Stats"
     case palmares = "Palmarès"
@@ -1006,6 +1019,7 @@ private enum FDCarriereSubTab: String, CaseIterable, Identifiable {
 struct FDCarriereTab: View {
     @ObservedObject var engine: FDGameEngine
     @Binding var screen: FDScreen
+    @State private var mainTab: FDCarriereMainTab = .carriere
     @State private var subTab: FDCarriereSubTab = .stats
     @State private var showRetireConfirm = false
 
@@ -1018,79 +1032,20 @@ struct FDCarriereTab: View {
                             .padding()
                     }
                 } else if let p = engine.player {
-                    // The narrative is the screen: it gets whatever height it needs and is
-                    // never scrolled. "Mon joueur" sits above it in a compact box, capped to
-                    // a third of the screen and scrolling internally, so it can never push
-                    // the story out of view no matter how much detail it holds.
-                    GeometryReader { geo in
-                        VStack(spacing: 8) {
-                            VStack(spacing: 0) {
-                                Picker("", selection: $subTab) {
-                                    ForEach(FDCarriereSubTab.allCases) { tab in
-                                        Text(tab.rawValue).tag(tab)
-                                    }
-                                }
-                                .pickerStyle(.segmented)
-                                .padding(.horizontal, 7).padding(.vertical, 6)
-
-                                Rectangle().fill(Color.white.opacity(0.06)).frame(height: 1)
-
-                                ScrollView {
-                                    VStack(spacing: 8) {
-                                        // No name/rating block here — the status bar above
-                                        // already carries both, and each tab now opens only
-                                        // its own content.
-                                        switch subTab {
-                                        case .stats: statsContent(p)
-                                        case .palmares: palmaresContent(p)
-                                        case .distinctions: distinctionsContent(p)
-                                        case .parcours: parcoursContent(p)
-                                        case .entourage: entourageContent(p)
-                                        }
-
-                                        retireCard(p)
-                                    }
-                                    .padding(7)
-                                }
+                    // Two views, not one crowded screen. "Carrière" is the story: who the
+                    // player is, then the scene, which owns everything below. "Stats" holds
+                    // the five detail sections in the same shape, full height.
+                    VStack(spacing: 8) {
+                        Picker("", selection: $mainTab) {
+                            ForEach(FDCarriereMainTab.allCases) { tab in
+                                Text(tab.rawValue).tag(tab)
                             }
-                            // The player box gets a fixed share of the screen — never less
-                            // than a readable 190pt, never more than a third and a bit. The
-                            // rest belongs to the scene, which runs down to the tab bar.
-                            .frame(height: min(max(geo.size.height * 0.38, 190), 320))
-                            .background(FDTheme.card.opacity(0.6), in: RoundedRectangle(cornerRadius: FDTheme.radiusCard))
-                            .overlay(
-                                RoundedRectangle(cornerRadius: FDTheme.radiusCard)
-                                    .stroke(Color.white.opacity(0.07), lineWidth: 1)
-                            )
+                        }
+                        .pickerStyle(.segmented)
 
-                            // The scene takes everything the player box leaves, so the card
-                            // ends flush with the tab bar instead of floating mid-screen.
-                            Group {
-                                switch engine.currentScene {
-                                case .none:
-                                    ProgressView().frame(maxHeight: .infinity)
-                                case .story(let scene):
-                                    FDStoryCard(engine: engine, scene: scene)
-                                case .match(let result):
-                                    FDMatchCard(engine: engine, result: result)
-                                case .season(let lines):
-                                    FDSeasonCard(engine: engine, lines: lines)
-                                case .tournament(let summary):
-                                    FDTournamentCard(engine: engine, summary: summary)
-                                case .outcome(let outcome):
-                                    // Without an explicit continue action the outcome card
-                                    // renders no button and the career dead-ends on the very
-                                    // first resolved choice.
-                                    FDOutcomeCard(
-                                        engine: engine,
-                                        outcome: outcome,
-                                        primaryActionTitle: "Continuer",
-                                        primaryAction: { engine.continueAfterOutcome() }
-                                    )
-                                }
-                            }
-                            .frame(maxWidth: .infinity, maxHeight: .infinity)
-                            .layoutPriority(1)
+                        switch mainTab {
+                        case .carriere: carriereView(p)
+                        case .stats: statsView(p)
                         }
                     }
                     .padding(.horizontal, 12)
@@ -1120,6 +1075,199 @@ struct FDCarriereTab: View {
             }
         }
         .navigationViewStyle(.stack)
+    }
+
+    /// A labelled bar, used only by the player sheet header.
+    private func fdGauge(label: String, value: Int, color: Color) -> some View {
+        VStack(alignment: .leading, spacing: 3) {
+            HStack(spacing: 4) {
+                Text(label)
+                    .font(.system(size: 10, weight: .bold))
+                    .foregroundStyle(.secondary)
+                Spacer(minLength: 2)
+                Text("\(value)")
+                    .font(FDFont.mono(11, bold: true))
+                    .foregroundStyle(color)
+            }
+            GeometryReader { g in
+                ZStack(alignment: .leading) {
+                    Capsule().fill(Color.white.opacity(0.08))
+                    Capsule()
+                        .fill(color)
+                        .frame(width: g.size.width * CGFloat(min(max(value, 0), 100)) / 100)
+                        .animation(.fdSoft, value: value)
+                }
+            }
+            .frame(height: 4)
+        }
+    }
+
+    // MARK: The two views
+
+    /// The story view: a compact identity strip, then the scene, which takes the rest of the
+    /// screen down to the tab bar.
+    @ViewBuilder
+    private func carriereView(_ p: FDPlayer) -> some View {
+        VStack(spacing: 8) {
+            HStack(spacing: 10) {
+                VStack(alignment: .leading, spacing: 2) {
+                    Text("\(p.firstName) \(p.lastName)")
+                        .font(FDFont.display(20))
+                        .foregroundStyle(.white)
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.7)
+                    Text("\(fdFlag(for: p.club.country)) \(p.club.name)  ·  \(p.position.rawValue)  ·  \(p.age) ans")
+                        .font(.footnote)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.8)
+                }
+                Spacer(minLength: 0)
+                VStack(spacing: 0) {
+                    Text("\(engine.overall(p))")
+                        .font(FDFont.mono(18, bold: true))
+                        .foregroundStyle(FDTheme.primary)
+                    Text("NOTE")
+                        .font(.system(size: 10, weight: .bold))
+                        .foregroundStyle(FDTheme.primary.opacity(0.7))
+                }
+                .padding(.horizontal, 10).padding(.vertical, 6)
+                .background(FDTheme.primary.opacity(0.12), in: RoundedRectangle(cornerRadius: 10))
+            }
+            .padding(.horizontal, 12).padding(.vertical, 9)
+            .background(FDTheme.card.opacity(0.6), in: RoundedRectangle(cornerRadius: FDTheme.radiusCard))
+            .overlay(
+                RoundedRectangle(cornerRadius: FDTheme.radiusCard)
+                    .stroke(Color.white.opacity(0.07), lineWidth: 1)
+            )
+
+            sceneCard
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .layoutPriority(1)
+        }
+    }
+
+    /// The detail view: the same five sections as before, but with the whole screen instead
+    /// of a third of it, and the retirement card at the bottom.
+    @ViewBuilder
+    private func statsView(_ p: FDPlayer) -> some View {
+        VStack(spacing: 0) {
+            // The card header, the way a player sheet reads: who, where, how good, and the
+            // two gauges that change week to week.
+            VStack(spacing: 7) {
+                HStack(spacing: 10) {
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text("\(p.firstName) \(p.lastName)")
+                            .font(FDFont.display(19))
+                            .foregroundStyle(.white)
+                            .lineLimit(1)
+                            .minimumScaleFactor(0.7)
+                        Text("\(fdFlag(for: p.nationality)) \(p.nationality)  ·  \(p.age) ans  ·  \(p.position.rawValue)")
+                            .font(.footnote)
+                            .foregroundStyle(.secondary)
+                            .lineLimit(1)
+                            .minimumScaleFactor(0.8)
+                        Text("\(fdFlag(for: p.club.country)) \(p.club.name)")
+                            .font(.footnote)
+                            .foregroundStyle(.secondary)
+                            .lineLimit(1)
+                    }
+                    Spacer(minLength: 0)
+                    VStack(spacing: 3) {
+                        Text("\(engine.overall(p))")
+                            .font(FDFont.mono(20, bold: true))
+                            .foregroundStyle(FDTheme.primary)
+                        Text("POT. \(engine.potentialOverall(p))")
+                            .font(.system(size: 10, weight: .bold))
+                            .foregroundStyle(FDTheme.amber)
+                    }
+                    .padding(.horizontal, 10).padding(.vertical, 6)
+                    .background(FDTheme.primary.opacity(0.12), in: RoundedRectangle(cornerRadius: 10))
+                }
+
+                HStack(spacing: 10) {
+                    fdGauge(label: "FORME", value: p.cond.forme, color: FDTheme.success)
+                    fdGauge(label: "MORAL", value: p.cond.moral, color: FDTheme.accentTeal)
+                    fdGauge(label: "RÉPUT.", value: p.cond.reputation, color: FDTheme.amber)
+                }
+            }
+            .padding(.horizontal, 11).padding(.vertical, 9)
+
+            Rectangle().fill(Color.white.opacity(0.06)).frame(height: 1)
+
+            Picker("", selection: $subTab) {
+                ForEach(FDCarriereSubTab.allCases) { tab in
+                    Text(tab.rawValue).tag(tab)
+                }
+            }
+            .pickerStyle(.segmented)
+            .padding(.horizontal, 7).padding(.vertical, 6)
+
+            Rectangle().fill(Color.white.opacity(0.06)).frame(height: 1)
+
+            ScrollView {
+                VStack(spacing: 8) {
+                    switch subTab {
+                    case .stats: statsContent(p)
+                    case .palmares: palmaresContent(p)
+                    case .distinctions: distinctionsContent(p)
+                    case .parcours: parcoursContent(p)
+                    case .entourage: entourageContent(p)
+                    }
+
+                    retireCard(p)
+                }
+                .padding(7)
+                .id(subTab)
+            }
+
+            // The gold footer of a player sheet: the season and what the career is worth.
+            HStack {
+                Text(fdSeasonLabelShort(p.calendar.season))
+                    .font(FDFont.body(13, black: true))
+                Spacer()
+                Text("Fortune : \(fdFormatMoney(p.money))")
+                    .font(FDFont.mono(13, bold: true))
+            }
+            .foregroundStyle(FDTheme.bg)
+            .padding(.horizontal, 12).padding(.vertical, 7)
+            .background(
+                LinearGradient(colors: [FDTheme.amber, FDTheme.warning],
+                               startPoint: .leading, endPoint: .trailing)
+            )
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .background(FDTheme.card.opacity(0.6), in: RoundedRectangle(cornerRadius: FDTheme.radiusCard))
+        .overlay(
+            RoundedRectangle(cornerRadius: FDTheme.radiusCard)
+                .stroke(Color.white.opacity(0.07), lineWidth: 1)
+        )
+    }
+
+    /// Whatever the engine is currently showing.
+    @ViewBuilder
+    private var sceneCard: some View {
+        switch engine.currentScene {
+        case .none:
+            ProgressView().frame(maxHeight: .infinity)
+        case .story(let scene):
+            FDStoryCard(engine: engine, scene: scene)
+        case .match(let result):
+            FDMatchCard(engine: engine, result: result)
+        case .season(let lines):
+            FDSeasonCard(engine: engine, lines: lines)
+        case .tournament(let summary):
+            FDTournamentCard(engine: engine, summary: summary)
+        case .outcome(let outcome):
+            // Without an explicit continue action the outcome card renders no button and
+            // the career dead-ends on the very first resolved choice.
+            FDOutcomeCard(
+                engine: engine,
+                outcome: outcome,
+                primaryActionTitle: "Continuer",
+                primaryAction: { engine.continueAfterOutcome() }
+            )
+        }
     }
 
     // MARK: Retire card — always present inside the player box, so ending a career is
