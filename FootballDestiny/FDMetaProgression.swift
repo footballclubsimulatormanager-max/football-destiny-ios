@@ -147,11 +147,11 @@ typealias FDChallenge = FDLegendChallenge
 
 let FDLegendChallenges: [FDLegendChallenge] = [
     // ================= Palier 1 — 10 défis d'entrée (30–50 pièces) =================
-    FDLegendChallenge(id: "legend_mur_bavarois", name: "Klaus Vogtner", era: "Années 1970", nationality: "Allemagne", position: .defenseur, style: .leader, personality: .discipline,
+    FDLegendChallenge(id: "legend_mur_bavarois", name: "Berti Vogtz", era: "Années 1970", nationality: "Allemagne", position: .defenseur, style: .leader, personality: .discipline,
                       archetype: "Un roc increvable, capitaine par la seule force du regard.", unlockCost: 30, targetScore: 120),
     FDLegendChallenge(id: "legend_sentinelle", name: "Franco Baresini", era: "Années 1980", nationality: "Italie", position: .defenseur, style: .recuperateur, personality: .reserve,
                       archetype: "Personne n'est jamais passé dans son dos. Personne.", unlockCost: 32, targetScore: 130),
-    FDLegendChallenge(id: "legend_chat", name: "Gilbert Cavagne", era: "Années 1960", nationality: "France", position: .gardien, style: .technicien, personality: .reserve,
+    FDLegendChallenge(id: "legend_chat", name: "Georges Carnusse", era: "Années 1960", nationality: "France", position: .gardien, style: .technicien, personality: .reserve,
                       archetype: "Des réflexes que les attaquants de l'époque disaient surnaturels.", unlockCost: 34, targetScore: 125),
     FDLegendChallenge(id: "legend_metronome", name: "Pep Guardiel", era: "Années 1990", nationality: "Espagne", position: .milieu, style: .technicien, personality: .discipline,
                       archetype: "Quinze ans à donner le tempo sans jamais hausser le ton.", unlockCost: 36, targetScore: 150),
@@ -159,13 +159,13 @@ let FDLegendChallenges: [FDLegendChallenge] = [
                       archetype: "Il a couru plus que n'importe qui, chaque week-end, pendant une décennie.", unlockCost: 38, targetScore: 155),
     FDLegendChallenge(id: "legend_verrou", name: "Eric Geretz", era: "Années 1980", nationality: "Belgique", position: .defenseur, style: .leader, personality: .travailleur,
                       archetype: "Une carrière entière au service d'une seule idée : ne pas encaisser.", unlockCost: 40, targetScore: 145),
-    FDLegendChallenge(id: "legend_ailier_fou", name: "Nuno Figueira", era: "Années 1990", nationality: "Portugal", position: .attaquant, style: .rapide, personality: .irregulier,
+    FDLegendChallenge(id: "legend_ailier_fou", name: "Ricardo Sa Pinta", era: "Années 1990", nationality: "Portugal", position: .attaquant, style: .rapide, personality: .irregulier,
                       archetype: "Génial ou catastrophique, jamais entre les deux.", unlockCost: 42, targetScore: 170),
     FDLegendChallenge(id: "legend_capitaine_nord", name: "Martin Laursten", era: "Années 2000", nationality: "Danemark", position: .defenseur, style: .leader, personality: .discipline,
                       archetype: "Un brassard porté 400 matchs sans jamais le rendre.", unlockCost: 44, targetScore: 160),
     FDLegendChallenge(id: "legend_renard", name: "Gerd Müllner", era: "Années 1970", nationality: "Allemagne", position: .attaquant, style: .finisseur, personality: .discipline,
                       archetype: "Toujours au bon endroit, toujours une demi-seconde avant le défenseur.", unlockCost: 46, targetScore: 185),
-    FDLegendChallenge(id: "legend_maestro", name: "Michel Platani", era: "Années 1990", nationality: "France", position: .milieu, style: .createur, personality: .charismatique,
+    FDLegendChallenge(id: "legend_maestro", name: "Youri Djorkaieff", era: "Années 1990", nationality: "France", position: .milieu, style: .createur, personality: .charismatique,
                       archetype: "Le dernier geste avant le but, une carrière entière à faire jouer les autres.", unlockCost: 50, targetScore: 190),
 
     // ================= Palier 2 — 14 défis intermédiaires (70–120 pièces) =================
@@ -229,7 +229,7 @@ let FDLegendChallenges: [FDLegendChallenge] = [
                       archetype: "Défenseur, milieu, attaquant — parfois dans la même action.", unlockCost: 225, targetScore: 330),
     FDLegendChallenge(id: "legend_eternel", name: "Gianluca Buffoni", era: "Années 2010", nationality: "Italie", position: .gardien, style: .leader, personality: .discipline,
                       archetype: "Vingt-deux saisons au plus haut niveau, sans jamais baisser d'un ton.", unlockCost: 228, targetScore: 340),
-    FDLegendChallenge(id: "legend_rei_do_gol", name: "Edson Nascimente", era: "Années 1960", nationality: "Brésil", position: .attaquant, style: .finisseur, personality: .ambitieux,
+    FDLegendChallenge(id: "legend_rei_do_gol", name: "Mané Garrinche", era: "Années 1960", nationality: "Brésil", position: .attaquant, style: .finisseur, personality: .ambitieux,
                       archetype: "Le buteur des buteurs, une légende que les grands-parents racontent encore.", unlockCost: 230, targetScore: 380),
 
     // ================= Palier 4 — 10 défis d'élite (300–420 pièces) =================
@@ -241,11 +241,11 @@ let FDLegendChallenges: [FDLegendChallenge] = [
                       archetype: "Il a inventé un poste, puis gagné tout ce qu'il y avait à gagner dessus.", unlockCost: 330, targetScore: 400),
     FDLegendChallenge(id: "legend_hollandais", name: "Johan Cruijf", era: "Années 1970", nationality: "Pays-Bas", position: .attaquant, style: .createur, personality: .provocateur,
                       archetype: "Le football total incarné dans un seul joueur, insupportable et génial.", unlockCost: 345, targetScore: 440),
-    FDLegendChallenge(id: "legend_phenomene", name: "Ronaldo de Lima", era: "Années 1990", nationality: "Brésil", position: .attaquant, style: .rapide, personality: .ambitieux,
+    FDLegendChallenge(id: "legend_phenomene", name: "Ronaldo Nazaro", era: "Années 1990", nationality: "Brésil", position: .attaquant, style: .rapide, personality: .ambitieux,
                       archetype: "Trois saisons d'un niveau que le football n'avait jamais vu — puis les genoux.", unlockCost: 360, targetScore: 460),
     FDLegendChallenge(id: "legend_general_dor", name: "Zinedine Zidal", era: "Années 1990", nationality: "France", position: .milieu, style: .leader, personality: .charismatique,
                       archetype: "Deux coups de tête, un pays entier dans la rue, une carrière de patron.", unlockCost: 375, targetScore: 470),
-    FDLegendChallenge(id: "legend_perle_noire", name: "Elson Pelegrino", era: "Années 1960", nationality: "Brésil", position: .attaquant, style: .technicien, personality: .ambitieux,
+    FDLegendChallenge(id: "legend_perle_noire", name: "Edson Pelegrino", era: "Années 1960", nationality: "Brésil", position: .attaquant, style: .technicien, personality: .ambitieux,
                       archetype: "Trois titres mondiaux et plus de mille buts. La référence absolue.", unlockCost: 390, targetScore: 500),
     FDLegendChallenge(id: "legend_main_dieu", name: "Diego Maradano", era: "Années 1980", nationality: "Argentine", position: .attaquant, style: .createur, personality: .irregulier,
                       archetype: "Il a gagné une Coupe du monde presque seul, dans un tourbillon de génie et de chaos.", unlockCost: 400, targetScore: 510),

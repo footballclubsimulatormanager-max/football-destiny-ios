@@ -5370,6 +5370,164 @@ let FDScenesPack8: [FDSceneDef] = [
         ]),
 ]
 
+
+// MARK: - Scènes de défi
+//
+// Ces scènes n'existent que dans une carrière lancée comme « Défi Gloire du Passé ». Elles
+// parlent de la légende poursuivie — son nom, son époque, son poste — et posent les choix
+// qui font qu'on marche dans ses pas ou qu'on s'en écarte.
+
+let FDScenesLegend: [FDSceneDef] = [
+    FDSceneDef(
+        id: "leg_comparaison", category: "Héritage", minAge: 15, maxAge: 24,
+        location: "Salle de presse du centre", character: "Un journaliste local",
+        text: "« On dit déjà de toi que tu es le prochain {legend}. À ton âge, il jouait déjà. Ça te fait quoi, cette comparaison ? »",
+        choices: [
+            FDChoice(label: "Assumer la comparaison",
+                     effects: [FDEffect(cond: "confiance", delta: 6), FDEffect(cond: "reputation", delta: 4), FDEffect(rel: "media", delta: 3)]),
+            FDChoice(label: "Refuser de te comparer à lui",
+                     effects: [FDEffect(attr: .sangfroid, delta: 3), FDEffect(rel: "vestiaire", delta: 4)]),
+            FDChoice(label: "Dire que tu feras mieux",
+                     effects: [FDEffect(cond: "confiance", delta: 8), FDEffect(rel: "media", delta: 6), FDEffect(rel: "vestiaire", delta: -5)]),
+        ], legendOnly: true),
+    FDSceneDef(
+        id: "leg_archives", category: "Héritage", minAge: 15, maxAge: 30,
+        location: "Salle vidéo", character: "Analyste vidéo",
+        text: "L'analyste a retrouvé des images de {legend}, {legendEra}. Deux heures de matchs entiers, en qualité douteuse.",
+        choices: [
+            FDChoice(label: "Tout regarder, carnet en main",
+                     effects: [FDEffect(attr: .vision, delta: 3), FDEffect(attr: .placement, delta: 2), FDEffect(cond: "fatigue", delta: 5)]),
+            FDChoice(label: "Regarder dix minutes et t'en aller",
+                     effects: [FDEffect(cond: "confiance", delta: 2), FDEffect(rel: "coach", delta: -2)]),
+        ], legendOnly: true),
+    FDSceneDef(
+        id: "leg_geste_signature", category: "Héritage", minAge: 16, maxAge: 32,
+        location: "Terrain d'entraînement", character: "Entraîneur adjoint",
+        text: "Le geste qui a fait la réputation de {legend}, tu le rates neuf fois sur dix. L'adjoint te propose d'arrêter d'essayer.",
+        choices: [
+            FDChoice(label: "T'entêter jusqu'à le maîtriser",
+                     effects: [FDEffect(attr: .dribble, delta: 3), FDEffect(attr: .determination, delta: 3), FDEffect(cond: "fatigue", delta: 12)]),
+            FDChoice(label: "Trouver ton propre geste",
+                     effects: [FDEffect(attr: .control, delta: 2), FDEffect(cond: "confiance", delta: 5), FDEffect(attr: .sangfroid, delta: 2)]),
+        ], legendOnly: true),
+    FDSceneDef(
+        id: "leg_ancien_coequipier", category: "Héritage", minAge: 17, maxAge: 34,
+        location: "Tribune d'honneur", character: "Un ancien coéquipier de {legend}",
+        text: "Un homme t'attend après le match : il a joué aux côtés de {legend}. « Il avait un truc que je n'ai jamais revu. Toi, tu as autre chose. »",
+        choices: [
+            FDChoice(label: "Lui demander lequel",
+                     effects: [FDEffect(attr: .vision, delta: 2), FDEffect(cond: "moral", delta: 6), FDEffect(rel: "staff", delta: 3)]),
+            FDChoice(label: "Le remercier et passer ton chemin",
+                     effects: [FDEffect(attr: .sangfroid, delta: 2)]),
+        ], legendOnly: true),
+    FDSceneDef(
+        id: "leg_record", category: "Héritage", minAge: 20, maxAge: 36,
+        location: "Vestiaire", character: "Attaché de presse du club",
+        text: "Tu es à trois buts du total que {legend} affichait à ton âge. La presse a sorti le tableau comparatif.",
+        choices: [
+            FDChoice(label: "Jouer pour le record",
+                     effects: [FDEffect(attr: .tir, delta: 2), FDEffect(cond: "confiance", delta: 4), FDEffect(rel: "vestiaire", delta: -4)]),
+            FDChoice(label: "Ignorer le tableau",
+                     effects: [FDEffect(attr: .sangfroid, delta: 4), FDEffect(rel: "vestiaire", delta: 4)]),
+        ], legendOnly: true),
+    FDSceneDef(
+        id: "leg_maillot_musee", category: "Héritage", minAge: 18, maxAge: 36,
+        location: "Musée du club", character: "Le conservateur",
+        text: "Le maillot de {legend} est sous vitrine. On te propose de le porter une fois, pour un match de gala.",
+        choices: [
+            FDChoice(label: "Le porter",
+                     effects: [FDEffect(cond: "reputation", delta: 6), FDEffect(rel: "fans", delta: 8), FDEffect(cond: "confiance", delta: -2)]),
+            FDChoice(label: "Refuser : ce maillot est le sien",
+                     effects: [FDEffect(rel: "fans", delta: 4), FDEffect(attr: .sangfroid, delta: 3), FDEffect(cond: "moral", delta: 3)]),
+        ], legendOnly: true),
+    FDSceneDef(
+        id: "leg_poste_impose", category: "Héritage", minAge: 16, maxAge: 30,
+        location: "Bureau du coach", character: "Entraîneur principal",
+        text: "Le coach veut te décaler d'un cran. Mais {legend} a fait toute sa carrière comme {legendPoste}, et c'est ce qu'on attend de toi.",
+        choices: [
+            FDChoice(label: "Rester fidèle à son poste",
+                     effects: [FDEffect(attr: .placement, delta: 3), FDEffect(rel: "coach", delta: -4), FDEffect(cond: "confiance", delta: 3)]),
+            FDChoice(label: "Accepter le déplacement",
+                     effects: [FDEffect(attr: .vision, delta: 3), FDEffect(rel: "coach", delta: 6), FDEffect(cond: "reputation", delta: -2)]),
+        ], legendOnly: true),
+    FDSceneDef(
+        id: "leg_pays_attente", category: "Héritage", minAge: 18, maxAge: 34,
+        location: "Centre national", character: "Sélectionneur",
+        text: "Tout le pays attend de toi ce que {legend} lui a donné {legendEra}. Le sélectionneur te le dit sans détour.",
+        choices: [
+            FDChoice(label: "Prendre la charge sur toi",
+                     effects: [FDEffect(attr: .leadership, delta: 4), FDEffect(cond: "reputation", delta: 5), FDEffect(cond: "fatigue", delta: 6)]),
+            FDChoice(label: "Rappeler que tu écris ta propre histoire",
+                     effects: [FDEffect(attr: .sangfroid, delta: 4), FDEffect(cond: "moral", delta: 4), FDEffect(rel: "media", delta: -2)]),
+        ], legendOnly: true),
+    FDSceneDef(
+        id: "leg_supporters_banderole", category: "Héritage", minAge: 18, maxAge: 36,
+        location: "Tribune", character: "Le kop",
+        text: "Une banderole déployée avant le coup d'envoi : « Un seul {legend} ». Elle te vise directement.",
+        choices: [
+            FDChoice(label: "Aller applaudir la tribune",
+                     effects: [FDEffect(rel: "fans", delta: 8), FDEffect(attr: .sangfroid, delta: 3)]),
+            FDChoice(label: "Répondre par un grand match",
+                     effects: [FDEffect(attr: .determination, delta: 5), FDEffect(cond: "fatigue", delta: 8), FDEffect(cond: "confiance", delta: 4)]),
+            FDChoice(label: "Le prendre très mal",
+                     effects: [FDEffect(cond: "moral", delta: -6), FDEffect(rel: "fans", delta: -4)]),
+        ], legendOnly: true),
+    FDSceneDef(
+        id: "leg_biographe", category: "Héritage", minAge: 20, maxAge: 36,
+        location: "Café", character: "Le biographe de {legend}",
+        text: "Celui qui a écrit la biographie de {legend} veut te suivre une saison. « Je veux voir si l'histoire se répète. »",
+        choices: [
+            FDChoice(label: "Accepter l'accès complet",
+                     effects: [FDEffect(rel: "media", delta: 8), FDEffect(cond: "reputation", delta: 5), FDEffect(rel: "vestiaire", delta: -4)]),
+            FDChoice(label: "Accepter, mais hors du vestiaire",
+                     effects: [FDEffect(rel: "media", delta: 4), FDEffect(attr: .sangfroid, delta: 2)]),
+            FDChoice(label: "Refuser",
+                     effects: [FDEffect(rel: "media", delta: -4), FDEffect(cond: "moral", delta: 3)]),
+        ], legendOnly: true),
+    FDSceneDef(
+        id: "leg_meme_club", category: "Héritage", minAge: 18, maxAge: 34,
+        location: "Bureau du président", character: "Président du club",
+        text: "Le club où {legend} a tout gagné te veut. Y signer, c'est accepter la comparaison tous les jours.",
+        choices: [
+            FDChoice(label: "Signer et affronter la comparaison",
+                     effects: [FDEffect(cond: "reputation", delta: 8), FDEffect(cond: "confiance", delta: -3), FDEffect(rel: "president", delta: 6)]),
+            FDChoice(label: "Choisir un club où tu n'as rien à prouver",
+                     effects: [FDEffect(cond: "moral", delta: 6), FDEffect(attr: .determination, delta: 2), FDEffect(cond: "reputation", delta: -3)]),
+        ], legendOnly: true),
+    FDSceneDef(
+        id: "leg_rencontre", category: "Héritage", minAge: 17, maxAge: 36,
+        location: "Salon d'un hôtel", character: "{legend}",
+        text: "{legend} en personne a demandé à te rencontrer. Il a suivi tes derniers matchs, et il n'a pas l'air venu pour te flatter.",
+        choices: [
+            FDChoice(label: "Écouter ses critiques jusqu'au bout",
+                     effects: [FDEffect(attr: .vision, delta: 3), FDEffect(attr: .determination, delta: 4), FDEffect(cond: "moral", delta: -2)]),
+            FDChoice(label: "Défendre ta manière de jouer",
+                     effects: [FDEffect(cond: "confiance", delta: 6), FDEffect(attr: .leadership, delta: 3)]),
+            FDChoice(label: "Lui demander de te parrainer",
+                     effects: [FDEffect(cond: "reputation", delta: 6), FDEffect(rel: "media", delta: 4), FDEffect(cond: "confiance", delta: -2)]),
+        ], legendOnly: true),
+    FDSceneDef(
+        id: "leg_style_impose", category: "Héritage", minAge: 16, maxAge: 32,
+        location: "Terrain d'entraînement", character: "Préparateur mental",
+        text: "Tu joues comme {legend} depuis des mois, et le préparateur mental te le dit franchement : tu joues comme quelqu'un d'autre.",
+        choices: [
+            FDChoice(label: "Revenir à ton propre jeu",
+                     effects: [FDEffect(cond: "confiance", delta: 7), FDEffect(cond: "moral", delta: 5), FDEffect(attr: .sangfroid, delta: 2)]),
+            FDChoice(label: "Aller au bout de l'imitation",
+                     effects: [FDEffect(attr: .determination, delta: 5), FDEffect(cond: "fatigue", delta: 8), FDEffect(cond: "moral", delta: -3)]),
+        ], legendOnly: true),
+    FDSceneDef(
+        id: "leg_verdict", category: "Héritage", minAge: 28, maxAge: 36,
+        location: "Plateau télé", character: "Un consultant",
+        text: "Sur le plateau, le verdict tombe : « Il aura été très bon. Mais {legend}, c'était autre chose. »",
+        choices: [
+            FDChoice(label: "Le prendre comme un carburant",
+                     effects: [FDEffect(attr: .determination, delta: 6), FDEffect(cond: "confiance", delta: 4), FDEffect(cond: "fatigue", delta: 4)]),
+            FDChoice(label: "En rire, tu sais ce que tu as fait",
+                     effects: [FDEffect(attr: .sangfroid, delta: 5), FDEffect(cond: "moral", delta: 6), FDEffect(cond: "reputation", delta: 3)]),
+        ], legendOnly: true),
+]
+
 /// Every scene the engine can draw from.
 let FDScenes: [FDSceneDef] = FDScenesCore
     + FDScenesPack1
@@ -5380,3 +5538,4 @@ let FDScenes: [FDSceneDef] = FDScenesCore
     + FDScenesPack6
     + FDScenesPack7
     + FDScenesPack8
+    + FDScenesLegend

@@ -549,6 +549,9 @@ struct FDSceneDef {
     var condition: ((FDPlayer) -> Bool)? = nil
     /// Restricts a scene to specific positions — nil means every position is eligible.
     var positions: [FDPosition]? = nil
+    /// Reserved for careers played as a "Gloire du Passé" challenge: these scenes speak of
+    /// the legend being chased, and never appear in an ordinary career.
+    var legendOnly: Bool = false
 }
 
 enum FDCurrentScene {

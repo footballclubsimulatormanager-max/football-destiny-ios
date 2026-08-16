@@ -745,6 +745,8 @@ final class FDGameEngine: ObservableObject {
         if p.age < s.minAge || p.age > s.maxAge { return false }
         if let statuses = s.statuses, !statuses.contains(p.status) { return false }
         if let positions = s.positions, !positions.contains(p.position) { return false }
+        // Legend scenes only exist inside a "Gloire du Passé" run.
+        if s.legendOnly && activeLegendChallengeID == nil { return false }
         if let cond = s.condition, !cond(p) { return false }
         return true
     }
@@ -752,9 +754,21 @@ final class FDGameEngine: ObservableObject {
     /// Scene text/character can reference "{rival}" — swapped for the player's persistent
     /// rival's last name at pick time so hand-written Rivalité scenes stay dynamic.
     private func personalize(_ text: String, player p: FDPlayer) -> String {
-        guard text.contains("{rival}") else { return text }
-        let name = p.rivalLastName.isEmpty ? "ton rival" : p.rivalLastName
-        return text.replacingOccurrences(of: "{rival}", with: name)
+        var out = text
+        if out.contains("{rival}") {
+            let name = p.rivalLastName.isEmpty ? "ton rival" : p.rivalLastName
+            out = out.replacingOccurrences(of: "{rival}", with: name)
+        }
+        // Legend challenge scenes speak of the player being chased, by name, era and post.
+        if out.contains("{legend}") || out.contains("{legendEra}") || out.contains("{legendPoste}") {
+            let legend = activeLegendChallengeID.flatMap { id in
+                FDLegendChallenges.first(where: { $0.id == id })
+            }
+            out = out.replacingOccurrences(of: "{legend}", with: legend?.name ?? "la légende")
+            out = out.replacingOccurrences(of: "{legendEra}", with: legend?.era.lowercased() ?? "l'époque")
+            out = out.replacingOccurrences(of: "{legendPoste}", with: legend?.position.rawValue.lowercased() ?? "joueur")
+        }
+        return out
     }
 
     private func pickHandwrittenScene(_ p: FDPlayer) -> FDSceneDef? {
