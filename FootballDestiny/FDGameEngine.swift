@@ -835,7 +835,12 @@ final class FDGameEngine: ObservableObject {
         if let chance = choice.riskChance, Double.random(in: 0...1) < chance, let riskEffects = choice.riskEffects, let riskText = choice.riskText {
             pills += applyEffects(riskEffects)
             narrative = riskText
-            pushJournal(riskText, icon: "⚠️")
+            // The same mechanism covers a gamble that pays off and one that turns sour, so
+            // the journal picks its icon from what actually happened.
+            let net = riskEffects.reduce(0) { total, e in
+                total + (e.cond == "fatigue" ? -e.delta : e.delta) + (e.money ?? 0) / 1000
+            }
+            pushJournal(riskText, icon: net >= 0 ? "🍀" : "⚠️")
         }
         if let trait = choice.trait, var p = player, !p.traits.contains(trait) {
             p.traits.append(trait)
