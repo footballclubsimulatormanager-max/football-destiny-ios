@@ -43,12 +43,33 @@ final class FDGameEngine: ObservableObject {
     private static let unlockedLegendsKey = "footballDestinyUnlockedLegends_v1"
     private static let conqueredLegendsKey = "footballDestinyConqueredLegends_v1"
     private static let archiveKey = "footballDestinyArchive_v1"
+    private static let recentScenesKey = "footballDestinyRecentScenes_v1"
+
+    /// Les scènes vues lors des dernières carrières, pas seulement celle en cours. Quelqu'un
+    /// qui enchaîne cent carrières sur plusieurs mois retomberait sinon sur les mêmes textes
+    /// dès la deuxième : à l'intérieur d'une carrière on ne se répète jamais, mais d'une
+    /// carrière à l'autre le tirage repartait de zéro. Fenêtre glissante : les plus vieilles
+    /// sortent, et une scène redevient disponible quand tout le reste a défilé.
+    private var recentSceneIds: [String] = []
+    private static let recentScenesWindow = 260
 
     init() {
         if let data = UserDefaults.standard.data(forKey: Self.archiveKey),
            let decoded = try? JSONDecoder().decode([FDPlayer].self, from: data) {
             archivedCareers = decoded
         }
+        recentSceneIds = UserDefaults.standard.stringArray(forKey: Self.recentScenesKey) ?? []
+    }
+
+    /// Retient une scène servie, toutes carrières confondues.
+    private func rememberScene(_ id: String) {
+        guard !id.hasPrefix("generic_") else { return }
+        recentSceneIds.removeAll { $0 == id }
+        recentSceneIds.append(id)
+        if recentSceneIds.count > Self.recentScenesWindow {
+            recentSceneIds.removeFirst(recentSceneIds.count - Self.recentScenesWindow)
+        }
+        UserDefaults.standard.set(recentSceneIds, forKey: Self.recentScenesKey)
     }
 
     // MARK: - Save / load
@@ -151,11 +172,16 @@ final class FDGameEngine: ObservableObject {
             if Double.random(in: 0...1) < 0.14 { v += Int.random(in: 6...13) }
             attrs[a.rawValue] = min(max(v, 10), 62)
         }
+        // Le plafond d'un attribut n'est plus le même pour tout le monde : 90 pour tout le
+        // monde interdisait les joueurs d'exception, et cent carrières finissaient par se
+        // ressembler par le haut. Il dépend du palier de talent, des étoiles achetées et
+        // d'un tirage — seul un talent de génération avec des étoiles approche les 99.
+        let attributeCeiling = min(99, 86 + Int.random(in: 0...4) + talent.potentialBias / 2 + starsBought)
         var potential: [String: Int] = [:]
         for a in FDAttribute.allCases {
             let base = attrs[a.rawValue] ?? 22
             let spread = Int.random(in: (potBias - 8)...(potBias + 18)) + Int((Double(talentSeed) * 0.8).rounded())
-            potential[a.rawValue] = min(max(base + spread, base + 6), 90)
+            potential[a.rawValue] = min(max(base + spread, base + 6), attributeCeiling)
         }
 
         let startMoney: Int
@@ -521,7 +547,23 @@ final class FDGameEngine: ObservableObject {
     /// celles achetées. On ne propose pas un bloc de clubs équivalents : la moitié au niveau
     /// moyen du joueur, un cran au-dessus pour ceux qui veulent que ce soit dur tout de suite,
     /// un cran en dessous pour ceux qui préfèrent jouer et progresser tranquillement.
+    /// Le tirage n'est fait qu'une fois par écran : sans ce cache, la liste se rebattrait à
+    /// chaque redessin de la vue et le club sélectionné sauterait d'une ligne à l'autre. Elle
+    /// se rejoue quand la nationalité ou les étoiles changent, et au lancement de la carrière
+    /// suivante.
+    private var startClubCacheKey = ""
+    private var startClubCache: [FDClub] = []
+
     func availableStartClubs(nationality: String, potentialStars totalStars: Int) -> [FDClub] {
+        let key = "\(nationality)#\(totalStars)"
+        if key == startClubCacheKey, !startClubCache.isEmpty { return startClubCache }
+        let picks = buildStartClubs(nationality: nationality, totalStars: totalStars)
+        startClubCacheKey = key
+        startClubCache = picks
+        return picks
+    }
+
+    private func buildStartClubs(nationality: String, totalStars: Int) -> [FDClub] {
         let centre = startCentralDivision(nationality: nationality, totalStars: totalStars)
         let allowed = startDivisions(centre: centre)
         let home = FDAllClubs.filter { $0.country == nationality }
@@ -536,19 +578,28 @@ final class FDGameEngine: ObservableObject {
         }
         if pool.isEmpty { pool = home }
 
+        // On tire au sort dans les meilleurs candidats plutôt que de prendre les mêmes en
+        // tête de liste : quelqu'un qui lance cent carrières se voyait proposer six fois le
+        // même club de départ. Le vivier reste cohérent — les bonnes formations pour qui a
+        // des étoiles, les clubs modestes pour qui veut jouer tout de suite — mais qui en
+        // sort change à chaque fois.
         func band(_ division: Int, _ count: Int, best: Bool) -> [FDClub] {
             let clubs = pool.filter { $0.division == division }
+            guard !clubs.isEmpty else { return [] }
             let sorted = best
                 ? clubs.sorted { $0.academyQuality > $1.academyQuality }
                 : clubs.sorted { $0.reputation < $1.reputation }
-            return Array(sorted.prefix(count))
+            // Deux fois plus de candidats que de places, plus une marge : le tirage a de quoi
+            // varier sans jamais descendre dans le fond du panier.
+            let vivier = Array(sorted.prefix(max(count * 3, count + 4)))
+            return Array(vivier.shuffled().prefix(count))
         }
 
         // À quatre étoiles et plus, on n'entre plus par la petite porte : les six clubs
         // proposés jouent le haut du tableau et la carrière démarre déjà lancée.
         if totalStars >= 4 {
             let elite = pool.filter { $0.division == centre }.sorted { $0.reputation > $1.reputation }
-            if elite.count >= 4 { return Array(elite.prefix(6)) }
+            if elite.count >= 4 { return Array(elite.prefix(10).shuffled().prefix(6)) }
         }
 
         // Un cran au-dessus (plus dur), le niveau moyen, un cran en dessous (plus de jeu).
@@ -565,6 +616,8 @@ final class FDGameEngine: ObservableObject {
             picks += pool
                 .filter { !taken.contains($0.id) }
                 .sorted { $0.academyQuality > $1.academyQuality }
+                .prefix(10)
+                .shuffled()
                 .prefix(6 - picks.count)
         }
         return picks.sorted { $0.division < $1.division }
@@ -574,6 +627,9 @@ final class FDGameEngine: ObservableObject {
     /// directly on the draft instead of passing it as a separate argument.
     func startCareer(from draft: FDCreationDraft) {
         guard let club = draft.club else { return }
+        // La prochaine création rejouera son tirage de clubs de départ.
+        startClubCacheKey = ""
+        startClubCache = []
         startCareer(draft: draft, club: club)
     }
 
@@ -939,7 +995,11 @@ final class FDGameEngine: ObservableObject {
         // With several hundred scenes available, a career should exhaust what it has never
         // seen before showing anything twice — otherwise the same handful keeps coming back.
         let unseen = pool.filter { !usedSceneIds.contains($0.id) }
-        guard var picked = (unseen.isEmpty ? pool : unseen).randomElement() else { return nil }
+        let candidates = unseen.isEmpty ? pool : unseen
+        // Et parmi celles-là, d'abord celles qu'aucune des dernières carrières n'a servies.
+        let fresh = candidates.filter { !recentSceneIds.contains($0.id) }
+        guard var picked = (fresh.isEmpty ? candidates : fresh).randomElement() else { return nil }
+        rememberScene(picked.id)
         picked.text = personalize(picked.text, player: p)
         picked.character = personalize(picked.character, player: p)
         return picked
@@ -1082,7 +1142,12 @@ final class FDGameEngine: ObservableObject {
         }
         if candidates.isEmpty { candidates = pool }
         let unseen = candidates.filter { !usedSceneIds.contains($0.id) }
-        guard var picked = (unseen.isEmpty ? candidates : unseen).randomElement() else { return nil }
+        let short = unseen.isEmpty ? candidates : unseen
+        // Le grand rendez-vous n'arrive qu'une fois par saison : c'est le texte qu'on
+        // reverrait le plus vite d'une carrière à l'autre. Il passe donc par la même mémoire.
+        let fresh = short.filter { !recentSceneIds.contains($0.id) }
+        guard var picked = (fresh.isEmpty ? short : fresh).randomElement() else { return nil }
+        rememberScene(picked.id)
         picked.text = personalize(picked.text, player: p)
         picked.character = personalize(picked.character, player: p)
         return picked

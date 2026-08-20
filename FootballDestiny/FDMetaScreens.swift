@@ -964,6 +964,8 @@ struct FDReglesView: View {
                 bullet("Rien n'est jamais acquis : perdre sa place, c'est perdre sa progression, et tout se rejoue la saison suivante.")
                 bullet("Devant le but, chaque saison a son humeur, tirée à neuf : la plupart ne disent rien, certaines voient tout rentrer, d'autres rien du tout. Les plus rares sont celles où une superstar dépasse les cinquante buts.")
                 bullet("Et ces probabilités-là ne sont pas les mêmes pour tout le monde : chaque carrière reçoit au lancement son propre tempérament — régulière ou faite de trous d'air et de flambées — et sa propre main devant le but. Deux carrières identiques sur le papier ne racontent jamais la même histoire.")
+                bullet("Le plafond d'un attribut se tire aussi à la carrière : la plupart butent autour de 88, et seul un talent d'exception avec des étoiles approche les 99.")
+                bullet("Enfin, le jeu retient les scènes servies par tes dernières carrières, pas seulement par celle en cours : la suivante ira chercher ailleurs. Même chose pour les clubs de départ, tirés parmi les meilleurs candidats plutôt que toujours les six mêmes.")
             }
             rulesCard(icon: "arrow.up.arrow.down", title: "Pro, et rien d'autre", color: FDTheme.primary) {
                 paragraph("La carrière commence et se termine chez les professionnels : il n'y a pas de catégorie de jeunes à traverser.")
