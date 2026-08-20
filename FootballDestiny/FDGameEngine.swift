@@ -114,10 +114,13 @@ final class FDGameEngine: ObservableObject {
 
     func startCareer(draft: FDCreationDraft, club: FDClub, legendChallengeID: String? = nil) {
         activeLegendChallengeID = legendChallengeID
-        // A crack always starts modest — the ceiling only rises with "potential stars" bought
-        // from points banked by previous careers, plus a small automatic bonus for experience.
-        let starsBought = min(draft.potentialStars, FDPotentialShop.buyableStars)
-        let starCost = FDPotentialShop.cumulativeCost(for: starsBought)
+        // Le potentiel de départ se déplace dans les deux sens autour des deux étoiles
+        // acquises : vers le haut en dépensant des points, vers le bas gratuitement pour
+        // ceux qui veulent une carrière qui ne pardonne rien.
+        let halfStars = min(max(draft.potentialHalfStars, 0), FDPotentialShop.maxHalfStars)
+        let halfBought = max(0, halfStars - FDPotentialShop.freeHalfStars)
+        let halfHandicap = max(0, FDPotentialShop.freeHalfStars - halfStars)
+        let starCost = FDPotentialShop.cumulativeCost(halfStars: halfBought)
         if starCost > 0 {
             lifetimePoints = max(0, lifetimePoints - starCost)
             UserDefaults.standard.set(lifetimePoints, forKey: Self.lifetimePointsKey)
@@ -152,11 +155,12 @@ final class FDGameEngine: ObservableObject {
         // celles qu'on joue justement sans points en banque — plafonnaient trop bas pour
         // aller nulle part. Les étoiles achetées s'ajoutent par-dessus, elles gardent donc
         // toute leur valeur.
-        let freeStars = FDPotentialShop.freeStars
         // Le talent est tiré ici, une fois pour toutes, et n'est jamais annoncé : deux
-        // carrières lancées avec les mêmes étoiles ne valent pas la même chose.
-        let talent = fdDrawTalentTier(starsBought: starsBought)
-        let potBias = 14 + (freeStars + starsBought) * 4 + metaBonus + competencePotential + talent.potentialBias
+        // carrières lancées avec les mêmes étoiles ne valent pas la même chose. L'écart aux
+        // deux étoiles de départ le tire vers le haut… ou vers le bas.
+        let talent = fdDrawTalentTier(
+            starsBought: FDPotentialShop.stars(halfStars: halfStars) - Double(FDPotentialShop.freeStars))
+        let potBias = 14 + halfStars * 2 + metaBonus + competencePotential + talent.potentialBias
         let talentSeed = Int.random(in: -6...10)
         let weights = draft.position.weights
         let jitterRange: ClosedRange<Int> = draft.personality == .irregulier ? -14...17 : -8...9
@@ -176,7 +180,8 @@ final class FDGameEngine: ObservableObject {
         // monde interdisait les joueurs d'exception, et cent carrières finissaient par se
         // ressembler par le haut. Il dépend du palier de talent, des étoiles achetées et
         // d'un tirage — seul un talent de génération avec des étoiles approche les 99.
-        let attributeCeiling = min(99, 86 + Int.random(in: 0...4) + talent.potentialBias / 2 + starsBought)
+        let attributeCeiling = min(99, 86 + Int.random(in: 0...4) + talent.potentialBias / 2
+                                   + halfBought / 2 - halfHandicap)
         var potential: [String: Int] = [:]
         for a in FDAttribute.allCases {
             let base = attrs[a.rawValue] ?? 22
@@ -210,6 +215,7 @@ final class FDGameEngine: ObservableObject {
         // Ce qui rend cette carrière-là unique, au-delà des étoiles et du palier de talent :
         // son rythme — régulière ou faite de trous d'air et de flambées — et sa main devant
         // le but. Tirés ici une fois pour toutes, jamais annoncés.
+        newPlayer.startHalfStars = halfStars
         newPlayer.careerVolatility = Double.random(in: 0.55...1.6)
         newPlayer.finishingEdge = Double.random(in: -0.045...0.06)
         newPlayer.originClubId = club.id
@@ -287,11 +293,19 @@ final class FDGameEngine: ObservableObject {
 
     @discardableResult
     private func awardLifetimePoints(for p: FDPlayer) -> Int {
-        let earned = max(
+        var earned = max(
             5,
             p.careerGoals * 2 + p.careerAssists + p.careerApps / 3
                 + p.cond.reputation / 5 + max(0, p.calendar.season - 1) * 3
         )
+        // Une carrière lancée sous les deux étoiles a tout fait plus dur : plafond plus bas,
+        // meilleurs paliers de talent plus rares, division de départ plus basse. Elle rapporte
+        // donc davantage — quinze pour cent par demi-étoile abandonnée, soit soixante pour
+        // cent à zéro étoile. C'est le seul moyen de gagner vite sans dépenser.
+        let handicap = max(0, FDPotentialShop.freeHalfStars - (p.startHalfStars ?? FDPotentialShop.freeHalfStars))
+        if handicap > 0 {
+            earned = Int((Double(earned) * (1 + 0.15 * Double(handicap))).rounded())
+        }
         lifetimePoints += earned
         UserDefaults.standard.set(lifetimePoints, forKey: Self.lifetimePointsKey)
         return earned
@@ -527,14 +541,17 @@ final class FDGameEngine: ObservableObject {
     /// La division où l'on atterrit en moyenne, pour un total d'étoiles donné — offertes
     /// comprises. Deux étoiles, c'est la deuxième division : le niveau où un jeune pro joue
     /// vraiment. Chaque étoile achetée par-dessus rapproche de l'élite.
-    private func baseCentralDivision(totalStars: Int) -> Int {
-        totalStars >= 3 ? 1 : 2
+    private func baseCentralDivision(totalStars: Double) -> Int {
+        if totalStars >= 3 { return 1 }
+        if totalStars >= 2 { return 2 }
+        if totalStars >= 1 { return 3 }
+        return 4
     }
 
     /// La même chose, ramenée à ce que le pays offre réellement : tous les championnats ne
     /// sont pas modélisés aussi profond que la France, et il ne faudrait pas annoncer une
     /// deuxième division à un joueur d'un pays qui n'en a pas.
-    func startCentralDivision(nationality: String, totalStars: Int) -> Int {
+    func startCentralDivision(nationality: String, totalStars: Double) -> Int {
         let deepest = FDAllClubs.filter { $0.country == nationality }.map(\.division).max() ?? 1
         return min(baseCentralDivision(totalStars: totalStars), deepest)
     }
@@ -554,7 +571,7 @@ final class FDGameEngine: ObservableObject {
     private var startClubCacheKey = ""
     private var startClubCache: [FDClub] = []
 
-    func availableStartClubs(nationality: String, potentialStars totalStars: Int) -> [FDClub] {
+    func availableStartClubs(nationality: String, potentialStars totalStars: Double) -> [FDClub] {
         let key = "\(nationality)#\(totalStars)"
         if key == startClubCacheKey, !startClubCache.isEmpty { return startClubCache }
         let picks = buildStartClubs(nationality: nationality, totalStars: totalStars)
@@ -563,7 +580,7 @@ final class FDGameEngine: ObservableObject {
         return picks
     }
 
-    private func buildStartClubs(nationality: String, totalStars: Int) -> [FDClub] {
+    private func buildStartClubs(nationality: String, totalStars: Double) -> [FDClub] {
         let centre = startCentralDivision(nationality: nationality, totalStars: totalStars)
         let allowed = startDivisions(centre: centre)
         let home = FDAllClubs.filter { $0.country == nationality }

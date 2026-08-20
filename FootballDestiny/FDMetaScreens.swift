@@ -946,8 +946,9 @@ struct FDReglesView: View {
                 ruleRow("Moments écrits en tout", "300")
             }
             rulesCard(icon: "crown.fill", title: "Le talent", color: FDTheme.amber) {
-                paragraph("Toute carrière démarre avec \(FDPotentialShop.freeStars) étoiles de potentiel acquises, même sans un seul point en banque : elles s'affichent pleines dès l'ouverture de la fiche. Les points ne remplissent que les \(FDPotentialShop.buyableStars) suivantes, et seulement pour la carrière que tu lances ensuite.")
-                paragraph("Le total d'étoiles décide aussi de là où tu démarres : à 2 étoiles la deuxième division, avec un club au-dessus — plus dur — et deux en dessous où tu joueras tout de suite. À 3 étoiles, l'élite. À 4 ou 5, les six clubs proposés jouent le haut du tableau : la carrière démarre déjà lancée.")
+                paragraph("Toute carrière démarre à \(FDPotentialShop.freeStars) étoiles de potentiel, même sans un seul point en banque. Ce n'est pas un plancher : le curseur se déplace dans les deux sens, par demi-étoiles. Les points le montent — pour cette carrière-là seulement — et le descendre ne coûte rien.")
+                paragraph("Descendre, c'est choisir une carrière qui ne pardonne rien : plafond d'attribut plus bas, bons paliers de talent plus rares, division de départ plus basse. En échange elle rapporte 15 % de points en plus par demi-étoile abandonnée, soit 60 % à zéro étoile.")
+                paragraph("Le total décide de là où tu démarres : 0 ou 0,5 étoile tout en bas de la pyramide, 1 en troisième division, 2 en deuxième — avec un club au-dessus, plus dur, et deux en dessous — 3 dans l'élite, 4 ou 5 dans un club qui joue le titre.")
                 paragraph("Un palier de talent est tiré au lancement, et jamais annoncé : deux carrières lancées avec les mêmes étoiles ne valent pas la même chose. Il se révèle de lui-même après deux saisons.")
                 ruleRow("Ordinaire", "46 %")
                 ruleRow("Prometteur", "27 %")
@@ -986,11 +987,12 @@ struct FDReglesView: View {
         Group {
             rulesCard(icon: "star.circle.fill", title: "Points de carrière", color: FDTheme.warning) {
                 paragraph("Gagnés à chaque retraite, quelle qu'elle soit. Ils n'achètent qu'une chose : des étoiles de potentiel, et uniquement pour la carrière suivante — jamais pour celle en cours.")
-                ruleRow("2 étoiles de départ", "offertes")
-                ruleRow("3e étoile", "\(FDPotentialShop.costOfStar(1)) pts")
-                ruleRow("4e étoile", "\(FDPotentialShop.costOfStar(2)) pts")
-                ruleRow("5 étoiles (total)", "\(FDPotentialShop.cumulativeCost(for: FDPotentialShop.buyableStars)) pts")
-                ruleRow("Par étoile", "+5 % de potentiel")
+                ruleRow("2 étoiles de départ", "acquises")
+                ruleRow("1re demi-étoile", "\(FDPotentialShop.costOfHalfStar(1)) pts")
+                ruleRow("Jusqu'à 3 étoiles", "\(FDPotentialShop.cumulativeCost(halfStars: 2)) pts")
+                ruleRow("Jusqu'à 4 étoiles", "\(FDPotentialShop.cumulativeCost(halfStars: 4)) pts")
+                ruleRow("Jusqu'à 5 étoiles", "\(FDPotentialShop.cumulativeCost(halfStars: 6)) pts")
+                ruleRow("Descendre sous 2", "gratuit, +15 % de points par demi-étoile")
             }
             rulesCard(icon: "seal.fill", title: "Pièces", color: FDTheme.blueGlow) {
                 paragraph("Bien plus rares : elles ne récompensent que la qualité d'une carrière, de 1 à 14 pièces.")

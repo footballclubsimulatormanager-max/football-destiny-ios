@@ -482,6 +482,11 @@ struct FDPlayer: Codable {
     /// gardée jusqu'au bilan. Facultatif : une sauvegarde antérieure la tire à sa reprise.
     var seasonMood: Double? = nil
 
+    /// Le potentiel choisi au départ, en demi-étoiles. Sous les quatre demi-étoiles acquises,
+    /// la carrière a été volontairement handicapée : la retraite en tient compte au moment de
+    /// compter les points. Facultatif, pour que les sauvegardes antérieures se relisent.
+    var startHalfStars: Int? = nil
+
     func attr(_ a: FDAttribute) -> Int { attrs[a.rawValue] ?? 0 }
     func potential(_ a: FDAttribute) -> Int { potential[a.rawValue] ?? 0 }
 
@@ -638,7 +643,10 @@ struct FDCreationDraft {
     /// Competences carried into this career, capped at FDMaxEquippedCompetences.
     var equippedCompetenceIDs: [String] = []
     var mode = FDMode.narratif
-    var potentialStars = 0
+    /// Le potentiel de départ, en demi-étoiles. Il part des deux étoiles acquises et se
+    /// déplace dans les deux sens : vers le haut en dépensant des points, vers le bas
+    /// gratuitement, pour se compliquer volontairement la vie.
+    var potentialHalfStars = FDPotentialShop.freeHalfStars
     var club: FDClub? = nil
 }
 
@@ -646,31 +654,42 @@ struct FDCreationDraft {
 /// that raise the ceiling of the new player — a crack always starts modest, but experience
 /// (i.e. points banked from previous careers) lets you start stronger and faster.
 enum FDPotentialShop {
-    /// Le plafond affiché : cinq étoiles en tout, offertes comprises.
-    static let maxStars = 5
+    /// Tout se compte en demi-étoiles : le jeu en affiche des moitiés partout ailleurs, il
+    /// n'y avait pas de raison que le potentiel de départ soit le seul à s'acheter par
+    /// crans entiers.
+    static let maxHalfStars = 10          // cinq étoiles
+    static let freeHalfStars = 4          // deux étoiles, le point de départ de toute carrière
 
-    /// Deux étoiles sont acquises à toute carrière, sans rien dépenser. Elles s'affichent
-    /// pleines dès l'ouverture de la fiche : on ne part jamais de zéro.
+    /// Ce qu'on peut encore remplir au-dessus du départ.
+    static var buyableHalfStars: Int { maxHalfStars - freeHalfStars }
+
+    static let maxStars = 5
     static let freeStars = 2
 
-    /// Ce qu'il reste à acheter par-dessus les offertes.
-    static var buyableStars: Int { maxStars - freeStars }
+    /// Ce que coûte la n-ième demi-étoile achetée au-dessus du départ : chacune un peu plus
+    /// cher que la précédente.
+    static func costOfHalfStar(_ n: Int) -> Int { 5 * n }
 
-    /// Cost of buying the n-th star (1-indexed) — each one costs a little more than the last.
-    static func costOfStar(_ n: Int) -> Int { 15 * n }
-
-    /// Total points spent to own this many stars.
-    static func cumulativeCost(for stars: Int) -> Int {
-        guard stars > 0 else { return 0 }
-        return (1...stars).reduce(0) { $0 + costOfStar($1) }
+    /// Le total dépensé pour n demi-étoiles au-dessus du départ.
+    static func cumulativeCost(halfStars n: Int) -> Int {
+        guard n > 0 else { return 0 }
+        return (1...n).reduce(0) { $0 + costOfHalfStar($1) }
     }
 
-    /// The most stars a given point balance can afford, on top of the free ones.
-    static func maxAffordableStars(points: Int) -> Int {
-        var stars = 0
-        while stars < buyableStars && cumulativeCost(for: stars + 1) <= points { stars += 1 }
-        return stars
+    /// Combien de demi-étoiles ce solde de points peut remplir, au-dessus du départ.
+    static func maxAffordableHalfStars(points: Int) -> Int {
+        var n = 0
+        while n < buyableHalfStars && cumulativeCost(halfStars: n + 1) <= points { n += 1 }
+        return n
     }
+
+    /// « 2 », « 2,5 » — pour l'affichage, à la française.
+    static func label(halfStars n: Int) -> String {
+        n % 2 == 0 ? "\(n / 2)" : "\(n / 2),5"
+    }
+
+    /// Les étoiles, en nombre décimal, pour tous les calculs du moteur.
+    static func stars(halfStars n: Int) -> Double { Double(n) / 2 }
 }
 
 // MARK: - Chroniques
@@ -961,16 +980,23 @@ let FDTalentTiers: [FDTalentTier] = [
 /// Le tirage du talent. Les étoiles achetées ne garantissent rien : elles déplacent la
 /// chance, en poussant les paliers hauts et en vidant le palier tardif. Une carrière peut
 /// donc exploser sans une seule étoile — rarement, mais elle le peut.
-func fdDrawTalentTier(starsBought: Int) -> FDTalentTier {
-    let stars = Double(max(0, starsBought))
+/// `starsBought` peut être négatif : descendre sous les deux étoiles de départ ne fait pas
+/// que baisser le plafond, ça rend aussi les bons paliers plus rares et le palier tardif
+/// plus probable. Une carrière handicapée est vraiment plus dure, pas seulement plus lente.
+func fdDrawTalentTier(starsBought: Double) -> FDTalentTier {
+    let stars = starsBought
+    // Le handicap frappe plus fort que le bonus n'aide : partir sous les deux étoiles divise
+    // presque par deux la chance de tomber sur un grand palier. C'est ce qui rend une carrière
+    // à zéro étoile vraiment difficile, et pas seulement plus lente.
+    let down = stars < 0 ? stars * 3.5 : 0
     var pool: [(FDTalentTier, Double)] = []
     for tier in FDTalentTiers {
         var weight = tier.weight
         switch tier.id {
         case "tardif": weight = max(3, weight - stars * 2.1)
-        case "prometteur": weight += stars * 1.5
-        case "pepite": weight += stars * 0.5
-        case "generation": weight += stars * 0.1
+        case "prometteur": weight = max(2, weight + stars * 1.5 + down)
+        case "pepite": weight = max(0.5, weight + stars * 0.5 + down * 0.4)
+        case "generation": weight = max(0.2, weight + stars * 0.1 + down * 0.15)
         default: break
         }
         pool.append((tier, weight))

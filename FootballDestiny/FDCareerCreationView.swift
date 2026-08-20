@@ -436,7 +436,11 @@ struct FDCareerCreationView: View {
     // MARK: - Step 5: Settings (difficulté, mode, potentiel)
 
     private var settingsStep: some View {
-        let maxAffordable = FDPotentialShop.maxAffordableStars(points: engine.lifetimePoints)
+        let maxAffordable = FDPotentialShop.maxAffordableHalfStars(points: engine.lifetimePoints)
+        let halfStars = draft.potentialHalfStars
+        let bought = max(0, halfStars - FDPotentialShop.freeHalfStars)
+        let handicap = max(0, FDPotentialShop.freeHalfStars - halfStars)
+        let cost = FDPotentialShop.cumulativeCost(halfStars: bought)
         let available = engine.equippableCompetences
 
         return VStack(spacing: 0) {
@@ -462,68 +466,92 @@ struct FDCareerCreationView: View {
                             }
                             .foregroundStyle(FDTheme.amber)
 
-                            // Deux étoiles sont offertes à toute carrière : sans elles, une
-                            // première partie plafonnait trop bas pour aller quelque part.
+                            // Deux étoiles sont le point de départ, pas un plancher : les
+                            // points montent le curseur, et on peut aussi le descendre —
+                            // jusqu'à zéro — pour une carrière qui ne pardonne rien. Le jeu
+                            // compte en demi-étoiles ici comme partout ailleurs.
                             HStack(spacing: 6) {
                                 Image(systemName: "star.fill").font(.subheadline)
-                                Text("\(FDPotentialShop.freeStars) étoiles acquises au départ, quoi qu'il arrive")
+                                Text("\(FDPotentialShop.freeStars) étoiles au départ — à toi de monter ou de descendre")
                                     .font(FDFont.body(16))
                                 Spacer()
                             }
-                            .foregroundStyle(FDTheme.success)
+                            .foregroundStyle(handicap > 0 ? FDTheme.destructive
+                                             : (bought > 0 ? FDTheme.amber : FDTheme.success))
 
-                            // Les deux premières étoiles sont acquises : elles s'affichent
-                            // pleines, en vert, et ne se touchent pas. Les points ne servent
-                            // qu'à remplir les suivantes — on ne part jamais de zéro étoile.
-                            HStack(spacing: 6) {
-                                ForEach(0..<FDPotentialShop.maxStars, id: \.self) { i in
-                                    let free = i < FDPotentialShop.freeStars
-                                    let target = i - FDPotentialShop.freeStars + 1
-                                    let owned = free || target <= draft.potentialStars
-                                    let affordable = free || target <= maxAffordable
-                                    Image(systemName: owned ? "star.fill" : "star")
+                            HStack(spacing: 8) {
+                                Button {
+                                    guard halfStars > 0 else { return }
+                                    FDHaptics.tap()
+                                    withAnimation(.fdSnap) { draft.potentialHalfStars -= 1 }
+                                } label: {
+                                    Image(systemName: "minus.circle.fill")
                                         .font(.title2)
-                                        .foregroundStyle(free
-                                                         ? FDTheme.success
-                                                         : (owned ? FDTheme.amber
-                                                                  : Color.white.opacity(affordable ? 0.35 : 0.12)))
-                                        .onTapGesture {
-                                            guard !free, affordable else { return }
-                                            FDHaptics.tap()
-                                            withAnimation(.fdSnap) {
-                                                draft.potentialStars = draft.potentialStars == target ? 0 : target
-                                            }
-                                        }
+                                        .foregroundStyle(halfStars > 0 ? FDTheme.destructive : Color.white.opacity(0.15))
                                 }
+                                .buttonStyle(.plain)
+
+                                ForEach(0..<FDPotentialShop.maxStars, id: \.self) { i in
+                                    let filled = halfStars >= (i + 1) * 2
+                                    let half = halfStars == i * 2 + 1
+                                    Image(systemName: filled ? "star.fill" : (half ? "star.lefthalf.fill" : "star"))
+                                        .font(.title2)
+                                        .foregroundStyle(filled || half
+                                                         ? (halfStars < FDPotentialShop.freeHalfStars
+                                                            ? FDTheme.destructive
+                                                            : (halfStars > FDPotentialShop.freeHalfStars
+                                                               ? FDTheme.amber : FDTheme.success))
+                                                         : Color.white.opacity(0.15))
+                                }
+
+                                Button {
+                                    guard halfStars < FDPotentialShop.freeHalfStars + maxAffordable else { return }
+                                    FDHaptics.tap()
+                                    withAnimation(.fdSnap) { draft.potentialHalfStars += 1 }
+                                } label: {
+                                    Image(systemName: "plus.circle.fill")
+                                        .font(.title2)
+                                        .foregroundStyle(halfStars < FDPotentialShop.freeHalfStars + maxAffordable
+                                                         ? FDTheme.success : Color.white.opacity(0.15))
+                                }
+                                .buttonStyle(.plain)
+
                                 Spacer()
-                                Text("\(FDPotentialShop.freeStars + draft.potentialStars)/\(FDPotentialShop.maxStars)")
+                                Text("\(FDPotentialShop.label(halfStars: halfStars))/\(FDPotentialShop.maxStars)")
                                     .font(FDFont.mono(17, bold: true))
-                                    .foregroundStyle(draft.potentialStars > 0 ? FDTheme.amber : FDTheme.success)
-                                if draft.potentialStars > 0 {
-                                    Text("+\(draft.potentialStars * 5) %")
-                                        .font(FDFont.mono(17, bold: true))
-                                        .foregroundStyle(FDTheme.success)
-                                }
+                                    .foregroundStyle(handicap > 0 ? FDTheme.destructive
+                                                     : (bought > 0 ? FDTheme.amber : FDTheme.success))
                             }
 
-                            if maxAffordable == 0 {
-                                Text("Il te faut \(FDPotentialShop.costOfStar(1)) points pour la troisième étoile. Termine une carrière pour en gagner : les points ne servent qu'à la carrière que tu lances ensuite.")
+                            if handicap > 0 {
+                                VStack(alignment: .leading, spacing: 4) {
+                                    Text("Carrière handicapée : plafond plus bas, bons paliers de talent plus rares, et tu démarres plus bas dans la pyramide.")
+                                        .font(.subheadline.weight(.semibold))
+                                        .foregroundStyle(FDTheme.destructive)
+                                    Text("En échange, cette carrière rapportera \(handicap * 15) % de points en plus à la retraite.")
+                                        .font(.subheadline)
+                                        .foregroundStyle(FDTheme.success)
+                                }
+                                .fixedSize(horizontal: false, vertical: true)
+                                .frame(maxWidth: .infinity, alignment: .leading)
+                            } else if bought > 0 {
+                                HStack {
+                                    Text("Coût : \(cost) points")
+                                        .font(.subheadline.weight(.semibold))
+                                        .foregroundStyle(FDTheme.amber)
+                                    Spacer()
+                                    Text("Reste \(engine.lifetimePoints - cost)")
+                                        .font(.subheadline)
+                                        .foregroundStyle(.secondary)
+                                }
+                            } else if maxAffordable == 0 {
+                                Text("Il te faut \(FDPotentialShop.costOfHalfStar(1)) points pour la demi-étoile suivante. Termine une carrière pour en gagner : les points ne servent qu'à la carrière que tu lances ensuite. Descendre, en revanche, est gratuit.")
                                     .font(.subheadline)
                                     .foregroundStyle(.secondary)
                                     .fixedSize(horizontal: false, vertical: true)
                                     .frame(maxWidth: .infinity, alignment: .leading)
-                            } else if draft.potentialStars > 0 {
-                                HStack {
-                                    Text("Coût : \(FDPotentialShop.cumulativeCost(for: draft.potentialStars)) points")
-                                        .font(.subheadline.weight(.semibold))
-                                        .foregroundStyle(FDTheme.amber)
-                                    Spacer()
-                                    Text("Reste \(engine.lifetimePoints - FDPotentialShop.cumulativeCost(for: draft.potentialStars))")
-                                        .font(.subheadline)
-                                        .foregroundStyle(.secondary)
-                                }
                             } else {
-                                Text("Tes points peuvent remplir \(maxAffordable) étoile(s) de plus, pour cette carrière-là seulement. À 2 étoiles tu démarres en deuxième division, à 3 dans l'élite, à 4 ou 5 dans un club qui joue le titre — mais rien n'est acquis : à étoiles égales, deux carrières ne décollent pas au même rythme.")
+                                Text("Tes points peuvent remplir \(FDPotentialShop.label(halfStars: maxAffordable)) étoile(s) de plus, pour cette carrière-là seulement. À 2 étoiles tu démarres en deuxième division, à 3 dans l'élite, à 4 ou 5 dans un club qui joue le titre — à 1 en troisième division, à 0 tout en bas. Rien n'est acquis : à étoiles égales, deux carrières ne décollent pas au même rythme.")
                                     .font(.subheadline)
                                     .foregroundStyle(.secondary)
                                     .fixedSize(horizontal: false, vertical: true)
@@ -731,7 +759,7 @@ struct FDCareerCreationView: View {
                         // Les étoiles offertes comptent ici comme les autres : à deux étoiles
                         // on démarre en deuxième division en moyenne, avec un club au-dessus
                         // et deux en dessous. Chaque ligne dit ce que ce choix coûtera.
-                        let totalStars = FDPotentialShop.freeStars + draft.potentialStars
+                        let totalStars = FDPotentialShop.stars(halfStars: draft.potentialHalfStars)
                         let centre = engine.startCentralDivision(nationality: draft.nationality, totalStars: totalStars)
                         ForEach(engine.availableStartClubs(nationality: draft.nationality, potentialStars: totalStars), id: \.id) { club in
                             FDClubChoiceRow(club: club,
