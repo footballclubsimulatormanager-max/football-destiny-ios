@@ -968,6 +968,12 @@ struct FDReglesView: View {
                 bullet("Le plafond d'un attribut se tire aussi à la carrière : la plupart butent autour de 88, et seul un talent d'exception avec des étoiles approche les 99.")
                 bullet("Enfin, le jeu retient les scènes servies par tes dernières carrières, pas seulement par celle en cours : la suivante ira chercher ailleurs. Même chose pour les clubs de départ, tirés parmi les meilleurs candidats plutôt que toujours les six mêmes.")
             }
+            rulesCard(icon: "building.2.fill", title: "La vie du club", color: FDTheme.warning) {
+                paragraph("Ton club ne reste pas planté dans sa division toute ta carrière. Le classement est d'abord le sien : ce qu'il vaut face au niveau moyen de son championnat compte plus que ton niveau à toi.")
+                bullet("Les deux premiers montent, et le barrage laisse une chance aux suivants. Les derniers descendent — et tu suis, salaire compris.")
+                bullet("De temps en temps, quelque chose lui tombe dessus sans que tu y sois pour rien : un rachat qui triple les ambitions, un dépôt de bilan qui divise les salaires et le rétrograde, un nouveau président, un virage vers la formation.")
+                bullet("Le grand rendez-vous de ta saison suit le niveau réel du club : une finale européenne en haut de tableau, la montée ou l'exploit de coupe quand tu joues plus bas.")
+            }
             rulesCard(icon: "arrow.up.arrow.down", title: "Pro, et rien d'autre", color: FDTheme.primary) {
                 paragraph("La carrière commence et se termine chez les professionnels : il n'y a pas de catégorie de jeunes à traverser.")
                 bullet("Deux mauvais signaux cumulés sur une saison — trop peu de matchs, note trop basse, coach perdu — et tu es rétrogradé en réserve.")

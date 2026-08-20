@@ -856,13 +856,17 @@ final class FDGameEngine: ObservableObject {
         return min(0.7, max(0.04, 0.15 + (trust - 30) / 150))
     }
 
-    private func simulateMatch() -> FDMatchResult {
+    /// `forceStart` sert au grand rendez-vous : la scène vient de raconter que le joueur était
+    /// sur le terrain et ce qu'il y a fait, le match ne peut donc pas répondre qu'il n'est
+    /// jamais entré. C'était le défaut le plus visible du récit d'après-match — le texte du
+    /// choix disait « c'est de là qu'est venu le but », l'article disait « il n'est pas entré ».
+    private func simulateMatch(forceStart: Bool = false) -> FDMatchResult {
         guard var p = player else {
             return FDMatchResult(started: false, minutes: 0, rating: 0, goals: 0, assists: 0, yellow: false, red: false, injury: false, teamScore: 0, oppScore: 0, opponentLevel: 0)
         }
         let ovr = Double(overall(p))
         let opp = opponentLevel(p)
-        let started = willStart(p)
+        let started = forceStart || willStart(p)
         let minutes = started
             ? Int.random(in: 60...90)
             : (Double.random(in: 0...1) < benchAppearanceChance(p) ? Int.random(in: 5...30) : 0)
@@ -1119,7 +1123,8 @@ final class FDGameEngine: ObservableObject {
             return FDChoice(label: label, hint: hint, effects: effects)
         }
         return FDChoice(label: "\(label) — \(club.name)",
-                        hint: hint + " Direction \(club.name), \(club.country).",
+                        hint: hint + " Direction \(club.name) — \(club.leagueName), \(club.country)"
+                            + fdDivisionGap(from: p.club, to: club) + ".",
                         effects: effects, setClub: club, transferFee: fee)
     }
 
@@ -1128,16 +1133,27 @@ final class FDGameEngine: ObservableObject {
     /// une finale européenne ou un tournoi avec sa sélection.
     private func climaxWeights(_ p: FDPlayer) -> [(String, Double)] {
         let rep = p.cond.reputation
-        switch p.status {
-        case .reserve:
-            return [("club", 55), ("coupe", 30), ("derby", 15)]
-        case .veteran:
-            return [("club", 30), ("coupe", 28), ("europe", 20), ("selection", 14), ("derby", 8)]
+        if p.status == .reserve { return [("club", 60), ("derby", 30), ("coupe_petit", 10)] }
+
+        // Le niveau réel du club commande. Un club de division régionale ne dispute pas une
+        // finale de Coupe Nationale devant quatre-vingt mille personnes : sa grande soirée à
+        // lui, c'est la montée, le derby du coin, ou l'exploit d'un tour de coupe. Et on ne
+        // reçoit pas une sélection nationale quand on joue en troisième division.
+        var weights: [(String, Double)]
+        switch p.club.division {
+        case 1:
+            weights = [("club", 30), ("coupe", 26), ("derby", 10)]
+            if p.club.reputation >= 62 { weights.append(("europe", rep >= 60 ? 28 : 15)) }
+            if rep >= 55 { weights.append(("selection", rep >= 72 ? 26 : 12)) }
+        case 2:
+            weights = [("club", 42), ("coupe", 22), ("derby", 16), ("coupe_petit", 10)]
+            if rep >= 70 { weights.append(("selection", 6)) }
+        case 3:
+            weights = [("club", 50), ("derby", 28), ("coupe_petit", 20), ("coupe", 2)]
         default:
-            if rep >= 75 { return [("europe", 30), ("selection", 26), ("club", 20), ("coupe", 18), ("derby", 6)] }
-            if rep >= 45 { return [("club", 32), ("coupe", 28), ("europe", 20), ("selection", 12), ("derby", 8)] }
-            return [("club", 45), ("coupe", 30), ("derby", 15), ("europe", 7), ("selection", 3)]
+            weights = [("club", 55), ("derby", 30), ("coupe_petit", 15)]
         }
+        return weights
     }
 
     /// Tire une scène de rendez-vous : d'abord le thème, avec les poids de la carrière, puis
@@ -1281,7 +1297,7 @@ final class FDGameEngine: ObservableObject {
         // note : une finale se raconte, elle ne se chiffre pas.
         if let theme = bigMatchPending {
             bigMatchPending = nil
-            let result = simulateMatch()
+            let result = simulateMatch(forceStart: true)
             if let me = player {
                 narrative = (narrative.isEmpty ? "" : narrative + "\n\n")
                     + fdBigMatchReport(result, theme: theme, player: me)
@@ -1333,6 +1349,72 @@ final class FDGameEngine: ObservableObject {
         p.cond.confiance = min(max(p.cond.confiance + Int(((55 - Double(p.cond.confiance)) * 0.14).rounded()), 0), 100)
         player = p
         checkDelayed()
+    }
+
+    /// Le niveau moyen d'un club de cette division : c'est l'étalon auquel on compare le club
+    /// du joueur pour savoir s'il joue le haut ou le bas de tableau.
+    private func fdDivisionNorm(_ division: Int) -> Double {
+        switch division {
+        case 1: return 62
+        case 2: return 48
+        case 3: return 36
+        default: return 28
+        }
+    }
+
+    /// Ce qui arrive au club entre deux saisons. Un club ne reste pas planté dans sa division
+    /// toute une carrière : il monte, il descend, et de temps en temps quelque chose lui tombe
+    /// dessus — un investisseur, un président ambitieux, ou un dépôt de bilan. Le joueur suit,
+    /// et c'est ce qui rend deux carrières au même club différentes.
+    private func applyClubFortunes(_ p: inout FDPlayer, position: Int, summary: inout [String]) {
+        func note(_ line: String, _ icon: String) {
+            summary.append(line)
+            p.journal.insert(FDJournalEntry(week: p.calendar.seasonWeeks, season: p.calendar.season,
+                                            age: p.age, text: line, icon: icon), at: 0)
+        }
+
+        let division = p.club.division
+        // Montée : les deux premiers montent, et le barrage laisse une chance aux suivants.
+        if division > 1 && (position <= 2 || (position <= 5 && Double.random(in: 0...1) < 0.35)) {
+            p.club.division -= 1
+            p.club.reputation = min(99, p.club.reputation + Int.random(in: 5...9))
+            p.contract.salary = Int(Double(p.contract.salary) * 1.2)
+            note("⬆️ \(p.club.name) monte en \(p.club.leagueName) !", "⬆️")
+        } else if division < 4 && position >= 18 {
+            p.club.division += 1
+            p.club.reputation = max(10, p.club.reputation - Int.random(in: 4...8))
+            p.contract.salary = max(400, Int(Double(p.contract.salary) * 0.8))
+            note("⬇️ \(p.club.name) descend en \(p.club.leagueName).", "⬇️")
+        }
+
+        // Et les coups de théâtre, rares mais réels : une carrière doit pouvoir basculer sans
+        // que le joueur y soit pour quoi que ce soit.
+        let roll = Double.random(in: 0...1)
+        if roll < 0.04 {
+            let gain = Int.random(in: 8...16)
+            p.club.reputation = min(99, p.club.reputation + gain)
+            p.rel.president = min(100, p.rel.president + 10)
+            p.contract.salary = Int(Double(p.contract.salary) * 1.35)
+            note("💰 \(p.club.name) a été racheté. Le nouveau propriétaire annonce des ambitions, et ton salaire suit.", "💰")
+        } else if roll < 0.06 {
+            p.club.reputation = max(10, p.club.reputation - Int.random(in: 10...16))
+            p.contract.salary = max(400, p.contract.salary / 2)
+            p.rel.president = max(0, p.rel.president - 20)
+            if p.club.division < 4 {
+                p.club.division += 1
+                note("💥 Dépôt de bilan : \(p.club.name) est rétrogradé administrativement en \(p.club.leagueName). Les salaires sont divisés et le vestiaire se vide.", "💥")
+            } else {
+                note("💥 \(p.club.name) frôle le dépôt de bilan : salaires divisés, effectif bradé.", "💥")
+            }
+        } else if roll < 0.09 {
+            p.club.reputation = min(99, p.club.reputation + Int.random(in: 3...7))
+            p.rel.president = 55
+            note("🪑 Nouveau président à \(p.club.name) : tout est à refaire avec lui, et il a de l'ambition.", "🪑")
+        } else if roll < 0.11 {
+            p.club.academyQuality = min(99, p.club.academyQuality + Int.random(in: 5...12))
+            p.club.youthMinutes = min(99, p.club.youthMinutes + Int.random(in: 6...14))
+            note("🌱 \(p.club.name) mise tout sur son centre de formation : les jeunes joueront davantage.", "🌱")
+        }
     }
 
     /// Advances week by week, simulating matches silently in the background and stopping the
@@ -1444,19 +1526,31 @@ final class FDGameEngine: ObservableObject {
             "Note moyenne : \(p.seasonForm.isEmpty ? "—" : String(format: "%.1f", avgForm))/10.",
         ]
 
-        // League position — a rough procedural result tied to how the player's level compares to the club's.
-        let edge = Double(overall(p)) - Double(p.club.reputation)
-        let leaguePosition = min(20, max(1, Int((11.0 - edge / 5.0 + Double.random(in: -4...4)).rounded())))
+        // Le classement est d'abord celui du club, pas du joueur : ce qui compte, c'est ce que
+        // vaut le club par rapport au niveau moyen de sa division. Le joueur pèse dessus, sans
+        // le décider seul — sinon un bon milieu faisait monter un club amateur en Ligue 1 en
+        // quatre saisons, et le championnat n'avait plus aucun sens.
+        let clubEdge = Double(p.club.reputation) - fdDivisionNorm(p.club.division)
+        let playerEdge = (Double(overall(p)) - Double(p.club.reputation)) / 8
+        let leaguePosition = min(20, max(1, Int((11.0 - clubEdge / 3.0 - playerEdge
+                                                 + Double.random(in: -4...4)).rounded())))
         p.history[0].leaguePosition = leaguePosition
-        summary.append("Classement : \(leaguePosition)e du championnat.")
+        summary.append("Classement : \(leaguePosition)e de \(p.club.leagueName).")
         if leaguePosition == 1 {
             p.leagueTitles += 1
-            summary.append("🏆 Titre de champion avec \(p.club.name) !")
+            summary.append("🏆 Champion de \(p.club.leagueName) avec \(p.club.name) !")
         }
-        if Double.random(in: 0...1) < 0.06 + Double(p.cond.reputation) / 600 {
+        // Une coupe nationale ne se gagne pas depuis la division régionale.
+        let cupChance = p.club.division <= 2
+            ? 0.06 + Double(p.cond.reputation) / 600 - Double(p.club.division - 1) * 0.03
+            : 0.004
+        if Double.random(in: 0...1) < cupChance {
             p.cupTitles += 1
             summary.append("🏆 Vainqueur de la Coupe Nationale !")
         }
+
+        // Le club vit sa propre vie : il monte, il descend, il se fait racheter, il coule.
+        applyClubFortunes(&p, position: leaguePosition, summary: &summary)
 
         // Objectives set at the previous bilan, evaluated now against this season's real numbers.
         if let obj = p.clubObjective {
@@ -1853,7 +1947,8 @@ final class FDGameEngine: ObservableObject {
         let fee = max(40_000, marketValue(p) / 4)
         let salary = mercatoSalary(p, at: club)
         return FDChoice(label: "\(label) — \(club.name)",
-                        hint: hint + " \(club.name) (\(club.country)), \(fdFormatMoney(salary)) par semaine.",
+                        hint: hint + " \(club.name) — \(club.leagueName), \(club.country)"
+                            + fdDivisionGap(from: p.club, to: club) + ", \(fdFormatMoney(salary)) par semaine.",
                         effects: effects + [FDEffect(money: Int(Double(fee) * 0.05))],
                         setContractSalary: salary, setContractYears: club.reputation > p.club.reputation ? 3 : 2,
                         setClub: club, transferFee: fee)
@@ -1976,10 +2071,15 @@ final class FDGameEngine: ObservableObject {
             intro = "\(target.name) veut te faire quitter \(p.nationality). Nouveau pays, nouvelle langue, "
                 + "un vestiaire où personne ne t'attend et une famille qui devra suivre ou rester."
         } else {
-            intro = "\(target.name) te veut, et c'est encore \(p.nationality) : mêmes routes, mêmes visages, "
-                + "un cran au-dessus. Personne n'aurait à déménager très loin."
+            intro = "\(target.name) te veut, et c'est encore \(p.nationality) : mêmes routes, mêmes visages. "
+                + "Personne n'aurait à déménager très loin."
         }
-        let text = "\(intro) L'offre est sur la table — \(fdFormatMoney(offer.fee)) pour \(p.club.name) — "
+        // On ne signe pas à l'aveugle : le championnat du club qui appelle, et ce qu'il vaut
+        // par rapport au tien, sont dits avant la question.
+        let situation = "\(target.name) évolue en \(target.leagueName)"
+            + (expatriation ? " (\(target.country))" : "")
+            + fdDivisionGap(from: p.club, to: target) + "."
+        let text = "\(intro) \(situation) L'offre est sur la table — \(fdFormatMoney(offer.fee)) pour \(p.club.name) — "
             + "et il faut répondre avant la reprise. Au moment de décrocher, \(mood)."
 
         let signHint: String

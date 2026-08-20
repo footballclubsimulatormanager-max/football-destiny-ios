@@ -202,6 +202,20 @@ extension FDClub {
     }
 }
 
+/// Ce que vaut le championnat d'un club par rapport à celui d'un autre, dit en clair. On ne
+/// signe pas à l'aveugle : « une division au-dessus » ou « deux en dessous » change tout à une
+/// offre, et le nom d'un club étranger ne dit rien de son niveau.
+func fdDivisionGap(from: FDClub, to: FDClub) -> String {
+    let gap = from.division - to.division
+    switch gap {
+    case 0: return from.country == to.country ? "" : ", le même niveau que chez toi"
+    case 1: return ", une division au-dessus de la tienne"
+    case 2...: return ", \(gap) divisions au-dessus de la tienne"
+    case -1: return ", une division en dessous"
+    default: return ", \(-gap) divisions en dessous"
+    }
+}
+
 // MARK: - Player sub-structures
 
 struct FDCondition: Codable {
@@ -1020,6 +1034,7 @@ func fdTalentTier(_ id: String?) -> FDTalentTier {
 private func fdBigMatchLabel(_ theme: String) -> String {
     switch theme {
     case "coupe": return "la finale de coupe"
+    case "coupe_petit": return "le grand soir de coupe"
     case "europe": return "la soirée européenne"
     case "selection": return "le match avec la sélection"
     case "derby": return "le derby"
