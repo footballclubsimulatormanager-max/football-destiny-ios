@@ -501,6 +501,16 @@ struct FDPlayer: Codable {
     /// compter les points. Facultatif, pour que les sauvegardes antérieures se relisent.
     var startHalfStars: Int? = nil
 
+    /// Combien de grands rendez-vous cette saison-là mérite : zéro, un, parfois deux. Toutes
+    /// les saisons n'ont pas leur grand soir, et une année de folie peut en avoir deux.
+    /// Tirés une fois par saison ; facultatifs pour les sauvegardes antérieures.
+    var seasonClimaxTarget: Int? = nil
+    var seasonClimaxDone: Int? = nil
+
+    /// Comment la carrière s'est terminée — le corps, le banc, le sommet, l'âge. Deux
+    /// carrières ne doivent pas s'arrêter de la même façon ni au même âge.
+    var retireReason: String? = nil
+
     func attr(_ a: FDAttribute) -> Int { attrs[a.rawValue] ?? 0 }
     func potential(_ a: FDAttribute) -> Int { potential[a.rawValue] ?? 0 }
 
@@ -820,8 +830,16 @@ func fdCareerChronicle(player p: FDPlayer) -> (headline: String, article: String
         : p.history.reduce(0.0) { $0 + $1.avgRating } / Double(p.history.count)
     let trophies = p.leagueTitles + p.cupTitles
 
+    // La façon dont ça s'arrête passe avant le palmarès : un genou qui lâche à vingt-six ans
+    // ne se raconte pas comme une fin de parcours à trente-huit.
     let headline: String
-    if ballons > 0 {
+    if p.retireReason == "blessure" {
+        headline = "\(name) contraint à l'arrêt : le corps a tranché"
+    } else if p.retireReason == "banc" {
+        headline = "\(name) s'en va sans bruit"
+    } else if p.retireReason == "sommet" && trophies > 0 {
+        headline = "\(name) raccroche au sommet"
+    } else if ballons > 0 {
         headline = "\(name) raccroche : la carrière d'un joueur d'exception"
     } else if trophies >= 4 {
         headline = "\(name) tire sa révérence, les mains pleines"
@@ -847,6 +865,16 @@ func fdCareerChronicle(player p: FDPlayer) -> (headline: String, article: String
         body += " \(p.nationalCaps) sélection\(p.nationalCaps > 1 ? "s" : "") avec \(p.nationality)."
     }
     body += " Parti de \(p.birthCity), \(p.firstName) termine à \(p.age) ans, sous le maillot de \(p.club.name)."
+    switch p.retireReason {
+    case "blessure":
+        body += " Ce n'est pas lui qui a choisi la date : une blessure de trop, un avis médical, et une carrière qui s'arrête au milieu d'une phrase."
+    case "banc":
+        body += " Il n'y aura pas eu de match d'adieu. Les derniers mois se sont passés loin du terrain, et le communiqué tient en trois lignes."
+    case "sommet":
+        body += " Il part sur un trophée, ce que presque personne ne réussit : décider soi-même de sa dernière image."
+    default:
+        break
+    }
 
     return (headline, body)
 }
@@ -1026,6 +1054,26 @@ func fdDrawTalentTier(starsBought: Double) -> FDTalentTier {
 
 func fdTalentTier(_ id: String?) -> FDTalentTier {
     FDTalentTiers.first { $0.id == id } ?? FDTalentTiers[1]
+}
+
+/// La phrase qui referme une carrière. Elle dit pourquoi elle s'arrête là, parce que la
+/// raison n'est jamais la même : le corps, le banc, un sommet dont on ne redescend pas, ou
+/// simplement les années.
+func fdRetirementLine(reason: String, age: Int, club: String) -> String {
+    switch reason {
+    case "blessure":
+        return "🩼 Fin de carrière à \(age) ans. Le corps a dit non, et cette fois il n'y avait rien à négocier : "
+            + "les médecins ont été clairs, tu ne rejoueras pas. Ça ne se termine pas comme tu l'avais imaginé."
+    case "banc":
+        return "🚪 Fin de carrière à \(age) ans. Tu n'as plus joué depuis des mois, personne n'a rappelé, "
+            + "et un matin tu as compris que c'était déjà fini depuis un moment. Tu raccroches sans annonce."
+    case "sommet":
+        return "👑 Fin de carrière à \(age) ans, sur un trophée. Peu de joueurs choisissent leur dernière image : "
+            + "tu viens de le faire, et \(club) ne l'oubliera pas."
+    default:
+        return "🎓 Fin de carrière à \(age) ans. Tu as tout donné à ce jeu, il t'a rendu ce qu'il pouvait, "
+            + "et l'heure est venue de rendre le maillot à \(club)."
+    }
 }
 
 // MARK: - Récit d'un grand rendez-vous

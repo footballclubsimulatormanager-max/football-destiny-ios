@@ -33,7 +33,6 @@ final class FDGameEngine: ObservableObject {
 
     /// Rangées dans `sceneCooldown`, ces clés ne peuvent croiser aucun identifiant de scène
     /// et évitent d'ajouter un champ à la sauvegarde, qui casserait les parties en cours.
-    private let fdClimaxKey = "__rendezvous_saison"
 
     private static let storageKey = "footballDestinySave_v1_native"
     private static let lifetimePointsKey = "footballDestinyLifetimePoints_v1"
@@ -1131,6 +1130,29 @@ final class FDGameEngine: ObservableObject {
     /// Les thèmes possibles du grand rendez-vous, et la part de chacun selon où en est la
     /// carrière : un joueur renvoyé en réserve joue sa saison sur un barrage, une star joue
     /// une finale européenne ou un tournoi avec sa sélection.
+    /// Toutes les saisons n'ont pas leur grand soir. Un remplaçant dans un club de milieu de
+    /// tableau peut traverser une année entière sans qu'il ne se passe rien de spectaculaire ;
+    /// une année où le club joue le titre et fait un parcours de coupe en a deux. Tiré une
+    /// fois par saison et gardé, pour que la forme d'une saison ne soit jamais la même.
+    private func ensureClimaxTarget(_ p: FDPlayer) -> Int {
+        if let target = p.seasonClimaxTarget { return target }
+        let clubEdge = Double(p.club.reputation) - fdDivisionNorm(p.club.division)
+        var chance = 0.38 + playedShare(p) * 0.30
+        if p.cond.reputation >= 55 { chance += 0.14 }
+        if abs(clubEdge) >= 9 { chance += 0.10 }          // le club joue quelque chose, en haut ou en bas
+        if p.status == .reserve { chance -= 0.20 }
+        let target: Int
+        if Double.random(in: 0...1) > min(0.92, max(0.15, chance)) {
+            target = 0
+        } else if Double.random(in: 0...1) < 0.10 + max(0, clubEdge) / 260 {
+            target = 2
+        } else {
+            target = 1
+        }
+        if var pp = player { pp.seasonClimaxTarget = target; player = pp }
+        return target
+    }
+
     private func climaxWeights(_ p: FDPlayer) -> [(String, Double)] {
         let rep = p.cond.reputation
         if p.status == .reserve { return [("club", 60), ("derby", 30), ("coupe_petit", 10)] }
@@ -1351,6 +1373,23 @@ final class FDGameEngine: ObservableObject {
         checkDelayed()
     }
 
+    /// La probabilité qu'une carrière s'arrête à la fin de cette saison-là. Elle monte avec
+    /// l'âge, mais surtout avec ce que la saison a été : celui qui ne joue plus raccroche à
+    /// trente-et-un ans, celui qui tient son rang joue jusqu'à quarante. Rien n'est écrit.
+    private func retirementChance(_ p: FDPlayer, share: Double) -> Double {
+        guard p.age >= 30 else { return 0 }
+        var chance = Double(p.age - 30) * 0.05
+        if share < 0.35 { chance += 0.16 }
+        if p.status == .reserve { chance += 0.15 }
+        if overall(p) < p.club.reputation - 12 { chance += 0.08 }
+        if p.cond.fatigue > 75 { chance += 0.06 }
+        if p.money > 8_000_000 { chance += 0.04 }
+        if p.cond.moral < 35 { chance += 0.05 }
+        // Il lui manque encore quelque chose : on ne s'arrête pas les mains vides.
+        if p.leagueTitles + p.cupTitles == 0 && p.age < 34 { chance -= 0.06 }
+        return min(0.95, max(0, chance))
+    }
+
     /// Le niveau moyen d'un club de cette division : c'est l'étalon auquel on compare le club
     /// du joueur pour savoir s'il joue le haut ou le bas de tableau.
     private func fdDivisionNorm(_ division: Int) -> Double {
@@ -1448,11 +1487,16 @@ final class FDGameEngine: ObservableObject {
             // Le grand rendez-vous : finale, match du titre, maintien, soirée européenne ou
             // sélection. Il tombe dans le dernier quart de saison, à une semaine imprévisible,
             // mais aucune saison ne se termine sans l'avoir joué.
-            if sceneCooldown[fdClimaxKey] != p.calendar.season,
-               weeksLeft <= max(3, p.calendar.seasonWeeks / 4),
-               weeksLeft <= 2 || Double.random(in: 0...1) < 1.0 / Double(weeksLeft),
+            let climaxTarget = ensureClimaxTarget(p)
+            let climaxDone = p.seasonClimaxDone ?? 0
+            let climaxLeft = climaxTarget - climaxDone
+            // Deux rendez-vous dans la même saison ont besoin de plus de place qu'un seul.
+            let window = climaxTarget >= 2 ? p.calendar.seasonWeeks / 2 : max(3, p.calendar.seasonWeeks / 4)
+            if climaxLeft > 0,
+               weeksLeft <= window,
+               weeksLeft <= 2 || Double.random(in: 0...1) < Double(climaxLeft) / Double(weeksLeft),
                let big = pickBeatScene(p, beat: "climax", weights: climaxWeights(p)) {
-                sceneCooldown[fdClimaxKey] = p.calendar.season
+                if var pp = player { pp.seasonClimaxDone = climaxDone + 1; player = pp }
                 usedSceneIds.insert(big.id)
                 // Un grand rendez-vous se joue : le choix décidera de la soirée, et le
                 // résultat du match sera raconté juste après.
@@ -1617,6 +1661,8 @@ final class FDGameEngine: ObservableObject {
         p.seasonFixtures = 0
         // Une nouvelle année, une nouvelle humeur : elle sera tirée au premier match.
         p.seasonMood = nil
+        p.seasonClimaxTarget = nil
+        p.seasonClimaxDone = 0
         p.seasonBeats = 0
         p.seasonMoneyDelta = 0
         p.calendar.season += 1; p.calendar.week = 0
@@ -1741,11 +1787,35 @@ final class FDGameEngine: ObservableObject {
             }
         }
 
-        if p.age >= 43 {
-            p.retired = true
-            let earned = awardLifetimePoints(for: p)
-            archiveRetiredCareer(p)
-            summary.append("Fin de carrière officielle. Merci pour cette aventure ! +\(earned) points de carrière (total cumulé : \(lifetimePoints)).")
+        // Aucune carrière ne s'arrête au même endroit. Toutes finissaient à 43 ans, ce qui
+        // faisait vingt-sept saisons identiques d'une partie à l'autre. Maintenant, chaque
+        // fin de saison passée trente ans pose la question, et la réponse dépend de ce que la
+        // carrière est devenue : le temps de jeu, le niveau, le corps, l'argent, l'envie. Et
+        // parfois le corps tranche à vingt-six ans sans rien demander à personne.
+        if !p.retired {
+            var reason: String? = nil
+            let injuryRisk = 0.001 + Double(p.cond.fatigue) / 20000 + (p.age >= 32 ? 0.003 : 0)
+            if Double.random(in: 0...1) < injuryRisk {
+                reason = "blessure"
+            } else if Double.random(in: 0...1) < retirementChance(p, share: seasonShare) {
+                if p.status == .reserve || seasonShare < 0.3 {
+                    reason = "banc"
+                } else if leaguePosition == 1 || summary.contains(where: { $0.contains("Vainqueur de la Coupe") }) {
+                    reason = "sommet"
+                } else {
+                    reason = "age"
+                }
+            } else if p.age >= 42 {
+                reason = "age"
+            }
+            if let reason = reason {
+                p.retired = true
+                p.retireReason = reason
+                let earned = awardLifetimePoints(for: p)
+                archiveRetiredCareer(p)
+                summary.append(fdRetirementLine(reason: reason, age: p.age, club: p.club.name))
+                summary.append("+\(earned) points de carrière (total cumulé : \(lifetimePoints)).")
+            }
         }
 
         // New objectives for the upcoming season, evaluated at the next bilan.
@@ -2056,6 +2126,9 @@ final class FDGameEngine: ObservableObject {
             let finDeParcours = p.age >= 32 && (ovr < p.club.reputation || playedShare(p) < 0.6)
             if finDeParcours, let scene = mercatoRetourScene(p) { return scene }
             if ecarte, let scene = mercatoEcarteScene(p) { return scene }
+            // Quand rien n'est en jeu, l'été ne mérite pas toujours une scène : certaines
+            // intersaisons passent sans qu'on en parle, et la saison suivante commence.
+            guard Double.random(in: 0...1) < 0.45 else { return nil }
             return mercatoTranquilleScene(p, mood: mood)
         }
 

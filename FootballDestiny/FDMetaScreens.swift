@@ -914,6 +914,7 @@ struct FDReglesView: View {
                 bullet("Chaque saison alterne scènes à choix, matchs simulés et bilan.")
                 bullet("Le championnat tourne toute la saison et les matchs se simulent en silence entre deux scènes. Aucun quota : le nombre de matchs que tu joues dépend de ton niveau face au standard du club, de la confiance du coach, de ton âge et de ton statut.")
                 bullet("Un titulaire en dispute une trentaine, un joueur écarté cinq. Tes buts se prennent sur ceux de ton équipe, but par but — pas de doublé dans une défaite 1-0.")
+                bullet("Toutes les saisons n'ont pas leur grand soir : selon ton temps de jeu, ta réputation et ce que joue ton club, une année peut n'avoir aucun grand rendez-vous — et une année de folie en avoir deux. Certaines intersaisons passent aussi sans un mot.")
                 bullet("Une saison s'arrête sur une à trois scènes ordinaires, selon ce qu'elle vaut. Et chaque rendez-vous — grand match, étape d'un défi — en retire une : une saison pleine de moments forts ne s'allonge pas de scènes en plus.")
                 bullet("Un grand rendez-vous se joue vraiment : après ton choix, le match a lieu et le lendemain arrive sous forme d'article — le score, ce que tu y as fait, et ce que la soirée change pour toi.")
                 bullet("À l'intersaison, tu n'es jamais coincé. Si le club ne compte plus sur toi, trois clubs de ton niveau se présentent ; en fin de parcours, celui où tout a commencé rappelle.")
@@ -967,6 +968,12 @@ struct FDReglesView: View {
                 bullet("Et ces probabilités-là ne sont pas les mêmes pour tout le monde : chaque carrière reçoit au lancement son propre tempérament — régulière ou faite de trous d'air et de flambées — et sa propre main devant le but. Deux carrières identiques sur le papier ne racontent jamais la même histoire.")
                 bullet("Le plafond d'un attribut se tire aussi à la carrière : la plupart butent autour de 88, et seul un talent d'exception avec des étoiles approche les 99.")
                 bullet("Enfin, le jeu retient les scènes servies par tes dernières carrières, pas seulement par celle en cours : la suivante ira chercher ailleurs. Même chose pour les clubs de départ, tirés parmi les meilleurs candidats plutôt que toujours les six mêmes.")
+            }
+            rulesCard(icon: "hourglass", title: "La fin", color: FDTheme.destructive) {
+                paragraph("Aucune carrière ne s'arrête au même endroit. Passé trente ans, chaque fin de saison pose la question, et la réponse dépend de ce que la carrière est devenue : le temps de jeu, ton niveau face au club, la fatigue, le moral, l'argent déjà gagné, ce qu'il te manque encore au palmarès.")
+                bullet("La moitié des carrières s'arrêtent entre 32 et 35 ans, mais certaines tiennent jusqu'à 40 et d'autres s'éteignent à 30 sur un banc.")
+                bullet("Une carrière sur douze se termine sur une blessure, à n'importe quel âge — parfois à vingt ans, sans prévenir.")
+                bullet("Et il y a ceux qui raccrochent sur un trophée, en choisissant leur dernière image. L'article de fin de carrière n'est pas le même selon la façon dont ça s'est terminé.")
             }
             rulesCard(icon: "building.2.fill", title: "La vie du club", color: FDTheme.warning) {
                 paragraph("Ton club ne reste pas planté dans sa division toute ta carrière. Le classement est d'abord le sien : ce qu'il vaut face au niveau moyen de son championnat compte plus que ton niveau à toi.")
