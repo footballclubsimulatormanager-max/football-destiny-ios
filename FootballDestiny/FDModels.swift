@@ -970,35 +970,87 @@ private func fdBigMatchLabel(_ theme: String) -> String {
     }
 }
 
-/// Ce que le joueur a fait de sa soirée, en clair : le score d'abord, sa part ensuite.
-/// Un grand rendez-vous sans résultat ne veut rien dire — on décidait d'une finale sans
-/// jamais savoir si elle avait été gagnée.
-func fdBigMatchReport(_ r: FDMatchResult, theme: String) -> String {
+/// Le lendemain d'un grand rendez-vous, écrit comme un entrefilet de presse : le résultat,
+/// la part qu'y a prise le joueur, et surtout ce que la soirée change pour lui. Pas de note,
+/// pas de ligne de statistiques — une finale se juge à ses répercussions, pas à un chiffre
+/// sur dix.
+func fdBigMatchReport(_ r: FDMatchResult, theme: String, player p: FDPlayer) -> String {
     let label = fdBigMatchLabel(theme)
-    var out: String
+    let club = p.club.name
+    let name = p.lastName
+    let score = "\(r.teamScore)-\(r.oppScore)"
+    let won = r.teamScore > r.oppScore
+    let drew = r.teamScore == r.oppScore
+    // Une variante sur deux, pour que deux finales de suite ne se racontent pas pareil.
+    let alt = (r.goals + r.assists + r.minutes) % 2 == 0
+
+    // Resté sur le banc : le résultat le concerne quand même, et c'est bien le problème.
     if r.minutes == 0 {
-        return "Tu n'es pas entré en jeu. \(label.prefix(1).uppercased() + label.dropFirst()) s'est terminé\(r.teamScore > r.oppScore ? "e sur une victoire" : (r.teamScore == r.oppScore ? "e sur un nul" : "e sur une défaite")) \(r.teamScore)-\(r.oppScore), depuis le banc."
+        if won {
+            return alt
+                ? "\(club) gagne \(score) pour \(label). Le vestiaire chante, les images tournent en boucle, et sur toutes les photos \(name) porte encore le survêtement. On fête une soirée qu'on n'a pas vécue : personne, demain, n'associera son nom à celle-là."
+                : "\(club) s'impose \(score) pour \(label). \(name) n'a pas quitté le banc. Le titre est là, la joie aussi, mais il repart avec la sensation d'avoir regardé sa propre équipe écrire quelque chose sans lui — et ça, ça travaille un joueur pendant des semaines."
+        }
+        if drew {
+            return alt
+                ? "\(score) pour \(label), et rien n'est tranché. En conférence, on demande à l'entraîneur pourquoi \(name) n'est pas entré quand le match réclamait autre chose. Il répond qu'il a fait des choix. La question va tourner toute la semaine."
+                : "\(score) : \(club) repart de \(label) sans avoir rien réglé. \(name) s'est échauffé trois fois, il n'est jamais entré. Dans les journaux du matin, son nom apparaît une seule fois, en bas de feuille de match, dans la liste des remplaçants."
+        }
+        return alt
+            ? "\(club) s'incline \(score) pour \(label). \(name) a tout regardé depuis le banc, et c'est exactement ce que la presse retient : une équipe à court d'idées et une solution laissée de côté. Ce sont ces soirs-là qui rouvrent une porte."
+            : "Défaite \(score) pour \(label). \(name) n'a pas joué une minute. L'entraîneur sortira fragilisé de cette soirée, et un entraîneur fragilisé change son onze : la semaine qui vient vaudra plus que le match d'hier."
     }
-    if r.teamScore > r.oppScore {
-        out = "Vous gagnez \(r.teamScore)-\(r.oppScore)."
-    } else if r.teamScore == r.oppScore {
-        out = "\(r.teamScore)-\(r.oppScore) au coup de sifflet final."
-    } else {
-        out = "Vous perdez \(r.teamScore)-\(r.oppScore)."
-    }
-    if r.goals > 1 {
-        out += " Tu en as mis \(r.goals)."
+
+    var out = won
+        ? "\(club) l'emporte \(score) pour \(label)."
+        : (drew ? "\(score) pour \(label) : personne n'a pris l'avantage."
+                : "\(club) tombe \(score) pour \(label).")
+
+    // Sa part de la soirée, racontée comme un journaliste la raconterait.
+    if r.goals >= 2 {
+        out += " \(name) en a mis \(r.goals), et c'est son nom qui ouvre tous les papiers du matin."
     } else if r.goals == 1 {
-        out += " Tu as marqué."
+        out += r.assists > 0
+            ? " Un but, une passe : la soirée est passée par \(name)."
+            : " Le but est de \(name)."
+    } else if r.assists > 0 {
+        out += " La passe décisive est signée \(name)."
+    } else if r.rating >= 7 {
+        out += " \(name) n'apparaît pas sur la feuille de but, mais ceux qui étaient là ont vu qui tenait l'équipe debout."
+    } else {
+        out += " \(name), lui, n'a jamais trouvé le match."
     }
-    if r.assists > 0 { out += r.goals > 0 ? " Et tu as fait marquer un autre." : " Tu as délivré la passe décisive." }
-    if r.goals == 0 && r.assists == 0 {
-        out += r.rating >= 7 ? " Tu n'as rien marqué, et tu as été l'un des meilleurs sur le terrain." : " Tu n'as pas pesé."
+
+    if r.red {
+        out += " Son carton rouge est déjà l'image de la soirée, et il paiera l'addition au prochain rendez-vous."
+    } else if r.yellow {
+        out += " Un jaune l'a obligé à jouer la deuxième période sur un fil."
     }
-    if r.red { out += " Tu as fini le match aux vestiaires, expulsé." }
-    else if r.yellow { out += " Tu as pris un carton." }
-    if r.injury { out += " Et tu es sorti touché." }
-    out += " Note : \(String(format: "%.1f", r.rating))/10, \(r.minutes) minutes."
+    if r.injury { out += " Il est sorti en se tenant la jambe ; le staff parlera demain." }
+
+    // La seule chose qui compte vraiment : ce que cette soirée laisse derrière elle.
+    let peserContribue = r.goals > 0 || r.assists > 0 || r.rating >= 7
+    if won {
+        out += peserContribue
+            ? (alt
+                ? " Ce matin, la ville n'a pas dormi et il y a une photo de lui en première page. C'est comme ça qu'on entre dans une histoire de club : une soirée, et on ne vous regarde plus jamais de la même façon."
+                : " Le président est descendu au vestiaire. L'entraîneur a dit devant les micros qu'on tenait là un joueur pour les grands soirs, et une phrase pareille, dans ce club, ça vaut un contrat.")
+            : (alt
+                ? " La fête est pour tout le monde, la une pour un autre. Il a gagné, il a le trophée, et il sait très bien qu'il ne doit rien à sa propre soirée."
+                : " Le résultat efface tout, y compris les performances moyennes. Il repart avec un titre et l'idée tenace qu'il aurait dû être celui dont on parle.")
+    } else if drew {
+        out += peserContribue
+            ? " Le nul laisse tout ouvert, mais son nom, lui, ressort grandi : dans une soirée sans vainqueur, il est le seul dont on aura parlé."
+            : " Un match nul ne fâche personne et ne sauve personne. La semaine s'annonce longue, et les places seront rediscutées à l'entraînement."
+    } else {
+        out += peserContribue
+            ? (alt
+                ? " Il n'y a pas de consolation dans une défaite pareille, mais il y a des joueurs qui en sortent grandis. Les journaux le mettent hors du procès général : on lui reconnaît d'avoir été le dernier debout."
+                : " L'équipe va prendre cher toute la semaine, lui beaucoup moins. Ce genre de soirée, perdue mais tenue, se retient plus longtemps qu'une victoire tranquille.")
+            : (alt
+                ? " Le lendemain est violent : les supporters attendent au centre d'entraînement, et les questions ne portent pas sur le collectif. On cite des noms, et le sien en fait partie."
+                : " Une défaite pareille laisse des traces. Le vestiaire va chercher des responsables, et il n'a rien fait, hier soir, pour ne pas être dans la liste.")
+    }
     return out
 }
 

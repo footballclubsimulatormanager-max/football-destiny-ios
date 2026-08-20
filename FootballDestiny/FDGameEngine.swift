@@ -1052,14 +1052,15 @@ final class FDGameEngine: ObservableObject {
         }
 
         // Un grand rendez-vous se joue vraiment : le choix fait, le match a lieu, et le
-        // joueur voit ce qu'il a donné — le score, ses buts, sa note. Sans ça, on décidait
-        // d'une finale sans jamais savoir comment elle s'était terminée.
+        // lendemain arrive sous forme d'article — le résultat et ce qu'il change. Pas de
+        // note : une finale se raconte, elle ne se chiffre pas.
         if let theme = bigMatchPending {
             bigMatchPending = nil
             let result = simulateMatch()
-            narrative = (narrative.isEmpty ? "" : narrative + "\n\n") + fdBigMatchReport(result, theme: theme)
-            pills.append(FDEffectPill(label: "Note", valueText: String(format: "%.1f", result.rating),
-                                      positive: result.rating >= 6.5))
+            if let me = player {
+                narrative = (narrative.isEmpty ? "" : narrative + "\n\n")
+                    + fdBigMatchReport(result, theme: theme, player: me)
+            }
             if result.goals > 0 {
                 pills.append(FDEffectPill(label: result.goals > 1 ? "Buts" : "But",
                                           valueText: "+\(result.goals)", positive: true))

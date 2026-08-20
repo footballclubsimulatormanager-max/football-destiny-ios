@@ -913,7 +913,7 @@ struct FDReglesView: View {
                 bullet("Quatre postes : gardien, défenseur, milieu, attaquant. Le poste pondère tes stats et les scènes.")
                 bullet("Chaque saison alterne scènes à choix, matchs simulés et bilan.")
                 bullet("Une saison s'arrête sur deux à quatre scènes ordinaires, selon ce qu'elle vaut. Le grand rendez-vous, les étapes d'un défi et l'intersaison s'ajoutent par-dessus.")
-                bullet("Un grand rendez-vous se joue vraiment : après ton choix, le match a lieu et tu vois le score, tes buts et ta note.")
+                bullet("Un grand rendez-vous se joue vraiment : après ton choix, le match a lieu et le lendemain arrive sous forme d'article — le score, ce que tu y as fait, et ce que la soirée change pour toi.")
                 bullet("À l'intersaison, tu n'es jamais coincé. Si le club ne compte plus sur toi, trois clubs de ton niveau se présentent ; en fin de parcours, celui où tout a commencé rappelle.")
                 bullet("Retraite possible dès 30 ans, ou imposée par l'âge.")
                 bullet("À la retraite : historique, points, pièces, et signature pour entrer au classement.")
