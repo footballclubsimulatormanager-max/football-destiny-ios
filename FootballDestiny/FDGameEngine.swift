@@ -709,20 +709,51 @@ final class FDGameEngine: ObservableObject {
 
     // MARK: - Match simulation
 
+    /// Le niveau de l'adversaire dépend du championnat et du club, jamais du joueur. C'était
+    /// le défaut du modèle précédent : l'adversaire suivait la progression du joueur, donc
+    /// plus on devenait fort, plus on affrontait fort, et une star mondiale finissait la
+    /// saison avec la même note et le même total de buts qu'un titulaire de deuxième
+    /// division. Maintenant, progresser se voit.
     private func opponentLevel(_ p: FDPlayer) -> Int {
+        let divisionBase: Double
+        switch p.club.division {
+        case 1: divisionBase = 66
+        case 2: divisionBase = 54
+        case 3: divisionBase = 44
+        default: divisionBase = 36
+        }
+        let base = divisionBase * 0.62 + Double(p.club.reputation) * 0.38
+        return min(max(Int((base + Double(Int.random(in: -12...12))).rounded()), 15), 95)
+    }
+
+    /// La chance d'être titulaire, en clair : l'écart entre son niveau et le standard du
+    /// club, la confiance du coach et du président, le niveau absolu, l'âge et le statut.
+    /// Rien n'est acquis d'une saison à l'autre — c'est ce chiffre qui fait qu'on joue
+    /// trente matchs ou qu'on en regarde vingt.
+    func startChance(_ p: FDPlayer) -> Double {
         let ovr = Double(overall(p))
-        let base = Double(p.club.reputation) * 0.3 + ovr * 0.7 + (p.club.division == 1 ? 3 : 0)
-        let jitter = Double(Int.random(in: -14...14))
-        return min(max(Int((base + jitter).rounded()), 15), 95)
+        let trust = Double(p.rel.coach) * 0.7 + Double(p.rel.president) * 0.3
+        var chance = 0.45 + (ovr - Double(p.club.reputation)) / 40 + (trust - 50) / 100
+            + (ovr - 70) / 200 + Double(p.club.youthMinutes) / 500
+        if p.status == .reserve { chance -= 0.22 }
+        if p.age >= 34 { chance -= 0.12 }
+        // Un club ne juge pas un gamin comme un joueur confirmé : à vingt ans on joue sur la
+        // promesse. C'est ce qui rend jouable un départ dans un grand club — on y grappille
+        // des bouts de match au lieu d'y disparaître — sans rendre le choix gratuit : à ce
+        // temps de jeu-là, on progresse deux fois moins vite qu'un titulaire ailleurs.
+        if p.age <= 20 { chance = max(chance, 0.18 + Double(p.club.youthMinutes) / 400) }
+        return min(max(chance, 0.02), 0.95)
     }
 
     private func willStart(_ p: FDPlayer) -> Bool {
-        let ovr = Double(overall(p))
-        let trust = Double(p.rel.coach + p.rel.president) / 2
-        let clubStandard = Double(p.club.reputation)
-        var chance = 0.15 + (ovr - clubStandard) / 140 + trust / 300 + (p.status == .pro ? 0.25 : 0) + Double(p.club.youthMinutes) / 400
-        chance = min(max(chance * 100, 3), 92) / 100
-        return Double.random(in: 0...1) < chance
+        Double.random(in: 0...1) < startChance(p)
+    }
+
+    /// Quand il ne commence pas, entre-t-il en cours de match ? Là encore la confiance
+    /// décide : un joueur que le coach a lâché ne rentre même plus.
+    private func benchAppearanceChance(_ p: FDPlayer) -> Double {
+        let trust = Double(p.rel.coach) * 0.7 + Double(p.rel.president) * 0.3
+        return min(0.7, max(0.04, 0.15 + (trust - 30) / 150))
     }
 
     private func simulateMatch() -> FDMatchResult {
@@ -732,7 +763,9 @@ final class FDGameEngine: ObservableObject {
         let ovr = Double(overall(p))
         let opp = opponentLevel(p)
         let started = willStart(p)
-        let minutes = started ? Int.random(in: 60...90) : (Double.random(in: 0...1) < 0.55 ? Int.random(in: 5...30) : 0)
+        let minutes = started
+            ? Int.random(in: 60...90)
+            : (Double.random(in: 0...1) < benchAppearanceChance(p) ? Int.random(in: 5...30) : 0)
 
         var rating = 5.7 + (ovr - Double(opp)) / 18 + (Double(p.cond.forme) - 50) / 60 + (Double(p.cond.confiance) - 50) / 90 + Double(Int.random(in: -9...9)) / 10
         rating += traitRatingModifier(p)
@@ -743,8 +776,11 @@ final class FDGameEngine: ObservableObject {
         var injury = false
         if minutes > 0 && Double.random(in: 0...1) < (0.02 + Double(p.cond.fatigue) / 1400) { injury = true }
 
-        let teamScore = min(max(Int.random(in: 0...3) + (ovr > Double(opp) ? 1 : 0) - (ovr < Double(opp) - 15 ? 1 : 0), 0), 6)
-        let oppScore = min(max(Int.random(in: 0...3) - (ovr > Double(opp) + 10 ? 1 : 0) + (ovr < Double(opp) - 10 ? 1 : 0), 0), 6)
+        // Le résultat est d'abord celui d'une équipe : la réputation du club pèse trois fois
+        // plus que le niveau du joueur, qui n'est qu'un homme sur onze.
+        let teamStrength = Double(p.club.reputation) * 0.75 + ovr * 0.25
+        let teamScore = min(max(Int.random(in: 0...3) + (teamStrength > Double(opp) ? 1 : 0) - (teamStrength < Double(opp) - 15 ? 1 : 0), 0), 6)
+        let oppScore = min(max(Int.random(in: 0...3) - (teamStrength > Double(opp) + 10 ? 1 : 0) + (teamStrength < Double(opp) - 10 ? 1 : 0), 0), 6)
 
         // Les buts du joueur se prennent sur ceux de son équipe, but par but : on ne marque
         // pas un doublé dans une défaite 1-0, et un 4-0 laisse la place à un triplé. Un
@@ -753,17 +789,22 @@ final class FDGameEngine: ObservableObject {
         var goals = 0, assists = 0
         if minutes > 0 && teamScore > 0 {
             let share = min(1.0, Double(minutes) / 75.0)
+            // L'état de grâce de l'année : le même joueur ne finit jamais deux saisons de
+            // suite sur le même total. Tiré de la saison et du nom, donc stable de septembre
+            // à juin — on sent qu'on est dedans, ou qu'on ne l'est pas.
+            let sharpness = Double((p.calendar.season &* 31 &+ p.lastName.count &* 7
+                                    &+ p.firstName.count) % 17 - 7) / 110.0
             let scorer: Double
             let passer: Double
             switch p.position {
             case .attaquant:
-                scorer = 0.28 + (rating - 6) * 0.07 + (Double(p.attr(.tir)) - 60) / 380
+                scorer = 0.07 + sharpness + (rating - 6) * 0.11 + (Double(p.attr(.tir)) - 55) / 230
                 passer = 0.10 + (Double(p.attr(.passe)) - 60) / 900
             case .milieu:
-                scorer = 0.12 + (rating - 6) * 0.04 + (Double(p.attr(.tir)) - 60) / 700
+                scorer = 0.03 + sharpness * 0.6 + (rating - 6) * 0.05 + (Double(p.attr(.tir)) - 55) / 500
                 passer = 0.20 + (rating - 6) * 0.03 + (Double(p.attr(.passe)) - 60) / 600
             case .defenseur:
-                scorer = 0.04 + (rating - 6) * 0.015
+                scorer = 0.02 + (rating - 6) * 0.012
                 passer = 0.07 + (Double(p.attr(.passe)) - 60) / 1100
             case .gardien:
                 scorer = 0
@@ -777,6 +818,10 @@ final class FDGameEngine: ObservableObject {
                 }
             }
         }
+
+        // La journée a eu lieu pour le club, que le joueur soit entré ou non : c'est ce qui
+        // permet de juger une saison en part de temps de jeu plutôt qu'en nombre de matchs.
+        p.seasonFixtures = (p.seasonFixtures ?? 0) + 1
 
         if minutes > 0 {
             p.cond.fatigue = min(max(p.cond.fatigue + Int((Double(minutes) / 7).rounded()), 0), 100)
@@ -890,17 +935,14 @@ final class FDGameEngine: ObservableObject {
         return .story(scene)
     }
 
-    /// Combien de matchs une saison doit vraiment offrir. Douze, c'était une demi-saison :
-    /// un attaquant finissait l'année avec quatre buts et une fiche de stats vide. Un pro en
-    /// joue une trentaine, et ces matchs-là ne coûtent rien au joueur — ils se simulent en
-    /// silence entre deux scènes.
-    private func matchesTargetThisSeason(_ p: FDPlayer) -> Int {
-        switch p.status {
-        case .u16: return 12
-        case .u18: return 18
-        case .reserve: return 24
-        case .pro, .veteran: return 32
-        }
+    /// La part de la saison que le joueur a réellement jouée, de 0 à 1. Tout ce qui se juge
+    /// sur le temps de jeu passe par là : plus aucun seuil n'est un nombre de matchs en dur,
+    /// donc deux carrières qui ont joué « peu » ne le sont plus pour la même raison ni au
+    /// même moment.
+    func playedShare(_ p: FDPlayer) -> Double {
+        let fixtures = p.seasonFixtures ?? 0
+        guard fixtures >= 4 else { return 1.0 }
+        return min(1.0, Double(p.seasonMatches) / Double(fixtures))
     }
 
     // MARK: - Fil conducteur du défi Gloire du Passé
@@ -1037,7 +1079,7 @@ final class FDGameEngine: ObservableObject {
     private func storyEventsTarget(_ p: FDPlayer) -> Int {
         let base: Int
         // Une saison où l'on joue peu, ou une fin de carrière, se raconte en moins de scènes.
-        if p.seasonMatches <= 8 && p.calendar.week > p.calendar.seasonWeeks / 2 {
+        if playedShare(p) < 0.3 && p.calendar.week > p.calendar.seasonWeeks / 2 {
             base = 2
         } else if p.status == .reserve || p.age >= 34 {
             base = 2
@@ -1230,7 +1272,6 @@ final class FDGameEngine: ObservableObject {
             }
 
             let storyLeft = storyEventsTarget(p) - p.seasonStoryEvents
-            let matchWeeksLeft = matchesTargetThisSeason(p) - p.seasonMatches
 
             if storyLeft > 0 && (storyLeft >= weeksLeft || Double.random(in: 0...1) < Double(storyLeft) / Double(weeksLeft)) {
                 currentScene = generateNextEvent()
@@ -1239,15 +1280,15 @@ final class FDGameEngine: ObservableObject {
                 saveGame()
                 return
             }
-            if matchWeeksLeft > 0 && (matchWeeksLeft >= weeksLeft || Double.random(in: 0...1) < Double(matchWeeksLeft) / Double(weeksLeft)) {
-                // Semaine anglaise : quand il reste plus de matchs que de semaines, on en
-                // joue deux dans la même. Les anciennes sauvegardes, plus courtes, rattrapent
-                // ainsi leur calendrier sans perdre de journées.
-                let perWeek = min(2, max(1, Int((Double(matchWeeksLeft) / Double(weeksLeft)).rounded(.up))))
-                for _ in 0..<perWeek { _ = simulateMatch() }
+            // Pas de quota de matchs : le championnat tourne, une semaine sur huit est une
+            // trêve, et c'est la confiance du coach, la forme et le niveau qui décident si le
+            // joueur entre ou regarde. Deux carrières ne comptent donc jamais le même nombre
+            // de matchs, et celui qui perd sa place le voit dans ses stats.
+            if Double.random(in: 0...1) > 0.12 {
+                _ = simulateMatch()
                 continue
             }
-            // Quiet week: nothing notable happens, keep advancing.
+            // Trêve : ni match ni scène, la semaine passe.
         }
     }
 
@@ -1283,6 +1324,10 @@ final class FDGameEngine: ObservableObject {
         p.history.insert(FDSeasonRecord(season: p.calendar.season, age: p.age, club: p.club.name, status: p.status,
                                           apps: p.seasonMatches, goals: p.seasonGoals, assists: p.seasonAssists,
                                           avgRating: (avgForm * 10).rounded() / 10), at: 0)
+
+        // La part de la saison réellement jouée, retenue avant que les compteurs ne soient
+        // remis à zéro : elle sert au bilan, aux trophées et à la vitesse de progression.
+        let seasonShare = playedShare(p)
 
         var summary: [String] = [
             "Saison \(fdSeasonLabel(p.calendar.season)) terminée : \(p.seasonMatches) match(s), \(p.seasonGoals) but(s), \(p.seasonAssists) passe(s) décisive(s).",
@@ -1331,16 +1376,24 @@ final class FDGameEngine: ObservableObject {
         if !rivalLine.isEmpty { summary.append(rivalLine) }
 
         // Individual awards — read from the record just inserted, before season counters reset.
-        if (p.status == .pro || p.status == .veteran) && p.seasonMatches >= 10 {
+        if (p.status == .pro || p.status == .veteran) && seasonShare >= 0.35 {
+            // Aucun palier à franchir : plus la saison est forte, plus la chance monte.
+            // Vingt-deux buts ne donnent pas droit à un trophée, ils donnent une chance —
+            // et trente en donnent une bien meilleure, sans jamais rien garantir.
             let seasonGoals = p.history[0].goals
-            if seasonGoals >= 22 && Double.random(in: 0...1) < 0.22 {
+            let shoeChance = min(0.5, Double(seasonGoals - 12) / 55.0)
+            if Double.random(in: 0...1) < shoeChance {
                 p.awardCounts[FDAward.soulierDor.rawValue, default: 0] += 1
                 summary.append("🥾 Soulier d'Or de la saison !")
             }
-            if avgForm >= 7.4 && p.cond.reputation >= 55 && Double.random(in: 0...1) < 0.10 {
+            let ballonChance = min(0.28, (avgForm - 6.9) * 0.30
+                                   + Double(p.cond.reputation - 55) / 400
+                                   + Double(seasonGoals) / 320
+                                   + Double(p.leagueTitles > 0 ? 0.04 : 0))
+            if Double.random(in: 0...1) < ballonChance {
                 p.awardCounts[FDAward.ballonDor.rawValue, default: 0] += 1
                 summary.append("🏆 Ballon d'Or ! Le sommet individuel du football.")
-            } else if avgForm >= 6.8 && p.age <= 23 && Double.random(in: 0...1) < 0.15 {
+            } else if p.age <= 23, Double.random(in: 0...1) < min(0.32, (avgForm - 6.4) * 0.28) {
                 p.awardCounts[FDAward.revelation.rawValue, default: 0] += 1
                 summary.append("⭐ Révélation de la saison !")
             }
@@ -1357,6 +1410,7 @@ final class FDGameEngine: ObservableObject {
 
         p.age += 1
         p.seasonMatches = 0; p.seasonGoals = 0; p.seasonAssists = 0; p.seasonForm = []; p.seasonStoryEvents = 0
+        p.seasonFixtures = 0
         p.seasonBeats = 0
         p.seasonMoneyDelta = 0
         p.calendar.season += 1; p.calendar.week = 0
@@ -1367,6 +1421,18 @@ final class FDGameEngine: ObservableObject {
         // un joueur tardif grappille. C'est ce qui fait qu'une carrière « pète » ou traîne.
         let gf = ageGrowthFactor(p.age) * (ageGrowthFactor(p.age) > 0 ? talent.growthFactor : 1.0)
         let w = p.position.weights
+
+        // Une saison ne fait pas progresser d'un cran fixe : elle fait progresser de ce
+        // qu'elle a été. Le temps de jeu pèse le plus lourd, la note du bilan et la
+        // confiance du coach ensuite — les choix de l'année se retrouvent donc dans les
+        // attributs. Et une part de hasard reste, large, pour que deux carrières menées
+        // exactement pareil ne donnent jamais le même joueur.
+        let minutesWeight = 0.35 + seasonShare * 0.9
+        let ratingPush = recRating > 0 ? (recRating - 6.2) / 6.0 : 0
+        let trustPush = (Double(p.rel.coach) - 45) / 320
+        let luck = Double.random(in: 0.68...1.42)
+        let seasonFactor = max(0.2, min(2.1, (minutesWeight + ratingPush + trustPush) * luck))
+
         for a in FDAttribute.allCases {
             let relevance = 0.55 + w.value(for: a.category) * 1.5
             let cur = p.attr(a)
@@ -1374,7 +1440,8 @@ final class FDGameEngine: ObservableObject {
             let room = pot - cur
             let delta: Int
             if gf > 0 {
-                delta = Int((Double(min(room, Int.random(in: 0...talent.growthStep))) * gf * relevance).rounded())
+                let step = Double(min(room, Int.random(in: 0...talent.growthStep)))
+                delta = Int((step * gf * relevance * seasonFactor).rounded())
             } else {
                 delta = Int((Double(Int.random(in: -2...0)) * abs(gf)).rounded())
             }
@@ -1394,11 +1461,11 @@ final class FDGameEngine: ObservableObject {
         // une saison ratée renvoie en réserve — et la remontée qui suit.
         if p.status == .pro || p.status == .veteran {
             let ovr = overall(p)
-            let played = p.seasonMatches
+            let played = seasonShare
             let rated = p.seasonForm.isEmpty ? 6.0 : avgForm
-            // Seuils remontés avec le calendrier : huit apparitions sur trente-deux
-            // journées, c'est une saison passée sur le banc.
-            let badSeason = played <= 8 || rated < 5.3
+            // Une saison ratée se juge en part de temps de jeu, pas en nombre de matchs :
+            // moins d'un tiers des journées jouées, ou une note qui ne tient pas.
+            let badSeason = played < 0.3 || rated < 5.3
             let outOfDepth = ovr <= p.club.reputation - 20
             let coachLost = p.rel.coach <= 15
             // Il faut cumuler les signaux : un seul mauvais indicateur ne fait pas descendre.
@@ -1527,17 +1594,31 @@ final class FDGameEngine: ObservableObject {
         }
     }
 
+    /// L'objectif personnel n'est pas un barème. Il part de ce que le joueur a réellement
+    /// produit l'an dernier — ou de ce que son niveau laisse attendre pour une première année —
+    /// et on y ajoute une marge tirée au sort. Deux joueurs identiques ne se voient donc
+    /// jamais fixer la même barre, et celui qui a explosé est attendu plus haut que celui
+    /// qui a subi. Certaines saisons, la barre est basse ; d'autres, elle fait peur.
     private func generatePersonalObjective(_ p: FDPlayer) -> FDSeasonObjective {
-        if p.position.isAttacker {
-            // Recalibré sur une vraie saison de trente matchs : neuf buts n'étaient plus
-            // un objectif, c'était un plancher.
-            let target = max(10, 13 + (overall(p) - 60) / 3)
+        let last = p.history.first
+        let margin = Double.random(in: 0.88...1.28)
+        let ovr = Double(overall(p))
+        switch p.position {
+        case .attaquant:
+            let expected = max(Double(last?.goals ?? 0), max(4, (ovr - 45) * 0.22))
+            let target = max(6, Int((expected * margin).rounded()))
             return FDSeasonObjective(text: "Marquer \(target) buts cette saison", kind: "buts", target: target)
-        } else if p.position == .milieu {
-            let target = max(7, 9 + (overall(p) - 60) / 5)
+        case .milieu:
+            let expected = max(Double(last?.assists ?? 0), max(3, (ovr - 45) * 0.16))
+            let target = max(4, Int((expected * margin).rounded()))
             return FDSeasonObjective(text: "Délivrer \(target) passes décisives", kind: "passes", target: target)
-        } else {
-            return FDSeasonObjective(text: "S'imposer comme titulaire indiscutable", kind: "titulaire", target: 26)
+        default:
+            // Un défenseur, un gardien se jugent sur leur place dans l'équipe : une part des
+            // journées, et cette part dépend de l'écart entre son niveau et celui du club.
+            let share = min(0.92, max(0.3, 0.55 + (ovr - Double(p.club.reputation)) / 200
+                                      + Double.random(in: -0.06...0.09)))
+            let target = max(8, Int((share * 34).rounded()))
+            return FDSeasonObjective(text: "Disputer \(target) matchs cette saison", kind: "titulaire", target: target)
         }
     }
 
@@ -1761,8 +1842,8 @@ final class FDGameEngine: ObservableObject {
             // la carrière, ce sont des clubs à sa portée qui se présentent, ou celui où tout
             // a commencé. Rester est toujours possible — être coincé, non.
             let ovr = overall(p)
-            let ecarte = p.seasonMatches <= 12 || p.rel.coach <= 25 || ovr <= p.club.reputation - 12
-            let finDeParcours = p.age >= 32 && (ovr < p.club.reputation || p.seasonMatches <= 18)
+            let ecarte = playedShare(p) < 0.45 || p.rel.coach <= 25 || ovr <= p.club.reputation - 12
+            let finDeParcours = p.age >= 32 && (ovr < p.club.reputation || playedShare(p) < 0.6)
             if finDeParcours, let scene = mercatoRetourScene(p) { return scene }
             if ecarte, let scene = mercatoEcarteScene(p) { return scene }
             return mercatoTranquilleScene(p, mood: mood)

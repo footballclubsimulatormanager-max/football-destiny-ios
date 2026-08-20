@@ -912,7 +912,8 @@ struct FDReglesView: View {
                 bullet("Identité, ville de naissance et pied fort tirés au sort, cohérents avec la nationalité.")
                 bullet("Quatre postes : gardien, défenseur, milieu, attaquant. Le poste pondère tes stats et les scènes.")
                 bullet("Chaque saison alterne scènes à choix, matchs simulés et bilan.")
-                bullet("Une saison, c'est 38 journées et une trentaine de matchs joués : ils se simulent en silence entre deux scènes, et un attaquant titulaire finit l'année avec une vraie feuille de statistiques.")
+                bullet("Le championnat tourne toute la saison et les matchs se simulent en silence entre deux scènes. Aucun quota : le nombre de matchs que tu joues dépend de ton niveau face au standard du club, de la confiance du coach, de ton âge et de ton statut.")
+                bullet("Un titulaire en dispute une trentaine, un joueur écarté cinq. Tes buts se prennent sur ceux de ton équipe, but par but — pas de doublé dans une défaite 1-0.")
                 bullet("Une saison s'arrête sur une à trois scènes ordinaires, selon ce qu'elle vaut. Et chaque rendez-vous — grand match, étape d'un défi — en retire une : une saison pleine de moments forts ne s'allonge pas de scènes en plus.")
                 bullet("Un grand rendez-vous se joue vraiment : après ton choix, le match a lieu et le lendemain arrive sous forme d'article — le score, ce que tu y as fait, et ce que la soirée change pour toi.")
                 bullet("À l'intersaison, tu n'es jamais coincé. Si le club ne compte plus sur toi, trois clubs de ton niveau se présentent ; en fin de parcours, celui où tout a commencé rappelle.")
@@ -955,6 +956,12 @@ struct FDReglesView: View {
                 ruleRow("Génération", "2 %")
                 bullet("Le palier joue sur le plafond et sur la vitesse de progression : une pépite gagne jusqu'à 4 points par attribut et par saison, un joueur tardif 2.")
                 bullet("Les étoiles achetées ne garantissent rien : elles vident le palier tardif et poussent les paliers hauts. Une carrière peut exploser sans une seule étoile — rarement.")
+            }
+            rulesCard(icon: "chart.line.uptrend.xyaxis", title: "Progresser", color: FDTheme.success) {
+                paragraph("Une saison ne fait jamais progresser d'un cran fixe : elle fait progresser de ce qu'elle a été.")
+                bullet("Le temps de jeu pèse le plus lourd, la note du bilan et la confiance du coach ensuite : les choix de l'année se retrouvent dans les attributs.")
+                bullet("Une part de hasard reste, large : deux carrières menées exactement pareil ne donnent jamais le même joueur. Ça peut aller vite, ça peut traîner.")
+                bullet("Rien n'est jamais acquis : perdre sa place, c'est perdre sa progression, et tout se rejoue la saison suivante.")
             }
             rulesCard(icon: "arrow.up.arrow.down", title: "Pro, et rien d'autre", color: FDTheme.primary) {
                 paragraph("La carrière commence et se termine chez les professionnels : il n'y a pas de catégorie de jeunes à traverser.")

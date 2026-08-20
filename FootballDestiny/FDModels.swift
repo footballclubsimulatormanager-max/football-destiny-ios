@@ -417,6 +417,10 @@ struct FDPlayer: Codable {
     var seasonMatches = 0
     var seasonGoals = 0
     var seasonAssists = 0
+    /// Les journées jouées par le club cette saison, que le joueur soit entré ou non. C'est le
+    /// dénominateur de tout ce qui se juge en part de temps de jeu — plus aucun seuil n'est un
+    /// nombre de matchs en dur. Optionnel : les anciennes sauvegardes le relisent à nil.
+    var seasonFixtures: Int? = nil
     var seasonStoryEvents = 0
     /// Les rendez-vous déjà servis cette saison — grand match, étape de légende. Chacun retire
     /// une scène ordinaire au compteur. Optionnel : les anciennes sauvegardes le relisent à nil.
