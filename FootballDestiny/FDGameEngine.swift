@@ -1247,10 +1247,10 @@ final class FDGameEngine: ObservableObject {
         p.calendar.season += 1; p.calendar.week = 0
 
         // Growth pass — weighted toward the attributes that matter for this position
-        let tier = fdTalentTier(p.talentTier)
+        let talent = fdTalentTier(p.talentTier)
         // Le palier ne joue pas que sur le plafond : une pépite progresse aussi plus vite,
         // un joueur tardif grappille. C'est ce qui fait qu'une carrière « pète » ou traîne.
-        let gf = ageGrowthFactor(p.age) * (ageGrowthFactor(p.age) > 0 ? tier.growthFactor : 1.0)
+        let gf = ageGrowthFactor(p.age) * (ageGrowthFactor(p.age) > 0 ? talent.growthFactor : 1.0)
         let w = p.position.weights
         for a in FDAttribute.allCases {
             let relevance = 0.55 + w.value(for: a.category) * 1.5
@@ -1259,7 +1259,7 @@ final class FDGameEngine: ObservableObject {
             let room = pot - cur
             let delta: Int
             if gf > 0 {
-                delta = Int((Double(min(room, Int.random(in: 0...tier.growthStep))) * gf * relevance).rounded())
+                delta = Int((Double(min(room, Int.random(in: 0...talent.growthStep))) * gf * relevance).rounded())
             } else {
                 delta = Int((Double(Int.random(in: -2...0)) * abs(gf)).rounded())
             }
@@ -1270,8 +1270,8 @@ final class FDGameEngine: ObservableObject {
         // elle-même, quand deux saisons ont donné de quoi juger.
         if p.calendar.season == 3 {
             p.journal.insert(FDJournalEntry(week: 0, season: p.calendar.season, age: p.age,
-                                            text: tier.reveal, icon: "🔎"), at: 0)
-            summary.append("🔎 \(tier.reveal)")
+                                            text: talent.reveal, icon: "🔎"), at: 0)
+            summary.append("🔎 \(talent.reveal)")
         }
 
         // La carrière se joue chez les professionnels du premier jour au dernier : il n'y a

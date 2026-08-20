@@ -1374,10 +1374,6 @@ struct FDCarriereTab: View {
         }
     }
 
-    // MARK: Retire card — always present inside the player box, so ending a career is
-    // reachable from the career screen itself and not buried in Options.
-
-    @ViewBuilder
     // MARK: Stats content — condition pills + attribute bars
 
     /// Everything about the player's shape, sized to fit the player box without scrolling:
