@@ -533,6 +533,11 @@ struct FDChoice {
     var trait: FDTrait? = nil
     /// Set once, by the Identité de jeu scene, to permanently label the player's play style.
     var setPlayStyle: String? = nil
+    /// Un choix de mercato qui fait réellement changer de maillot : le club est appliqué au
+    /// joueur, avec la ligne de transfert et la prime qui vont avec.
+    var setClub: FDClub? = nil
+    /// La prime encaissée si ce choix déclenche le transfert.
+    var transferFee: Int? = nil
 }
 
 struct FDSceneDef {
@@ -552,6 +557,12 @@ struct FDSceneDef {
     /// Reserved for careers played as a "Gloire du Passé" challenge: these scenes speak of
     /// the legend being chased, and never appear in an ordinary career.
     var legendOnly: Bool = false
+    /// Marque une scène de rendez-vous, qui ne sort jamais au tirage ordinaire : "climax"
+    /// pour le grand match de la saison, tiré une fois par saison dans le dernier quart.
+    var beat: String? = nil
+    /// Le thème du rendez-vous — "club", "coupe", "europe", "selection", "derby" — dont la
+    /// part change avec la carrière : un joueur de réserve ne joue pas de finale européenne.
+    var beatTheme: String? = nil
 }
 
 enum FDCurrentScene {
@@ -764,4 +775,110 @@ func fdCareerChronicle(player p: FDPlayer) -> (headline: String, article: String
     body += " Parti de \(p.birthCity), \(p.firstName) termine à \(p.age) ans, sous le maillot de \(p.club.name)."
 
     return (headline, body)
+}
+
+// MARK: - Conséquence d'un choix
+
+/// Une scène écrite peut fournir sa propre suite (`hint`), et les meilleures le font. Pour
+/// toutes les autres, l'écran de résultat n'affichait que des pastilles chiffrées : on
+/// voyait ce qui avait bougé, jamais ce qui s'était passé. Ces fragments recomposent la
+/// conséquence en français à partir de ce que le choix a réellement changé — le levier qui
+/// monte le plus, celui qui descend le plus — avec assez de variantes pour qu'on ne relise
+/// pas deux fois la même phrase.
+private let fdConsequenceUp: [String: [String]] = [
+    "tech":       ["ton pied répond mieux qu'avant", "le ballon te colle enfin au pied", "ta technique passe un cran"],
+    "phys":       ["ton corps suit sans broncher", "tu tiens des efforts qui te coupaient les jambes", "physiquement, tu prends le dessus"],
+    "ment":       ["ta tête reste froide quand ça chauffe", "tu joues avec une lucidité nouvelle", "tu ne trembles plus dans les moments qui comptent"],
+    "def":        ["tu sens le danger avant les autres", "tu lis le jeu adverse une seconde en avance", "défensivement, plus rien ne te surprend"],
+    "forme":      ["tu te sens bien dans tes jambes", "ta forme repart nettement", "tu arrives frais aux séances"],
+    "moral":      ["tu marches plus léger", "tu retrouves le plaisir de venir travailler", "le moral remonte pour de bon"],
+    "confiance":  ["tu oses des choses que tu n'osais pas", "la confiance revient d'un coup", "tu joues sans te poser de questions"],
+    "reputation": ["on commence à parler de toi ailleurs", "ton nom circule au-delà du club", "ta cote grimpe"],
+    "fatigue":    ["tu récupères enfin", "les jambes se dénouent", "tu redémarres la semaine sans traîner"],
+    "coach":      ["le coach note la réponse", "tu montes d'un cran dans son estime", "il te regarde autrement"],
+    "staff":      ["le staff te fait davantage confiance", "les kinés et les préparateurs jouent le jeu avec toi", "on t'accompagne mieux au quotidien"],
+    "president":  ["le président apprécie", "la direction te met du côté des siens", "en haut, on te trouve sérieux"],
+    "agent":      ["ton agent y voit clair", "il pousse ton dossier avec plus d'énergie", "il te sent enfin décidé"],
+    "capitaine":  ["le capitaine te prend au sérieux", "il te met dans son cercle", "il te consulte désormais"],
+    "vestiaire":  ["le vestiaire retient le geste", "le groupe te suit", "on te compte parmi les leurs"],
+    "famille":    ["à la maison, on respire", "les tiens sont derrière toi", "la famille se sent enfin considérée"],
+    "partenaire": ["chez toi, l'ambiance s'apaise", "on te soutient sans arrière-pensée", "ta vie privée redevient un appui"],
+    "media":      ["la presse t'accorde le bénéfice du doute", "les journalistes te trouvent une bonne tête", "le traitement médiatique tourne en ta faveur"],
+    "fans":       ["les tribunes te le rendent", "ton nom sort du virage à chaque échauffement", "les supporters t'adoptent"],
+    "money":      ["le compte grossit", "l'opération rapporte", "le portefeuille s'en trouve mieux"],
+]
+
+private let fdConsequenceDown: [String: [String]] = [
+    "tech":       ["ton geste se dérègle", "tu perds des ballons que tu ne perdais pas", "la technique en prend un coup"],
+    "phys":       ["le corps encaisse mal", "tu finis les matchs à l'arraché", "physiquement, tu recules"],
+    "ment":       ["tu te crispes dès que ça compte", "la tête suit moins bien", "tu prends de mauvaises décisions dans l'urgence"],
+    "def":        ["tu prends un temps de retard sur le danger", "tu te fais prendre dans le dos", "ta lecture défensive s'égare"],
+    "forme":      ["la forme en prend un coup", "les jambes ne répondent plus pareil", "tu joues à l'économie"],
+    "moral":      ["ça te reste en travers", "le moral en prend un coup", "tu traînes ça toute la semaine"],
+    "confiance":  ["tu doutes au moment de tenter", "la confiance s'effrite", "tu joues la sécurité maintenant"],
+    "reputation": ["ton image en pâtit", "on retiendra surtout ça de toi", "ta cote en prend un coup"],
+    "fatigue":    ["tu le paies dans les jambes", "la fatigue s'installe", "tu récupères de moins en moins vite"],
+    "coach":      ["le coach ne l'oublie pas", "il t'en tient rigueur", "tu redescends dans sa hiérarchie"],
+    "staff":      ["le staff fait la tête", "on t'accompagne du bout des doigts", "les portes du staff se referment un peu"],
+    "president":  ["en haut, ça grince", "la direction s'en souvient", "le président prend note, et pas dans le bon sens"],
+    "agent":      ["ton agent le prend mal", "il lève le pied sur ton dossier", "il ne comprend pas ta logique"],
+    "capitaine":  ["le capitaine te bat froid", "il ne te couvre plus", "il te met à distance"],
+    "vestiaire":  ["le vestiaire tique", "le groupe met une distance", "on te le fait sentir aux repas"],
+    "famille":    ["à la maison, ça pèse", "les tiens ne comprennent pas", "la famille encaisse en silence"],
+    "partenaire": ["chez toi, ça se tend", "on te reproche de ne jamais être là", "ta vie privée en pâtit"],
+    "media":      ["la presse s'en empare", "les titres ne sont pas tendres", "les journalistes te taillent"],
+    "fans":       ["les tribunes te le font savoir", "le virage siffle ton nom", "les supporters ne suivent plus"],
+    "money":      ["l'argent part", "ça coûte cher", "le compte encaisse"],
+]
+
+private func fdLever(_ e: FDEffect) -> String? {
+    if let attr = e.attr { return attr.category.rawValue }
+    if let cond = e.cond { return cond }
+    if let rel = e.rel { return rel }
+    if e.money != nil { return "money" }
+    return nil
+}
+
+/// L'ampleur d'un effet, ramenée à une même échelle : l'argent se compte en milliers.
+private func fdMagnitude(_ e: FDEffect) -> Int {
+    if let money = e.money { return abs(money) / 4000 }
+    // La fatigue est le seul levier dont la hausse dessert le joueur.
+    return abs(e.delta)
+}
+
+private func fdIsGain(_ e: FDEffect) -> Bool {
+    if let money = e.money { return money > 0 }
+    if e.cond == "fatigue" { return e.delta < 0 }
+    return e.delta > 0
+}
+
+/// Recompose la suite d'un choix : le gain le plus fort, le prix le plus fort, en une phrase.
+func fdConsequence(effects: [FDEffect], seed: Int) -> String {
+    let scored = effects.filter { fdLever($0) != nil && fdMagnitude($0) > 0 }
+    guard !scored.isEmpty else { return "" }
+
+    let gains = scored.filter { fdIsGain($0) }.sorted { fdMagnitude($0) > fdMagnitude($1) }
+    let costs = scored.filter { !fdIsGain($0) }.sorted { fdMagnitude($0) > fdMagnitude($1) }
+
+    func fragment(_ e: FDEffect, up: Bool, offset: Int) -> String? {
+        guard let lever = fdLever(e) else { return nil }
+        let bank = up ? fdConsequenceUp : fdConsequenceDown
+        guard let variants = bank[lever], !variants.isEmpty else { return nil }
+        return variants[abs(seed &+ offset) % variants.count]
+    }
+
+    let gain = gains.first.flatMap { fragment($0, up: true, offset: 0) }
+    let cost = costs.first.flatMap { fragment($0, up: false, offset: 7) }
+
+    switch (gain, cost) {
+    case let (g?, c?):
+        // Le prix en second : c'est ce que le joueur doit retenir en refermant la carte.
+        return (g.prefix(1).uppercased() + g.dropFirst()) + ", mais " + c + "."
+    case let (g?, nil):
+        return (g.prefix(1).uppercased() + g.dropFirst()) + "."
+    case let (nil, c?):
+        return (c.prefix(1).uppercased() + c.dropFirst()) + "."
+    default:
+        return ""
+    }
 }

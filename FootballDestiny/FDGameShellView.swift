@@ -359,6 +359,11 @@ private func fdSceneSymbol(_ category: String) -> String {
     case "Hygiène de vie": return "moon.zzz.fill"
     case "Préparation": return "chart.bar.fill"
     case "Supporters": return "megaphone.fill"
+    // Les rendez-vous de saison : ils doivent se reconnaître au premier coup d'œil.
+    case "Coupe": return "trophy.fill"
+    case "Europe": return "star.circle.fill"
+    case "Match important": return "sportscourt.fill"
+    case "Derby": return "flame.fill"
     default: return "calendar"
     }
 }
@@ -376,6 +381,10 @@ private func fdSceneColor(_ category: String) -> Color {
     case "Hygiène de vie": return .indigo
     case "Préparation": return FDTheme.accentTeal
     case "Supporters": return FDTheme.amber
+    case "Coupe": return FDTheme.amber
+    case "Europe": return FDTheme.blueGlow
+    case "Match important": return FDTheme.primary
+    case "Derby": return .red
     default: return FDTheme.accentTeal
     }
 }
@@ -452,63 +461,70 @@ struct FDStoryCard: View {
 
             Rectangle().fill(Color.white.opacity(0.06)).frame(height: 1)
 
-            // The scene takes the height it needs and no more, so the choices sit right
-            // under it instead of being pushed to the bottom of the card with a hole in
-            // between. A very long scene shrinks slightly rather than pushing them off.
-            Text(scene.text)
-                .font(FDFont.story(20))
-                .lineSpacing(6)
-                .foregroundStyle(FDTheme.textPrimary)
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .fixedSize(horizontal: false, vertical: true)
-                .minimumScaleFactor(0.6)
-                .padding(.horizontal, 16).padding(.top, 16).padding(.bottom, 14)
+            // Les grands rendez-vous sont écrits longs : sur un petit écran, le texte et
+            // trois réponses ne tiennent pas toujours. Le contenu défile alors — et ne
+            // défile pas du tout quand tout tient, ce qui est le cas ordinaire.
+            ScrollView(showsIndicators: false) {
+                VStack(alignment: .leading, spacing: 0) {
+                // The scene takes the height it needs and no more, so the choices sit right
+                // under it instead of being pushed to the bottom of the card with a hole in
+                // between.
+                Text(scene.text)
+                    .font(FDFont.story(20))
+                    .lineSpacing(6)
+                    .foregroundStyle(FDTheme.textPrimary)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .fixedSize(horizontal: false, vertical: true)
+                    .padding(.horizontal, 16).padding(.top, 16).padding(.bottom, 14)
 
-            VStack(spacing: 10) {
-                ForEach(Array(scene.choices.enumerated()), id: \.offset) { idx, choice in
-                    // Each choice is a filled button in its own colour — pressable at a
-                    // glance, no hunting for the tappable part of a row.
-                    let tint = fdChoiceTint(index: idx, category: scene.category)
-                    Button {
-                        FDHaptics.tap()
-                        engine.resolveChoice(choice, category: scene.category)
-                    } label: {
-                        VStack(spacing: 3) {
-                            if let tag = choice.tag {
-                                Text(tag.uppercased())
-                                    .font(.system(size: 11, weight: .black))
-                                    .tracking(0.9)
-                                    .foregroundStyle(tint.opacity(0.85))
-                            } else if let trait = choice.trait {
-                                Text(trait.rawValue.uppercased())
-                                    .font(.system(size: 11, weight: .black))
-                                    .tracking(0.9)
-                                    .foregroundStyle(tint.opacity(0.85))
+                VStack(spacing: 10) {
+                    ForEach(Array(scene.choices.enumerated()), id: \.offset) { idx, choice in
+                        // Each choice is a filled button in its own colour — pressable at a
+                        // glance, no hunting for the tappable part of a row.
+                        let tint = fdChoiceTint(index: idx, category: scene.category)
+                        Button {
+                            FDHaptics.tap()
+                            engine.resolveChoice(choice, category: scene.category)
+                        } label: {
+                            VStack(spacing: 3) {
+                                if let tag = choice.tag {
+                                    Text(tag.uppercased())
+                                        .font(.system(size: 11, weight: .black))
+                                        .tracking(0.9)
+                                        .foregroundStyle(tint.opacity(0.85))
+                                } else if let trait = choice.trait {
+                                    Text(trait.rawValue.uppercased())
+                                        .font(.system(size: 11, weight: .black))
+                                        .tracking(0.9)
+                                        .foregroundStyle(tint.opacity(0.85))
+                                }
+                                Text(choice.label)
+                                    .font(FDFont.body(18, black: true))
+                                    .foregroundStyle(tint)
+                                    .multilineTextAlignment(.center)
+                                    .fixedSize(horizontal: false, vertical: true)
                             }
-                            Text(choice.label)
-                                .font(FDFont.body(18, black: true))
-                                .foregroundStyle(tint)
-                                .multilineTextAlignment(.center)
-                                .fixedSize(horizontal: false, vertical: true)
+                            .frame(maxWidth: .infinity)
+                            .padding(.vertical, 15)
+                            .padding(.horizontal, 12)
+                            .background(
+                                RoundedRectangle(cornerRadius: 14, style: .continuous)
+                                    .fill(tint.opacity(0.15))
+                            )
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 14, style: .continuous)
+                                    .strokeBorder(tint.opacity(0.38), lineWidth: 1)
+                            )
+                            .contentShape(Rectangle())
                         }
-                        .frame(maxWidth: .infinity)
-                        .padding(.vertical, 15)
-                        .padding(.horizontal, 12)
-                        .background(
-                            RoundedRectangle(cornerRadius: 14, style: .continuous)
-                                .fill(tint.opacity(0.15))
-                        )
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 14, style: .continuous)
-                                .strokeBorder(tint.opacity(0.38), lineWidth: 1)
-                        )
-                        .contentShape(Rectangle())
+                        .buttonStyle(FDRowButtonStyle())
                     }
-                    .buttonStyle(FDRowButtonStyle())
+                }
+                .padding(.horizontal, 11)
+                .padding(.bottom, 12)
                 }
             }
-            .padding(.horizontal, 11)
-            .padding(.bottom, 12)
+
 
             Spacer(minLength: 0)
         }

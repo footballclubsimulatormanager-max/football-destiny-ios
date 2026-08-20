@@ -3,17 +3,7 @@ import Foundation
 // Handwritten narrative scenes, ported 1:1 from the web prototype's content.
 let FDScenesCore: [FDSceneDef] = [
     FDSceneDef(
-        id: "academie_arrivee", category: "Académie", minAge: 15, maxAge: 15, statuses: [.u16], once: true,
-        location: "Centre de formation", character: "Entraîneur des jeunes",
-        text: "Premier jour au centre de formation. L'entraîneur te regarde t'échauffer avec les autres jeunes. « On verra ce que tu as dans le ventre. »",
-        choices: [
-            FDChoice(label: "Se donner à fond dès l'échauffement", hint: "+Détermination +Relation coach",
-                      effects: [FDEffect(attr: .determination, delta: 2), FDEffect(rel: "coach", delta: 4), FDEffect(cond: "fatigue", delta: 6)]),
-            FDChoice(label: "Observer et rester discret", hint: "+Sang-froid",
-                      effects: [FDEffect(attr: .sangfroid, delta: 2), FDEffect(cond: "confiance", delta: -1)]),
-        ]),
-    FDSceneDef(
-        id: "famille_soutien", category: "Famille", minAge: 15, maxAge: 17, statuses: [.u16, .u18],
+        id: "famille_soutien", category: "Famille", minAge: 16, maxAge: 19,
         location: "Maison familiale", character: "Ta mère",
         text: "« Tu rentres tard tous les soirs pour tes entraînements. Tu es sûr que c'est ce que tu veux vraiment faire de ta vie ? »",
         choices: [
@@ -23,16 +13,6 @@ let FDScenesCore: [FDSceneDef] = [
                       effects: [FDEffect(rel: "famille", delta: 2)]),
             FDChoice(label: "S'énerver et sortir", hint: "-Famille -Moral",
                       effects: [FDEffect(rel: "famille", delta: -6), FDEffect(cond: "moral", delta: -4)]),
-        ]),
-    FDSceneDef(
-        id: "premier_essai", category: "Essais", minAge: 15, maxAge: 16, statuses: [.u16], once: true,
-        location: "Terrain d'entraînement", character: "Recruteur",
-        text: "Un recruteur observe la séance depuis le bord du terrain, carnet à la main. Ta prochaine action peut faire la différence.",
-        choices: [
-            FDChoice(label: "Tenter le geste technique risqué", hint: "Risque/récompense sur ta technique",
-                      effects: [FDEffect(attr: .dribble, delta: Int.random(in: 1...3)), FDEffect(cond: "confiance", delta: 4), FDEffect(rel: "coach", delta: -1)]),
-            FDChoice(label: "Jouer simple et efficace", hint: "+Placement +Relation coach",
-                      effects: [FDEffect(attr: .placement, delta: 2), FDEffect(rel: "coach", delta: 3)]),
         ]),
     FDSceneDef(
         id: "vestiaire_ambiance", category: "Vestiaire", minAge: 15, maxAge: 34,
@@ -111,18 +91,6 @@ let FDScenesCore: [FDSceneDef] = [
                       effects: [FDEffect(money: 4000), FDEffect(cond: "reputation", delta: 2), FDEffect(cond: "forme", delta: -1)]),
             FDChoice(label: "Refuser pour rester concentré", hint: "+Sang-froid",
                       effects: [FDEffect(attr: .sangfroid, delta: 1)]),
-        ]),
-    FDSceneDef(
-        id: "contrat_pro_offre", category: "Contrat", minAge: 15, maxAge: 17, statuses: [.u18], once: true,
-        location: "Bureau du directeur sportif", character: "Directeur sportif",
-        text: "« Tes performances en U18 ont convaincu le club. On veut te proposer ton premier contrat professionnel. »",
-        choices: [
-            FDChoice(label: "Signer immédiatement", hint: "Statut → Pro",
-                      effects: [FDEffect(cond: "confiance", delta: 8), FDEffect(rel: "president", delta: 5)],
-                      setStatus: .pro, setContractSalary: 3200, setContractYears: 2),
-            FDChoice(label: "Négocier via l'agent d'abord", hint: "Nécessite un agent",
-                      effects: [FDEffect(rel: "agent", delta: 5)],
-                      setStatus: .pro, setContractSalary: 4600, setContractYears: 2),
         ]),
     FDSceneDef(
         id: "couple_rencontre", category: "Couple", minAge: 18, maxAge: 40, once: true,
@@ -805,17 +773,7 @@ let FDScenesPack1: [FDSceneDef] = [
                      effects: [FDEffect(cond: "moral", delta: -3)]),
         ]),
     FDSceneDef(
-        id: "form_premier_contrat_aspirant", category: "Formation", minAge: 16, maxAge: 17, statuses: [.u16, .u18], once: true,
-        location: "Bureau du centre", character: "Directeur du centre",
-        text: "Le directeur du centre pose devant toi un contrat aspirant. Trois ans, salaire minime, avenir incertain.",
-        choices: [
-            FDChoice(label: "Signer immédiatement",
-                     effects: [FDEffect(attr: .determination, delta: 3), FDEffect(cond: "confiance", delta: 4), FDEffect(rel: "coach", delta: 4), FDEffect(cond: "fatigue", delta: 8)]),
-            FDChoice(label: "Demander à consulter un conseil",
-                     effects: [FDEffect(attr: .sangfroid, delta: 3), FDEffect(rel: "coach", delta: -2), FDEffect(rel: "agent", delta: 4)]),
-        ]),
-    FDSceneDef(
-        id: "form_test_physique", category: "Formation", minAge: 15, maxAge: 19,
+        id: "form_test_physique", category: "Entraînement", minAge: 15, maxAge: 19,
         location: "Salle de musculation", character: "Préparateur physique",
         text: "Batterie de tests physiques devant tout le groupe. Ton chrono s'affiche sur un écran géant.",
         choices: [
@@ -825,51 +783,7 @@ let FDScenesPack1: [FDSceneDef] = [
                      effects: [FDEffect(attr: .endurance, delta: 2), FDEffect(cond: "fatigue", delta: 5)]),
         ]),
     FDSceneDef(
-        id: "form_surclassement", category: "Formation", minAge: 16, maxAge: 19,
-        location: "Vestiaire des grands", character: "Entraîneur adjoint",
-        text: "On te surclasse pour un match avec les U19. Tu es le plus jeune de trois ans.",
-        choices: [
-            FDChoice(label: "Réclamer le brassard des jeunes",
-                     effects: [FDEffect(attr: .leadership, delta: 3), FDEffect(rel: "vestiaire", delta: -3), FDEffect(cond: "confiance", delta: 5)]),
-            FDChoice(label: "Rester discret et écouter",
-                     effects: [FDEffect(attr: .placement, delta: 2), FDEffect(rel: "vestiaire", delta: 4), FDEffect(cond: "fatigue", delta: 8)]),
-        ]),
-    FDSceneDef(
-        id: "form_conflit_educateur", category: "Formation", minAge: 15, maxAge: 18,
-        location: "Bord du terrain", character: "Éducateur",
-        text: "L'éducateur te sort à la mi-temps sans explication. Tu es le meilleur du groupe et tout le monde le sait.",
-        choices: [
-            FDChoice(label: "Exiger une explication",
-                     effects: [FDEffect(rel: "coach", delta: -5), FDEffect(attr: .leadership, delta: 2), FDEffect(cond: "confiance", delta: 2)]),
-            FDChoice(label: "Rester sur le banc sans broncher",
-                     effects: [FDEffect(attr: .sangfroid, delta: 4), FDEffect(rel: "coach", delta: 4), FDEffect(cond: "fatigue", delta: 8)]),
-            FDChoice(label: "Balancer ta chasuble",
-                     effects: [FDEffect(rel: "coach", delta: -8), FDEffect(cond: "reputation", delta: -3), FDEffect(cond: "moral", delta: -2)]),
-        ]),
-    FDSceneDef(
-        id: "form_bac", category: "Formation", minAge: 17, maxAge: 18, once: true,
-        location: "Salle de classe", character: "Professeur principal",
-        text: "Le bac tombe la même semaine que la finale nationale. Le club ne veut rien entendre.",
-        choices: [
-            FDChoice(label: "Réviser la nuit",
-                     effects: [FDEffect(cond: "fatigue", delta: 14), FDEffect(attr: .determination, delta: 3), FDEffect(rel: "famille", delta: 5)]),
-            FDChoice(label: "Sacrifier les révisions",
-                     effects: [FDEffect(rel: "famille", delta: -6), FDEffect(cond: "moral", delta: -2), FDEffect(attr: .tir, delta: 1)]),
-            FDChoice(label: "Demander un aménagement au club",
-                     effects: [FDEffect(rel: "coach", delta: -2), FDEffect(rel: "famille", delta: 4), FDEffect(attr: .sangfroid, delta: 2)]),
-        ]),
-    FDSceneDef(
-        id: "form_signature_pro", category: "Formation", minAge: 17, maxAge: 21, once: true,
-        location: "Salon du club", character: "Président du club",
-        text: "Le club te propose ton premier contrat professionnel. Un autre club de l'étranger t'observe aussi.",
-        choices: [
-            FDChoice(label: "Signer chez toi",
-                     effects: [FDEffect(rel: "coach", delta: 6), FDEffect(cond: "moral", delta: 6), FDEffect(rel: "president", delta: 6), FDEffect(cond: "confiance", delta: -3)]),
-            FDChoice(label: "Attendre l'offre étrangère",
-                     effects: [FDEffect(cond: "confiance", delta: 4), FDEffect(rel: "coach", delta: -5), FDEffect(rel: "agent", delta: 5)]),
-        ]),
-    FDSceneDef(
-        id: "form_gardien_doublure", category: "Formation", minAge: 16, maxAge: 23,
+        id: "form_gardien_doublure", category: "Poste", minAge: 16, maxAge: 23,
         location: "Terrain annexe", character: "Entraîneur des gardiens",
         text: "L'entraîneur des gardiens t'annonce que tu commenceras la saison comme doublure.",
         choices: [
@@ -880,17 +794,7 @@ let FDScenesPack1: [FDSceneDef] = [
         ],
         positions: [.gardien]),
     FDSceneDef(
-        id: "form_capitaine_jeunes", category: "Formation", minAge: 16, maxAge: 20,
-        location: "Vestiaire des jeunes", character: "Entraîneur des jeunes",
-        text: "Le coach cherche un capitaine pour la saison des jeunes. Deux noms circulent : le tien et celui de ton meilleur ami.",
-        choices: [
-            FDChoice(label: "Te porter candidat",
-                     effects: [FDEffect(attr: .leadership, delta: 4), FDEffect(rel: "vestiaire", delta: -2)]),
-            FDChoice(label: "Soutenir ton ami",
-                     effects: [FDEffect(rel: "vestiaire", delta: 6), FDEffect(attr: .leadership, delta: -1), FDEffect(cond: "moral", delta: 3)]),
-        ]),
-    FDSceneDef(
-        id: "form_scout_etranger", category: "Formation", minAge: 16, maxAge: 19,
+        id: "form_scout_etranger", category: "Transfert", minAge: 16, maxAge: 19,
         location: "Tribune", character: "Recruteur étranger",
         text: "Un recruteur venu de l'étranger a fait le déplacement uniquement pour toi. Il te le fait savoir avant le coup d'envoi.",
         choices: [
@@ -900,17 +804,7 @@ let FDScenesPack1: [FDSceneDef] = [
                      effects: [FDEffect(attr: .placement, delta: 2), FDEffect(rel: "coach", delta: 3), FDEffect(attr: .sangfroid, delta: 2), FDEffect(cond: "confiance", delta: -3)]),
         ]),
     FDSceneDef(
-        id: "form_blessure_croissance", category: "Formation", minAge: 15, maxAge: 18,
-        location: "Infirmerie", character: "Médecin du centre",
-        text: "Douleurs de croissance aux genoux. Le médecin parle de trois semaines d'arrêt, tu parles de trois jours.",
-        choices: [
-            FDChoice(label: "Respecter l'arrêt",
-                     effects: [FDEffect(cond: "forme", delta: 6), FDEffect(cond: "fatigue", delta: -12), FDEffect(rel: "coach", delta: 2), FDEffect(cond: "confiance", delta: -3)]),
-            FDChoice(label: "Reprendre trop tôt",
-                     effects: [FDEffect(cond: "forme", delta: -8), FDEffect(attr: .determination, delta: 3)]),
-        ]),
-    FDSceneDef(
-        id: "form_langue_etrangere", category: "Formation", minAge: 17, maxAge: 26,
+        id: "form_langue_etrangere", category: "Transfert", minAge: 17, maxAge: 26,
         location: "Salle de réunion", character: "Traducteur du club",
         text: "Le club étranger qui te suit exige que tu apprennes la langue avant même de signer.",
         choices: [
@@ -920,7 +814,7 @@ let FDScenesPack1: [FDSceneDef] = [
                      effects: [FDEffect(rel: "media", delta: -4), FDEffect(cond: "confiance", delta: 2)]),
         ]),
     FDSceneDef(
-        id: "form_reserve_bloque", category: "Formation", minAge: 18, maxAge: 23,
+        id: "form_reserve_bloque", category: "Club", minAge: 18, maxAge: 23,
         location: "Terrain de la réserve", character: "Entraîneur de la réserve",
         text: "Tu domines la réserve depuis six mois et personne, en haut, ne semble le remarquer.",
         choices: [
@@ -932,27 +826,7 @@ let FDScenesPack1: [FDSceneDef] = [
                      effects: [FDEffect(rel: "agent", delta: 4), FDEffect(rel: "coach", delta: -4)]),
         ]),
     FDSceneDef(
-        id: "form_stage_pro", category: "Formation", minAge: 17, maxAge: 20,
-        location: "Hôtel de stage", character: "Capitaine de l'équipe pro",
-        text: "Premier stage avec les pros. Le capitaine te demande de porter les sacs de tout le groupe.",
-        choices: [
-            FDChoice(label: "Le faire en souriant",
-                     effects: [FDEffect(rel: "vestiaire", delta: 6), FDEffect(rel: "capitaine", delta: 5), FDEffect(rel: "coach", delta: -3)]),
-            FDChoice(label: "Refuser poliment",
-                     effects: [FDEffect(rel: "vestiaire", delta: -5), FDEffect(attr: .leadership, delta: 3)]),
-        ]),
-    FDSceneDef(
-        id: "form_tournoi_international", category: "Formation", minAge: 16, maxAge: 19,
-        location: "Tournoi de jeunes", character: "Sélectionneur des jeunes",
-        text: "Tournoi international des moins de 19 ans. Une demi-finale, un stade plein, des recruteurs partout.",
-        choices: [
-            FDChoice(label: "Prendre le jeu à ton compte",
-                     effects: [FDEffect(attr: .dribble, delta: 2), FDEffect(attr: .tir, delta: 2), FDEffect(cond: "fatigue", delta: 8)]),
-            FDChoice(label: "Faire briller tes coéquipiers",
-                     effects: [FDEffect(attr: .vision, delta: 3), FDEffect(rel: "vestiaire", delta: 5), FDEffect(cond: "confiance", delta: -3)]),
-        ]),
-    FDSceneDef(
-        id: "form_mentor_ancien", category: "Formation", minAge: 17, maxAge: 24,
+        id: "form_mentor_ancien", category: "Vestiaire", minAge: 17, maxAge: 24,
         location: "Vestiaire", character: "Un ancien du club",
         text: "Un ancien du club, en fin de carrière, te propose de le suivre partout pendant un mois.",
         choices: [
@@ -962,7 +836,7 @@ let FDScenesPack1: [FDSceneDef] = [
                      effects: [FDEffect(attr: .determination, delta: 2), FDEffect(rel: "vestiaire", delta: -2)]),
         ]),
     FDSceneDef(
-        id: "form_reglement_interne", category: "Formation", minAge: 15, maxAge: 19,
+        id: "form_reglement_interne", category: "Vestiaire", minAge: 15, maxAge: 19,
         location: "Internat", character: "Surveillant de l'internat",
         text: "Sortie interdite après 21h. La moitié du groupe s'échappe pour une soirée en ville.",
         choices: [
@@ -974,7 +848,7 @@ let FDScenesPack1: [FDSceneDef] = [
                      effects: [FDEffect(rel: "coach", delta: 7), FDEffect(rel: "vestiaire", delta: -10)]),
         ]),
     FDSceneDef(
-        id: "form_poste_change", category: "Formation", minAge: 16, maxAge: 22,
+        id: "form_poste_change", category: "Poste", minAge: 16, maxAge: 22,
         location: "Terrain d'entraînement", character: "Entraîneur principal",
         text: "Le coach veut te déplacer à un poste que tu n'as jamais occupé. Il dit que c'est là que tu perceras.",
         choices: [
@@ -984,7 +858,7 @@ let FDScenesPack1: [FDSceneDef] = [
                      effects: [FDEffect(rel: "coach", delta: -5), FDEffect(cond: "confiance", delta: 3)]),
         ]),
     FDSceneDef(
-        id: "form_video_analyse", category: "Formation", minAge: 16, maxAge: 30,
+        id: "form_video_analyse", category: "Entraînement", minAge: 16, maxAge: 30,
         location: "Salle vidéo", character: "Analyste vidéo",
         text: "L'analyste passe vingt minutes à décortiquer tes erreurs devant tout le groupe.",
         choices: [
@@ -996,7 +870,7 @@ let FDScenesPack1: [FDSceneDef] = [
                      effects: [FDEffect(attr: .sangfroid, delta: 3), FDEffect(cond: "moral", delta: -3)]),
         ]),
     FDSceneDef(
-        id: "form_premiere_feuille", category: "Formation", minAge: 17, maxAge: 22, once: true,
+        id: "form_premiere_feuille", category: "Moment décisif", minAge: 17, maxAge: 22, once: true,
         location: "Vestiaire pro", character: "Entraîneur principal",
         text: "Ton nom apparaît pour la première fois sur une feuille de match professionnelle. Sur le banc.",
         choices: [
@@ -1006,7 +880,7 @@ let FDScenesPack1: [FDSceneDef] = [
                      effects: [FDEffect(attr: .sangfroid, delta: 3), FDEffect(cond: "confiance", delta: 2), FDEffect(cond: "fatigue", delta: 8)]),
         ]),
     FDSceneDef(
-        id: "form_premiere_entree", category: "Formation", minAge: 17, maxAge: 23, once: true,
+        id: "form_premiere_entree", category: "Moment décisif", minAge: 17, maxAge: 23, once: true,
         location: "Bord du terrain", character: "Quatrième arbitre",
         text: "82e minute, le coach te fait signe. Ta première entrée en professionnel, à domicile.",
         choices: [
@@ -1016,39 +890,7 @@ let FDScenesPack1: [FDSceneDef] = [
                      effects: [FDEffect(attr: .passe, delta: 2), FDEffect(rel: "coach", delta: 5), FDEffect(attr: .placement, delta: 1), FDEffect(cond: "confiance", delta: -3)]),
         ]),
     FDSceneDef(
-        id: "form_selection_jeune", category: "Formation", minAge: 16, maxAge: 21,
-        location: "Centre national", character: "Sélectionneur des jeunes",
-        text: "Première convocation en sélection de jeunes. Tu découvres que trois joueurs de ton poste sont déjà là.",
-        choices: [
-            FDChoice(label: "T'imposer dès le premier entraînement",
-                     effects: [FDEffect(attr: .determination, delta: 3), FDEffect(cond: "fatigue", delta: 8), FDEffect(rel: "coach", delta: 3)]),
-            FDChoice(label: "Observer la hiérarchie avant d'agir",
-                     effects: [FDEffect(attr: .sangfroid, delta: 3), FDEffect(attr: .vision, delta: 2), FDEffect(cond: "fatigue", delta: 8)]),
-        ]),
-    FDSceneDef(
-        id: "form_rejet_essai", category: "Formation", minAge: 15, maxAge: 18,
-        location: "Sortie du stade", character: "Recruteur",
-        text: "Essai raté dans un grand club. Le recruteur te dit que tu es « trop léger » et te tourne le dos.",
-        choices: [
-            FDChoice(label: "En faire une obsession",
-                     effects: [FDEffect(attr: .determination, delta: 5), FDEffect(attr: .force, delta: 2), FDEffect(cond: "fatigue", delta: 8)]),
-            FDChoice(label: "Accepter et travailler sereinement",
-                     effects: [FDEffect(attr: .sangfroid, delta: 3), FDEffect(cond: "moral", delta: 2), FDEffect(cond: "fatigue", delta: 8)]),
-            FDChoice(label: "Douter sérieusement",
-                     effects: [FDEffect(cond: "confiance", delta: -6), FDEffect(cond: "moral", delta: -4)]),
-        ]),
-    FDSceneDef(
-        id: "form_agent_precoce", category: "Formation", minAge: 15, maxAge: 18,
-        location: "Parking du centre", character: "Agent de joueurs",
-        text: "Un agent glisse sa carte à ta mère à la sortie d'un match de jeunes. Tu as seize ans.",
-        choices: [
-            FDChoice(label: "Le rencontrer avec tes parents",
-                     effects: [FDEffect(rel: "agent", delta: 5), FDEffect(rel: "famille", delta: 3), FDEffect(cond: "fatigue", delta: 8)]),
-            FDChoice(label: "Jeter la carte",
-                     effects: [FDEffect(rel: "agent", delta: -3), FDEffect(attr: .sangfroid, delta: 2)]),
-        ]),
-    FDSceneDef(
-        id: "form_contrat_image", category: "Formation", minAge: 17, maxAge: 22,
+        id: "form_contrat_image", category: "Contrat", minAge: 17, maxAge: 22,
         location: "Bureau du club", character: "Juriste du club",
         text: "Le club veut inclure tes droits à l'image dans le contrat, sans surcoût.",
         choices: [
@@ -1058,27 +900,7 @@ let FDScenesPack1: [FDSceneDef] = [
                      effects: [FDEffect(rel: "agent", delta: 5), FDEffect(rel: "president", delta: -4), FDEffect(money: 12000, delta: 0)]),
         ]),
     FDSceneDef(
-        id: "form_coequipier_meilleur", category: "Formation", minAge: 15, maxAge: 20,
-        location: "Terrain d'entraînement", character: "Un coéquipier",
-        text: "Un coéquipier de ton âge est objectivement meilleur que toi. Tout le centre en parle.",
-        choices: [
-            FDChoice(label: "T'entraîner avec lui chaque jour",
-                     effects: [FDEffect(attr: .control, delta: 2), FDEffect(attr: .determination, delta: 3), FDEffect(rel: "vestiaire", delta: 4), FDEffect(cond: "fatigue", delta: 8)]),
-            FDChoice(label: "Le prendre comme rival personnel",
-                     effects: [FDEffect(attr: .tir, delta: 2), FDEffect(rel: "vestiaire", delta: -4), FDEffect(cond: "confiance", delta: 2)]),
-        ]),
-    FDSceneDef(
-        id: "form_fin_centre", category: "Formation", minAge: 18, maxAge: 20, once: true,
-        location: "Bureau du directeur", character: "Directeur du centre",
-        text: "Fin de formation. Le club ne te garde pas. Trois clubs de division inférieure t'attendent.",
-        choices: [
-            FDChoice(label: "Descendre d'un niveau pour jouer",
-                     effects: [FDEffect(attr: .determination, delta: 3), FDEffect(cond: "confiance", delta: 3), FDEffect(rel: "coach", delta: 2), FDEffect(cond: "fatigue", delta: 8)]),
-            FDChoice(label: "Tenter un essai à l'étranger",
-                     effects: [FDEffect(cond: "moral", delta: -2), FDEffect(attr: .vision, delta: 2), FDEffect(rel: "agent", delta: 4)]),
-        ]),
-    FDSceneDef(
-        id: "form_reconversion_doute", category: "Formation", minAge: 18, maxAge: 24,
+        id: "form_reconversion_doute", category: "Mental", minAge: 18, maxAge: 24,
         location: "Chambre", character: "Toi-même",
         text: "Une nuit blanche à te demander si tu ne devrais pas reprendre les études pendant qu'il est encore temps.",
         choices: [
@@ -1088,7 +910,7 @@ let FDScenesPack1: [FDSceneDef] = [
                      effects: [FDEffect(attr: .determination, delta: 4), FDEffect(rel: "famille", delta: -3)]),
         ]),
     FDSceneDef(
-        id: "form_regime", category: "Formation", minAge: 16, maxAge: 30,
+        id: "form_regime", category: "Hygiène de vie", minAge: 16, maxAge: 30,
         location: "Réfectoire", character: "Nutritionniste du club",
         text: "Le nutritionniste t'impose un régime strict. Ta mère t'a préparé ton plat préféré pour le week-end.",
         choices: [
@@ -1098,7 +920,7 @@ let FDScenesPack1: [FDSceneDef] = [
                      effects: [FDEffect(cond: "forme", delta: -2), FDEffect(rel: "famille", delta: 4), FDEffect(cond: "moral", delta: 3)]),
         ]),
     FDSceneDef(
-        id: "form_sommeil", category: "Formation", minAge: 15, maxAge: 28,
+        id: "form_sommeil", category: "Hygiène de vie", minAge: 15, maxAge: 28,
         location: "Chambre", character: "Préparateur mental",
         text: "Le préparateur mental découvre que tu dors cinq heures par nuit depuis des mois.",
         choices: [
@@ -1108,7 +930,7 @@ let FDScenesPack1: [FDSceneDef] = [
                      effects: [FDEffect(cond: "fatigue", delta: 8), FDEffect(cond: "forme", delta: -4)]),
         ]),
     FDSceneDef(
-        id: "form_charge_travail", category: "Formation", minAge: 16, maxAge: 32,
+        id: "form_charge_travail", category: "Entraînement", minAge: 16, maxAge: 32,
         location: "Salle de musculation", character: "Préparateur physique",
         text: "Le préparateur veut doubler ta charge de travail sur six semaines.",
         choices: [
@@ -1202,7 +1024,7 @@ let FDScenesPack1: [FDSceneDef] = [
                      effects: [FDEffect(cond: "fatigue", delta: 16), FDEffect(attr: .determination, delta: 4), FDEffect(rel: "famille", delta: 5)]),
         ]),
     FDSceneDef(
-        id: "form_titularisation_surprise", category: "Formation", minAge: 17, maxAge: 24,
+        id: "form_titularisation_surprise", category: "Moment décisif", minAge: 17, maxAge: 24,
         location: "Vestiaire", character: "Entraîneur principal",
         text: "Un titulaire se blesse à l'échauffement. Le coach te lance sans prévenir, dans un match capital.",
         choices: [
@@ -1212,7 +1034,7 @@ let FDScenesPack1: [FDSceneDef] = [
                      effects: [FDEffect(attr: .placement, delta: 3), FDEffect(rel: "coach", delta: 4), FDEffect(cond: "confiance", delta: -3)]),
         ]),
     FDSceneDef(
-        id: "form_prime_signature", category: "Formation", minAge: 18, maxAge: 26,
+        id: "form_prime_signature", category: "Agent", minAge: 18, maxAge: 26,
         location: "Bureau de l'agent", character: "Ton agent",
         text: "Ton agent a arraché une prime à la signature inespérée. Il en réclame un tiers.",
         choices: [
@@ -5955,6 +5777,289 @@ let FDScenesGamble: [FDSceneDef] = [
         ]),
 ]
 
+// MARK: - Le grand rendez-vous de la saison
+
+/// Une saison ne se résume pas à des semaines qui défilent : elle a un soir qui compte plus
+/// que les autres. Ces scènes sont tirées une fois par saison, dans le dernier quart, et
+/// jamais au hasard d'une semaine ordinaire. Le thème dépend de la carrière — un joueur
+/// renvoyé en réserve joue un barrage, une star joue une finale européenne ou un tournoi
+/// avec sa sélection. Elles sont écrites plus longues que les autres : c'est le moment où
+/// le récit doit remplir la carte.
+let FDScenesClimax: [FDSceneDef] = [
+
+    // ---- Thème « club » : le championnat, le titre, le maintien -------------------------
+    FDSceneDef(
+        id: "cx_derniere_journee_titre", category: "Match important", minAge: 16, maxAge: 40,
+        location: "Stade plein, dernière journée", character: "Le coach, avant l'échauffement",
+        text: "Dernière journée. Un point d'avance, quatre-vingt-dix minutes à tenir, et un stade qui chante depuis deux heures avant le coup d'envoi. Le coach a fermé la porte du vestiaire et n'a presque rien dit : « Ce soir on ne joue pas au football, on va chercher un titre. » Au moment d'entrer sur la pelouse, {humeur}.",
+        choices: [
+            FDChoice(label: "Prendre le jeu à ton compte dès la première minute",
+                     hint: "Tu touches trente ballons en une mi-temps et tu portes l'équipe jusqu'à la pause. Les jambes lâchent ensuite, mais le stade a vu qui a tenu la baraque.",
+                     effects: [FDEffect(attr: .leadership, delta: 5), FDEffect(cond: "reputation", delta: 8),
+                               FDEffect(cond: "fatigue", delta: 14), FDEffect(rel: "fans", delta: 8)]),
+            FDChoice(label: "Jouer simple et sécuriser le point",
+                     hint: "Pas un ballon perdu, pas un risque pris. Personne n'écrira ton nom demain, mais le titre est resté dans le vestiaire.",
+                     effects: [FDEffect(attr: .sangfroid, delta: 4), FDEffect(rel: "coach", delta: 7),
+                               FDEffect(cond: "reputation", delta: -3), FDEffect(rel: "vestiaire", delta: 5)]),
+            FDChoice(label: "Tenter le geste qui te ferait entrer dans l'histoire",
+                     hint: "Tu as tenté la reprise de trente mètres à la 88e. Elle est passée à un mètre du poteau, et le silence du stade t'a suivi jusqu'au vestiaire.",
+                     effects: [FDEffect(cond: "confiance", delta: -6), FDEffect(rel: "coach", delta: -5),
+                               FDEffect(cond: "fatigue", delta: 8)],
+                     riskChance: 0.45,
+                     riskEffects: [FDEffect(attr: .tir, delta: 4), FDEffect(cond: "reputation", delta: 16),
+                                   FDEffect(rel: "fans", delta: 15), FDEffect(cond: "confiance", delta: 14),
+                                   FDEffect(money: 40000)],
+                     riskText: "Elle est rentrée sous la barre. Le stade a explosé, le titre est tombé sur ta frappe, et ton nom restera collé à cette minute-là."),
+        ], beat: "climax", beatTheme: "club"),
+    FDSceneDef(
+        id: "cx_match_maintien", category: "Match important", minAge: 16, maxAge: 40,
+        location: "Un stade sous tension", character: "Le capitaine, dans le tunnel",
+        text: "Le match du maintien. Perdre, c'est la descente, les salaires coupés, la moitié du vestiaire qui part en juillet. Les familles sont en tribune, les supporters ont bloqué la sortie du bus une heure avant. Dans le tunnel, le capitaine te prend par le maillot et te demande une seule chose : ne pas te cacher.",
+        choices: [
+            FDChoice(label: "Réclamer tous les ballons, même les moches",
+                     hint: "Tu as joué le match que personne ne voulait jouer. Deux ballons perdus, quinze récupérés, et un vestiaire qui sait exactement ce que tu as fait.",
+                     effects: [FDEffect(attr: .determination, delta: 5), FDEffect(rel: "vestiaire", delta: 10),
+                               FDEffect(cond: "fatigue", delta: 13), FDEffect(rel: "coach", delta: 6)]),
+            FDChoice(label: "Rester dans ton rôle et ne rien forcer",
+                     hint: "Tu as fait ton travail, proprement, sans jamais sortir du cadre. Le club est sauvé et personne ne te reproche rien — personne ne te remercie non plus.",
+                     effects: [FDEffect(attr: .placement, delta: 3), FDEffect(cond: "moral", delta: -3),
+                               FDEffect(rel: "coach", delta: 3)]),
+            FDChoice(label: "Chauffer le stade avant même le coup d'envoi",
+                     hint: "Tu es allé chercher le virage à l'échauffement. Le stade a poussé pendant quatre-vingt-dix minutes, et l'arbitre t'a mis un carton pour une célébration.",
+                     effects: [FDEffect(rel: "fans", delta: 14), FDEffect(cond: "reputation", delta: 5),
+                               FDEffect(rel: "coach", delta: -4), FDEffect(cond: "fatigue", delta: 9)]),
+        ], beat: "climax", beatTheme: "club"),
+    FDSceneDef(
+        id: "cx_barrage_montee", category: "Match important", minAge: 16, maxAge: 40,
+        location: "Match de barrage", character: "Le directeur sportif",
+        text: "Un barrage, sur un match sec, pour toute la saison. Le directeur sportif est descendu au vestiaire, ce qu'il ne fait jamais : « Si on monte, tout change ici. Les contrats, le budget, vos carrières. » Le terrain est gras, l'adversaire vient de trois divisions de bagarre, et {humeur}.",
+        choices: [
+            FDChoice(label: "Jouer le combat avant de jouer le ballon",
+                     hint: "Tu as gagné tes duels un par un, quitte à finir avec les cuisses ouvertes. C'est comme ça que ce match-là se gagnait.",
+                     effects: [FDEffect(attr: .force, delta: 4), FDEffect(rel: "vestiaire", delta: 8),
+                               FDEffect(cond: "fatigue", delta: 15), FDEffect(cond: "forme", delta: -5)]),
+            FDChoice(label: "Garder ton football malgré le terrain",
+                     hint: "Tu as refusé de jouer long. Deux fois ça a coûté cher, une fois ça a fait la différence — et c'est celle-là qu'on a retenue.",
+                     effects: [FDEffect(attr: .control, delta: 4), FDEffect(attr: .sangfroid, delta: 3),
+                               FDEffect(cond: "confiance", delta: 6), FDEffect(rel: "coach", delta: -3)]),
+        ], beat: "climax", beatTheme: "club"),
+    FDSceneDef(
+        id: "cx_choc_leader", category: "Match important", minAge: 16, maxAge: 40,
+        location: "Le choc de la saison", character: "L'entraîneur adverse, en conférence",
+        text: "Le choc contre le leader, en direct à la télévision, avec un entraîneur adverse qui a passé la semaine à expliquer que votre équipe n'avait « rien à faire à ce niveau ». Le vestiaire a lu la phrase, l'a imprimée, l'a collée au-dessus de la porte. À l'échauffement, {humeur}.",
+        choices: [
+            FDChoice(label: "Répondre sur le terrain, sans un mot avant",
+                     hint: "Tu n'as rien dit de la semaine et tout dit en quatre-vingt-dix minutes. Les images tournent encore le lendemain.",
+                     effects: [FDEffect(cond: "reputation", delta: 9), FDEffect(attr: .determination, delta: 4),
+                               FDEffect(cond: "fatigue", delta: 11), FDEffect(rel: "media", delta: 5)]),
+            FDChoice(label: "Lui répondre publiquement avant le match",
+                     hint: "Ta réponse a fait la une avant le coup d'envoi. Tu t'es mis une pression que tu n'as pas totalement assumée sur le terrain.",
+                     effects: [FDEffect(rel: "media", delta: 8), FDEffect(cond: "reputation", delta: 6),
+                               FDEffect(rel: "coach", delta: -5), FDEffect(cond: "confiance", delta: -5)]),
+            FDChoice(label: "Aller voir le leader adverse à l'échauffement",
+                     hint: "Tu es allé serrer la main de leur meilleur joueur devant les caméras. Le geste a plu partout, sauf dans ton propre virage.",
+                     effects: [FDEffect(rel: "media", delta: 6), FDEffect(attr: .sangfroid, delta: 3),
+                               FDEffect(rel: "fans", delta: -6)]),
+        ], beat: "climax", beatTheme: "club"),
+
+    // ---- Thème « coupe » : la finale nationale ------------------------------------------
+    FDSceneDef(
+        id: "cx_finale_coupe", category: "Coupe", minAge: 16, maxAge: 40,
+        location: "Finale de la Coupe Nationale", character: "Le speaker du stade",
+        text: "Finale de la Coupe Nationale. Quatre-vingt mille personnes, un hymne, deux rangées de gamins avec ton nom dans le dos, et une coupe posée sur un socle rouge à l'entrée du terrain. Tu as attendu ça depuis le premier jour où tu as touché un ballon. Au moment où le speaker annonce ton nom, {humeur}.",
+        choices: [
+            FDChoice(label: "Prendre le match à ton compte",
+                     hint: "Tu as joué la finale que tu imaginais gamin : les ballons chauds, les responsabilités, tout pour toi. Les jambes ont fini par payer l'addition.",
+                     effects: [FDEffect(cond: "reputation", delta: 12), FDEffect(attr: .leadership, delta: 5),
+                               FDEffect(cond: "fatigue", delta: 15), FDEffect(rel: "fans", delta: 9)]),
+            FDChoice(label: "Faire jouer les autres, gagner d'abord",
+                     hint: "Deux passes décisives et pas une ligne dans les journaux. Le vestiaire, lui, sait qui a fait tourner cette finale.",
+                     effects: [FDEffect(attr: .vision, delta: 5), FDEffect(rel: "vestiaire", delta: 9),
+                               FDEffect(cond: "reputation", delta: -3), FDEffect(rel: "coach", delta: 6)]),
+            FDChoice(label: "Prendre le premier penalty de la séance",
+                     hint: "Le gardien est parti du bon côté. Tu es resté au rond central pendant que le stade adverse hurlait, et ça, tu le gardes longtemps.",
+                     effects: [FDEffect(cond: "confiance", delta: -12), FDEffect(cond: "moral", delta: -8),
+                               FDEffect(rel: "fans", delta: -5)],
+                     riskChance: 0.5,
+                     riskEffects: [FDEffect(attr: .sangfroid, delta: 6), FDEffect(cond: "confiance", delta: 18),
+                                   FDEffect(cond: "reputation", delta: 14), FDEffect(rel: "fans", delta: 16),
+                                   FDEffect(money: 60000)],
+                     riskText: "Tu as pris tes sept pas, tu as attendu, et tu l'as mise là où personne ne va la chercher. La coupe est passée entre tes mains en premier."),
+        ], beat: "climax", beatTheme: "coupe"),
+    FDSceneDef(
+        id: "cx_demi_coupe_petit_club", category: "Coupe", minAge: 16, maxAge: 40,
+        location: "Demi-finale de coupe", character: "Un supporter de toujours",
+        text: "Demi-finale de coupe contre l'équipe la plus riche du pays. Ils sont arrivés en avion pour cent kilomètres, vous en bus depuis le matin. Devant le stade, un supporter qui suit le club depuis quarante ans t'attrape par le bras : « On n'aura peut-être plus jamais ça. » Il n'a pas tort, et {humeur}.",
+        choices: [
+            FDChoice(label: "Jouer sans complexe, comme si vous étiez favoris",
+                     hint: "Vous les avez pris à la gorge pendant vingt minutes. Ils ont fini par passer, mais plus personne n'a ri de votre club ce soir-là.",
+                     effects: [FDEffect(cond: "confiance", delta: 8), FDEffect(cond: "reputation", delta: 7),
+                               FDEffect(cond: "fatigue", delta: 12), FDEffect(rel: "fans", delta: 8)]),
+            FDChoice(label: "Fermer le jeu et jouer les prolongations",
+                     hint: "Cent dix minutes à défendre, une séance de tirs au but, et un club qui n'oubliera pas cette nuit-là de sitôt.",
+                     effects: [FDEffect(attr: .placement, delta: 4), FDEffect(attr: .determination, delta: 4),
+                               FDEffect(cond: "fatigue", delta: 17), FDEffect(cond: "forme", delta: -6)]),
+        ], beat: "climax", beatTheme: "coupe"),
+    FDSceneDef(
+        id: "cx_finale_perdue_avant", category: "Coupe", minAge: 18, maxAge: 40,
+        location: "Veille de finale", character: "Ton père, au téléphone",
+        text: "La veille de la finale, ton père t'appelle. Il n'a jamais su parler de football avec toi, et là il essaie, maladroitement : il te raconte le terrain en cendrée où il t'emmenait le samedi matin, et il s'arrête au milieu d'une phrase. Tu raccroches, la chambre d'hôtel est silencieuse, et {humeur}.",
+        choices: [
+            FDChoice(label: "Le rappeler et lui parler une heure",
+                     hint: "Tu as dormi quatre heures et joué la finale la tête légère. Il était en tribune, et il n'a pas regardé le match une seule fois — il t'a regardé toi.",
+                     effects: [FDEffect(rel: "famille", delta: 12), FDEffect(cond: "moral", delta: 9),
+                               FDEffect(cond: "fatigue", delta: 7)]),
+            FDChoice(label: "Couper ton téléphone et dormir",
+                     hint: "Tu as bien dormi, tu as bien joué. Il a compris, ou il a fait semblant de comprendre.",
+                     effects: [FDEffect(cond: "forme", delta: 7), FDEffect(attr: .sangfroid, delta: 3),
+                               FDEffect(rel: "famille", delta: -5)]),
+        ], beat: "climax", beatTheme: "coupe"),
+
+    // ---- Thème « europe » : les soirées internationales ---------------------------------
+    FDSceneDef(
+        id: "cx_finale_europe", category: "Europe", minAge: 18, maxAge: 40,
+        location: "Finale européenne", character: "L'hymne de la compétition",
+        text: "Finale européenne. L'hymne que tu écoutais gamin passe pour de vrai au-dessus de ta tête, une banderole couvre un virage entier, et de l'autre côté du couloir il y a des joueurs que tu as regardés jouer à la télévision il y a six ans. On te tend le maillot floqué du soir. {humeur}.",
+        choices: [
+            FDChoice(label: "Jouer ce match comme le dernier de ta vie",
+                     hint: "Tu as tout laissé sur la pelouse, jusqu'aux crampes de la 100e minute. Quel que soit le résultat, l'Europe entière a vu ton nom cette nuit-là.",
+                     effects: [FDEffect(cond: "reputation", delta: 16), FDEffect(attr: .determination, delta: 5),
+                               FDEffect(cond: "fatigue", delta: 18), FDEffect(cond: "forme", delta: -6),
+                               FDEffect(rel: "media", delta: 8)]),
+            FDChoice(label: "Rester maître de tes nerfs et jouer juste",
+                     hint: "Pas un déchet, pas un geste d'humeur, une finale de patron discret. Les recruteurs présents ne regardaient que ça.",
+                     effects: [FDEffect(attr: .sangfroid, delta: 6), FDEffect(attr: .passe, delta: 4),
+                               FDEffect(cond: "reputation", delta: 9), FDEffect(cond: "fatigue", delta: 10)]),
+            FDChoice(label: "Provoquer leur meilleur joueur dès l'entame",
+                     hint: "Tu es allé le chercher, il t'a mangé. Deux fois. On repassera les images pendant des semaines.",
+                     effects: [FDEffect(cond: "reputation", delta: -7), FDEffect(cond: "confiance", delta: -8),
+                               FDEffect(rel: "coach", delta: -6)],
+                     riskChance: 0.4,
+                     riskEffects: [FDEffect(attr: .dribble, delta: 5), FDEffect(cond: "reputation", delta: 20),
+                                   FDEffect(cond: "confiance", delta: 15), FDEffect(rel: "media", delta: 12),
+                                   FDEffect(money: 80000)],
+                     riskText: "Tu l'as effacé deux fois dans le même quart d'heure, devant toute l'Europe. Le lendemain, ce sont ses images à lui qui ont disparu et les tiennes qui tournaient."),
+        ], beat: "climax", beatTheme: "europe"),
+    FDSceneDef(
+        id: "cx_europe_deplacement_chaudron", category: "Europe", minAge: 18, maxAge: 40,
+        location: "Un stade hostile, à l'étranger", character: "Le responsable sécurité",
+        text: "Déplacement européen dans un stade dont tout le monde parle : cinquante mille personnes debout, des fumigènes avant même l'échauffement, et un responsable sécurité qui vous demande de ne pas vous approcher du virage. Le bus a mis quarante minutes à passer les deux derniers kilomètres. Dans le vestiaire, {humeur}.",
+        choices: [
+            FDChoice(label: "Aller t'échauffer devant leur virage",
+                     hint: "Tu as pris les sifflets de plein fouet et tu n'as plus rien entendu du match. Tes coéquipiers ont vu que tu n'avais pas reculé.",
+                     effects: [FDEffect(attr: .determination, delta: 5), FDEffect(rel: "vestiaire", delta: 8),
+                               FDEffect(cond: "fatigue", delta: 8), FDEffect(cond: "confiance", delta: 5)]),
+            FDChoice(label: "T'isoler avec ton casque jusqu'au coup d'envoi",
+                     hint: "Tu es entré sur le terrain comme dans une bulle. Efficace, mais le groupe a traversé la soirée sans toi.",
+                     effects: [FDEffect(attr: .sangfroid, delta: 5), FDEffect(cond: "forme", delta: 5),
+                               FDEffect(rel: "vestiaire", delta: -5)]),
+        ], beat: "climax", beatTheme: "europe"),
+    FDSceneDef(
+        id: "cx_europe_premiere", category: "Europe", minAge: 17, maxAge: 34,
+        location: "Première soirée européenne", character: "Un ancien du club",
+        text: "Ta première affiche européenne. Le club n'y était pas retourné depuis onze ans, la ville en parle depuis un mois, et un ancien du club est venu au vestiaire raconter la dernière fois — il n'a pas fini son histoire, il pleurait à moitié. Le maillot est différent, l'écusson aussi. {humeur}.",
+        choices: [
+            FDChoice(label: "Prendre le temps de tout regarder avant le coup d'envoi",
+                     hint: "Tu as fait le tour de la pelouse en marchant, seul, à écouter le stade se remplir. Tu as commencé le match complètement dedans.",
+                     effects: [FDEffect(cond: "moral", delta: 8), FDEffect(cond: "confiance", delta: 7),
+                               FDEffect(attr: .sangfroid, delta: 3), FDEffect(cond: "fatigue", delta: 4)]),
+            FDChoice(label: "Faire comme si c'était un match ordinaire",
+                     hint: "Tu as tenu ta routine à la minute près et joué sans trembler. Personne n'aurait deviné que c'était ta première.",
+                     effects: [FDEffect(attr: .placement, delta: 4), FDEffect(cond: "forme", delta: 5),
+                               FDEffect(cond: "reputation", delta: 4), FDEffect(cond: "moral", delta: -3)]),
+        ], beat: "climax", beatTheme: "europe"),
+
+    // ---- Thème « sélection » : le maillot national --------------------------------------
+    FDSceneDef(
+        id: "cx_selection_qualif", category: "Sélection", minAge: 18, maxAge: 38,
+        location: "Match décisif de qualification", character: "Le sélectionneur de {pays}",
+        text: "Match décisif de qualification avec {pays}. Un nul et tout le monde part au grand tournoi, une défaite et le pays entier passe deux ans à en parler. Le sélectionneur t'annonce que tu commences — devant un joueur qui a trente sélections de plus que toi. Le vestiaire l'a entendu comme toi, et {humeur}.",
+        choices: [
+            FDChoice(label: "Assumer le poste et diriger le jeu",
+                     hint: "Tu as tenu ton rang devant tout un pays. Le remplaçant que tu as poussé sur le banc ne t'a pas adressé un mot du séjour.",
+                     effects: [FDEffect(attr: .leadership, delta: 5), FDEffect(cond: "reputation", delta: 12),
+                               FDEffect(rel: "vestiaire", delta: -5), FDEffect(cond: "fatigue", delta: 12)]),
+            FDChoice(label: "Aller le voir avant le match, seul à seul",
+                     hint: "Vous avez parlé vingt minutes dans sa chambre. Il t'a donné trois conseils qui t'ont servi le soir même, et le groupe l'a remarqué.",
+                     effects: [FDEffect(rel: "vestiaire", delta: 10), FDEffect(attr: .sangfroid, delta: 4),
+                               FDEffect(cond: "confiance", delta: -3), FDEffect(cond: "reputation", delta: 5)]),
+            FDChoice(label: "Jouer pour toi, la sélection ne t'a rien donné",
+                     hint: "Tu as cherché ton but toute la soirée sans jamais lever la tête. Le pays a validé son billet, mais le sélectionneur a compris.",
+                     effects: [FDEffect(attr: .tir, delta: 3), FDEffect(cond: "reputation", delta: 4),
+                               FDEffect(rel: "coach", delta: -8), FDEffect(rel: "media", delta: -6)]),
+        ], beat: "climax", beatTheme: "selection"),
+    FDSceneDef(
+        id: "cx_selection_finale", category: "Sélection", minAge: 20, maxAge: 38,
+        location: "Finale internationale", character: "Le capitaine de {pays}",
+        text: "Finale d'un grand tournoi international avec {pays}. Le pays est à l'arrêt depuis midi, les écrans géants sont pleins jusque dans ta ville de {ville}, et le capitaine a fait taire le vestiaire pour lire un message envoyé par un gamin de ton quartier. Personne ne dit plus rien. {humeur}.",
+        choices: [
+            FDChoice(label: "Prendre la parole après lui",
+                     hint: "Tu as parlé quarante secondes, sans notes. Le groupe est sorti du vestiaire dans un état que le sélectionneur n'avait jamais vu.",
+                     effects: [FDEffect(attr: .leadership, delta: 7), FDEffect(rel: "vestiaire", delta: 12),
+                               FDEffect(cond: "reputation", delta: 10), FDEffect(cond: "fatigue", delta: 9)]),
+            FDChoice(label: "Garder ça pour le terrain",
+                     hint: "Tu n'as rien dit et tu as tout mis dans les quatre-vingt-dix minutes. Ceux qui parlent d'ordinaire ont regardé.",
+                     effects: [FDEffect(attr: .determination, delta: 6), FDEffect(cond: "reputation", delta: 12),
+                               FDEffect(cond: "fatigue", delta: 15), FDEffect(cond: "forme", delta: -5)]),
+        ], beat: "climax", beatTheme: "selection"),
+    FDSceneDef(
+        id: "cx_selection_hymne", category: "Sélection", minAge: 18, maxAge: 38,
+        location: "Avant le coup d'envoi", character: "Ta mère, en tribune",
+        text: "L'hymne de {pays} démarre et tu aperçois ta mère au troisième rang, celle qui t'accompagnait à cinq heures du matin sur les terrains gelés de {ville}. Elle chante en pleurant, et les caméras la trouvent avant même de te trouver toi. Il reste quarante secondes avant le coup d'envoi le plus important de ta saison.",
+        choices: [
+            FDChoice(label: "Chanter à pleine voix, les yeux vers elle",
+                     hint: "L'image a fait le tour du pays le soir même. Tu as joué le match porté par quelque chose que tu ne t'expliques pas.",
+                     effects: [FDEffect(cond: "moral", delta: 12), FDEffect(rel: "famille", delta: 10),
+                               FDEffect(rel: "media", delta: 8), FDEffect(cond: "fatigue", delta: 5)]),
+            FDChoice(label: "Fermer les yeux et te concentrer",
+                     hint: "Tu es entré dans le match avant tout le monde. Elle t'a dit après coup qu'elle aurait aimé que tu la regardes.",
+                     effects: [FDEffect(attr: .sangfroid, delta: 6), FDEffect(cond: "confiance", delta: 8),
+                               FDEffect(rel: "famille", delta: -5)]),
+        ], beat: "climax", beatTheme: "selection"),
+
+    // ---- Thème « derby » : le match de la ville -----------------------------------------
+    FDSceneDef(
+        id: "cx_derby_decisif", category: "Derby", minAge: 16, maxAge: 40,
+        location: "Le derby", character: "Un supporter, devant le centre",
+        text: "Le derby, et cette année il vaut une place européenne en plus de l'honneur. Depuis lundi, des supporters passent devant le centre d'entraînement pour rappeler ce qu'ils attendent. Ta rue est repeinte aux couleurs adverses. Ton voisin ne t'a pas dit bonjour de la semaine. Au moment de sortir du bus, {humeur}.",
+        choices: [
+            FDChoice(label: "Jouer sur les nerfs, entrer dans le combat",
+                     hint: "Tu as gagné la bataille et pris un carton à la 20e. Le reste du match s'est joué sur un fil, mais le virage a chanté ton nom.",
+                     effects: [FDEffect(attr: .force, delta: 4), FDEffect(rel: "fans", delta: 12),
+                               FDEffect(cond: "fatigue", delta: 12), FDEffect(rel: "coach", delta: -4)]),
+            FDChoice(label: "Rester au-dessus de la mêlée et jouer au football",
+                     hint: "Pendant que tout le monde se marchait dessus, tu as joué. C'est de là qu'est venu le but, et les images l'ont montré.",
+                     effects: [FDEffect(attr: .vision, delta: 5), FDEffect(attr: .sangfroid, delta: 4),
+                               FDEffect(cond: "reputation", delta: 8), FDEffect(rel: "fans", delta: -3)]),
+            FDChoice(label: "Célébrer devant le parcage adverse si tu marques",
+                     hint: "Tu as couru vers eux, deux gobelets sont tombés sur la pelouse, et la commission t'a suspendu un match. Le virage, lui, a fait de toi une légende locale.",
+                     effects: [FDEffect(rel: "fans", delta: 16), FDEffect(cond: "reputation", delta: 7),
+                               FDEffect(rel: "media", delta: -7), FDEffect(rel: "president", delta: -8)]),
+        ], beat: "climax", beatTheme: "derby"),
+    FDSceneDef(
+        id: "cx_derby_ancien_club", category: "Derby", minAge: 18, maxAge: 40,
+        location: "Retour dans ton ancien stade", character: "Ton ancien capitaine",
+        text: "Retour dans le stade qui t'a vu débuter, avec le maillot d'en face. Ton ancien capitaine t'attend dans le couloir pour te serrer la main devant les caméras. Le virage qui chantait ton nom il y a deux ans a préparé une banderole, et ce n'est pas un hommage. {humeur}.",
+        choices: [
+            FDChoice(label: "Aller saluer le virage avant le match",
+                     hint: "Tu y es allé seul, sous les sifflets. Une partie du stade a applaudi malgré tout, et ça a suffi.",
+                     effects: [FDEffect(rel: "fans", delta: 6), FDEffect(attr: .sangfroid, delta: 5),
+                               FDEffect(cond: "moral", delta: 5), FDEffect(cond: "fatigue", delta: 4)]),
+            FDChoice(label: "Ne rien célébrer si tu marques",
+                     hint: "Tu as marqué et tu es resté immobile, les bras le long du corps. Le respect que ça t'a valu vaut plus que le but.",
+                     effects: [FDEffect(cond: "reputation", delta: 8), FDEffect(rel: "media", delta: 7),
+                               FDEffect(rel: "vestiaire", delta: -3)]),
+            FDChoice(label: "Leur montrer exactement ce qu'ils ont laissé partir",
+                     hint: "Tu as tout tenté, tout raté, et le stade t'a rappelé pendant quatre-vingt-dix minutes pourquoi il t'avait laissé partir.",
+                     effects: [FDEffect(cond: "confiance", delta: -8), FDEffect(rel: "fans", delta: -6),
+                               FDEffect(cond: "fatigue", delta: 10)],
+                     riskChance: 0.45,
+                     riskEffects: [FDEffect(cond: "reputation", delta: 15), FDEffect(attr: .determination, delta: 5),
+                                   FDEffect(cond: "confiance", delta: 16), FDEffect(rel: "media", delta: 10)],
+                     riskText: "Doublé, dans leur stade, avec le maillot d'en face. Ils s'en souviendront plus longtemps que toi."),
+        ], beat: "climax", beatTheme: "derby"),
+]
+
 /// Every scene the engine can draw from.
 let FDScenes: [FDSceneDef] = FDScenesCore
     + FDScenesPack1
@@ -5967,3 +6072,4 @@ let FDScenes: [FDSceneDef] = FDScenesCore
     + FDScenesPack8
     + FDScenesLegend
     + FDScenesGamble
+    + FDScenesClimax

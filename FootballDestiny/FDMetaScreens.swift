@@ -915,6 +915,26 @@ struct FDReglesView: View {
                 bullet("Retraite possible dès 30 ans, ou imposée par l'âge.")
                 bullet("À la retraite : historique, points, pièces, et signature pour entrer au classement.")
             }
+            rulesCard(icon: "sportscourt.fill", title: "Le grand rendez-vous", color: FDTheme.amber) {
+                paragraph("Chaque saison s'arrête une fois sur un match qui compte plus que les autres, dans son dernier quart. Le thème dépend d'où en est ta carrière :")
+                ruleRow("Championnat, titre, maintien", "20 à 55 %")
+                ruleRow("Finale de coupe nationale", "18 à 30 %")
+                ruleRow("Soirée européenne", "0 à 30 %")
+                ruleRow("Sélection nationale", "0 à 26 %")
+                ruleRow("Derby", "6 à 15 %")
+                bullet("Renvoyé en réserve, tu joues des barrages ; réputation au-dessus de 75, tu joues des finales européennes et des tournois internationaux.")
+            }
+            rulesCard(icon: "arrow.triangle.2.circlepath", title: "L'intersaison", color: FDTheme.accentTeal) {
+                paragraph("Entre deux saisons, un club peut se manifester. Le transfert ne se fait plus tout seul : tu lis l'offre et tu décides.")
+                bullet("Partir à l'étranger coûte les tiens et les tribunes, et rapporte de la réputation.")
+                bullet("Rester te rend les supporters et le président, et fait retomber ta cote.")
+                bullet("Sans aucune offre, l'intersaison se joue avec ton propre club : prolonger, exiger, ou attendre.")
+            }
+            rulesCard(icon: "arrow.up.arrow.down", title: "Pro, et rien d'autre", color: FDTheme.primary) {
+                paragraph("La carrière commence et se termine chez les professionnels : il n'y a pas de catégorie de jeunes à traverser.")
+                bullet("Deux mauvais signaux cumulés sur une saison — trop peu de matchs, note trop basse, coach perdu — et tu es rétrogradé en réserve.")
+                bullet("On en remonte : une bonne saison de réserve, ou un coach reconquis, et le groupe pro te rappelle.")
+            }
             rulesCard(icon: "externaldrive.fill", title: "Sauvegarde", color: FDTheme.textMuted) {
                 bullet("Aucun compte : tout est stocké sur l'appareil.")
                 bullet("Une carrière en cours à la fois.")

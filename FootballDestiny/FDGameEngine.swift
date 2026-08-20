@@ -27,6 +27,13 @@ final class FDGameEngine: ObservableObject {
     private var suppressToast = false
     private var toastDismissWorkItem: DispatchWorkItem?
     private var pendingTournament: FDTournamentSummary?
+    /// L'offre reçue à l'intersaison, présentée comme un choix avant la reprise plutôt que
+    /// résolue en silence dans le bilan.
+    private var pendingOffer: (club: FDClub, fee: Int)?
+
+    /// Rangées dans `sceneCooldown`, ces clés ne peuvent croiser aucun identifiant de scène
+    /// et évitent d'ajouter un champ à la sauvegarde, qui casserait les parties en cours.
+    private let fdClimaxKey = "__rendezvous_saison"
 
     private static let storageKey = "footballDestinySave_v1_native"
     private static let lifetimePointsKey = "footballDestinyLifetimePoints_v1"
@@ -768,11 +775,31 @@ final class FDGameEngine: ObservableObject {
             out = out.replacingOccurrences(of: "{legendEra}", with: legend?.era.lowercased() ?? "l'époque")
             out = out.replacingOccurrences(of: "{legendPoste}", with: legend?.position.rawValue.lowercased() ?? "joueur")
         }
+        // Les rendez-vous parlent du club, du pays et de l'état d'esprit du moment : la même
+        // scène ne sonne pas pareil selon qu'on la traverse gonflé à bloc ou la tête ailleurs.
+        out = out.replacingOccurrences(of: "{club}", with: p.club.name)
+        out = out.replacingOccurrences(of: "{pays}", with: p.nationality)
+        out = out.replacingOccurrences(of: "{ville}", with: p.birthCity)
+        if out.contains("{humeur}") {
+            out = out.replacingOccurrences(of: "{humeur}", with: fdMoodPhrase(p))
+        }
         return out
     }
 
+    /// L'état d'esprit du joueur, en clair : ce que les scènes de rendez-vous racontent
+    /// dépend d'abord de la tête dans laquelle il les aborde.
+    private func fdMoodPhrase(_ p: FDPlayer) -> String {
+        if p.cond.moral >= 72 && p.cond.confiance >= 68 { return "tu te sens intouchable" }
+        if p.cond.moral <= 32 { return "tu traînes une saison qui t'a usé" }
+        if p.cond.confiance <= 32 { return "tu doutes de tout depuis des semaines" }
+        if p.cond.fatigue >= 70 { return "tu es cuit et tu le sais" }
+        return "tu es dans un entre-deux, ni lancé ni perdu"
+    }
+
     private func pickHandwrittenScene(_ p: FDPlayer) -> FDSceneDef? {
-        let pool = FDScenes.filter { sceneEligible($0, player: p) }
+        // Les scènes de rendez-vous (grand match de la saison) ont leur propre moment : elles
+        // ne doivent jamais tomber au hasard d'une semaine ordinaire.
+        let pool = FDScenes.filter { $0.beat == nil && sceneEligible($0, player: p) }
         // With several hundred scenes available, a career should exhaust what it has never
         // seen before showing anything twice — otherwise the same handful keeps coming back.
         let unseen = pool.filter { !usedSceneIds.contains($0.id) }
@@ -809,6 +836,48 @@ final class FDGameEngine: ObservableObject {
         }
     }
 
+    /// Les thèmes possibles du grand rendez-vous, et la part de chacun selon où en est la
+    /// carrière : un joueur renvoyé en réserve joue sa saison sur un barrage, une star joue
+    /// une finale européenne ou un tournoi avec sa sélection.
+    private func climaxWeights(_ p: FDPlayer) -> [(String, Double)] {
+        let rep = p.cond.reputation
+        switch p.status {
+        case .reserve:
+            return [("club", 55), ("coupe", 30), ("derby", 15)]
+        case .veteran:
+            return [("club", 30), ("coupe", 28), ("europe", 20), ("selection", 14), ("derby", 8)]
+        default:
+            if rep >= 75 { return [("europe", 30), ("selection", 26), ("club", 20), ("coupe", 18), ("derby", 6)] }
+            if rep >= 45 { return [("club", 32), ("coupe", 28), ("europe", 20), ("selection", 12), ("derby", 8)] }
+            return [("club", 45), ("coupe", 30), ("derby", 15), ("europe", 7), ("selection", 3)]
+        }
+    }
+
+    /// Tire une scène de rendez-vous : d'abord le thème, avec les poids de la carrière, puis
+    /// une scène de ce thème — jamais vue tant qu'il en reste.
+    private func pickBeatScene(_ p: FDPlayer, beat: String, weights: [(String, Double)]) -> FDSceneDef? {
+        let pool = FDScenes.filter { $0.beat == beat && sceneEligible($0, player: p) }
+        guard !pool.isEmpty else { return nil }
+        var candidates: [FDSceneDef] = []
+        let available = weights.filter { weight in pool.contains { $0.beatTheme == weight.0 } }
+        if !available.isEmpty {
+            let total = available.reduce(0.0) { $0 + $1.1 }
+            var roll = Double.random(in: 0..<total)
+            var theme = available[0].0
+            for (name, weight) in available {
+                if roll < weight { theme = name; break }
+                roll -= weight
+            }
+            candidates = pool.filter { $0.beatTheme == theme }
+        }
+        if candidates.isEmpty { candidates = pool }
+        let unseen = candidates.filter { !usedSceneIds.contains($0.id) }
+        guard var picked = (unseen.isEmpty ? candidates : unseen).randomElement() else { return nil }
+        picked.text = personalize(picked.text, player: p)
+        picked.character = personalize(picked.character, player: p)
+        return picked
+    }
+
     private func generateNextEvent() -> FDCurrentScene {
         guard let p = player else { return .none }
         if let hw = pickHandwrittenScene(p) {
@@ -830,7 +899,13 @@ final class FDGameEngine: ObservableObject {
     /// effects revealed as pills — the choice buttons themselves never show +/- beforehand.
     func resolveChoice(_ choice: FDChoice, category: String) {
         var pills = applyEffects(choice.effects)
-        var narrative = choice.hint
+        // Une réponse sans suite écrite laissait l'écran de résultat vide, avec seulement des
+        // chiffres : le joueur voyait bouger ses jauges sans jamais savoir ce que son choix
+        // avait provoqué. Faute de texte écrit à la main, la conséquence est recomposée à
+        // partir de ce qui a réellement changé.
+        var narrative = choice.hint.isEmpty
+            ? fdConsequence(effects: choice.effects, seed: choice.label.hashValue)
+            : choice.hint
 
         if let chance = choice.riskChance, Double.random(in: 0...1) < chance, let riskEffects = choice.riskEffects, let riskText = choice.riskText {
             pills += applyEffects(riskEffects)
@@ -866,6 +941,14 @@ final class FDGameEngine: ObservableObject {
             p.playStyleLabel = style
             player = p
             pushJournal("Identité de jeu adoptée : \(style).", icon: "🧬")
+        }
+        if let club = choice.setClub, var p = player, club.id != p.club.id {
+            let fee = choice.transferFee ?? 0
+            p.transferHistory.append(FDTransferRecord(age: p.age, clubName: club.name, country: club.country,
+                                                      division: club.division, fee: fee))
+            p.club = club
+            player = p
+            pushJournal("Transfert signé : \(club.name) (\(club.country)) pour \(fdFormatMoney(fee)).", icon: "✈️")
         }
 
         if pills.isEmpty && narrative.isEmpty {
@@ -923,6 +1006,22 @@ final class FDGameEngine: ObservableObject {
             }
 
             let weeksLeft = max(1, p.calendar.seasonWeeks - p.calendar.week + 1)
+
+            // Le grand rendez-vous : finale, match du titre, maintien, soirée européenne ou
+            // sélection. Il tombe dans le dernier quart de saison, à une semaine imprévisible,
+            // mais aucune saison ne se termine sans l'avoir joué.
+            if sceneCooldown[fdClimaxKey] != p.calendar.season,
+               weeksLeft <= max(3, p.calendar.seasonWeeks / 4),
+               weeksLeft <= 2 || Double.random(in: 0...1) < 1.0 / Double(weeksLeft),
+               let big = pickBeatScene(p, beat: "climax", weights: climaxWeights(p)) {
+                sceneCooldown[fdClimaxKey] = p.calendar.season
+                usedSceneIds.insert(big.id)
+                currentScene = .story(big)
+                if var pp = player { pp.seasonStoryEvents += 1; player = pp }
+                saveGame()
+                return
+            }
+
             let storyLeft = targetStoryEventsPerSeason - p.seasonStoryEvents
             let matchWeeksLeft = matchesTargetThisSeason(p) - p.seasonMatches
 
@@ -1067,25 +1166,32 @@ final class FDGameEngine: ObservableObject {
             p.attrs[a.rawValue] = min(max(cur + delta, 0), pot)
         }
 
-        // Status progression — youth capped at 2 seasons (U16 then U18), then a definitive pro pathway
-        if p.status == .u16 {
-            p.status = .u18
-            summary.append("Promotion en catégorie U18.")
-        } else if p.status == .u18 {
+        // La carrière se joue chez les professionnels du premier jour au dernier : il n'y a
+        // pas de catégorie de jeunes à traverser. Le seul mouvement possible est la chute —
+        // une saison ratée renvoie en réserve — et la remontée qui suit.
+        if p.status == .pro || p.status == .veteran {
             let ovr = overall(p)
-            if ovr >= p.club.reputation - 12 || p.cond.reputation >= 16 {
-                p.status = .pro
-                p.contract = FDContract(salary: Int.random(in: 3000...9000), years: 2)
-                summary.append("Promotion directe en équipe professionnelle !")
-            } else {
+            let played = p.seasonMatches
+            let rated = p.seasonForm.isEmpty ? 6.0 : avgForm
+            let badSeason = played <= 4 || rated < 5.3
+            let outOfDepth = ovr <= p.club.reputation - 20
+            let coachLost = p.rel.coach <= 15
+            // Il faut cumuler les signaux : un seul mauvais indicateur ne fait pas descendre.
+            if [badSeason, outOfDepth, coachLost].filter({ $0 }).count >= 2 {
                 p.status = .reserve
-                p.contract = FDContract(salary: Int.random(in: 800...2000), years: 1)
-                summary.append("Intégration à l'équipe réserve pour franchir un dernier palier.")
+                p.contract = FDContract(salary: max(900, p.contract.salary / 3), years: 1)
+                summary.append("⬇️ Rétrogradé en équipe réserve — le club ne compte plus sur toi cette saison.")
             }
         } else if p.status == .reserve {
-            p.status = .pro
-            p.contract = FDContract(salary: Int.random(in: 3500...10000), years: 2)
-            summary.append("Appelé en équipe professionnelle !")
+            let ovr = overall(p)
+            let rated = p.seasonForm.isEmpty ? 0 : avgForm
+            if ovr >= p.club.reputation - 14 || rated >= 6.4 || p.rel.coach >= 60 {
+                p.status = .pro
+                p.contract = FDContract(salary: Int.random(in: 3500...10000), years: 2)
+                summary.append("⬆️ Rappelé dans le groupe professionnel.")
+            } else {
+                summary.append("Encore une saison en réserve : la porte du groupe pro ne s'ouvre pas.")
+            }
         }
         if p.age >= 35 && p.status == .pro { p.status = .veteran }
 
@@ -1127,11 +1233,10 @@ final class FDGameEngine: ObservableObject {
             let transferChance = min(0.35, max(0.03, 0.06 + edgeForTransfer / 300))
             if Double.random(in: 0...1) < transferChance,
                let target = FDAllClubs.filter({ $0.id != p.club.id && $0.reputation > p.club.reputation && $0.reputation <= overall(p) + 15 }).randomElement() {
-                let fee = max(50_000, marketValue(p) / 3)
-                p.transferHistory.append(FDTransferRecord(age: p.age, clubName: target.name, country: target.country, division: target.division, fee: fee))
-                p.money += Int((Double(fee) * 0.05).rounded())
-                summary.append("Transfert : \(target.name) (\(target.country)) recrute pour \(fdFormatMoney(fee)).")
-                p.club = target
+                // Un transfert ne se décide plus tout seul dans le bilan : l'offre attend le
+                // joueur juste après, et c'est lui qui signe ou qui reste.
+                pendingOffer = (club: target, fee: max(50_000, marketValue(p) / 3))
+                summary.append("Une offre de \(target.name) (\(target.country)) est arrivée sur le bureau du club.")
             }
         }
 
@@ -1267,6 +1372,11 @@ final class FDGameEngine: ObservableObject {
             saveGame()
             return
         }
+        if let mercato = mercatoScene(p) {
+            currentScene = .story(mercato)
+            saveGame()
+            return
+        }
         currentScene = generateNextEvent()
         autoResolveExpress()
         saveGame()
@@ -1274,9 +1384,107 @@ final class FDGameEngine: ObservableObject {
 
     func continueAfterTournament() {
         guard let p = player, !p.retired else { return }
+        if let mercato = mercatoScene(p) {
+            currentScene = .story(mercato)
+            saveGame()
+            return
+        }
         currentScene = generateNextEvent()
         autoResolveExpress()
         saveGame()
+    }
+
+    // MARK: - Intersaison
+
+    /// L'entre-deux-saisons est le moment où une carrière bascule vraiment. Plutôt qu'un
+    /// transfert exécuté en silence dans le bilan, le joueur reçoit l'offre, la lit avec sa
+    /// nationalité et son état d'esprit du moment, et décide lui-même de partir ou de rester —
+    /// les deux ayant leur suite écrite.
+    private func mercatoScene(_ p: FDPlayer) -> FDSceneDef? {
+        guard p.status == .pro || p.status == .veteran else { return nil }
+        let mood = fdMoodPhrase(p)
+
+        guard let offer = pendingOffer else {
+            // Personne n'a appelé : l'intersaison se joue avec son propre club.
+            guard p.calendar.season >= 1 else { return nil }
+            let text = "L'été passe et le téléphone reste muet. Aucune offre, aucun club à l'affût : "
+                + "\(p.club.name) est le seul endroit où tu es attendu à la reprise. En allant signer "
+                + "ta feuille de présence, \(mood), et le directeur sportif te propose de reparler du contrat."
+            return FDSceneDef(
+                id: "mercato_sans_offre_s\(p.calendar.season)", category: "Transfert", minAge: 0, maxAge: 200,
+                location: "Bureaux de \(p.club.name)", character: "Le directeur sportif",
+                text: text,
+                choices: [
+                    FDChoice(label: "Prolonger et t'installer ici",
+                             hint: "Tu signes sans discuter. Le club apprécie la fidélité et te le fait savoir, mais personne, dehors, ne retient plus ton nom.",
+                             effects: [FDEffect(rel: "president", delta: 8), FDEffect(rel: "fans", delta: 6),
+                                       FDEffect(cond: "moral", delta: 5), FDEffect(cond: "reputation", delta: -4)]),
+                    FDChoice(label: "Refuser et demander à être vendu",
+                             hint: "Ta demande fuite dans la presse le soir même. Le club te garde quand même, mais le climat a changé pour de bon.",
+                             effects: [FDEffect(rel: "president", delta: -10), FDEffect(rel: "fans", delta: -7),
+                                       FDEffect(cond: "reputation", delta: 4), FDEffect(rel: "agent", delta: 5)]),
+                    FDChoice(label: "Attendre en silence, sans rien signer",
+                             hint: "Tu reprends l'entraînement sans avoir rien promis. Le vestiaire comprend le message, la direction aussi.",
+                             effects: [FDEffect(rel: "president", delta: -4), FDEffect(attr: .sangfroid, delta: 3),
+                                       FDEffect(cond: "moral", delta: -3)]),
+                ])
+        }
+
+        pendingOffer = nil
+        let target = offer.club
+        let bonus = Int((Double(offer.fee) * 0.05).rounded())
+        let expatriation = target.country != p.nationality
+
+        // Écrit en si/sinon plutôt qu'en ternaires imbriqués : le compilateur peine sur les
+        // ternaires qui concatènent des chaînes et construisent des tableaux d'effets.
+        let intro: String
+        if expatriation {
+            intro = "\(target.name) veut te faire quitter \(p.nationality). Nouveau pays, nouvelle langue, "
+                + "un vestiaire où personne ne t'attend et une famille qui devra suivre ou rester."
+        } else {
+            intro = "\(target.name) te veut, et c'est encore \(p.nationality) : mêmes routes, mêmes visages, "
+                + "un cran au-dessus. Personne n'aurait à déménager très loin."
+        }
+        let text = "\(intro) L'offre est sur la table — \(fdFormatMoney(offer.fee)) pour \(p.club.name) — "
+            + "et il faut répondre avant la reprise. Au moment de décrocher, \(mood)."
+
+        let signHint: String
+        var signEffects: [FDEffect]
+        if expatriation {
+            signHint = "Tu pars. Les premières semaines sont dures : la langue, les repères, les tiens restés au pays. "
+                + "Mais le niveau est au-dessus, et tout le monde le voit."
+            signEffects = [FDEffect(cond: "reputation", delta: 8), FDEffect(rel: "fans", delta: -8),
+                           FDEffect(rel: "famille", delta: -6), FDEffect(cond: "moral", delta: -4)]
+        } else {
+            signHint = "Tu signes. Le vestiaire que tu quittes te salue à moitié, celui que tu rejoins t'attend au tournant "
+                + "— mais c'est un vrai palier de franchi."
+            signEffects = [FDEffect(cond: "reputation", delta: 6), FDEffect(rel: "fans", delta: -6),
+                           FDEffect(rel: "vestiaire", delta: -4), FDEffect(cond: "confiance", delta: 4)]
+        }
+        signEffects.append(FDEffect(money: bonus))
+
+        var choices: [FDChoice] = [
+            FDChoice(label: "Signer à \(target.name)", hint: signHint, effects: signEffects,
+                     setClub: target, transferFee: offer.fee),
+            FDChoice(label: "Rester à \(p.club.name)",
+                     hint: "Tu refuses, et le club l'annonce lui-même. Les tribunes t'adoptent pour de bon — mais l'offre ne reviendra pas forcément l'an prochain.",
+                     effects: [FDEffect(rel: "fans", delta: 10), FDEffect(rel: "president", delta: 8),
+                               FDEffect(rel: "vestiaire", delta: 5), FDEffect(cond: "reputation", delta: -4),
+                               FDEffect(rel: "agent", delta: -6)]),
+        ]
+        if p.cond.reputation >= 40 {
+            choices.append(
+                FDChoice(label: "Rester, mais exiger un contrat à la hauteur",
+                         hint: "Le club cède sur le salaire pour ne pas te perdre. La direction s'en souviendra à la première mauvaise passe.",
+                         effects: [FDEffect(rel: "president", delta: -7), FDEffect(rel: "fans", delta: 4),
+                                   FDEffect(cond: "confiance", delta: 5)],
+                         setContractSalary: Int(Double(p.contract.salary) * 1.6), setContractYears: 3))
+        }
+
+        return FDSceneDef(
+            id: "mercato_offre_s\(p.calendar.season)", category: "Transfert", minAge: 0, maxAge: 200,
+            location: "Intersaison", character: "Ton agent",
+            text: text, choices: choices)
     }
 
     func voluntaryRetire() {
