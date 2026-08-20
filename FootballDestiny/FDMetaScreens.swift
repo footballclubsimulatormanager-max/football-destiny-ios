@@ -933,6 +933,7 @@ struct FDReglesView: View {
             rulesCard(icon: "figure.walk.motion", title: "Le fil d'une légende", color: FDTheme.amber) {
                 paragraph("Chaque défi Gloire du Passé a son propre chemin : les clubs qu'elle a choisis, les transferts qu'elle a faits, la finale continentale et le tournoi qui l'ont installée — et le geste précis qui l'a rendue légendaire, le but, l'arrêt ou le carton.")
                 paragraph("Ces moments arrivent à l'âge exact où elle les a vécus. À chaque fois, deux routes : refaire son choix, ou écrire le tien.")
+                bullet("Les transferts du fil changent réellement de club : le nom du club apparaît sur le bouton, et signer t'y emmène pour de bon, avec la ligne dans ton parcours et la prime à la signature.")
                 bullet("Suivre sa route donne ce qu'elle avait — et coûte ce qu'elle a payé.")
                 bullet("S'en écarter te rend ta propre carrière, avec ce que ça vaut et ce que ça retire.")
                 ruleRow("Légendes", "50")

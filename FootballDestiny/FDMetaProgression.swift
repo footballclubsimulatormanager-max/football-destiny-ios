@@ -163,6 +163,12 @@ struct FDLegendStep {
     let ownLabel: String
     let ownHint: String
     let ownEffects: [FDEffect]
+    /// Quand l'étape est un transfert, la destination que suivre la légende implique :
+    /// "sommet", "grand", "modeste", "etranger", "rival", "retour" ou "inferieur".
+    /// Le moteur la traduit en club réel au moment où la scène se présente.
+    var followMove: String? = nil
+    /// La destination de l'autre route, quand s'écarter veut dire partir ailleurs.
+    var ownMove: String? = nil
 }
 
 /// Le chemin de chaque légende, identifiant par identifiant. Suivre la route donne ce
@@ -299,7 +305,9 @@ let FDLegendPaths: [String: [FDLegendStep]] = [
             followEffects: [FDEffect(attr: .tacle, delta: 4), FDEffect(attr: .placement, delta: 3), FDEffect(cond: "forme", delta: 5), FDEffect(cond: "reputation", delta: -4)],
             ownLabel: "Viser plus haut, quitte à attendre",
             ownHint: "Tu as choisi le club le plus ambitieux. Ton nom circule — et tu regardes beaucoup de matchs depuis le banc.",
-            ownEffects: [FDEffect(cond: "reputation", delta: 6), FDEffect(cond: "confiance", delta: -4), FDEffect(rel: "coach", delta: -3)]),
+            ownEffects: [FDEffect(cond: "reputation", delta: 6), FDEffect(cond: "confiance", delta: -4), FDEffect(rel: "coach", delta: -3)],
+            followMove: "modeste",
+            ownMove: "grand"),
         FDLegendStep(
             age: 22, place: "Vestiaire, avant la reprise",
             text: "Vogtz a pris le brassard à vingt-deux ans, dans un vestiaire qui comptait six internationaux plus âgés que lui. Il l'a pris en parlant peu et en ne cédant jamais un duel. Ton coach te propose exactement la même chose cette saison, et deux cadres ont déjà fait savoir qu'ils trouvaient ça prématuré.",
@@ -317,7 +325,8 @@ let FDLegendPaths: [String: [FDLegendStep]] = [
             followEffects: [FDEffect(rel: "vestiaire", delta: 8), FDEffect(rel: "president", delta: 7), FDEffect(money: -180000), FDEffect(cond: "reputation", delta: -4)],
             ownLabel: "Partir pour le grand club",
             ownHint: "Tu es parti pour le grand club. Tu as tout gagné, sans jamais être le patron de rien.",
-            ownEffects: [FDEffect(cond: "reputation", delta: 9), FDEffect(money: 220000), FDEffect(rel: "vestiaire", delta: -6)]),
+            ownEffects: [FDEffect(cond: "reputation", delta: 9), FDEffect(money: 220000), FDEffect(rel: "vestiaire", delta: -6)],
+            ownMove: "sommet"),
         FDLegendStep(
             age: 26, place: "Tunnel d'une finale continentale",
             text: "Sa finale européenne, Vogtz l'a jouée avec deux côtes fêlées, sans le dire à personne, et il a annulé l'attaquant le plus cher du continent pendant quatre-vingt-dix minutes. Le médecin l'a appris trois jours plus tard. Ce soir tu es dans le même tunnel, avec une douleur que tu es le seul à connaître.",
@@ -355,7 +364,8 @@ let FDLegendPaths: [String: [FDLegendStep]] = [
             followEffects: [FDEffect(rel: "president", delta: 8), FDEffect(rel: "fans", delta: 8), FDEffect(money: -40000), FDEffect(cond: "reputation", delta: -3)],
             ownLabel: "Prendre l'offre et partir",
             ownHint: "Tu as pris l'offre. Le compte est bien meilleur, et le club formateur a retiré ta photo du couloir.",
-            ownEffects: [FDEffect(money: 120000), FDEffect(cond: "reputation", delta: 5), FDEffect(rel: "fans", delta: -8), FDEffect(rel: "president", delta: -6)]),
+            ownEffects: [FDEffect(money: 120000), FDEffect(cond: "reputation", delta: 5), FDEffect(rel: "fans", delta: -8), FDEffect(rel: "president", delta: -6)],
+            ownMove: "grand"),
         FDLegendStep(
             age: 21, place: "Salle vidéo, seul",
             text: "Baresini passait ses soirées à revoir les attaquants qu'il allait affronter — pas les buts, les appuis, la manière de démarrer. Il disait que c'était là que se jouait un duel, dix jours avant le match. L'analyste te propose la même chose, deux soirs par semaine, sur ton temps libre et sans que ça se voie jamais.",
@@ -429,7 +439,8 @@ let FDLegendPaths: [String: [FDLegendStep]] = [
             followEffects: [FDEffect(rel: "president", delta: 7), FDEffect(rel: "vestiaire", delta: 6), FDEffect(cond: "moral", delta: -5), FDEffect(cond: "reputation", delta: -4)],
             ownLabel: "Exiger des explications et ton départ",
             ownHint: "Tu as exigé des explications, publiquement. Le transfert s'est fait l'été suivant, dans une ambiance détestable.",
-            ownEffects: [FDEffect(cond: "reputation", delta: 6), FDEffect(money: 120000), FDEffect(rel: "president", delta: -8)]),
+            ownEffects: [FDEffect(cond: "reputation", delta: 6), FDEffect(money: 120000), FDEffect(rel: "president", delta: -8)],
+            ownMove: "grand"),
         FDLegendStep(
             age: 26, place: "Ligne de but, finale continentale",
             text: "La finale de Carnusse tient en une image : trois arrêts en huit secondes sur la même action, dont le dernier à une main sur sa ligne. Il a dit plus tard qu'il avait arrêté de réfléchir dès le deuxième. Tu y es. Le corner arrive, ils sont montés à onze, et le match se joue dans les trente prochaines secondes.",
@@ -485,7 +496,9 @@ let FDLegendPaths: [String: [FDLegendStep]] = [
             followEffects: [FDEffect(attr: .passe, delta: 6), FDEffect(attr: .vision, delta: 5), FDEffect(cond: "moral", delta: 6), FDEffect(money: -100000)],
             ownLabel: "Choisir le club le plus riche",
             ownHint: "Tu as choisi le club le plus riche. Le compte est excellent, et on te demande de courir plutôt que de jouer.",
-            ownEffects: [FDEffect(money: 200000), FDEffect(attr: .endurance, delta: 4), FDEffect(attr: .vision, delta: -2)]),
+            ownEffects: [FDEffect(money: 200000), FDEffect(attr: .endurance, delta: 4), FDEffect(attr: .vision, delta: -2)],
+            followMove: "modeste",
+            ownMove: "grand"),
         FDLegendStep(
             age: 27, place: "Vestiaire, avant une finale continentale",
             text: "Sa finale européenne, Guardiel l'a préparée en donnant des consignes à chacun individuellement pendant deux heures, joueur par joueur, dans un coin du vestiaire. Il n'a pas fait un seul discours. Ce soir tu as ces deux heures devant toi, et un vestiaire tendu qui attend qu'on lui dise quoi faire.",
@@ -541,7 +554,8 @@ let FDLegendPaths: [String: [FDLegendStep]] = [
             followEffects: [FDEffect(attr: .endurance, delta: 5), FDEffect(rel: "fans", delta: 8), FDEffect(cond: "reputation", delta: -4), FDEffect(money: -90000)],
             ownLabel: "Partir dans un club de tête",
             ownHint: "Tu es parti dans un club de tête. Tu as joué les grandes soirées, et le record est resté à quelqu'un d'autre.",
-            ownEffects: [FDEffect(cond: "reputation", delta: 8), FDEffect(money: 130000), FDEffect(rel: "fans", delta: -5)]),
+            ownEffects: [FDEffect(cond: "reputation", delta: 8), FDEffect(money: 130000), FDEffect(rel: "fans", delta: -5)],
+            ownMove: "grand"),
         FDLegendStep(
             age: 27, place: "Terrain, finale continentale",
             text: "Sa finale, Lampart l'a jouée avec une prolongation dans les jambes trois jours plus tôt, en courant quatorze kilomètres et en marquant à la 118e minute. Il a dit ensuite qu'il ne se souvenait de rien après la 100e. Tu es exactement dans cette situation, et le coach te demande si tu peux commencer.",
@@ -588,7 +602,9 @@ let FDLegendPaths: [String: [FDLegendStep]] = [
             followEffects: [FDEffect(cond: "confiance", delta: 6), FDEffect(rel: "president", delta: -5), FDEffect(cond: "reputation", delta: 5), FDEffect(rel: "agent", delta: -3)],
             ownLabel: "Signer immédiatement",
             ownHint: "Tu as signé tout de suite. L'affaire a été propre, rapide, et tout le monde a retenu que tu ne discutais pas.",
-            ownEffects: [FDEffect(money: 60000), FDEffect(rel: "president", delta: 5), FDEffect(cond: "confiance", delta: -3)]),
+            ownEffects: [FDEffect(money: 60000), FDEffect(rel: "president", delta: 5), FDEffect(cond: "confiance", delta: -3)],
+            followMove: "rival",
+            ownMove: "rival"),
         FDLegendStep(
             age: 23, place: "Vestiaire, après une défaite",
             text: "Après une défaite 4-0, Geretz a demandé au coach de mettre en place une séance défensive supplémentaire par semaine — pour tout le groupe, y compris les attaquants. Il l'a obtenue, et le vestiaire lui en a voulu pendant six mois. Ton équipe vient de prendre quatre buts, et le coach cherche des idées.",
@@ -624,7 +640,8 @@ let FDLegendPaths: [String: [FDLegendStep]] = [
             followEffects: [FDEffect(rel: "fans", delta: 8), FDEffect(cond: "moral", delta: 5), FDEffect(money: -150000)],
             ownLabel: "Prendre le dernier gros contrat",
             ownHint: "Tu es parti chercher le dernier gros contrat. Ta famille est à l'abri définitivement, et personne n'a vu tes deux dernières saisons.",
-            ownEffects: [FDEffect(money: 400000), FDEffect(cond: "reputation", delta: -5), FDEffect(rel: "fans", delta: -6)]),
+            ownEffects: [FDEffect(money: 400000), FDEffect(cond: "reputation", delta: -5), FDEffect(rel: "fans", delta: -6)],
+            ownMove: "etranger"),
     ],
     "legend_ailier_fou": [
         FDLegendStep(
@@ -653,7 +670,8 @@ let FDLegendPaths: [String: [FDLegendStep]] = [
             followEffects: [FDEffect(attr: .dribble, delta: 5), FDEffect(cond: "confiance", delta: 6), FDEffect(cond: "reputation", delta: -4), FDEffect(rel: "vestiaire", delta: -4)],
             ownLabel: "Rester et accepter d'être corrigé",
             ownHint: "Tu es resté et tu t'es laissé corriger. Tu es plus fiable, et le stade a arrêté de se lever quand tu prends le ballon.",
-            ownEffects: [FDEffect(attr: .passe, delta: 5), FDEffect(rel: "coach", delta: 6), FDEffect(attr: .dribble, delta: -3)]),
+            ownEffects: [FDEffect(attr: .passe, delta: 5), FDEffect(rel: "coach", delta: 6), FDEffect(attr: .dribble, delta: -3)],
+            followMove: "etranger"),
         FDLegendStep(
             age: 26, place: "Terrain, demi-finale continentale",
             text: "Sa demi-finale européenne est restée célèbre pour une action : trois dribbles dans sa propre surface à la 88e minute, à 1-1. Ça a fini par un but, à l'autre bout du terrain. S'il l'avait perdu, on en parlerait encore aussi. Tu as le ballon, dans ta surface, et la même situation exactement.",
@@ -700,7 +718,8 @@ let FDLegendPaths: [String: [FDLegendStep]] = [
             followEffects: [FDEffect(attr: .tacle, delta: 5), FDEffect(attr: .placement, delta: 4), FDEffect(money: -70000), FDEffect(cond: "reputation", delta: 6)],
             ownLabel: "Rester où tu es mieux payé",
             ownHint: "Tu es resté là où tu es mieux payé. Tu domines ton championnat, et personne d'autre ne te regarde.",
-            ownEffects: [FDEffect(money: 90000), FDEffect(cond: "confiance", delta: 5), FDEffect(cond: "reputation", delta: -5)]),
+            ownEffects: [FDEffect(money: 90000), FDEffect(cond: "confiance", delta: 5), FDEffect(cond: "reputation", delta: -5)],
+            followMove: "grand"),
         FDLegendStep(
             age: 23, place: "Bureau du président",
             text: "À vingt-trois ans, Laursten a refusé un transfert vers un club plus riche parce que le sien venait de descendre et qu'il avait dit qu'il resterait. Il a passé une saison en deuxième division au sommet de sa forme. Ton club vient de descendre, et l'offre est arrivée le lendemain.",
@@ -709,7 +728,8 @@ let FDLegendPaths: [String: [FDLegendStep]] = [
             followEffects: [FDEffect(rel: "fans", delta: 10), FDEffect(rel: "president", delta: 8), FDEffect(cond: "reputation", delta: -7), FDEffect(attr: .leadership, delta: 5)],
             ownLabel: "Partir, ta carrière n'attend pas",
             ownHint: "Tu es parti. C'était rationnel, et le stade a sorti une banderole avec ton nom dessus, pas dans le bon sens.",
-            ownEffects: [FDEffect(cond: "reputation", delta: 6), FDEffect(money: 80000), FDEffect(rel: "fans", delta: -10)]),
+            ownEffects: [FDEffect(cond: "reputation", delta: 6), FDEffect(money: 80000), FDEffect(rel: "fans", delta: -10)],
+            ownMove: "grand"),
         FDLegendStep(
             age: 27, place: "Rond central, finale continentale",
             text: "Sa finale, Laursten l'a jouée en parlant sans arrêt pendant cent vingt minutes, jusqu'à ne plus avoir de voix pendant trois jours. Ses coéquipiers ont dit après qu'ils n'avaient jamais eu besoin de regarder le tableau d'affichage. Tu commences cette finale avec le brassard et un groupe très jeune.",
@@ -765,7 +785,8 @@ let FDLegendPaths: [String: [FDLegendStep]] = [
             followEffects: [FDEffect(attr: .tir, delta: 5), FDEffect(attr: .placement, delta: 5), FDEffect(cond: "reputation", delta: 5), FDEffect(money: -80000)],
             ownLabel: "Partir et jouer plus complet",
             ownHint: "Tu es parti pour un rôle plus complet. Tu touches plus de ballons, et tu en mets deux fois moins au fond.",
-            ownEffects: [FDEffect(attr: .passe, delta: 5), FDEffect(money: 110000), FDEffect(attr: .tir, delta: -3)]),
+            ownEffects: [FDEffect(attr: .passe, delta: 5), FDEffect(money: 110000), FDEffect(attr: .tir, delta: -3)],
+            ownMove: "grand"),
         FDLegendStep(
             age: 27, place: "Surface, finale continentale",
             text: "Sa finale européenne : un but à la 89e minute, de six mètres, du genou, sans aucun contrôle. Il a touché sept ballons du match. Tu en es à cinq ballons touchés, il reste deux minutes, et le centre va arriver.",
@@ -812,7 +833,9 @@ let FDLegendPaths: [String: [FDLegendStep]] = [
             followEffects: [FDEffect(attr: .passe, delta: 5), FDEffect(attr: .vision, delta: 4), FDEffect(cond: "reputation", delta: 5), FDEffect(rel: "famille", delta: -4)],
             ownLabel: "Rester au pays dans un grand club",
             ownHint: "Tu es resté au pays, dans le grand club, à ton poste habituel. Tu es près des tiens, et le numéro dix est à un autre.",
-            ownEffects: [FDEffect(rel: "famille", delta: 7), FDEffect(cond: "moral", delta: 5), FDEffect(attr: .vision, delta: -2)]),
+            ownEffects: [FDEffect(rel: "famille", delta: 7), FDEffect(cond: "moral", delta: 5), FDEffect(attr: .vision, delta: -2)],
+            followMove: "etranger",
+            ownMove: "grand"),
         FDLegendStep(
             age: 23, place: "Bureau du coach",
             text: "À vingt-trois ans, un coach lui a demandé de jouer sur un côté, loin de l'axe où il aimait recevoir le ballon, pour équilibrer l'équipe. Il a dit oui pendant deux saisons entières avant de retrouver sa place. On te demande ce sacrifice ce matin, avec les mêmes deux saisons en perspective.",
@@ -848,7 +871,8 @@ let FDLegendPaths: [String: [FDLegendStep]] = [
             followEffects: [FDEffect(cond: "moral", delta: 8), FDEffect(rel: "famille", delta: 9), FDEffect(cond: "reputation", delta: -7), FDEffect(money: -70000)],
             ownLabel: "Finir au plus haut niveau possible",
             ownHint: "Tu es resté au plus haut niveau jusqu'au bout. Tes enfants t'ont vu à la télévision, comme d'habitude.",
-            ownEffects: [FDEffect(cond: "reputation", delta: 6), FDEffect(money: 90000), FDEffect(rel: "famille", delta: -5)]),
+            ownEffects: [FDEffect(cond: "reputation", delta: 6), FDEffect(money: 90000), FDEffect(rel: "famille", delta: -5)],
+            followMove: "retour"),
     ],
     "legend_muraille_rousse": [
         FDLegendStep(
@@ -868,7 +892,8 @@ let FDLegendPaths: [String: [FDLegendStep]] = [
             followEffects: [FDEffect(attr: .vision, delta: 6), FDEffect(attr: .control, delta: 4), FDEffect(cond: "reputation", delta: -3), FDEffect(rel: "famille", delta: -4)],
             ownLabel: "Rester dans un club qui gagne",
             ownHint: "Tu es resté dans un club qui gagne. Deux titres de plus, et le même football que tout le monde.",
-            ownEffects: [FDEffect(cond: "reputation", delta: 7), FDEffect(rel: "famille", delta: 5), FDEffect(attr: .vision, delta: -2)]),
+            ownEffects: [FDEffect(cond: "reputation", delta: 7), FDEffect(rel: "famille", delta: 5), FDEffect(attr: .vision, delta: -2)],
+            followMove: "etranger"),
         FDLegendStep(
             age: 23, place: "Terrain d'entraînement",
             text: "À vingt-trois ans, Krool a inventé sa manière de jouer libéro en montant systématiquement avec le ballon, ce qui terrorisait son propre coach. Il a fallu deux ans pour que ça devienne la norme. Ton coach t'interdit formellement cette montée, et tu sais que c'est là que tu es le meilleur.",
@@ -933,7 +958,8 @@ let FDLegendPaths: [String: [FDLegendStep]] = [
             followEffects: [FDEffect(rel: "fans", delta: 9), FDEffect(rel: "president", delta: 7), FDEffect(money: -160000)],
             ownLabel: "Signer chez le rival",
             ownHint: "Tu as signé chez le rival. Le compte a doublé, et tu ne peux plus rentrer dans ton ancien quartier.",
-            ownEffects: [FDEffect(money: 220000), FDEffect(cond: "reputation", delta: 6), FDEffect(rel: "fans", delta: -11)]),
+            ownEffects: [FDEffect(money: 220000), FDEffect(cond: "reputation", delta: 6), FDEffect(rel: "fans", delta: -11)],
+            ownMove: "rival"),
         FDLegendStep(
             age: 26, place: "Terrain, quart de finale continentale",
             text: "Sa grande soirée européenne : trois passes décisives en une mi-temps, sur trois centres identiques, parce qu'il avait remarqué à la vidéo que leur latéral fermait toujours du même côté. Ton analyste vient de te montrer exactement le même détail sur le latéral d'en face, ce matin.",
@@ -971,7 +997,8 @@ let FDLegendPaths: [String: [FDLegendStep]] = [
             followEffects: [FDEffect(rel: "fans", delta: 9), FDEffect(cond: "moral", delta: 6), FDEffect(cond: "reputation", delta: 4), FDEffect(money: -60000)],
             ownLabel: "Partir en Europe tout de suite",
             ownHint: "Tu es parti tout de suite. Tu as gagné trois ans d'expérience européenne, et le pays a trouvé que tu l'avais quitté trop vite.",
-            ownEffects: [FDEffect(cond: "reputation", delta: 7), FDEffect(money: 70000), FDEffect(rel: "fans", delta: -6)]),
+            ownEffects: [FDEffect(cond: "reputation", delta: 7), FDEffect(money: 70000), FDEffect(rel: "fans", delta: -6)],
+            ownMove: "etranger"),
         FDLegendStep(
             age: 22, place: "Zone mixte",
             text: "Millar dribblait en souriant, ce que les défenseurs prenaient comme une insulte. À vingt-deux ans, on lui a demandé publiquement d'arrêter de sourire quand il éliminait quelqu'un. Il a répondu qu'il ne savait pas faire autrement. Un journaliste vient de te poser la même question, mot pour mot.",
@@ -989,7 +1016,9 @@ let FDLegendPaths: [String: [FDLegendStep]] = [
             followEffects: [FDEffect(rel: "famille", delta: 8), FDEffect(cond: "moral", delta: 7), FDEffect(cond: "reputation", delta: -5), FDEffect(money: -60000)],
             ownLabel: "Choisir le grand club",
             ownHint: "Tu as choisi le grand club et sa disponibilité totale. Tu as joué au sommet, et tu es rentré chez toi deux fois en six ans.",
-            ownEffects: [FDEffect(cond: "reputation", delta: 8), FDEffect(money: 130000), FDEffect(rel: "famille", delta: -7)]),
+            ownEffects: [FDEffect(cond: "reputation", delta: 8), FDEffect(money: 130000), FDEffect(rel: "famille", delta: -7)],
+            followMove: "modeste",
+            ownMove: "grand"),
         FDLegendStep(
             age: 26, place: "Terrain, huitième de finale internationale",
             text: "Sa soirée de légende : deux buts et une danse de célébration devant le banc adverse, en Coupe du monde, à trente-huit ans dans son cas — mais le geste qui a fait sa légende, il l'avait déjà fait à vingt-six. Tu viens de marquer, la caméra te cherche, et le banc adverse est à dix mètres.",
@@ -1036,7 +1065,8 @@ let FDLegendPaths: [String: [FDLegendStep]] = [
             followEffects: [FDEffect(cond: "reputation", delta: 5), FDEffect(money: 100000), FDEffect(rel: "president", delta: -9), FDEffect(rel: "vestiaire", delta: -5)],
             ownLabel: "Rester et faire avec",
             ownHint: "Tu es resté et tu as fait avec. Le club n'a rien recruté, et personne ne t'a rien reproché.",
-            ownEffects: [FDEffect(rel: "president", delta: 6), FDEffect(rel: "vestiaire", delta: 5), FDEffect(cond: "moral", delta: -4)]),
+            ownEffects: [FDEffect(rel: "president", delta: 6), FDEffect(rel: "vestiaire", delta: 5), FDEffect(cond: "moral", delta: -4)],
+            followMove: "grand"),
         FDLegendStep(
             age: 23, place: "Terrain d'entraînement",
             text: "Ruggieri a construit son autorité sur un principe simple : ne jamais perdre un duel à l'entraînement, quel qu'en soit le prix. Trois coéquipiers se sont blessés contre lui en deux ans. Le staff vient de te demander de lever le pied dans les oppositions, parce que ça commence à faire beaucoup.",
@@ -1101,7 +1131,8 @@ let FDLegendPaths: [String: [FDLegendStep]] = [
             followEffects: [FDEffect(rel: "fans", delta: 9), FDEffect(rel: "president", delta: 7), FDEffect(money: -200000), FDEffect(cond: "reputation", delta: -3)],
             ownLabel: "Prendre le transfert record",
             ownHint: "Tu as pris le transfert record. Tu as tout gagné ailleurs, et ton club n'a jamais rien gagné.",
-            ownEffects: [FDEffect(money: 280000), FDEffect(cond: "reputation", delta: 8), FDEffect(rel: "fans", delta: -8)]),
+            ownEffects: [FDEffect(money: 280000), FDEffect(cond: "reputation", delta: 8), FDEffect(rel: "fans", delta: -8)],
+            ownMove: "sommet"),
         FDLegendStep(
             age: 26, place: "Ligne de but, finale internationale",
             text: "Sa finale de Coupe du monde s'est jouée sur une seule action : une sortie dans les pieds à la 92e minute, à un contre un, alors que son équipe menait 1-0. Il a dit ensuite qu'il n'avait même pas eu le temps d'avoir peur. Tu es exactement dans cette seconde-là.",
@@ -1139,7 +1170,8 @@ let FDLegendPaths: [String: [FDLegendStep]] = [
             followEffects: [FDEffect(attr: .vitesse, delta: 5), FDEffect(cond: "reputation", delta: 6), FDEffect(cond: "fatigue", delta: 8), FDEffect(rel: "famille", delta: -4)],
             ownLabel: "Refuser et t'imposer sur place",
             ownHint: "Tu as refusé les prêts pour t'imposer ici. Tu as gagné trois ans de stabilité, et deux cents matchs de moins dans les jambes.",
-            ownEffects: [FDEffect(rel: "vestiaire", delta: 5), FDEffect(cond: "moral", delta: 5), FDEffect(cond: "reputation", delta: -5)]),
+            ownEffects: [FDEffect(rel: "vestiaire", delta: 5), FDEffect(cond: "moral", delta: 5), FDEffect(cond: "reputation", delta: -5)],
+            followMove: "inferieur"),
         FDLegendStep(
             age: 22, place: "Piste, préparation d'été",
             text: "Toute sa carrière tient sur trente mètres : personne ne l'a jamais repris. À vingt-deux ans, il a refusé de prendre du muscle malgré la demande insistante du staff, pour ne rien perdre de sa vitesse. Le préparateur t'a mis le même programme de masse sur la table ce matin.",
@@ -1157,7 +1189,9 @@ let FDLegendPaths: [String: [FDLegendStep]] = [
             followEffects: [FDEffect(attr: .vitesse, delta: 5), FDEffect(attr: .tir, delta: 4), FDEffect(cond: "reputation", delta: 5), FDEffect(money: -40000)],
             ownLabel: "Choisir le plus grand club",
             ownHint: "Tu es allé au plus grand club. Le blason est superbe, et leur football ne te ressemble pas du tout.",
-            ownEffects: [FDEffect(cond: "reputation", delta: 8), FDEffect(money: 120000), FDEffect(attr: .vitesse, delta: -2)]),
+            ownEffects: [FDEffect(cond: "reputation", delta: 8), FDEffect(money: 120000), FDEffect(attr: .vitesse, delta: -2)],
+            followMove: "modeste",
+            ownMove: "grand"),
         FDLegendStep(
             age: 26, place: "Terrain, quart de finale continentale",
             text: "Sa soirée européenne de légende : un contre lancé de sa propre surface à la 90e minute, quatre-vingt-dix mètres balle au pied, et le but de la qualification. Il a dit qu'il n'avait entendu aucun bruit pendant toute la course. Tu récupères le ballon dans ta surface, à la 90e, à 0-0.",
@@ -1195,7 +1229,8 @@ let FDLegendPaths: [String: [FDLegendStep]] = [
             followEffects: [FDEffect(attr: .passe, delta: 5), FDEffect(attr: .vision, delta: 4), FDEffect(cond: "reputation", delta: -5), FDEffect(cond: "confiance", delta: 5)],
             ownLabel: "Signer tout de suite ailleurs",
             ownHint: "Tu as signé tout de suite. Le club est plus grand, et tu as passé deux ans à regarder les autres jouer.",
-            ownEffects: [FDEffect(cond: "reputation", delta: 6), FDEffect(money: 60000), FDEffect(cond: "confiance", delta: -5)]),
+            ownEffects: [FDEffect(cond: "reputation", delta: 6), FDEffect(money: 60000), FDEffect(cond: "confiance", delta: -5)],
+            ownMove: "grand"),
         FDLegendStep(
             age: 21, place: "Bureau du club",
             text: "À vingt et un ans, Modrez a été transféré dans un championnat étranger et il a passé sa première saison sifflé par son propre public, traité d'erreur de recrutement. Il n'a jamais demandé à partir. Tu vis exactement cette première saison, et ton agent te propose une porte de sortie.",
@@ -1204,7 +1239,8 @@ let FDLegendPaths: [String: [FDLegendStep]] = [
             followEffects: [FDEffect(attr: .determination, delta: 6), FDEffect(cond: "confiance", delta: -4), FDEffect(cond: "reputation", delta: 5), FDEffect(rel: "fans", delta: 6)],
             ownLabel: "Partir ailleurs recommencer",
             ownHint: "Tu es parti ailleurs. Tu as retrouvé de la sérénité, et tu as laissé un échec derrière toi.",
-            ownEffects: [FDEffect(cond: "moral", delta: 6), FDEffect(cond: "confiance", delta: 4), FDEffect(cond: "reputation", delta: -6)]),
+            ownEffects: [FDEffect(cond: "moral", delta: 6), FDEffect(cond: "confiance", delta: 4), FDEffect(cond: "reputation", delta: -6)],
+            ownMove: "modeste"),
         FDLegendStep(
             age: 23, place: "Salle vidéo",
             text: "Ce qui a fait Modrez, c'est une obsession : chaque passe au millimètre, chaque appui à la seconde. À vingt-trois ans, il a demandé à son analyste de mesurer chacune de ses passes pendant une saison entière, et de lui remonter tout ce qui n'était pas parfait. Ton analyste te propose la même torture.",
@@ -1240,7 +1276,8 @@ let FDLegendPaths: [String: [FDLegendStep]] = [
             followEffects: [FDEffect(attr: .determination, delta: 6), FDEffect(cond: "forme", delta: 5), FDEffect(cond: "fatigue", delta: 8)],
             ownLabel: "Exiger un contrat long ou partir",
             ownHint: "Tu as exigé du long. Le club a refusé, tu es parti ailleurs, et l'histoire s'est arrêtée là.",
-            ownEffects: [FDEffect(money: 70000), FDEffect(rel: "president", delta: -6), FDEffect(cond: "reputation", delta: -4)]),
+            ownEffects: [FDEffect(money: 70000), FDEffect(rel: "president", delta: -6), FDEffect(cond: "reputation", delta: -4)],
+            ownMove: "modeste"),
     ],
     "legend_lion_atlas": [
         FDLegendStep(
@@ -1251,7 +1288,8 @@ let FDLegendPaths: [String: [FDLegendStep]] = [
             followEffects: [FDEffect(attr: .determination, delta: 6), FDEffect(cond: "reputation", delta: 5), FDEffect(rel: "famille", delta: -6), FDEffect(cond: "moral", delta: -5)],
             ownLabel: "Rester près des tiens",
             ownHint: "Tu es resté près des tiens. Tu joues, tu es entouré, et l'Europe est restée une idée.",
-            ownEffects: [FDEffect(rel: "famille", delta: 8), FDEffect(cond: "moral", delta: 6), FDEffect(cond: "reputation", delta: -6)]),
+            ownEffects: [FDEffect(rel: "famille", delta: 8), FDEffect(cond: "moral", delta: 6), FDEffect(cond: "reputation", delta: -6)],
+            followMove: "etranger"),
         FDLegendStep(
             age: 22, place: "Centre national",
             text: "À vingt-deux ans, il a choisi de jouer pour le pays de ses parents plutôt que pour celui qui l'avait formé, en sachant que ça lui coûterait des sélections, des primes et une partie du public. Il n'a jamais regretté. Les deux fédérations attendent ta réponse cette semaine.",
@@ -1269,7 +1307,9 @@ let FDLegendPaths: [String: [FDLegendStep]] = [
             followEffects: [FDEffect(cond: "reputation", delta: 8), FDEffect(attr: .determination, delta: 5), FDEffect(cond: "moral", delta: -6), FDEffect(money: 120000)],
             ownLabel: "Choisir un vestiaire familier",
             ownHint: "Tu as choisi le vestiaire où tu es entouré. Tu es bien, tu joues bien, et le plafond est plus bas.",
-            ownEffects: [FDEffect(cond: "moral", delta: 7), FDEffect(rel: "vestiaire", delta: 6), FDEffect(cond: "reputation", delta: -4)]),
+            ownEffects: [FDEffect(cond: "moral", delta: 7), FDEffect(rel: "vestiaire", delta: 6), FDEffect(cond: "reputation", delta: -4)],
+            followMove: "etranger",
+            ownMove: "modeste"),
         FDLegendStep(
             age: 26, place: "Terrain, huitième de finale internationale",
             text: "Le soir qui a fait sa légende : il a porté son pays jusqu'en quart de finale d'une Coupe du monde, en jouant blessé les deux derniers matchs, et tout un continent s'est arrêté de respirer. Ton pays joue ce soir le plus grand match de son histoire, et ta cuisse te lance depuis l'échauffement.",
@@ -1316,7 +1356,8 @@ let FDLegendPaths: [String: [FDLegendStep]] = [
             followEffects: [FDEffect(attr: .leadership, delta: 7), FDEffect(rel: "vestiaire", delta: 9), FDEffect(cond: "reputation", delta: -5), FDEffect(money: -90000)],
             ownLabel: "Partir, tu es trop bon pour ça",
             ownHint: "Tu es parti. C'était logique, et ce vestiaire ne t'a jamais reconnu comme l'un des siens.",
-            ownEffects: [FDEffect(cond: "reputation", delta: 6), FDEffect(money: 130000), FDEffect(rel: "vestiaire", delta: -7)]),
+            ownEffects: [FDEffect(cond: "reputation", delta: 6), FDEffect(money: 130000), FDEffect(rel: "vestiaire", delta: -7)],
+            ownMove: "grand"),
         FDLegendStep(
             age: 24, place: "Terrain d'entraînement",
             text: "À vingt-quatre ans, il a accepté de reculer devant la défense alors qu'il était l'un des meilleurs milieux offensifs du continent, uniquement parce que son équipe n'avait personne à ce poste. Il n'est jamais remonté. La même demande arrive ce matin, et tu es dans la même situation.",
@@ -1363,7 +1404,9 @@ let FDLegendPaths: [String: [FDLegendStep]] = [
             followEffects: [FDEffect(attr: .tir, delta: 5), FDEffect(attr: .force, delta: 4), FDEffect(cond: "fatigue", delta: 8), FDEffect(cond: "reputation", delta: -3)],
             ownLabel: "Signer au grand club, même en rotation",
             ownHint: "Tu as signé au grand club. Tu t'entraînes avec les meilleurs, et tu es quatrième dans la hiérarchie.",
-            ownEffects: [FDEffect(cond: "reputation", delta: 6), FDEffect(attr: .control, delta: 3), FDEffect(cond: "confiance", delta: -4)]),
+            ownEffects: [FDEffect(cond: "reputation", delta: 6), FDEffect(attr: .control, delta: 3), FDEffect(cond: "confiance", delta: -4)],
+            followMove: "modeste",
+            ownMove: "grand"),
         FDLegendStep(
             age: 22, place: "Terrain",
             text: "Aucun défenseur ne voulait l'affronter deux fois : il rendait chaque coup, immédiatement, et l'assumait. À vingt-deux ans, il a été suspendu six matchs pour ça, et il a dit qu'il recommencerait. Tu viens de prendre un coup de coude volontaire, hors du champ de l'arbitre.",
@@ -1381,7 +1424,9 @@ let FDLegendPaths: [String: [FDLegendStep]] = [
             followEffects: [FDEffect(attr: .force, delta: 6), FDEffect(attr: .determination, delta: 5), FDEffect(cond: "fatigue", delta: 9), FDEffect(cond: "reputation", delta: 7)],
             ownLabel: "Choisir un club où tu seras protégé",
             ownHint: "Tu as choisi un club où tu es protégé. Tu joues bien, tranquille, et tu ne sauras jamais ce que tu valais là-bas.",
-            ownEffects: [FDEffect(cond: "moral", delta: 6), FDEffect(cond: "forme", delta: 5), FDEffect(attr: .force, delta: -2)]),
+            ownEffects: [FDEffect(cond: "moral", delta: 6), FDEffect(cond: "forme", delta: 5), FDEffect(attr: .force, delta: -2)],
+            followMove: "grand",
+            ownMove: "modeste"),
         FDLegendStep(
             age: 26, place: "Terrain, finale continentale",
             text: "Sa finale, il l'a jouée contre le meilleur défenseur du monde et il a passé quatre-vingt-dix minutes à le chercher physiquement, jusqu'à le faire sortir sur blessure à la 70e. Il a marqué à la 75e. En face de toi ce soir, il y a exactement ce genre de défenseur.",
@@ -1419,7 +1464,9 @@ let FDLegendPaths: [String: [FDLegendStep]] = [
             followEffects: [FDEffect(attr: .determination, delta: 7), FDEffect(cond: "reputation", delta: 6), FDEffect(rel: "famille", delta: -8), FDEffect(cond: "moral", delta: -5)],
             ownLabel: "Partir en gardant le lien avec les tiens",
             ownHint: "Tu es parti en rentrant chaque trêve. Tu as gardé ta famille, et tu as mis deux ans de plus à t'intégrer.",
-            ownEffects: [FDEffect(rel: "famille", delta: 7), FDEffect(cond: "moral", delta: 5), FDEffect(attr: .determination, delta: -2)]),
+            ownEffects: [FDEffect(rel: "famille", delta: 7), FDEffect(cond: "moral", delta: 5), FDEffect(attr: .determination, delta: -2)],
+            followMove: "etranger",
+            ownMove: "etranger"),
         FDLegendStep(
             age: 22, place: "Salle de réunion",
             text: "Sa rigueur était totale : à vingt-deux ans, il a demandé à son club un planning écrit de chaque journée pour les deux saisons à venir, et il l'a suivi à la lettre. Le staff l'a pris pour un maniaque avant de comprendre. Le tien te regarde bizarrement pendant que tu poses la même question.",
@@ -1437,7 +1484,8 @@ let FDLegendPaths: [String: [FDLegendStep]] = [
             followEffects: [FDEffect(cond: "forme", delta: 6), FDEffect(attr: .control, delta: 4), FDEffect(money: -80000), FDEffect(cond: "reputation", delta: -3)],
             ownLabel: "Rester pour l'image du pays",
             ownHint: "Tu es resté remplaçant dans le grand club, pour l'image. Le maillot est superbe, et tu as joué neuf cents minutes en deux ans.",
-            ownEffects: [FDEffect(cond: "reputation", delta: 6), FDEffect(money: 100000), FDEffect(cond: "confiance", delta: -6)]),
+            ownEffects: [FDEffect(cond: "reputation", delta: 6), FDEffect(money: 100000), FDEffect(cond: "confiance", delta: -6)],
+            followMove: "modeste"),
         FDLegendStep(
             age: 26, place: "Terrain, phase de groupes internationale",
             text: "Le but qui a fait sa légende, il l'a marqué en Coupe du monde d'une frappe de trente mètres qu'il avait travaillée mille fois seul, après les séances, pendant six ans. Il a dit ensuite qu'il l'avait mise exactement là où il visait. Le ballon te revient à trente mètres, ce soir.",
@@ -1464,7 +1512,8 @@ let FDLegendPaths: [String: [FDLegendStep]] = [
             followEffects: [FDEffect(rel: "fans", delta: 9), FDEffect(cond: "moral", delta: 7), FDEffect(money: -180000), FDEffect(cond: "reputation", delta: -4)],
             ownLabel: "Rester au plus haut niveau",
             ownHint: "Tu es resté au plus haut niveau jusqu'au bout. C'est mieux payé, et ton pays a regardé de loin.",
-            ownEffects: [FDEffect(money: 220000), FDEffect(cond: "reputation", delta: 5), FDEffect(rel: "fans", delta: -5)]),
+            ownEffects: [FDEffect(money: 220000), FDEffect(cond: "reputation", delta: 5), FDEffect(rel: "fans", delta: -5)],
+            followMove: "retour"),
     ],
     "legend_aigle_carthage": [
         FDLegendStep(
@@ -1475,7 +1524,8 @@ let FDLegendPaths: [String: [FDLegendStep]] = [
             followEffects: [FDEffect(cond: "reputation", delta: 6), FDEffect(rel: "fans", delta: 8), FDEffect(cond: "confiance", delta: 5), FDEffect(money: -40000)],
             ownLabel: "Partir en Europe maintenant",
             ownHint: "Tu es parti en Europe tout de suite. Le niveau est plus haut, et tu n'as rien gagné nulle part.",
-            ownEffects: [FDEffect(attr: .control, delta: 4), FDEffect(cond: "reputation", delta: 4), FDEffect(rel: "fans", delta: -5)]),
+            ownEffects: [FDEffect(attr: .control, delta: 4), FDEffect(cond: "reputation", delta: 4), FDEffect(rel: "fans", delta: -5)],
+            ownMove: "etranger"),
         FDLegendStep(
             age: 21, place: "Bureau de l'agent",
             text: "À vingt et un ans, Chikhoui a signé en Europe dans un club de milieu de tableau qui lui garantissait de jouer, plutôt que dans un grand club qui le voulait pour le banc. Le pays entier lui a reproché ce choix. Tu as exactement ces deux dossiers, et tout le monde a un avis.",
@@ -1484,7 +1534,9 @@ let FDLegendPaths: [String: [FDLegendStep]] = [
             followEffects: [FDEffect(cond: "forme", delta: 6), FDEffect(attr: .tir, delta: 4), FDEffect(cond: "reputation", delta: -4), FDEffect(cond: "confiance", delta: 5)],
             ownLabel: "Choisir le grand club, même sur le banc",
             ownHint: "Tu as choisi le grand club. Le pays était fier, et tu as passé deux ans à t'échauffer.",
-            ownEffects: [FDEffect(cond: "reputation", delta: 7), FDEffect(rel: "fans", delta: 6), FDEffect(cond: "confiance", delta: -6)]),
+            ownEffects: [FDEffect(cond: "reputation", delta: 7), FDEffect(rel: "fans", delta: 6), FDEffect(cond: "confiance", delta: -6)],
+            followMove: "modeste",
+            ownMove: "grand"),
         FDLegendStep(
             age: 23, place: "Vestiaire, sélection",
             text: "À vingt-trois ans, il a été le seul joueur de son pays à s'imposer dans un grand championnat, et il a passé chaque rassemblement à ramener ce qu'il apprenait au groupe national. Ça lui prenait toutes ses soirées de sélection. Le sélectionneur t'a demandé exactement ça hier soir.",
@@ -1549,7 +1601,8 @@ let FDLegendPaths: [String: [FDLegendStep]] = [
             followEffects: [FDEffect(cond: "reputation", delta: 8), FDEffect(money: 150000), FDEffect(rel: "fans", delta: -10), FDEffect(cond: "confiance", delta: 6)],
             ownLabel: "Refuser par respect pour tes supporters",
             ownHint: "Tu as refusé le rival. Ton virage a chanté ton nom pendant six mois, et tu n'as rien gagné cette année-là.",
-            ownEffects: [FDEffect(rel: "fans", delta: 9), FDEffect(cond: "moral", delta: 5), FDEffect(money: -60000), FDEffect(cond: "reputation", delta: -4)]),
+            ownEffects: [FDEffect(rel: "fans", delta: 9), FDEffect(cond: "moral", delta: 5), FDEffect(money: -60000), FDEffect(cond: "reputation", delta: -4)],
+            followMove: "rival"),
         FDLegendStep(
             age: 25, place: "Terrain, match de championnat",
             text: "Le geste qui a fait sa réputation : à vingt-cinq ans, un contrôle du dos suivi d'une frappe en pivot, dans un match de championnat, expliqué ensuite par une phrase restée célèbre sur le fait qu'il ne s'entraînait pas à ça. Le ballon arrive haut dans ton dos, et le gardien est sorti.",
@@ -1596,7 +1649,8 @@ let FDLegendPaths: [String: [FDLegendStep]] = [
             followEffects: [FDEffect(attr: .vitesse, delta: 5), FDEffect(cond: "confiance", delta: 6), FDEffect(rel: "coach", delta: -8), FDEffect(cond: "reputation", delta: 4)],
             ownLabel: "Apprendre à jouer dos au but",
             ownHint: "Tu as appris à jouer dos au but. Tu es devenu plus complet, et tu ne pars plus jamais en profondeur.",
-            ownEffects: [FDEffect(attr: .control, delta: 5), FDEffect(attr: .force, delta: 3), FDEffect(attr: .vitesse, delta: -2), FDEffect(rel: "coach", delta: 6)]),
+            ownEffects: [FDEffect(attr: .control, delta: 5), FDEffect(attr: .force, delta: 3), FDEffect(attr: .vitesse, delta: -2), FDEffect(rel: "coach", delta: 6)],
+            followMove: "modeste"),
         FDLegendStep(
             age: 24, place: "Bureau de l'agent",
             text: "À vingt-quatre ans, Farias a été transféré pour le montant le plus élevé de l'histoire du football de l'époque, et il a exigé qu'une partie aille à son club formateur. Le club acheteur a refusé, il a insisté trois semaines. Tu as exactement cette possibilité aujourd'hui.",
@@ -1605,7 +1659,9 @@ let FDLegendPaths: [String: [FDLegendStep]] = [
             followEffects: [FDEffect(rel: "fans", delta: 8), FDEffect(cond: "reputation", delta: 5), FDEffect(money: -60000), FDEffect(rel: "president", delta: -4)],
             ownLabel: "Signer sans conditions",
             ownHint: "Tu as signé sans conditions. Le transfert record est passé, et ton club formateur a fermé deux ans plus tard.",
-            ownEffects: [FDEffect(money: 200000), FDEffect(cond: "reputation", delta: 7), FDEffect(rel: "fans", delta: -6)]),
+            ownEffects: [FDEffect(money: 200000), FDEffect(cond: "reputation", delta: 7), FDEffect(rel: "fans", delta: -6)],
+            followMove: "grand",
+            ownMove: "grand"),
         FDLegendStep(
             age: 26, place: "Terrain, finale internationale",
             text: "Sa finale de Coupe du monde est celle de la rédemption : quatre ans plus tôt il avait disparu de la plus grande finale de sa vie sans qu'on sache pourquoi, et il est revenu pour marquer deux fois. Ce soir tu joues la finale que tu as manquée il y a quatre ans, dans les mêmes conditions.",
@@ -1688,7 +1744,9 @@ let FDLegendPaths: [String: [FDLegendStep]] = [
             followEffects: [FDEffect(attr: .leadership, delta: 5), FDEffect(cond: "moral", delta: 6), FDEffect(rel: "vestiaire", delta: 7), FDEffect(cond: "reputation", delta: -3)],
             ownLabel: "Choisir un club qui joue les titres",
             ownHint: "Tu as choisi un club qui joue les titres. Tu es entré dix fois en jeu, et tu as gagné une coupe.",
-            ownEffects: [FDEffect(cond: "reputation", delta: 6), FDEffect(cond: "moral", delta: -4), FDEffect(rel: "vestiaire", delta: -3)]),
+            ownEffects: [FDEffect(cond: "reputation", delta: 6), FDEffect(cond: "moral", delta: -4), FDEffect(rel: "vestiaire", delta: -3)],
+            followMove: "modeste",
+            ownMove: "grand"),
     ],
     "legend_pistolero": [
         FDLegendStep(
@@ -1699,7 +1757,8 @@ let FDLegendPaths: [String: [FDLegendStep]] = [
             followEffects: [FDEffect(attr: .tir, delta: 6), FDEffect(cond: "confiance", delta: 6), FDEffect(cond: "reputation", delta: 5), FDEffect(money: -30000)],
             ownLabel: "Partir en Europe immédiatement",
             ownHint: "Tu es parti tout de suite. Tu as appris le niveau européen à dix-huit ans, et tu as marqué trois buts ta première saison.",
-            ownEffects: [FDEffect(attr: .control, delta: 4), FDEffect(cond: "reputation", delta: 5), FDEffect(cond: "confiance", delta: -4)]),
+            ownEffects: [FDEffect(attr: .control, delta: 4), FDEffect(cond: "reputation", delta: 5), FDEffect(cond: "confiance", delta: -4)],
+            ownMove: "etranger"),
         FDLegendStep(
             age: 22, place: "Zone mixte",
             text: "Son tempérament lui a coûté trois suspensions longues, dont une qui a fait le tour du monde. Après la première, à vingt-deux ans, on lui a demandé de changer. Il a répondu que c'était ce tempérament qui le faisait marquer. Tu sors exactement de la même histoire.",
@@ -1717,7 +1776,8 @@ let FDLegendPaths: [String: [FDLegendStep]] = [
             followEffects: [FDEffect(cond: "reputation", delta: 7), FDEffect(money: 180000), FDEffect(cond: "confiance", delta: 6), FDEffect(rel: "media", delta: -4)],
             ownLabel: "Attendre d'avoir purgé pour négocier",
             ownHint: "Tu as attendu de purger. À ta sortie, le club avait recruté quelqu'un d'autre.",
-            ownEffects: [FDEffect(attr: .sangfroid, delta: 5), FDEffect(rel: "media", delta: 5), FDEffect(cond: "reputation", delta: -5)]),
+            ownEffects: [FDEffect(attr: .sangfroid, delta: 5), FDEffect(rel: "media", delta: 5), FDEffect(cond: "reputation", delta: -5)],
+            followMove: "sommet"),
         FDLegendStep(
             age: 26, place: "Terrain, quart de finale internationale",
             text: "Le moment qui a fait sa légende n'est pas un but : c'est un arrêt de la main sur sa ligne, en quart de finale de Coupe du monde, expulsion assumée, pour sauver son pays. Ils se sont qualifiés. Tu es sur ta ligne, le ballon rentre, et tu as une demi-seconde.",
@@ -1744,7 +1804,8 @@ let FDLegendPaths: [String: [FDLegendStep]] = [
             followEffects: [FDEffect(rel: "famille", delta: 8), FDEffect(rel: "fans", delta: 9), FDEffect(money: -160000), FDEffect(cond: "reputation", delta: -5)],
             ownLabel: "Rester au sommet encore trois ans",
             ownHint: "Tu es resté trois ans de plus au sommet. Tu as tout gagné, et tes enfants connaissent ton stade par la télévision.",
-            ownEffects: [FDEffect(cond: "reputation", delta: 7), FDEffect(money: 200000), FDEffect(rel: "famille", delta: -5)]),
+            ownEffects: [FDEffect(cond: "reputation", delta: 7), FDEffect(money: 200000), FDEffect(rel: "famille", delta: -5)],
+            followMove: "retour"),
     ],
     "legend_pharaon": [
         FDLegendStep(
@@ -1755,7 +1816,9 @@ let FDLegendPaths: [String: [FDLegendStep]] = [
             followEffects: [FDEffect(attr: .determination, delta: 7), FDEffect(cond: "confiance", delta: -5), FDEffect(cond: "reputation", delta: 4), FDEffect(cond: "fatigue", delta: 6)],
             ownLabel: "Rentrer au pays retrouver ton niveau",
             ownHint: "Tu es rentré au pays. Tu as retrouvé ton football et ta confiance, et l'Europe a mis quatre ans à te rappeler.",
-            ownEffects: [FDEffect(cond: "confiance", delta: 7), FDEffect(rel: "fans", delta: 6), FDEffect(cond: "reputation", delta: -6)]),
+            ownEffects: [FDEffect(cond: "confiance", delta: 7), FDEffect(rel: "fans", delta: 6), FDEffect(cond: "reputation", delta: -6)],
+            followMove: "etranger",
+            ownMove: "retour"),
         FDLegendStep(
             age: 21, place: "Bureau du club",
             text: "À vingt et un ans, Salaheddin a accepté un transfert dans un club moyen d'un championnat mineur, après son échec, plutôt que de rentrer au pays. Personne n'a suivi ce transfert. C'est là qu'il a tout reconstruit. Tu as ce choix exact ce matin.",
@@ -1764,7 +1827,9 @@ let FDLegendPaths: [String: [FDLegendStep]] = [
             followEffects: [FDEffect(attr: .tir, delta: 5), FDEffect(cond: "confiance", delta: -4), FDEffect(cond: "reputation", delta: -4), FDEffect(attr: .determination, delta: 5)],
             ownLabel: "Rentrer au pays, où on t'attend",
             ownHint: "Tu es rentré au pays, où on t'attendait. Tu as retrouvé de la confiance, et l'Europe a fermé la porte.",
-            ownEffects: [FDEffect(cond: "confiance", delta: 6), FDEffect(rel: "fans", delta: 7), FDEffect(cond: "reputation", delta: -6)]),
+            ownEffects: [FDEffect(cond: "confiance", delta: 6), FDEffect(rel: "fans", delta: 7), FDEffect(cond: "reputation", delta: -6)],
+            followMove: "inferieur",
+            ownMove: "retour"),
         FDLegendStep(
             age: 23, place: "Terrain d'entraînement",
             text: "Ce qui l'a transformé, c'est une décision technique prise à vingt-trois ans : passer d'ailier droit à intérieur gauche, pour finir toutes ses actions du même pied. Il a passé une saison à réapprendre à se placer. Ton adjoint te propose exactement ce basculement.",
@@ -1829,7 +1894,8 @@ let FDLegendPaths: [String: [FDLegendStep]] = [
             followEffects: [FDEffect(attr: .passe, delta: 6), FDEffect(attr: .vision, delta: 4), FDEffect(money: -220000), FDEffect(rel: "fans", delta: 8)],
             ownLabel: "Prendre le transfert",
             ownHint: "Tu as pris le transfert. Le compte est superbe, et tu as passé deux ans à jouer un football qui n'est pas le tien.",
-            ownEffects: [FDEffect(money: 280000), FDEffect(cond: "reputation", delta: 7), FDEffect(attr: .vision, delta: -3)]),
+            ownEffects: [FDEffect(money: 280000), FDEffect(cond: "reputation", delta: 7), FDEffect(attr: .vision, delta: -3)],
+            ownMove: "grand"),
         FDLegendStep(
             age: 27, place: "Vestiaire, finale internationale",
             text: "Sa finale de Coupe du monde, il l'a jouée en donnant cent quarante-huit passes, dont la dernière, décisive, à la 116e minute. Il a dit ensuite qu'il n'avait jamais douté une seule seconde du plan. Ton équipe est menée, il reste dix minutes, et le vestiaire commence à jouer autre chose que le plan.",
@@ -1856,7 +1922,8 @@ let FDLegendPaths: [String: [FDLegendStep]] = [
             followEffects: [FDEffect(attr: .leadership, delta: 5), FDEffect(money: 180000), FDEffect(cond: "reputation", delta: -7), FDEffect(cond: "moral", delta: 6)],
             ownLabel: "Finir ta carrière au sommet",
             ownHint: "Tu es resté au sommet. Tu as fini par les grandes soirées, et tu n'as transmis à personne.",
-            ownEffects: [FDEffect(cond: "reputation", delta: 6), FDEffect(cond: "fatigue", delta: 7), FDEffect(money: 60000)]),
+            ownEffects: [FDEffect(cond: "reputation", delta: 6), FDEffect(cond: "fatigue", delta: 7), FDEffect(money: 60000)],
+            followMove: "inferieur"),
     ],
     "legend_muraille_verte": [
         FDLegendStep(
@@ -1867,7 +1934,9 @@ let FDLegendPaths: [String: [FDLegendStep]] = [
             followEffects: [FDEffect(attr: .tacle, delta: 5), FDEffect(attr: .placement, delta: 5), FDEffect(cond: "reputation", delta: -4), FDEffect(cond: "confiance", delta: 5)],
             ownLabel: "Signer directement dans un grand club",
             ownHint: "Tu as signé directement dans un grand club. Tu t'entraînes avec les meilleurs, et tu joues les coupes nationales.",
-            ownEffects: [FDEffect(cond: "reputation", delta: 6), FDEffect(attr: .control, delta: 3), FDEffect(cond: "confiance", delta: -4)]),
+            ownEffects: [FDEffect(cond: "reputation", delta: 6), FDEffect(attr: .control, delta: 3), FDEffect(cond: "confiance", delta: -4)],
+            followMove: "modeste",
+            ownMove: "grand"),
         FDLegendStep(
             age: 21, place: "Bureau de l'agent",
             text: "À vingt et un ans, Coulibane a refusé de rejoindre un championnat riche mais faible, en disant qu'un défenseur ne progresse qu'en affrontant de vrais attaquants. Il a signé pour trois fois moins dans un championnat exigeant. Tu as les deux dossiers ce matin.",
@@ -1876,7 +1945,9 @@ let FDLegendPaths: [String: [FDLegendStep]] = [
             followEffects: [FDEffect(attr: .tacle, delta: 5), FDEffect(attr: .placement, delta: 5), FDEffect(money: -120000), FDEffect(cond: "reputation", delta: 5)],
             ownLabel: "Choisir le championnat le plus riche",
             ownHint: "Tu as choisi le championnat riche. Le compte est excellent, et tu défends contre personne.",
-            ownEffects: [FDEffect(money: 250000), FDEffect(cond: "forme", delta: 4), FDEffect(attr: .tacle, delta: -2)]),
+            ownEffects: [FDEffect(money: 250000), FDEffect(cond: "forme", delta: 4), FDEffect(attr: .tacle, delta: -2)],
+            followMove: "etranger",
+            ownMove: "grand"),
         FDLegendStep(
             age: 23, place: "Terrain d'entraînement",
             text: "Sa réputation est venue d'une décision : à vingt-trois ans, il a demandé à affronter le meilleur attaquant de son club à chaque opposition, tous les jours, pendant deux saisons. Ils sont devenus inséparables. Ton coach te laisse choisir ton adversaire d'entraînement pour l'année.",
@@ -1932,7 +2003,8 @@ let FDLegendPaths: [String: [FDLegendStep]] = [
             followEffects: [FDEffect(cond: "moral", delta: 7), FDEffect(rel: "famille", delta: 8), FDEffect(cond: "reputation", delta: -8), FDEffect(rel: "president", delta: -7)],
             ownLabel: "T'accrocher malgré tout",
             ownHint: "Tu t'es accroché. Tu as fini la saison, mal, et tu as mis trois ans à jouer ton football.",
-            ownEffects: [FDEffect(attr: .determination, delta: 5), FDEffect(cond: "moral", delta: -6), FDEffect(cond: "reputation", delta: 4)]),
+            ownEffects: [FDEffect(attr: .determination, delta: 5), FDEffect(cond: "moral", delta: -6), FDEffect(cond: "reputation", delta: 4)],
+            followMove: "retour"),
         FDLegendStep(
             age: 23, place: "Vestiaire",
             text: "À vingt-trois ans, il a raté trois entraînements en un mois et le club a voulu le mettre à l'amende. Il a proposé de payer double à condition qu'on lui laisse la paix. Le président a accepté. Le tien te convoque ce matin avec la même amende sur la table.",
@@ -1988,7 +2060,8 @@ let FDLegendPaths: [String: [FDLegendStep]] = [
             followEffects: [FDEffect(rel: "famille", delta: 9), FDEffect(cond: "moral", delta: 5), FDEffect(cond: "reputation", delta: -7), FDEffect(money: -150000)],
             ownLabel: "Partir, ta carrière ne se refera pas",
             ownHint: "Tu es parti. Le transfert record est passé, et il y a des semaines où tu n'as pas pu rentrer.",
-            ownEffects: [FDEffect(money: 250000), FDEffect(cond: "reputation", delta: 8), FDEffect(rel: "famille", delta: -7)]),
+            ownEffects: [FDEffect(money: 250000), FDEffect(cond: "reputation", delta: 8), FDEffect(rel: "famille", delta: -7)],
+            ownMove: "grand"),
         FDLegendStep(
             age: 24, place: "Bureau de l'agent",
             text: "À vingt-quatre ans, Bochino a signé dans le club le plus modeste de sa carrière, à contre-courant total, parce que le coach lui a promis de construire l'équipe autour de lui. Ils ont fini champions. Un club moyen te fait exactement cette promesse ce matin.",
@@ -1997,7 +2070,9 @@ let FDLegendPaths: [String: [FDLegendStep]] = [
             followEffects: [FDEffect(attr: .vision, delta: 5), FDEffect(attr: .dribble, delta: 4), FDEffect(cond: "reputation", delta: 6), FDEffect(money: -60000)],
             ownLabel: "Signer dans un club installé",
             ownHint: "Tu as signé dans un club installé, où tu es un joueur parmi d'autres. C'est plus sûr, et personne ne construira jamais rien autour de toi.",
-            ownEffects: [FDEffect(money: 110000), FDEffect(cond: "forme", delta: 4), FDEffect(cond: "confiance", delta: -3)]),
+            ownEffects: [FDEffect(money: 110000), FDEffect(cond: "forme", delta: 4), FDEffect(cond: "confiance", delta: -3)],
+            followMove: "modeste",
+            ownMove: "grand"),
         FDLegendStep(
             age: 26, place: "Terrain, quart de finale internationale",
             text: "Le match qui l'a fait entrer dans l'histoire : deux buts en quart de finale de Coupe du monde, dont un après avoir traversé la moitié du terrain seul. Il a dit qu'à partir du troisième défenseur, il ne réfléchissait plus. Tu récupères le ballon dans ton camp, et le terrain s'ouvre.",
@@ -2044,7 +2119,9 @@ let FDLegendPaths: [String: [FDLegendStep]] = [
             followEffects: [FDEffect(attr: .tir, delta: 6), FDEffect(cond: "confiance", delta: 6), FDEffect(cond: "reputation", delta: 5), FDEffect(money: -50000)],
             ownLabel: "Signer directement chez un géant",
             ownHint: "Tu as signé chez un géant tout de suite. Tu t'entraînes avec les meilleurs, et tu marques en coupe nationale.",
-            ownEffects: [FDEffect(cond: "reputation", delta: 7), FDEffect(money: 120000), FDEffect(cond: "confiance", delta: -4)]),
+            ownEffects: [FDEffect(cond: "reputation", delta: 7), FDEffect(money: 120000), FDEffect(cond: "confiance", delta: -4)],
+            followMove: "modeste",
+            ownMove: "sommet"),
         FDLegendStep(
             age: 21, place: "Salle vidéo",
             text: "Son sang-froid vient d'un protocole précis : depuis ses vingt et un ans, il revoit chacune de ses occasions manquées le soir même, seul, sans exception. Il dit que c'est comme ça qu'il n'y pense plus jamais sur le terrain. L'analyste te propose de mettre ça en place ce soir.",
@@ -2091,7 +2168,8 @@ let FDLegendPaths: [String: [FDLegendStep]] = [
             followEffects: [FDEffect(rel: "fans", delta: 10), FDEffect(cond: "confiance", delta: 6), FDEffect(cond: "reputation", delta: -5), FDEffect(money: -80000)],
             ownLabel: "Partir en Europe maintenant",
             ownHint: "Tu es parti en Europe à dix-huit ans. Tu as appris plus vite, et la ville n'a jamais compris ton départ.",
-            ownEffects: [FDEffect(attr: .control, delta: 4), FDEffect(cond: "reputation", delta: 6), FDEffect(rel: "fans", delta: -8)]),
+            ownEffects: [FDEffect(attr: .control, delta: 4), FDEffect(cond: "reputation", delta: 6), FDEffect(rel: "fans", delta: -8)],
+            ownMove: "etranger"),
         FDLegendStep(
             age: 22, place: "Surface adverse",
             text: "Sa marque de fabrique : il fondait sur les défenses dès que le ballon était en l'air, et il a passé sa jeunesse à travailler uniquement le jeu de tête, une heure par jour, jusqu'à devenir imbattable dedans. Ton adjoint te propose cette heure quotidienne, et c'est ingrat.",
@@ -2109,7 +2187,8 @@ let FDLegendPaths: [String: [FDLegendStep]] = [
             followEffects: [FDEffect(attr: .determination, delta: 6), FDEffect(attr: .tir, delta: 5), FDEffect(cond: "confiance", delta: -4), FDEffect(cond: "reputation", delta: 5)],
             ownLabel: "Rentrer au pays où tu marques",
             ownHint: "Tu es rentré au pays où tu marques. La presse s'est calmée, et l'Europe est restée une parenthèse ratée.",
-            ownEffects: [FDEffect(cond: "confiance", delta: 7), FDEffect(rel: "fans", delta: 6), FDEffect(cond: "reputation", delta: -6)]),
+            ownEffects: [FDEffect(cond: "confiance", delta: 7), FDEffect(rel: "fans", delta: 6), FDEffect(cond: "reputation", delta: -6)],
+            ownMove: "retour"),
         FDLegendStep(
             age: 27, place: "Terrain, phase finale internationale",
             text: "Son but le plus célèbre a été marqué à la onzième seconde d'un match de Coupe du monde, sur un pressing que personne n'attendait à ce moment-là. Il avait remarqué la veille que leur défenseur central relançait toujours à l'aveugle. Tu as remarqué exactement la même chose hier.",
@@ -2147,7 +2226,8 @@ let FDLegendPaths: [String: [FDLegendStep]] = [
             followEffects: [FDEffect(attr: .control, delta: 5), FDEffect(attr: .determination, delta: 5), FDEffect(cond: "moral", delta: -5), FDEffect(cond: "reputation", delta: 4)],
             ownLabel: "Rentrer jouer titulaire chez toi",
             ownHint: "Tu es rentré jouer titulaire chez toi. Tu as joué chaque semaine, entouré des tiens, dans un championnat que personne ne regarde.",
-            ownEffects: [FDEffect(cond: "confiance", delta: 6), FDEffect(rel: "famille", delta: 7), FDEffect(cond: "reputation", delta: -6)]),
+            ownEffects: [FDEffect(cond: "confiance", delta: 6), FDEffect(rel: "famille", delta: 7), FDEffect(cond: "reputation", delta: -6)],
+            ownMove: "retour"),
         FDLegendStep(
             age: 22, place: "Terrain d'entraînement",
             text: "Son père, ancien joueur, lui a imposé une routine de mille frappes des deux pieds par semaine, depuis l'enfance et jusqu'à la fin. Il ne l'a jamais interrompue, même en pleine saison. On te propose exactement cette discipline, et elle prend une heure et demie de plus chaque jour.",
@@ -2165,7 +2245,8 @@ let FDLegendPaths: [String: [FDLegendStep]] = [
             followEffects: [FDEffect(rel: "fans", delta: 9), FDEffect(rel: "president", delta: 7), FDEffect(money: -180000), FDEffect(cond: "moral", delta: 6)],
             ownLabel: "Partir pour le club plus riche",
             ownHint: "Tu es parti pour le club plus riche. Le contrat est superbe, et ceux qui t'avaient fait confiance ont trouvé ça rapide.",
-            ownEffects: [FDEffect(money: 240000), FDEffect(cond: "reputation", delta: 6), FDEffect(rel: "fans", delta: -7)]),
+            ownEffects: [FDEffect(money: 240000), FDEffect(cond: "reputation", delta: 6), FDEffect(rel: "fans", delta: -7)],
+            ownMove: "grand"),
         FDLegendStep(
             age: 26, place: "Terrain, quart de finale continentale",
             text: "Sa course de légende : soixante-dix mètres balle au pied en quart de finale européen, en éliminant cinq joueurs, à la 88e minute d'un match perdu 2-0. Le but n'a servi à rien au classement, et c'est celui qu'on montre encore. Tu récupères le ballon dans ton camp, à 2-0, à la 88e.",
@@ -2212,7 +2293,8 @@ let FDLegendPaths: [String: [FDLegendStep]] = [
             followEffects: [FDEffect(cond: "confiance", delta: 7), FDEffect(attr: .control, delta: 4), FDEffect(cond: "reputation", delta: -6), FDEffect(money: -80000)],
             ownLabel: "Partir en Europe et rentrer dans le rang",
             ownHint: "Tu es parti en Europe et tu es rentré dans le rang. Tu gardes ta surface, correctement, et tu ne t'amuses plus jamais.",
-            ownEffects: [FDEffect(cond: "reputation", delta: 7), FDEffect(money: 130000), FDEffect(cond: "confiance", delta: -5)]),
+            ownEffects: [FDEffect(cond: "reputation", delta: 7), FDEffect(money: 130000), FDEffect(cond: "confiance", delta: -5)],
+            ownMove: "etranger"),
         FDLegendStep(
             age: 23, place: "Surface de réparation",
             text: "Il jouait comme un libéro devant sa surface, quarante mètres devant sa ligne, et ça lui a coûté trois buts ridicules qui ont fait le tour du monde. Il n'a jamais changé. Ton coach te met devant la vidéo d'un but encaissé à cause de ça, et il attend un engagement.",
@@ -2268,7 +2350,8 @@ let FDLegendPaths: [String: [FDLegendStep]] = [
             followEffects: [FDEffect(rel: "fans", delta: 8), FDEffect(cond: "confiance", delta: 6), FDEffect(cond: "reputation", delta: -5), FDEffect(money: -70000)],
             ownLabel: "Partir en Europe maintenant",
             ownHint: "Tu es parti en Europe tout de suite. Le niveau est plus haut, et personne là-bas ne comprend ce que tu essaies de faire.",
-            ownEffects: [FDEffect(cond: "reputation", delta: 7), FDEffect(money: 120000), FDEffect(cond: "confiance", delta: -4)]),
+            ownEffects: [FDEffect(cond: "reputation", delta: 7), FDEffect(money: 120000), FDEffect(cond: "confiance", delta: -4)],
+            ownMove: "etranger"),
         FDLegendStep(
             age: 23, place: "Bureau du coach",
             text: "À vingt-trois ans, on lui a interdit ses gestes en match, sous peine de banc. Il en a fait un le week-end suivant, il a marqué, et il est resté sur le banc trois semaines quand même. Ton coach vient de te faire exactement la même annonce ce matin.",
@@ -2315,7 +2398,8 @@ let FDLegendPaths: [String: [FDLegendStep]] = [
             followEffects: [FDEffect(attr: .determination, delta: 7), FDEffect(cond: "reputation", delta: 5), FDEffect(rel: "famille", delta: -7), FDEffect(cond: "moral", delta: -5)],
             ownLabel: "Rester avec les tiens",
             ownHint: "Tu es resté avec les tiens, dans un championnat à l'arrêt. Tu as bien fait pour eux, et tu as perdu quatre ans de carrière.",
-            ownEffects: [FDEffect(rel: "famille", delta: 9), FDEffect(cond: "moral", delta: 6), FDEffect(cond: "reputation", delta: -8)]),
+            ownEffects: [FDEffect(rel: "famille", delta: 9), FDEffect(cond: "moral", delta: 6), FDEffect(cond: "reputation", delta: -8)],
+            followMove: "etranger"),
         FDLegendStep(
             age: 21, place: "Bureau du club",
             text: "À vingt et un ans, Sukar a changé de club trois fois en deux ans, à chaque fois pour un championnat plus dur, en acceptant d'être remplaçant au début à chaque fois. Il disait qu'on progresse en montant, pas en régnant. Tu as le choix entre régner ici ou repartir de zéro plus haut.",
@@ -2324,7 +2408,8 @@ let FDLegendPaths: [String: [FDLegendStep]] = [
             followEffects: [FDEffect(attr: .tir, delta: 5), FDEffect(attr: .determination, delta: 5), FDEffect(cond: "confiance", delta: -4), FDEffect(cond: "reputation", delta: 6)],
             ownLabel: "Rester régner où tu es",
             ownHint: "Tu es resté régner là où tu es. Tu marques tout, tu es aimé, et tu n'as jamais franchi de palier.",
-            ownEffects: [FDEffect(cond: "confiance", delta: 7), FDEffect(rel: "fans", delta: 7), FDEffect(cond: "reputation", delta: -4)]),
+            ownEffects: [FDEffect(cond: "confiance", delta: 7), FDEffect(rel: "fans", delta: 7), FDEffect(cond: "reputation", delta: -4)],
+            followMove: "grand"),
         FDLegendStep(
             age: 23, place: "Surface adverse",
             text: "C'était un buteur né et il a toujours refusé de reculer pour toucher plus de ballons, même quand on le lui a demandé pour équilibrer l'équipe. Il disait que son travail commençait dans les seize mètres. Ton coach vient de te demander de décrocher pour aider le milieu.",
@@ -2380,7 +2465,9 @@ let FDLegendPaths: [String: [FDLegendStep]] = [
             followEffects: [FDEffect(rel: "coach", delta: 9), FDEffect(attr: .vision, delta: 5), FDEffect(money: -140000), FDEffect(cond: "reputation", delta: -3)],
             ownLabel: "Signer dans le grand club",
             ownHint: "Tu as signé dans le grand club. Le nouveau coach t'a mis à un poste fixe, et tu n'en es plus jamais sorti.",
-            ownEffects: [FDEffect(money: 180000), FDEffect(cond: "reputation", delta: 7), FDEffect(attr: .vision, delta: -3)]),
+            ownEffects: [FDEffect(money: 180000), FDEffect(cond: "reputation", delta: 7), FDEffect(attr: .vision, delta: -3)],
+            followMove: "modeste",
+            ownMove: "grand"),
         FDLegendStep(
             age: 23, place: "Vestiaire",
             text: "À vingt-trois ans, il a été le premier à réclamer publiquement une prime d'équipe identique pour tous les joueurs, titulaires ou pas. Le vestiaire l'a suivi, la direction l'a détesté. Ton vestiaire vote exactement ce sujet ce matin, et on te demande de parler en premier.",
@@ -2445,7 +2532,8 @@ let FDLegendPaths: [String: [FDLegendStep]] = [
             followEffects: [FDEffect(rel: "fans", delta: 10), FDEffect(rel: "president", delta: 9), FDEffect(cond: "reputation", delta: -6), FDEffect(money: -120000)],
             ownLabel: "Partir, tu es au sommet",
             ownHint: "Tu es parti, librement, au sommet. C'était ton droit le plus strict, et la ville a mis dix ans à en reparler autrement.",
-            ownEffects: [FDEffect(cond: "reputation", delta: 7), FDEffect(money: 180000), FDEffect(rel: "fans", delta: -9)]),
+            ownEffects: [FDEffect(cond: "reputation", delta: 7), FDEffect(money: 180000), FDEffect(rel: "fans", delta: -9)],
+            ownMove: "grand"),
         FDLegendStep(
             age: 25, place: "Ligne de but, finale continentale",
             text: "Sa parade la plus célèbre : à vingt-cinq ans, en finale européenne, une double parade dont la deuxième sur sa ligne, à genoux, sur une reprise à trois mètres. Il a dit qu'il n'avait pas bougé, que le ballon était venu à lui. Tu es à genoux, le ballon revient sur le buteur.",
@@ -2472,7 +2560,8 @@ let FDLegendPaths: [String: [FDLegendStep]] = [
             followEffects: [FDEffect(rel: "vestiaire", delta: 8), FDEffect(rel: "coach", delta: 6), FDEffect(cond: "moral", delta: -5), FDEffect(cond: "reputation", delta: -4)],
             ownLabel: "Partir être titulaire ailleurs",
             ownHint: "Tu es parti être titulaire ailleurs. Tu as joué chaque semaine, loin de ceux qui t'ont vu grandir.",
-            ownEffects: [FDEffect(cond: "confiance", delta: 6), FDEffect(cond: "forme", delta: 5), FDEffect(rel: "fans", delta: -6)]),
+            ownEffects: [FDEffect(cond: "confiance", delta: 6), FDEffect(cond: "forme", delta: 5), FDEffect(rel: "fans", delta: -6)],
+            ownMove: "modeste"),
     ],
     "legend_rei_do_gol": [
         FDLegendStep(
@@ -2483,7 +2572,8 @@ let FDLegendPaths: [String: [FDLegendStep]] = [
             followEffects: [FDEffect(rel: "fans", delta: 10), FDEffect(cond: "moral", delta: 7), FDEffect(money: -70000), FDEffect(cond: "reputation", delta: -4)],
             ownLabel: "Signer dans un grand club de la capitale",
             ownHint: "Tu as signé dans la capitale. Le niveau est plus haut, la ville plus grande, et ta rue a suivi ça à la radio.",
-            ownEffects: [FDEffect(cond: "reputation", delta: 7), FDEffect(money: 90000), FDEffect(rel: "fans", delta: -6)]),
+            ownEffects: [FDEffect(cond: "reputation", delta: 7), FDEffect(money: 90000), FDEffect(rel: "fans", delta: -6)],
+            ownMove: "grand"),
         FDLegendStep(
             age: 22, place: "Terrain d'entraînement",
             text: "Sa manière de dribbler était unique et son coach a voulu la rationaliser pour la rendre plus efficace. Il a refusé net, en disant qu'il jouait comme il respirait. Le coach a cédé. Le tien vient de te demander exactement de rationaliser ce que tu fais d'instinct.",
@@ -2501,7 +2591,8 @@ let FDLegendPaths: [String: [FDLegendStep]] = [
             followEffects: [FDEffect(rel: "fans", delta: 11), FDEffect(cond: "moral", delta: 7), FDEffect(money: -260000)],
             ownLabel: "Accepter et traverser",
             ownHint: "Tu as traversé la rue. Le contrat est historique, et ton ancien quartier a effacé ton nom des murs.",
-            ownEffects: [FDEffect(money: 340000), FDEffect(cond: "reputation", delta: 7), FDEffect(rel: "fans", delta: -12)]),
+            ownEffects: [FDEffect(money: 340000), FDEffect(cond: "reputation", delta: 7), FDEffect(rel: "fans", delta: -12)],
+            ownMove: "rival"),
         FDLegendStep(
             age: 26, place: "Terrain, finale internationale",
             text: "Sa Coupe du monde reste la référence absolue : il a joué la finale à vingt-six ans avec une cheville deux fois plus grosse que l'autre, et il a fait la différence sur une action que personne n'a jamais su expliquer. Ta cheville est dans cet état, et la finale est ce soir.",
@@ -2528,7 +2619,8 @@ let FDLegendPaths: [String: [FDLegendStep]] = [
             followEffects: [FDEffect(cond: "moral", delta: 7), FDEffect(rel: "fans", delta: 9), FDEffect(money: -350000), FDEffect(rel: "famille", delta: -6)],
             ownLabel: "Prendre le contrat et partir",
             ownHint: "Tu as pris le contrat historique. Ta famille est à l'abri définitivement, et tu as passé quatre ans à te demander qui tu étais là-bas.",
-            ownEffects: [FDEffect(money: 500000), FDEffect(cond: "reputation", delta: 6), FDEffect(cond: "moral", delta: -5)]),
+            ownEffects: [FDEffect(money: 500000), FDEffect(cond: "reputation", delta: 6), FDEffect(cond: "moral", delta: -5)],
+            ownMove: "etranger"),
     ],
     "legend_ombre_dor": [
         FDLegendStep(
@@ -2548,7 +2640,9 @@ let FDLegendPaths: [String: [FDLegendStep]] = [
             followEffects: [FDEffect(attr: .control, delta: 5), FDEffect(attr: .determination, delta: 5), FDEffect(cond: "confiance", delta: -4), FDEffect(cond: "reputation", delta: 6)],
             ownLabel: "Prendre la place immédiate chez toi",
             ownHint: "Tu as pris la place immédiate chez toi. Tu joues tout de suite, et tu n'as jamais eu à te battre pour rien.",
-            ownEffects: [FDEffect(cond: "confiance", delta: 6), FDEffect(cond: "forme", delta: 5), FDEffect(cond: "reputation", delta: -5)]),
+            ownEffects: [FDEffect(cond: "confiance", delta: 6), FDEffect(cond: "forme", delta: 5), FDEffect(cond: "reputation", delta: -5)],
+            followMove: "grand",
+            ownMove: "retour"),
         FDLegendStep(
             age: 23, place: "Bureau de l'agent",
             text: "À vingt-trois ans, il a signé chez le rival le plus détesté de son club, pour un montant record, et il a passé le reste de sa carrière à recevoir des objets sur la tête à chaque déplacement. Il n'a jamais dit qu'il regrettait. Cette offre du rival est sur ta table ce matin.",
@@ -2557,7 +2651,8 @@ let FDLegendPaths: [String: [FDLegendStep]] = [
             followEffects: [FDEffect(money: 300000), FDEffect(cond: "reputation", delta: 8), FDEffect(rel: "fans", delta: -12), FDEffect(cond: "confiance", delta: 5)],
             ownLabel: "Refuser par respect pour ton club",
             ownHint: "Tu as refusé le rival. Ton virage t'a porté aux nues pendant deux ans, et tu as laissé passer le plus gros contrat de ta vie.",
-            ownEffects: [FDEffect(rel: "fans", delta: 10), FDEffect(cond: "moral", delta: 6), FDEffect(money: -100000)]),
+            ownEffects: [FDEffect(rel: "fans", delta: 10), FDEffect(cond: "moral", delta: 6), FDEffect(money: -100000)],
+            followMove: "rival"),
         FDLegendStep(
             age: 27, place: "Terrain, finale continentale",
             text: "Sa finale européenne s'est jouée sur une passe décisive donnée à la 118e minute, alors qu'il aurait pu frapper lui-même et devenir le héros. Il a dit après qu'il avait vu le meilleur choix et rien d'autre. Tu es exactement dans cette situation, à cette minute-là.",
@@ -2595,7 +2690,8 @@ let FDLegendPaths: [String: [FDLegendStep]] = [
             followEffects: [FDEffect(attr: .dribble, delta: 6), FDEffect(attr: .control, delta: 5), FDEffect(rel: "famille", delta: -6), FDEffect(cond: "moral", delta: -5)],
             ownLabel: "Rentrer chez toi",
             ownHint: "Tu es rentré chez toi. Tu as retrouvé les tiens, et le club a déchiré la serviette.",
-            ownEffects: [FDEffect(rel: "famille", delta: 9), FDEffect(cond: "moral", delta: 7), FDEffect(cond: "reputation", delta: -7)]),
+            ownEffects: [FDEffect(rel: "famille", delta: 9), FDEffect(cond: "moral", delta: 7), FDEffect(cond: "reputation", delta: -7)],
+            ownMove: "retour"),
         FDLegendStep(
             age: 20, place: "Bureau du club",
             text: "À vingt ans, Messini a signé son premier grand contrat en refusant toutes les clauses de départ, s'attachant au club pour dix ans. On lui a dit qu'il se privait de toute possibilité de partir. Il n'a jamais voulu partir. Le même contrat est devant toi, sans aucune porte de sortie.",
@@ -2660,7 +2756,8 @@ let FDLegendPaths: [String: [FDLegendStep]] = [
             followEffects: [FDEffect(rel: "vestiaire", delta: 8), FDEffect(rel: "president", delta: 7), FDEffect(money: -150000), FDEffect(attr: .leadership, delta: 4)],
             ownLabel: "Partir tenter l'étranger",
             ownHint: "Tu es parti tenter l'étranger. Tu as découvert autre chose, et ton club a mis six ans à se relever.",
-            ownEffects: [FDEffect(cond: "reputation", delta: 8), FDEffect(money: 190000), FDEffect(rel: "vestiaire", delta: -6)]),
+            ownEffects: [FDEffect(cond: "reputation", delta: 8), FDEffect(money: 190000), FDEffect(rel: "vestiaire", delta: -6)],
+            ownMove: "etranger"),
         FDLegendStep(
             age: 23, place: "Vestiaire",
             text: "À vingt-trois ans, il a pris le brassard de son club et de sa sélection la même année, dans deux vestiaires pleins de joueurs plus âgés que lui. Il ne les a jamais rendus. On te propose exactement ces deux brassards, à quinze jours d'intervalle.",
@@ -2696,7 +2793,8 @@ let FDLegendPaths: [String: [FDLegendStep]] = [
             followEffects: [FDEffect(money: 250000), FDEffect(cond: "moral", delta: 7), FDEffect(cond: "reputation", delta: -6), FDEffect(rel: "fans", delta: 6)],
             ownLabel: "Finir en Europe, au niveau",
             ownHint: "Tu as fini en Europe, au niveau. Deux saisons correctes, et rien de plus à raconter.",
-            ownEffects: [FDEffect(cond: "reputation", delta: 5), FDEffect(cond: "fatigue", delta: 6), FDEffect(money: 80000)]),
+            ownEffects: [FDEffect(cond: "reputation", delta: 5), FDEffect(cond: "fatigue", delta: 6), FDEffect(money: 80000)],
+            followMove: "inferieur"),
     ],
     "legend_hollandais": [
         FDLegendStep(
@@ -2716,7 +2814,9 @@ let FDLegendPaths: [String: [FDLegendStep]] = [
             followEffects: [FDEffect(cond: "confiance", delta: 7), FDEffect(cond: "reputation", delta: 6), FDEffect(rel: "president", delta: -8), FDEffect(rel: "agent", delta: -4)],
             ownLabel: "Accepter le transfert négocié",
             ownHint: "Tu as accepté le transfert négocié pour toi. Tout s'est fait vite, et personne ne t'a demandé ton avis.",
-            ownEffects: [FDEffect(money: 120000), FDEffect(rel: "president", delta: 6), FDEffect(cond: "confiance", delta: -4)]),
+            ownEffects: [FDEffect(money: 120000), FDEffect(rel: "president", delta: 6), FDEffect(cond: "confiance", delta: -4)],
+            followMove: "grand",
+            ownMove: "etranger"),
         FDLegendStep(
             age: 23, place: "Terrain d'entraînement",
             text: "Le football total, c'était une idée avant d'être un système : que chaque joueur puisse occuper la place de n'importe quel autre. À vingt-trois ans, il a convaincu tout un vestiaire de s'entraîner à des postes qui n'étaient pas les leurs. Ton vestiaire trouve l'idée absurde.",
@@ -2763,7 +2863,8 @@ let FDLegendPaths: [String: [FDLegendStep]] = [
             followEffects: [FDEffect(attr: .vitesse, delta: 6), FDEffect(attr: .dribble, delta: 5), FDEffect(cond: "reputation", delta: 8), FDEffect(cond: "fatigue", delta: 9)],
             ownLabel: "Attendre un an de plus",
             ownHint: "Tu as attendu un an de plus, protégé. Tu es parti plus solide, et un an plus tard que lui.",
-            ownEffects: [FDEffect(cond: "forme", delta: 7), FDEffect(attr: .force, delta: 4), FDEffect(cond: "reputation", delta: -4)]),
+            ownEffects: [FDEffect(cond: "forme", delta: 7), FDEffect(attr: .force, delta: 4), FDEffect(cond: "reputation", delta: -4)],
+            followMove: "etranger"),
         FDLegendStep(
             age: 19, place: "Bureau du club",
             text: "À dix-neuf ans, Nazaro a été transféré deux fois en deux ans, à chaque fois pour un record du monde, dans deux championnats différents. Personne n'avait jamais fait ça. Son entourage voulait qu'il se pose. Tu as exactement ce deuxième transfert record sur la table, un an après le premier.",
@@ -2772,7 +2873,8 @@ let FDLegendPaths: [String: [FDLegendStep]] = [
             followEffects: [FDEffect(cond: "reputation", delta: 10), FDEffect(money: 250000), FDEffect(cond: "fatigue", delta: 10), FDEffect(rel: "vestiaire", delta: -4)],
             ownLabel: "Rester te poser une saison",
             ownHint: "Tu es resté te poser une saison. Le record est passé, et ton corps t'a dit merci.",
-            ownEffects: [FDEffect(cond: "forme", delta: 8), FDEffect(rel: "vestiaire", delta: 6), FDEffect(cond: "reputation", delta: -5)]),
+            ownEffects: [FDEffect(cond: "forme", delta: 8), FDEffect(rel: "vestiaire", delta: 6), FDEffect(cond: "reputation", delta: -5)],
+            followMove: "grand"),
         FDLegendStep(
             age: 21, place: "Cabinet médical",
             text: "À vingt et un ans, ses genoux ont donné les premiers signes et on lui a conseillé de lever le pied une saison entière. Il a refusé : il était au sommet et il ne voulait pas s'arrêter. Les ruptures sont arrivées deux ans plus tard. Ton médecin te tient exactement ce discours.",
@@ -2819,7 +2921,9 @@ let FDLegendPaths: [String: [FDLegendStep]] = [
             followEffects: [FDEffect(attr: .vision, delta: 5), FDEffect(attr: .passe, delta: 5), FDEffect(cond: "confiance", delta: 5), FDEffect(cond: "reputation", delta: -4)],
             ownLabel: "Signer dans un grand club",
             ownHint: "Tu as signé dans un grand club. Tu t'entraînes avec les meilleurs, et tu joues quand ils sont fatigués.",
-            ownEffects: [FDEffect(cond: "reputation", delta: 7), FDEffect(attr: .control, delta: 3), FDEffect(cond: "confiance", delta: -4)]),
+            ownEffects: [FDEffect(cond: "reputation", delta: 7), FDEffect(attr: .control, delta: 3), FDEffect(cond: "confiance", delta: -4)],
+            followMove: "modeste",
+            ownMove: "grand"),
         FDLegendStep(
             age: 21, place: "Bureau du club",
             text: "À vingt et un ans, Zidal a été transféré à l'étranger dans un club où on lui a demandé de jouer à un poste plus reculé, ce qu'il détestait. Il a accepté deux saisons avant de retrouver sa place. Ton transfert est signé, et le coach t'annonce le même déplacement.",
@@ -2893,7 +2997,8 @@ let FDLegendPaths: [String: [FDLegendStep]] = [
             followEffects: [FDEffect(rel: "fans", delta: 11), FDEffect(rel: "president", delta: 8), FDEffect(cond: "reputation", delta: -4), FDEffect(money: -200000)],
             ownLabel: "Te battre pour partir",
             ownHint: "Tu t'es battu pour partir, contre ton club et ta fédération. Tu as gagné, et tu es parti en laissant un pays en colère.",
-            ownEffects: [FDEffect(cond: "reputation", delta: 8), FDEffect(money: 300000), FDEffect(rel: "fans", delta: -9), FDEffect(rel: "president", delta: -8)]),
+            ownEffects: [FDEffect(cond: "reputation", delta: 8), FDEffect(money: 300000), FDEffect(rel: "fans", delta: -9), FDEffect(rel: "president", delta: -8)],
+            ownMove: "etranger"),
         FDLegendStep(
             age: 24, place: "Terrain, match de championnat",
             text: "Le geste inexplicable : à vingt-quatre ans, il a arrêté sa course seul devant le but pour attendre un défenseur, l'éliminer, et marquer ensuite. Il a dit qu'il voulait voir s'il pouvait. Tu es seul face au but, et le défenseur revient à trois mètres derrière toi.",
@@ -2931,7 +3036,8 @@ let FDLegendPaths: [String: [FDLegendStep]] = [
             followEffects: [FDEffect(rel: "fans", delta: 11), FDEffect(cond: "moral", delta: 7), FDEffect(cond: "reputation", delta: -5), FDEffect(money: -70000)],
             ownLabel: "Signer dans le grand club",
             ownHint: "Tu as signé dans le grand club de la capitale. C'était le bon choix professionnel, et ton quartier a compris de travers.",
-            ownEffects: [FDEffect(cond: "reputation", delta: 8), FDEffect(money: 100000), FDEffect(rel: "fans", delta: -7)]),
+            ownEffects: [FDEffect(cond: "reputation", delta: 8), FDEffect(money: 100000), FDEffect(rel: "fans", delta: -7)],
+            ownMove: "grand"),
         FDLegendStep(
             age: 20, place: "Bureau du club",
             text: "À vingt ans, Maradano a été transféré pour un record du monde vers un club où il a passé deux saisons difficiles, blessé et mal aimé, avant que tout change ailleurs. Il n'a jamais regretté d'y être allé. Ton transfert record t'emmène dans un club qui ne te ressemble pas.",
@@ -2940,7 +3046,8 @@ let FDLegendPaths: [String: [FDLegendStep]] = [
             followEffects: [FDEffect(cond: "reputation", delta: 8), FDEffect(money: 200000), FDEffect(cond: "forme", delta: -6), FDEffect(cond: "moral", delta: -4)],
             ownLabel: "Refuser ce club-là",
             ownHint: "Tu as refusé ce club-là. Tu es resté un an de plus chez toi, et le record est parti à quelqu'un d'autre.",
-            ownEffects: [FDEffect(cond: "moral", delta: 6), FDEffect(rel: "fans", delta: 6), FDEffect(money: -80000)]),
+            ownEffects: [FDEffect(cond: "moral", delta: 6), FDEffect(rel: "fans", delta: 6), FDEffect(money: -80000)],
+            followMove: "grand"),
         FDLegendStep(
             age: 22, place: "Terrain",
             text: "À vingt-deux ans, il a été détruit par un tacle qui l'a mis dehors trois mois, et il est revenu en promettant de ne plus jamais reculer devant personne. Ça a fait de lui un joueur impossible à arrêter et un homme impossible à protéger. Tu sors exactement de ce tacle-là.",
@@ -3005,7 +3112,8 @@ let FDLegendPaths: [String: [FDLegendStep]] = [
             followEffects: [FDEffect(attr: .determination, delta: 6), FDEffect(cond: "reputation", delta: 9), FDEffect(rel: "fans", delta: -7), FDEffect(cond: "fatigue", delta: 8)],
             ownLabel: "Rester là où tu es aimé",
             ownHint: "Tu es resté là où tu es une idole. Tu as continué à tout gagner, et la question restera ouverte pour toujours.",
-            ownEffects: [FDEffect(rel: "fans", delta: 9), FDEffect(cond: "moral", delta: 6), FDEffect(cond: "reputation", delta: -4)]),
+            ownEffects: [FDEffect(rel: "fans", delta: 9), FDEffect(cond: "moral", delta: 6), FDEffect(cond: "reputation", delta: -4)],
+            followMove: "sommet"),
         FDLegendStep(
             age: 26, place: "Terrain, finale continentale",
             text: "Le but qui a fait le tour du monde : à vingt-six ans, un coup de tête à deux mètres soixante-dix du sol, en finale européenne, resté comme le plus haut jamais mesuré. Il a passé des années à travailler sa détente en salle. Le centre arrive, et le défenseur est plus grand que toi.",
@@ -3043,7 +3151,9 @@ let FDLegendPaths: [String: [FDLegendStep]] = [
             followEffects: [FDEffect(cond: "reputation", delta: 9), FDEffect(attr: .tir, delta: 4), FDEffect(cond: "confiance", delta: 7), FDEffect(rel: "vestiaire", delta: -4)],
             ownLabel: "Aller apprendre dans l'ombre d'un plus grand",
             ownHint: "Tu es allé apprendre dans l'ombre. Deux ans de patience, un vestiaire qui t'a formé, et beaucoup moins de lumière.",
-            ownEffects: [FDEffect(attr: .control, delta: 5), FDEffect(attr: .vision, delta: 4), FDEffect(rel: "vestiaire", delta: 6), FDEffect(cond: "reputation", delta: -5)]),
+            ownEffects: [FDEffect(attr: .control, delta: 5), FDEffect(attr: .vision, delta: 4), FDEffect(rel: "vestiaire", delta: 6), FDEffect(cond: "reputation", delta: -5)],
+            followMove: "grand",
+            ownMove: "sommet"),
         FDLegendStep(
             age: 21, place: "Bureau du club",
             text: "À vingt et un ans, Mbappa a exigé — et obtenu — un droit de regard sur le recrutement et le projet sportif de son club, ce qu'aucun joueur n'avait jamais eu. Le milieu a hurlé. Ton club est prêt à te l'accorder, et tout le monde le saura dans les vingt-quatre heures.",

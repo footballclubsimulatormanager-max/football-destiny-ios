@@ -860,6 +860,39 @@ final class FDGameEngine: ObservableObject {
         return nil
     }
 
+    /// Traduit la destination écrite dans le chemin d'une légende en club réel, relatif à
+    /// celui du joueur. Sans cela, un transfert de légende n'était qu'un texte : le joueur
+    /// lisait qu'il signait ailleurs et restait dans le même vestiaire.
+    private func resolveLegendMove(_ keyword: String, player p: FDPlayer) -> (FDClub, Int)? {
+        let rep = p.club.reputation
+        let others = FDAllClubs.filter { $0.id != p.club.id }
+        let pool: [FDClub]
+        switch keyword {
+        case "sommet":
+            pool = others.filter { $0.reputation >= 88 }
+        case "grand":
+            pool = others.filter { $0.reputation > rep + 6 && $0.reputation <= rep + 26 }
+        case "modeste":
+            pool = others.filter { $0.reputation < rep - 5 && $0.reputation >= rep - 25 }
+        case "inferieur":
+            pool = others.filter { $0.division > p.club.division }
+        case "etranger":
+            pool = others.filter { $0.country != p.club.country && abs($0.reputation - rep) <= 14 }
+        case "rival":
+            // Le rival, c'est le voisin de niveau dans le même pays : celui qu'on n'est pas
+            // censé rejoindre.
+            pool = others.filter { $0.country == p.club.country && abs($0.reputation - rep) <= 8 }
+        case "retour":
+            pool = others.filter { $0.country == p.nationality && $0.reputation <= rep }
+        default:
+            return nil
+        }
+        guard let club = pool.randomElement() ?? others.filter({ abs($0.reputation - rep) <= 10 }).randomElement() else { return nil }
+        // La prime à la signature suit la valeur marchande, comme pour un transfert ordinaire.
+        let fee = max(50_000, marketValue(p) / 3)
+        return (club, fee)
+    }
+
     /// Le moment de la légende, monté en scène : ce qu'elle a fait à cet âge-là, et les deux
     /// routes qui s'ouvrent — la sienne, ou la tienne.
     private func legendStepScene(_ step: FDLegendStep, legend: FDLegendChallenge, player p: FDPlayer) -> FDSceneDef {
@@ -868,9 +901,21 @@ final class FDGameEngine: ObservableObject {
             location: step.place, character: "\(legend.name) · \(legend.era)",
             text: personalize(step.text, player: p),
             choices: [
-                FDChoice(label: step.followLabel, hint: step.followHint, effects: step.followEffects),
-                FDChoice(label: step.ownLabel, hint: step.ownHint, effects: step.ownEffects),
+                legendChoice(step.followLabel, step.followHint, step.followEffects, step.followMove, player: p),
+                legendChoice(step.ownLabel, step.ownHint, step.ownEffects, step.ownMove, player: p),
             ])
+    }
+
+    /// Une des deux routes d'un moment de légende. Si elle implique un départ, le club est
+    /// résolu maintenant et le choix fera vraiment changer de maillot.
+    private func legendChoice(_ label: String, _ hint: String, _ effects: [FDEffect],
+                              _ move: String?, player p: FDPlayer) -> FDChoice {
+        guard let move = move, let (club, fee) = resolveLegendMove(move, player: p) else {
+            return FDChoice(label: label, hint: hint, effects: effects)
+        }
+        return FDChoice(label: "\(label) — \(club.name)",
+                        hint: hint + " Direction \(club.name), \(club.country).",
+                        effects: effects, setClub: club, transferFee: fee)
     }
 
     /// Les thèmes possibles du grand rendez-vous, et la part de chacun selon où en est la
@@ -983,6 +1028,10 @@ final class FDGameEngine: ObservableObject {
             let fee = choice.transferFee ?? 0
             p.transferHistory.append(FDTransferRecord(age: p.age, clubName: club.name, country: club.country,
                                                       division: club.division, fee: fee))
+            // La part du joueur sur son propre transfert, comme pour un départ ordinaire.
+            let bonus = Int((Double(fee) * 0.05).rounded())
+            p.money += bonus
+            p.seasonMoneyDelta += bonus
             p.club = club
             player = p
             pushJournal("Transfert signé : \(club.name) (\(club.country)) pour \(fdFormatMoney(fee)).", icon: "✈️")
