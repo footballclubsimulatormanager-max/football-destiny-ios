@@ -1238,6 +1238,20 @@ struct FDCarriereTab: View {
                 FDStateChip(value: p.cond.fatigue, label: "FATIGUE", color: FDTheme.warning)
             }
 
+            // Blessé, tout le reste attend : autant que ce soit écrit en permanence, avec le
+            // décompte, plutôt que de laisser le joueur se demander pourquoi il ne joue plus.
+            if let weeks = p.injuryWeeks, weeks > 0 {
+                HStack(spacing: 6) {
+                    Image(systemName: "cross.case.fill").font(.subheadline)
+                    Text("À l'infirmerie — \(weeks) semaine\(weeks > 1 ? "s" : "") avant le retour")
+                        .font(FDFont.body(15, black: true))
+                    Spacer()
+                }
+                .foregroundStyle(FDTheme.destructive)
+                .padding(.horizontal, 11).padding(.vertical, 7)
+                .background(FDTheme.destructive.opacity(0.12), in: RoundedRectangle(cornerRadius: 10))
+            }
+
             sceneCard
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
                 .layoutPriority(1)

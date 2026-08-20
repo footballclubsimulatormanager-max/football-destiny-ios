@@ -511,6 +511,14 @@ struct FDPlayer: Codable {
     /// carrières ne doivent pas s'arrêter de la même façon ni au même âge.
     var retireReason: String? = nil
 
+    /// Les semaines d'indisponibilité qu'il reste à purger. Le club joue sans lui, et ça se
+    /// voit ensuite partout : temps de jeu, confiance du coach, progression, mercato.
+    var injuryWeeks: Int? = nil
+
+    /// Ce que les blessures passées ont laissé. Chaque grosse blessure rend la suivante plus
+    /// probable — un corps abîmé ne redevient jamais neuf.
+    var fragility: Int? = nil
+
     func attr(_ a: FDAttribute) -> Int { attrs[a.rawValue] ?? 0 }
     func potential(_ a: FDAttribute) -> Int { potential[a.rawValue] ?? 0 }
 

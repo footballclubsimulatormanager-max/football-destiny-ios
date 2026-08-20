@@ -848,6 +848,22 @@ final class FDGameEngine: ObservableObject {
         return Double.random(in: 0.90...1.10)
     }
 
+    /// Le risque de se blesser sur ce match-là. Ce n'était qu'une fonction de la fatigue, et
+    /// donc à peu près constante ; c'est maintenant surtout une affaire de forme. Jouer à
+    /// vingt de forme, c'est jouer sur une jambe — et comme les choix font monter et descendre
+    /// la forme et la fatigue, forcer, sortir la veille d'un match ou jouer diminué se paie
+    /// pour de bon. Les blessures passées laissent une trace qui rend les suivantes plus
+    /// probables.
+    func injuryRisk(_ p: FDPlayer, minutes: Int) -> Double {
+        guard minutes > 0 else { return 0 }
+        var risk = 0.011
+        risk += Double(max(0, p.cond.fatigue - 40)) / 1600
+        risk += Double(max(0, 45 - p.cond.forme)) / 900
+        if p.age >= 31 { risk += Double(p.age - 30) * 0.004 }
+        risk += Double(p.fragility ?? 0) / 500
+        return min(0.25, risk * Double(minutes) / 75.0)
+    }
+
     /// Quand il ne commence pas, entre-t-il en cours de match ? Là encore la confiance
     /// décide : un joueur que le coach a lâché ne rentre même plus.
     private func benchAppearanceChance(_ p: FDPlayer) -> Double {
@@ -876,8 +892,7 @@ final class FDGameEngine: ObservableObject {
 
         let yellow = minutes > 0 && Double.random(in: 0...1) < (0.06 + Double(p.attr(.force)) / 900)
         let red = yellow && Double.random(in: 0...1) < 0.05
-        var injury = false
-        if minutes > 0 && Double.random(in: 0...1) < (0.02 + Double(p.cond.fatigue) / 1400) { injury = true }
+        let injury = minutes > 0 && Double.random(in: 0...1) < injuryRisk(p, minutes: minutes)
 
         // Le résultat est d'abord celui d'une équipe : la réputation du club pèse trois fois
         // plus que le niveau du joueur, qui n'est qu'un homme sur onze.
@@ -942,8 +957,32 @@ final class FDGameEngine: ObservableObject {
             p.careerApps += 1; p.careerGoals += goals; p.careerAssists += assists
             p.seasonForm.append(rating)
             if injury {
-                p.cond.forme = min(max(p.cond.forme - 18, 0), 100)
-                p.cond.fatigue = min(max(p.cond.fatigue + 20, 0), 100)
+                // Une blessure n'est plus une pénalité de forme : ce sont des semaines sans
+                // jouer, et tout le reste en découle — le temps de jeu, la confiance du coach,
+                // la progression de la saison, et ce que le mercato pensera de toi.
+                let severity = Double.random(in: 0...1)
+                let weeks: Int
+                let label: String
+                if severity < 0.55 {
+                    weeks = Int.random(in: 1...3)
+                    label = "Blessure légère"
+                } else if severity < 0.9 {
+                    weeks = Int.random(in: 4...10)
+                    label = "Blessure sérieuse"
+                    p.fragility = (p.fragility ?? 0) + 2
+                } else {
+                    weeks = Int.random(in: 11...26)
+                    label = "Grosse blessure"
+                    p.fragility = (p.fragility ?? 0) + 6
+                }
+                p.injuryWeeks = (p.injuryWeeks ?? 0) + weeks
+                p.cond.forme = min(max(p.cond.forme - (weeks >= 11 ? 26 : 16), 0), 100)
+                p.cond.moral = min(max(p.cond.moral - (weeks >= 11 ? 14 : 6), 0), 100)
+                p.cond.fatigue = min(max(p.cond.fatigue + 12, 0), 100)
+                p.journal.insert(FDJournalEntry(week: p.calendar.week, season: p.calendar.season, age: p.age,
+                                                text: "\(label) : \(weeks) semaine\(weeks > 1 ? "s" : "") d'indisponibilité.",
+                                                icon: "🩹"), at: 0)
+                pendingInjury = (label, weeks)
             }
         } else {
             p.cond.fatigue = min(max(p.cond.fatigue - 4, 0), 100)
@@ -1023,6 +1062,29 @@ final class FDGameEngine: ObservableObject {
         picked.text = personalize(picked.text, player: p)
         picked.character = personalize(picked.character, player: p)
         return picked
+    }
+
+    /// Ce que le joueur voit quand son corps lâche. Le texte change avec la gravité, parce
+    /// qu'une cheville tordue et un genou opéré ne se racontent pas pareil.
+    private func injuryScene(_ label: String, weeks: Int, player p: FDPlayer) -> FDSceneDef {
+        let text: String
+        if weeks >= 11 {
+            text = "Tu as senti quelque chose céder, et tu as su avant tout le monde. Le staff est entré sur le terrain "
+                + "sans courir — c'est mauvais signe, ça. Examens le lendemain, opération dans la semaine, et un "
+                + "délai qu'on t'annonce en s'excusant presque : \(weeks) semaines. À \(p.age) ans, une saison "
+                + "peut se refermer en trente secondes."
+        } else if weeks >= 4 {
+            text = "Un appui de trop, une douleur qui ne part pas, et le remplacement à la demi-heure. Le médecin du "
+                + "club ne s'avance jamais, mais là il a été net : \(weeks) semaines sans jouer. Le temps que "
+                + "quelqu'un d'autre prenne ta place et que tout le monde s'y habitue."
+        } else {
+            text = "Rien de grave, disent-ils. \(weeks) semaine\(weeks > 1 ? "s" : "") de repos, des soins tous les "
+                + "matins, et le sentiment idiot de perdre du temps pendant que les autres jouent."
+        }
+        return FDSceneDef(
+            id: "injury_" + UUID().uuidString, category: "Blessure", minAge: 0, maxAge: 200,
+            location: "Infirmerie de \(p.club.name)", character: "Le médecin du club", text: text,
+            choices: [FDChoice(label: "Encaisser", hint: "Tu comptes les semaines, et tu attends.", effects: [])])
     }
 
     private func genericEvent(_ p: FDPlayer) -> FDCurrentScene {
@@ -1247,6 +1309,11 @@ final class FDGameEngine: ObservableObject {
         p.seasonBeats = (p.seasonBeats ?? 0) + 1
         player = p
     }
+
+    /// La blessure qui vient de tomber pendant un match simulé, en attente d'être racontée au
+    /// joueur : une absence de plusieurs semaines ne peut pas se glisser en silence entre deux
+    /// scènes.
+    private var pendingInjury: (label: String, weeks: Int)?
 
     /// Le thème du grand rendez-vous en cours, s'il y en a un : le choix résolu déclenchera
     /// alors un vrai match, dont le résultat est raconté au joueur.
@@ -1493,6 +1560,7 @@ final class FDGameEngine: ObservableObject {
             // Deux rendez-vous dans la même saison ont besoin de plus de place qu'un seul.
             let window = climaxTarget >= 2 ? p.calendar.seasonWeeks / 2 : max(3, p.calendar.seasonWeeks / 4)
             if climaxLeft > 0,
+               (p.injuryWeeks ?? 0) == 0,
                weeksLeft <= window,
                weeksLeft <= 2 || Double.random(in: 0...1) < Double(climaxLeft) / Double(weeksLeft),
                let big = pickBeatScene(p, beat: "climax", weights: climaxWeights(p)) {
@@ -1516,12 +1584,38 @@ final class FDGameEngine: ObservableObject {
                 saveGame()
                 return
             }
+            // Blessé, il ne joue pas — mais le championnat, lui, continue sans l'attendre.
+            // C'est ce qui rend une blessure coûteuse : la part de saison jouée s'effondre, et
+            // avec elle la confiance du coach, la progression et ce que vaut le joueur l'été
+            // suivant.
+            if let weeks = p.injuryWeeks, weeks > 0 {
+                if var pp = player {
+                    pp.injuryWeeks = weeks - 1
+                    pp.seasonFixtures = (pp.seasonFixtures ?? 0) + 1
+                    pp.cond.fatigue = max(0, pp.cond.fatigue - 7)
+                    if weeks == 1 {
+                        pp.journal.insert(FDJournalEntry(week: pp.calendar.week, season: pp.calendar.season,
+                                                         age: pp.age, text: "Retour à l'entraînement collectif.",
+                                                         icon: "🟢"), at: 0)
+                    }
+                    player = pp
+                }
+                continue
+            }
+
             // Pas de quota de matchs : le championnat tourne, une semaine sur huit est une
             // trêve, et c'est la confiance du coach, la forme et le niveau qui décident si le
             // joueur entre ou regarde. Deux carrières ne comptent donc jamais le même nombre
             // de matchs, et celui qui perd sa place le voit dans ses stats.
             if Double.random(in: 0...1) > 0.12 {
                 _ = simulateMatch()
+                // Une blessure interrompt tout : on la raconte avant de continuer la saison.
+                if let injury = pendingInjury, let pp = player {
+                    pendingInjury = nil
+                    currentScene = .story(injuryScene(injury.label, weeks: injury.weeks, player: pp))
+                    saveGame()
+                    return
+                }
                 continue
             }
             // Trêve : ni match ni scène, la semaine passe.
@@ -1659,6 +1753,9 @@ final class FDGameEngine: ObservableObject {
         p.age += 1
         p.seasonMatches = 0; p.seasonGoals = 0; p.seasonAssists = 0; p.seasonForm = []; p.seasonStoryEvents = 0
         p.seasonFixtures = 0
+        // L'intersaison soigne ce qu'il reste : au-delà de six semaines, une blessure de fin
+        // de saison ampute encore le début de la suivante.
+        if let weeks = p.injuryWeeks { p.injuryWeeks = max(0, weeks - 6) }
         // Une nouvelle année, une nouvelle humeur : elle sera tirée au premier match.
         p.seasonMood = nil
         p.seasonClimaxTarget = nil
@@ -1795,6 +1892,7 @@ final class FDGameEngine: ObservableObject {
         if !p.retired {
             var reason: String? = nil
             let injuryRisk = 0.001 + Double(p.cond.fatigue) / 20000 + (p.age >= 32 ? 0.003 : 0)
+                + Double(p.fragility ?? 0) / 900
             if Double.random(in: 0...1) < injuryRisk {
                 reason = "blessure"
             } else if Double.random(in: 0...1) < retirementChance(p, share: seasonShare) {

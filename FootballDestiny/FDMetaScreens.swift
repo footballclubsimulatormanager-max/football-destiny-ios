@@ -969,6 +969,13 @@ struct FDReglesView: View {
                 bullet("Le plafond d'un attribut se tire aussi à la carrière : la plupart butent autour de 88, et seul un talent d'exception avec des étoiles approche les 99.")
                 bullet("Enfin, le jeu retient les scènes servies par tes dernières carrières, pas seulement par celle en cours : la suivante ira chercher ailleurs. Même chose pour les clubs de départ, tirés parmi les meilleurs candidats plutôt que toujours les six mêmes.")
             }
+            rulesCard(icon: "cross.case.fill", title: "Les blessures", color: FDTheme.destructive) {
+                paragraph("Le risque de se blesser dépend surtout de ta forme, puis de ta fatigue, de ton âge et des blessures que tu as déjà eues. Jouer à vingt de forme, c'est jouer sur une jambe.")
+                bullet("Tes choix décident donc de ta santé : tout ce qui fait tomber la forme ou monter la fatigue — forcer à l'entraînement, sortir la veille, jouer diminué, enchaîner sans souffler — se paie sur le terrain.")
+                bullet("Une saison passée frais et en forme coûte moins de deux semaines d'infirmerie. Une saison à bout de souffle en coûte dix.")
+                bullet("Une blessure, ce sont de vraies semaines sans jouer : le club joue sans toi, ta part de saison s'effondre, et avec elle la confiance du coach, ta progression et ce que tu vaux à l'intersaison.")
+                bullet("Les grosses blessures laissent une trace définitive : le corps reste plus fragile, les suivantes deviennent plus probables, et la carrière peut s'arrêter là.")
+            }
             rulesCard(icon: "hourglass", title: "La fin", color: FDTheme.destructive) {
                 paragraph("Aucune carrière ne s'arrête au même endroit. Passé trente ans, chaque fin de saison pose la question, et la réponse dépend de ce que la carrière est devenue : le temps de jeu, ton niveau face au club, la fatigue, le moral, l'argent déjà gagné, ce qu'il te manque encore au palmarès.")
                 bullet("La moitié des carrières s'arrêtent entre 32 et 35 ans, mais certaines tiennent jusqu'à 40 et d'autres s'éteignent à 30 sur un banc.")
