@@ -962,6 +962,7 @@ struct FDReglesView: View {
                 bullet("Le temps de jeu pèse le plus lourd, la note du bilan et la confiance du coach ensuite : les choix de l'année se retrouvent dans les attributs.")
                 bullet("Une part de hasard reste, large : deux carrières menées exactement pareil ne donnent jamais le même joueur. Ça peut aller vite, ça peut traîner.")
                 bullet("Rien n'est jamais acquis : perdre sa place, c'est perdre sa progression, et tout se rejoue la saison suivante.")
+                bullet("Devant le but, chaque saison a son humeur : la plupart ne disent rien, une sur huit voit tout rentrer, une sur huit rien du tout. Et trois saisons sur cent — deux fois plus pour un talent d'exception — sont de celles où une superstar finit à cinquante buts.")
             }
             rulesCard(icon: "arrow.up.arrow.down", title: "Pro, et rien d'autre", color: FDTheme.primary) {
                 paragraph("La carrière commence et se termine chez les professionnels : il n'y a pas de catégorie de jeunes à traverser.")

@@ -749,6 +749,24 @@ final class FDGameEngine: ObservableObject {
         Double.random(in: 0...1) < startChance(p)
     }
 
+    /// L'année qu'un joueur est en train de vivre devant le but. La plupart du temps elle ne
+    /// dit rien de particulier ; parfois plus rien ne rentre ; et très rarement, tout rentre.
+    /// C'est cette saison-là — trois pour cent des années d'un joueur ordinaire, deux fois
+    /// plus pour un talent d'exception — qui permet à une superstar de finir à cinquante buts.
+    /// Le tirage sort du numéro de saison et du nom : stable de septembre à juin, y compris
+    /// après une relecture de la sauvegarde, et différent d'une carrière à l'autre.
+    private func seasonScoringMood(_ p: FDPlayer) -> Double {
+        let nameSeed = p.firstName.unicodeScalars.reduce(0) { $0 &+ Int($1.value) }
+            &+ p.lastName.unicodeScalars.reduce(0) { $0 &+ Int($1.value) } &* 3
+        let roll = ((p.calendar.season &* 7919 &+ nameSeed) % 100 &+ 100) % 100
+        let talent = fdTalentTier(p.talentTier)
+        let legendaryCut = talent.growthFactor >= 1.15 ? 6 : 3
+        if roll < legendaryCut { return 1.6 }
+        if roll < legendaryCut + 12 { return 1.22 }
+        if roll >= 88 { return 0.76 }
+        return 1.0
+    }
+
     /// Quand il ne commence pas, entre-t-il en cours de match ? Là encore la confiance
     /// décide : un joueur que le coach a lâché ne rentre même plus.
     private func benchAppearanceChance(_ p: FDPlayer) -> Double {
@@ -794,11 +812,13 @@ final class FDGameEngine: ObservableObject {
             // à juin — on sent qu'on est dedans, ou qu'on ne l'est pas.
             let sharpness = Double((p.calendar.season &* 31 &+ p.lastName.count &* 7
                                     &+ p.firstName.count) % 17 - 7) / 110.0
+            // Et par-dessus, l'année elle-même : celle où tout rentre, celle où rien ne veut.
+            let mood = seasonScoringMood(p)
             let scorer: Double
             let passer: Double
             switch p.position {
             case .attaquant:
-                scorer = 0.07 + sharpness + (rating - 6) * 0.11 + (Double(p.attr(.tir)) - 55) / 230
+                scorer = 0.07 + sharpness + (rating - 6) * 0.095 + (Double(p.attr(.tir)) - 55) / 280
                 passer = 0.10 + (Double(p.attr(.passe)) - 60) / 900
             case .milieu:
                 scorer = 0.03 + sharpness * 0.6 + (rating - 6) * 0.05 + (Double(p.attr(.tir)) - 55) / 500
@@ -811,9 +831,9 @@ final class FDGameEngine: ObservableObject {
                 passer = 0.01
             }
             for _ in 0..<teamScore {
-                if Double.random(in: 0...1) < max(0, min(0.8, scorer)) * share {
+                if Double.random(in: 0...1) < max(0, min(0.72, scorer * mood)) * share {
                     goals += 1
-                } else if Double.random(in: 0...1) < max(0, min(0.5, passer)) * share {
+                } else if Double.random(in: 0...1) < max(0, min(0.5, passer * mood)) * share {
                     assists += 1
                 }
             }
@@ -1381,12 +1401,12 @@ final class FDGameEngine: ObservableObject {
             // Vingt-deux buts ne donnent pas droit à un trophée, ils donnent une chance —
             // et trente en donnent une bien meilleure, sans jamais rien garantir.
             let seasonGoals = p.history[0].goals
-            let shoeChance = min(0.5, Double(seasonGoals - 12) / 55.0)
+            let shoeChance = min(0.9, Double(seasonGoals - 12) / 40.0)
             if Double.random(in: 0...1) < shoeChance {
                 p.awardCounts[FDAward.soulierDor.rawValue, default: 0] += 1
                 summary.append("🥾 Soulier d'Or de la saison !")
             }
-            let ballonChance = min(0.28, (avgForm - 6.9) * 0.30
+            let ballonChance = min(0.6, (avgForm - 6.9) * 0.30
                                    + Double(p.cond.reputation - 55) / 400
                                    + Double(seasonGoals) / 320
                                    + Double(p.leagueTitles > 0 ? 0.04 : 0))
