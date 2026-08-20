@@ -181,6 +181,11 @@ final class FDGameEngine: ObservableObject {
             calendar: FDCalendar(season: 1, week: 0, seasonWeeks: 38)
         )
         newPlayer.talentTier = talent.id
+        // Ce qui rend cette carrière-là unique, au-delà des étoiles et du palier de talent :
+        // son rythme — régulière ou faite de trous d'air et de flambées — et sa main devant
+        // le but. Tirés ici une fois pour toutes, jamais annoncés.
+        newPlayer.careerVolatility = Double.random(in: 0.55...1.6)
+        newPlayer.finishingEdge = Double.random(in: -0.045...0.06)
         newPlayer.originClubId = club.id
         newPlayer.journal.insert(FDJournalEntry(week: 0, season: 1, age: 16, text: "Débuts professionnels chez \(club.name) à 16 ans.", icon: "⚽"), at: 0)
 
@@ -750,21 +755,25 @@ final class FDGameEngine: ObservableObject {
     }
 
     /// L'année qu'un joueur est en train de vivre devant le but. La plupart du temps elle ne
-    /// dit rien de particulier ; parfois plus rien ne rentre ; et très rarement, tout rentre.
-    /// C'est cette saison-là — trois pour cent des années d'un joueur ordinaire, deux fois
-    /// plus pour un talent d'exception — qui permet à une superstar de finir à cinquante buts.
-    /// Le tirage sort du numéro de saison et du nom : stable de septembre à juin, y compris
-    /// après une relecture de la sauvegarde, et différent d'une carrière à l'autre.
-    private func seasonScoringMood(_ p: FDPlayer) -> Double {
-        let nameSeed = p.firstName.unicodeScalars.reduce(0) { $0 &+ Int($1.value) }
-            &+ p.lastName.unicodeScalars.reduce(0) { $0 &+ Int($1.value) } &* 3
-        let roll = ((p.calendar.season &* 7919 &+ nameSeed) % 100 &+ 100) % 100
+    /// dit rien de particulier ; parfois plus rien ne rentre ; et très rarement, tout rentre —
+    /// c'est cette saison-là qui permet à une superstar de finir à cinquante buts.
+    ///
+    /// Rien n'est fixé d'avance : le tirage est fait à neuf chaque saison, et même ses
+    /// probabilités dépendent de la carrière. Une carrière régulière ne connaîtra presque
+    /// jamais d'extrême ; une carrière cyclique enchaînera les trous d'air et les flambées.
+    /// Le multiplicateur lui-même est tiré dans une fourchette, donc deux années de légende
+    /// ne se ressemblent pas davantage que deux carrières.
+    private func drawSeasonMood(_ p: FDPlayer) -> Double {
+        let volatility = p.careerVolatility ?? 1.0
         let talent = fdTalentTier(p.talentTier)
-        let legendaryCut = talent.growthFactor >= 1.15 ? 6 : 3
-        if roll < legendaryCut { return 1.6 }
-        if roll < legendaryCut + 12 { return 1.22 }
-        if roll >= 88 { return 0.76 }
-        return 1.0
+        let legendary = 0.025 * volatility * (talent.growthFactor >= 1.15 ? 2.0 : 1.0)
+        let good = 0.09 + 0.07 * volatility
+        let blank = 0.09 + 0.06 * volatility
+        let roll = Double.random(in: 0...1)
+        if roll < legendary { return Double.random(in: 1.42...1.78) }
+        if roll < legendary + good { return Double.random(in: 1.10...1.34) }
+        if roll > 1 - blank { return Double.random(in: 0.60...0.88) }
+        return Double.random(in: 0.90...1.10)
     }
 
     /// Quand il ne commence pas, entre-t-il en cours de match ? Là encore la confiance
@@ -807,13 +816,12 @@ final class FDGameEngine: ObservableObject {
         var goals = 0, assists = 0
         if minutes > 0 && teamScore > 0 {
             let share = min(1.0, Double(minutes) / 75.0)
-            // L'état de grâce de l'année : le même joueur ne finit jamais deux saisons de
-            // suite sur le même total. Tiré de la saison et du nom, donc stable de septembre
-            // à juin — on sent qu'on est dedans, ou qu'on ne l'est pas.
-            let sharpness = Double((p.calendar.season &* 31 &+ p.lastName.count &* 7
-                                    &+ p.firstName.count) % 17 - 7) / 110.0
-            // Et par-dessus, l'année elle-même : celle où tout rentre, celle où rien ne veut.
-            let mood = seasonScoringMood(p)
+            // La main du joueur devant le but, propre à sa carrière, et l'humeur de l'année,
+            // tirée au premier match puis gardée jusqu'au bilan : on sent qu'on est dedans,
+            // ou qu'on ne l'est pas, et ça dure toute la saison.
+            let sharpness = p.finishingEdge ?? 0
+            if p.seasonMood == nil { p.seasonMood = drawSeasonMood(p) }
+            let mood = p.seasonMood ?? 1.0
             let scorer: Double
             let passer: Double
             switch p.position {
@@ -831,7 +839,7 @@ final class FDGameEngine: ObservableObject {
                 passer = 0.01
             }
             for _ in 0..<teamScore {
-                if Double.random(in: 0...1) < max(0, min(0.72, scorer * mood)) * share {
+                if Double.random(in: 0...1) < max(0, min(0.76, scorer * mood)) * share {
                     goals += 1
                 } else if Double.random(in: 0...1) < max(0, min(0.5, passer * mood)) * share {
                     assists += 1
@@ -1431,6 +1439,8 @@ final class FDGameEngine: ObservableObject {
         p.age += 1
         p.seasonMatches = 0; p.seasonGoals = 0; p.seasonAssists = 0; p.seasonForm = []; p.seasonStoryEvents = 0
         p.seasonFixtures = 0
+        // Une nouvelle année, une nouvelle humeur : elle sera tirée au premier match.
+        p.seasonMood = nil
         p.seasonBeats = 0
         p.seasonMoneyDelta = 0
         p.calendar.season += 1; p.calendar.week = 0
@@ -1450,7 +1460,10 @@ final class FDGameEngine: ObservableObject {
         let minutesWeight = 0.35 + seasonShare * 0.9
         let ratingPush = recRating > 0 ? (recRating - 6.2) / 6.0 : 0
         let trustPush = (Double(p.rel.coach) - 45) / 320
-        let luck = Double.random(in: 0.68...1.42)
+        // L'aléa de progression est lui aussi au tempérament de la carrière : régulière,
+        // elle avance d'un pas égal ; cyclique, elle stagne un an puis prend dix points.
+        let volatility = p.careerVolatility ?? 1.0
+        let luck = Double.random(in: max(0.35, 1 - 0.34 * volatility)...(1 + 0.40 * volatility))
         let seasonFactor = max(0.2, min(2.1, (minutesWeight + ratingPush + trustPush) * luck))
 
         for a in FDAttribute.allCases {

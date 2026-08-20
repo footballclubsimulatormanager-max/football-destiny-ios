@@ -466,6 +466,22 @@ struct FDPlayer: Codable {
     /// Facultatif pour que les sauvegardes antérieures se relisent sans casse.
     var talentTier: String? = nil
 
+    /// À quel point cette carrière-là est cyclique. Tiré au lancement, propre au joueur :
+    /// certaines carrières avancent d'un pas régulier, d'autres alternent les années
+    /// blanches et les années de feu. Il élargit ou resserre à la fois l'humeur devant le
+    /// but et la vitesse de progression, si bien que deux carrières identiques sur le papier
+    /// ne racontent pas la même histoire.
+    var careerVolatility: Double? = nil
+
+    /// Le petit quelque chose devant le but qui ne se lit dans aucune statistique : il y a
+    /// des joueurs qui mettent celles qu'il faut et d'autres qui les manquent. Tiré une fois,
+    /// pour toute la carrière.
+    var finishingEdge: Double? = nil
+
+    /// L'humeur de la saison en cours devant le but, tirée au premier match de l'année et
+    /// gardée jusqu'au bilan. Facultatif : une sauvegarde antérieure la tire à sa reprise.
+    var seasonMood: Double? = nil
+
     func attr(_ a: FDAttribute) -> Int { attrs[a.rawValue] ?? 0 }
     func potential(_ a: FDAttribute) -> Int { potential[a.rawValue] ?? 0 }
 
