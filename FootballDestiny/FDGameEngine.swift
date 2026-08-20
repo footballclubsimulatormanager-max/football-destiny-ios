@@ -127,7 +127,15 @@ final class FDGameEngine: ObservableObject {
             }
         }
 
-        let potBias = 14 + starsBought * 4 + metaBonus + competencePotential
+        // Deux étoiles offertes à tout le monde : sans elles, les premières carrières —
+        // celles qu'on joue justement sans points en banque — plafonnaient trop bas pour
+        // aller nulle part. Les étoiles achetées s'ajoutent par-dessus, elles gardent donc
+        // toute leur valeur.
+        let freeStars = 2
+        // Le talent est tiré ici, une fois pour toutes, et n'est jamais annoncé : deux
+        // carrières lancées avec les mêmes étoiles ne valent pas la même chose.
+        let talent = fdDrawTalentTier(starsBought: starsBought)
+        let potBias = 14 + (freeStars + starsBought) * 4 + metaBonus + competencePotential + talent.potentialBias
         let talentSeed = Int.random(in: -6...10)
         let weights = draft.position.weights
         let jitterRange: ClosedRange<Int> = draft.personality == .irregulier ? -14...17 : -8...9
@@ -172,6 +180,7 @@ final class FDGameEngine: ObservableObject {
             contract: FDContract(salary: 300, years: 0),
             calendar: FDCalendar(season: 1, week: 0, seasonWeeks: 22)
         )
+        newPlayer.talentTier = talent.id
         newPlayer.journal.insert(FDJournalEntry(week: 0, season: 1, age: 16, text: "Débuts professionnels chez \(club.name) à 16 ans.", icon: "⚽"), at: 0)
 
         let rivalName = FDNameBank.random(for: draft.nationality)
@@ -1150,7 +1159,10 @@ final class FDGameEngine: ObservableObject {
         p.calendar.season += 1; p.calendar.week = 0
 
         // Growth pass — weighted toward the attributes that matter for this position
-        let gf = ageGrowthFactor(p.age)
+        let tier = fdTalentTier(p.talentTier)
+        // Le palier ne joue pas que sur le plafond : une pépite progresse aussi plus vite,
+        // un joueur tardif grappille. C'est ce qui fait qu'une carrière « pète » ou traîne.
+        let gf = ageGrowthFactor(p.age) * (ageGrowthFactor(p.age) > 0 ? tier.growthFactor : 1.0)
         let w = p.position.weights
         for a in FDAttribute.allCases {
             let relevance = 0.55 + w.value(for: a.category) * 1.5
@@ -1159,11 +1171,19 @@ final class FDGameEngine: ObservableObject {
             let room = pot - cur
             let delta: Int
             if gf > 0 {
-                delta = Int((Double(min(room, Int.random(in: 0...3))) * gf * relevance).rounded())
+                delta = Int((Double(min(room, Int.random(in: 0...tier.growthStep))) * gf * relevance).rounded())
             } else {
                 delta = Int((Double(Int.random(in: -2...0)) * abs(gf)).rounded())
             }
             p.attrs[a.rawValue] = min(max(cur + delta, 0), pot)
+        }
+
+        // Le palier de talent n'est jamais annoncé au lancement : la carrière le révèle
+        // elle-même, quand deux saisons ont donné de quoi juger.
+        if p.calendar.season == 3 {
+            p.journal.insert(FDJournalEntry(week: 0, season: p.calendar.season, age: p.age,
+                                            text: tier.reveal, icon: "🔎"), at: 0)
+            summary.append("🔎 \(tier.reveal)")
         }
 
         // La carrière se joue chez les professionnels du premier jour au dernier : il n'y a

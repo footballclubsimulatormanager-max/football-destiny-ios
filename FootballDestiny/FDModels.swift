@@ -449,6 +449,12 @@ struct FDPlayer: Codable {
     /// Locked in once, around age 21, via the Identité de jeu scene — a permanent play-style label.
     var playStyleLabel: String? = nil
 
+    /// Le talent tiré au lancement de la carrière, identifiant d'un `FDTalentTier`. Deux
+    /// carrières lancées avec les mêmes étoiles n'ont pas le même plafond ni la même vitesse
+    /// de progression : c'est ce tirage qui fait qu'on ne sait jamais à quoi s'attendre.
+    /// Facultatif pour que les sauvegardes antérieures se relisent sans casse.
+    var talentTier: String? = nil
+
     func attr(_ a: FDAttribute) -> Int { attrs[a.rawValue] ?? 0 }
     func potential(_ a: FDAttribute) -> Int { potential[a.rawValue] ?? 0 }
 
@@ -881,4 +887,68 @@ func fdConsequence(effects: [FDEffect], seed: Int) -> String {
     default:
         return ""
     }
+}
+
+
+// MARK: - Talent
+
+/// Un palier de talent, tiré une fois au lancement de la carrière et jamais annoncé.
+struct FDTalentTier {
+    let id: String
+    let label: String
+    /// Ce que le palier ajoute (ou retire) au plafond de progression.
+    let potentialBias: Int
+    /// Le pas de progression maximal d'un attribut sur une saison.
+    let growthStep: Int
+    /// Multiplie la vitesse de progression liée à l'âge.
+    let growthFactor: Double
+    /// Le poids de base du palier dans le tirage, avant l'effet des étoiles achetées.
+    let weight: Double
+    /// La ligne que le journal écrit quand la carrière révèle enfin de quel bois elle est faite.
+    let reveal: String
+}
+
+/// Une carrière rate, tient la route, ou explose — et la dernière possibilité reste rare,
+/// sinon il n'y aurait plus rien à découvrir en relançant.
+let FDTalentTiers: [FDTalentTier] = [
+    FDTalentTier(id: "tardif", label: "Tardif", potentialBias: -7, growthStep: 2, growthFactor: 0.85, weight: 18,
+                 reveal: "Le staff te trouve en retard sur ta génération. Tout ce que tu prendras, tu iras le chercher."),
+    FDTalentTier(id: "ordinaire", label: "Ordinaire", potentialBias: 0, growthStep: 3, growthFactor: 1.0, weight: 46,
+                 reveal: "Le club te situe dans la moyenne de ta génération : ni révélation, ni cas désespéré."),
+    FDTalentTier(id: "prometteur", label: "Prometteur", potentialBias: 7, growthStep: 3, growthFactor: 1.15, weight: 27,
+                 reveal: "En interne, on commence à parler de toi comme d'un des bons éléments de ta génération."),
+    FDTalentTier(id: "pepite", label: "Pépite", potentialBias: 16, growthStep: 4, growthFactor: 1.35, weight: 7,
+                 reveal: "Les recruteurs se déplacent pour toi. Le mot « pépite » est lâché, et il ne l'est pas souvent."),
+    FDTalentTier(id: "generation", label: "Génération", potentialBias: 26, growthStep: 5, growthFactor: 1.6, weight: 2,
+                 reveal: "On te compare à des joueurs qui n'apparaissent qu'une fois tous les dix ans. Personne n'avait vu ça venir."),
+]
+
+/// Le tirage du talent. Les étoiles achetées ne garantissent rien : elles déplacent la
+/// chance, en poussant les paliers hauts et en vidant le palier tardif. Une carrière peut
+/// donc exploser sans une seule étoile — rarement, mais elle le peut.
+func fdDrawTalentTier(starsBought: Int) -> FDTalentTier {
+    let stars = Double(max(0, starsBought))
+    var pool: [(FDTalentTier, Double)] = []
+    for tier in FDTalentTiers {
+        var weight = tier.weight
+        switch tier.id {
+        case "tardif": weight = max(3, weight - stars * 2.1)
+        case "prometteur": weight += stars * 1.5
+        case "pepite": weight += stars * 0.5
+        case "generation": weight += stars * 0.1
+        default: break
+        }
+        pool.append((tier, weight))
+    }
+    let total = pool.reduce(0.0) { $0 + $1.1 }
+    var roll = Double.random(in: 0..<total)
+    for (tier, weight) in pool {
+        if roll < weight { return tier }
+        roll -= weight
+    }
+    return pool[1].0
+}
+
+func fdTalentTier(_ id: String?) -> FDTalentTier {
+    FDTalentTiers.first { $0.id == id } ?? FDTalentTiers[1]
 }

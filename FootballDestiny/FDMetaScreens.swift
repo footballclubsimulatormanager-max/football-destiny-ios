@@ -930,6 +930,17 @@ struct FDReglesView: View {
                 bullet("Rester te rend les supporters et le président, et fait retomber ta cote.")
                 bullet("Sans aucune offre, l'intersaison se joue avec ton propre club : prolonger, exiger, ou attendre.")
             }
+            rulesCard(icon: "crown.fill", title: "Le talent", color: FDTheme.amber) {
+                paragraph("Toute carrière démarre avec 2 étoiles de potentiel offertes, même sans un seul point en banque. Les étoiles achetées s'ajoutent par-dessus.")
+                paragraph("Un palier de talent est tiré au lancement, et jamais annoncé : deux carrières lancées avec les mêmes étoiles ne valent pas la même chose. Il se révèle de lui-même après deux saisons.")
+                ruleRow("Ordinaire", "46 %")
+                ruleRow("Prometteur", "27 %")
+                ruleRow("Tardif", "18 %")
+                ruleRow("Pépite", "7 %")
+                ruleRow("Génération", "2 %")
+                bullet("Le palier joue sur le plafond et sur la vitesse de progression : une pépite gagne jusqu'à 4 points par attribut et par saison, un joueur tardif 2.")
+                bullet("Les étoiles achetées ne garantissent rien : elles vident le palier tardif et poussent les paliers hauts. Une carrière peut exploser sans une seule étoile — rarement.")
+            }
             rulesCard(icon: "arrow.up.arrow.down", title: "Pro, et rien d'autre", color: FDTheme.primary) {
                 paragraph("La carrière commence et se termine chez les professionnels : il n'y a pas de catégorie de jeunes à traverser.")
                 bullet("Deux mauvais signaux cumulés sur une saison — trop peu de matchs, note trop basse, coach perdu — et tu es rétrogradé en réserve.")

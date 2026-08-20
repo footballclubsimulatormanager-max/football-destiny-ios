@@ -1273,6 +1273,14 @@ struct FDCarriereTab: View {
                         Text("POT. \(engine.potentialOverall(p))")
                             .font(.system(size: 12, weight: .bold))
                             .foregroundStyle(FDTheme.amber)
+                        // Le palier de talent reste caché les deux premières saisons : c'est
+                        // la carrière qui doit dire de quel bois elle est faite.
+                        if p.calendar.season >= 3 {
+                            Text(fdTalentTier(p.talentTier).label.uppercased())
+                                .font(.system(size: 10, weight: .black))
+                                .tracking(0.8)
+                                .foregroundStyle(FDTheme.textMuted)
+                        }
                     }
                     .padding(.horizontal, 10).padding(.vertical, 6)
                     .background(FDTheme.primary.opacity(0.12), in: RoundedRectangle(cornerRadius: 10))

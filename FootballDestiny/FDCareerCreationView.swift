@@ -462,6 +462,16 @@ struct FDCareerCreationView: View {
                             }
                             .foregroundStyle(FDTheme.amber)
 
+                            // Deux étoiles sont offertes à toute carrière : sans elles, une
+                            // première partie plafonnait trop bas pour aller quelque part.
+                            HStack(spacing: 6) {
+                                Image(systemName: "star.fill").font(.subheadline)
+                                Text("2 étoiles offertes au départ, quoi qu'il arrive")
+                                    .font(FDFont.body(16))
+                                Spacer()
+                            }
+                            .foregroundStyle(FDTheme.success)
+
                             HStack(spacing: 6) {
                                 ForEach(0..<FDPotentialShop.maxStars, id: \.self) { i in
                                     let target = i + 1
