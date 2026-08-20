@@ -364,6 +364,9 @@ private func fdSceneSymbol(_ category: String) -> String {
     case "Europe": return "star.circle.fill"
     case "Match important": return "sportscourt.fill"
     case "Derby": return "flame.fill"
+    // Les moments du fil conducteur d'une légende portent la couronne : ce sont les seules
+    // scènes qui parlent d'abord de quelqu'un d'autre que le joueur.
+    case "Héritage": return "crown.fill"
     default: return "calendar"
     }
 }
@@ -385,6 +388,7 @@ private func fdSceneColor(_ category: String) -> Color {
     case "Europe": return FDTheme.blueGlow
     case "Match important": return FDTheme.primary
     case "Derby": return .red
+    case "Héritage": return FDTheme.amber
     default: return FDTheme.accentTeal
     }
 }

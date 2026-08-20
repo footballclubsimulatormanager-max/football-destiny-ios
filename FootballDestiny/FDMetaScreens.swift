@@ -930,6 +930,15 @@ struct FDReglesView: View {
                 bullet("Rester te rend les supporters et le président, et fait retomber ta cote.")
                 bullet("Sans aucune offre, l'intersaison se joue avec ton propre club : prolonger, exiger, ou attendre.")
             }
+            rulesCard(icon: "figure.walk.motion", title: "Le fil d'une légende", color: FDTheme.amber) {
+                paragraph("Chaque défi Gloire du Passé a son propre chemin : les clubs que la légende a choisis aux âges où elle les a choisis, le transfert qui a tout fait basculer, la finale continentale et le tournoi qui l'ont installée.")
+                paragraph("Ces moments arrivent à l'âge exact où elle les a vécus. À chaque fois, deux routes : refaire son choix, ou écrire le tien.")
+                bullet("Suivre sa route donne ce qu'elle avait — et coûte ce qu'elle a payé.")
+                bullet("S'en écarter te rend ta propre carrière, avec ce que ça vaut et ce que ça retire.")
+                ruleRow("Légendes", "50")
+                ruleRow("Moments par légende", "4")
+                ruleRow("Moments écrits en tout", "200")
+            }
             rulesCard(icon: "crown.fill", title: "Le talent", color: FDTheme.amber) {
                 paragraph("Toute carrière démarre avec 2 étoiles de potentiel offertes, même sans un seul point en banque. Les étoiles achetées s'ajoutent par-dessus.")
                 paragraph("Un palier de talent est tiré au lancement, et jamais annoncé : deux carrières lancées avec les mêmes étoiles ne valent pas la même chose. Il se révèle de lui-même après deux saisons.")

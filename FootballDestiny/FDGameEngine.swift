@@ -845,6 +845,34 @@ final class FDGameEngine: ObservableObject {
         }
     }
 
+    // MARK: - Fil conducteur du défi Gloire du Passé
+
+    /// L'étape du chemin de la légende que le joueur n'a pas encore vécue, s'il a atteint
+    /// l'âge auquel elle a eu lieu. On compare avec `<=` pour qu'une étape ne soit jamais
+    /// sautée quand une saison passe vite.
+    private func pendingLegendStep(_ p: FDPlayer) -> (FDLegendStep, FDLegendChallenge, String)? {
+        guard let id = activeLegendChallengeID,
+              let legend = FDLegendChallenges.first(where: { $0.id == id }) else { return nil }
+        for step in fdLegendPath(id) where step.age <= p.age {
+            let key = "legstep_\(id)_\(step.age)"
+            if !usedSceneIds.contains(key) { return (step, legend, key) }
+        }
+        return nil
+    }
+
+    /// Le moment de la légende, monté en scène : ce qu'elle a fait à cet âge-là, et les deux
+    /// routes qui s'ouvrent — la sienne, ou la tienne.
+    private func legendStepScene(_ step: FDLegendStep, legend: FDLegendChallenge, player p: FDPlayer) -> FDSceneDef {
+        FDSceneDef(
+            id: "legstep_\(legend.id)_\(step.age)", category: "Héritage", minAge: 0, maxAge: 200,
+            location: step.place, character: "\(legend.name) · \(legend.era)",
+            text: personalize(step.text, player: p),
+            choices: [
+                FDChoice(label: step.followLabel, hint: step.followHint, effects: step.followEffects),
+                FDChoice(label: step.ownLabel, hint: step.ownHint, effects: step.ownEffects),
+            ])
+    }
+
     /// Les thèmes possibles du grand rendez-vous, et la part de chacun selon où en est la
     /// carrière : un joueur renvoyé en réserve joue sa saison sur un barrage, une star joue
     /// une finale européenne ou un tournoi avec sa sélection.
@@ -1015,6 +1043,17 @@ final class FDGameEngine: ObservableObject {
             }
 
             let weeksLeft = max(1, p.calendar.seasonWeeks - p.calendar.week + 1)
+
+            // Le fil conducteur de la légende poursuivie passe avant tout le reste : ces
+            // moments-là sont ceux qui donnent son sens au défi.
+            if let (step, legend, key) = pendingLegendStep(p),
+               weeksLeft <= 3 || Double.random(in: 0...1) < 0.3 {
+                usedSceneIds.insert(key)
+                currentScene = .story(legendStepScene(step, legend: legend, player: p))
+                if var pp = player { pp.seasonStoryEvents += 1; player = pp }
+                saveGame()
+                return
+            }
 
             // Le grand rendez-vous : finale, match du titre, maintien, soirée européenne ou
             // sélection. Il tombe dans le dernier quart de saison, à une semaine imprévisible,
