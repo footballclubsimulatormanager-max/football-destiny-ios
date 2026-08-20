@@ -449,6 +449,10 @@ struct FDPlayer: Codable {
     /// Locked in once, around age 21, via the Identité de jeu scene — a permanent play-style label.
     var playStyleLabel: String? = nil
 
+    /// Le club où la carrière a commencé, pour pouvoir y revenir en fin de parcours.
+    /// Facultatif : les sauvegardes antérieures se relisent sans casse.
+    var originClubId: String? = nil
+
     /// Le talent tiré au lancement de la carrière, identifiant d'un `FDTalentTier`. Deux
     /// carrières lancées avec les mêmes étoiles n'ont pas le même plafond ni la même vitesse
     /// de progression : c'est ce tirage qui fait qu'on ne sait jamais à quoi s'attendre.
@@ -951,4 +955,59 @@ func fdDrawTalentTier(starsBought: Int) -> FDTalentTier {
 
 func fdTalentTier(_ id: String?) -> FDTalentTier {
     FDTalentTiers.first { $0.id == id } ?? FDTalentTiers[1]
+}
+
+// MARK: - Récit d'un grand rendez-vous
+
+/// Le nom du rendez-vous, tel qu'on l'annonce.
+private func fdBigMatchLabel(_ theme: String) -> String {
+    switch theme {
+    case "coupe": return "la finale de coupe"
+    case "europe": return "la soirée européenne"
+    case "selection": return "le match avec la sélection"
+    case "derby": return "le derby"
+    default: return "le match"
+    }
+}
+
+/// Ce que le joueur a fait de sa soirée, en clair : le score d'abord, sa part ensuite.
+/// Un grand rendez-vous sans résultat ne veut rien dire — on décidait d'une finale sans
+/// jamais savoir si elle avait été gagnée.
+func fdBigMatchReport(_ r: FDMatchResult, theme: String) -> String {
+    let label = fdBigMatchLabel(theme)
+    var out: String
+    if r.minutes == 0 {
+        return "Tu n'es pas entré en jeu. \(label.prefix(1).uppercased() + label.dropFirst()) s'est terminé\(r.teamScore > r.oppScore ? "e sur une victoire" : (r.teamScore == r.oppScore ? "e sur un nul" : "e sur une défaite")) \(r.teamScore)-\(r.oppScore), depuis le banc."
+    }
+    if r.teamScore > r.oppScore {
+        out = "Vous gagnez \(r.teamScore)-\(r.oppScore)."
+    } else if r.teamScore == r.oppScore {
+        out = "\(r.teamScore)-\(r.oppScore) au coup de sifflet final."
+    } else {
+        out = "Vous perdez \(r.teamScore)-\(r.oppScore)."
+    }
+    if r.goals > 1 {
+        out += " Tu en as mis \(r.goals)."
+    } else if r.goals == 1 {
+        out += " Tu as marqué."
+    }
+    if r.assists > 0 { out += r.goals > 0 ? " Et tu as fait marquer un autre." : " Tu as délivré la passe décisive." }
+    if r.goals == 0 && r.assists == 0 {
+        out += r.rating >= 7 ? " Tu n'as rien marqué, et tu as été l'un des meilleurs sur le terrain." : " Tu n'as pas pesé."
+    }
+    if r.red { out += " Tu as fini le match aux vestiaires, expulsé." }
+    else if r.yellow { out += " Tu as pris un carton." }
+    if r.injury { out += " Et tu es sorti touché." }
+    out += " Note : \(String(format: "%.1f", r.rating))/10, \(r.minutes) minutes."
+    return out
+}
+
+/// La ligne courte qui entre au journal de carrière.
+func fdBigMatchHeadline(_ r: FDMatchResult, theme: String) -> String {
+    let label = fdBigMatchLabel(theme)
+    let issue = r.teamScore > r.oppScore ? "Victoire" : (r.teamScore == r.oppScore ? "Nul" : "Défaite")
+    var line = "\(issue) \(r.teamScore)-\(r.oppScore) sur \(label)"
+    if r.goals > 0 { line += ", \(r.goals) but\(r.goals > 1 ? "s" : "")" }
+    if r.assists > 0 { line += ", \(r.assists) passe décisive" }
+    return line + "."
 }
