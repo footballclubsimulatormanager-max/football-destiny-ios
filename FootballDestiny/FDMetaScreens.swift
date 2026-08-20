@@ -931,13 +931,13 @@ struct FDReglesView: View {
                 bullet("Sans aucune offre, l'intersaison se joue avec ton propre club : prolonger, exiger, ou attendre.")
             }
             rulesCard(icon: "figure.walk.motion", title: "Le fil d'une légende", color: FDTheme.amber) {
-                paragraph("Chaque défi Gloire du Passé a son propre chemin : les clubs que la légende a choisis aux âges où elle les a choisis, le transfert qui a tout fait basculer, la finale continentale et le tournoi qui l'ont installée.")
+                paragraph("Chaque défi Gloire du Passé a son propre chemin : les clubs qu'elle a choisis, les transferts qu'elle a faits, la finale continentale et le tournoi qui l'ont installée — et le geste précis qui l'a rendue légendaire, le but, l'arrêt ou le carton.")
                 paragraph("Ces moments arrivent à l'âge exact où elle les a vécus. À chaque fois, deux routes : refaire son choix, ou écrire le tien.")
                 bullet("Suivre sa route donne ce qu'elle avait — et coûte ce qu'elle a payé.")
                 bullet("S'en écarter te rend ta propre carrière, avec ce que ça vaut et ce que ça retire.")
                 ruleRow("Légendes", "50")
-                ruleRow("Moments par légende", "4")
-                ruleRow("Moments écrits en tout", "200")
+                ruleRow("Moments par légende", "6")
+                ruleRow("Moments écrits en tout", "300")
             }
             rulesCard(icon: "crown.fill", title: "Le talent", color: FDTheme.amber) {
                 paragraph("Toute carrière démarre avec 2 étoiles de potentiel offertes, même sans un seul point en banque. Les étoiles achetées s'ajoutent par-dessus.")
