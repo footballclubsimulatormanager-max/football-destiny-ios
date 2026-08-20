@@ -418,6 +418,9 @@ struct FDPlayer: Codable {
     var seasonGoals = 0
     var seasonAssists = 0
     var seasonStoryEvents = 0
+    /// Les rendez-vous déjà servis cette saison — grand match, étape de légende. Chacun retire
+    /// une scène ordinaire au compteur. Optionnel : les anciennes sauvegardes le relisent à nil.
+    var seasonBeats: Int? = nil
     var careerApps = 0
     var careerGoals = 0
     var careerAssists = 0
@@ -623,7 +626,15 @@ struct FDCreationDraft {
 /// that raise the ceiling of the new player — a crack always starts modest, but experience
 /// (i.e. points banked from previous careers) lets you start stronger and faster.
 enum FDPotentialShop {
+    /// Le plafond affiché : cinq étoiles en tout, offertes comprises.
     static let maxStars = 5
+
+    /// Deux étoiles sont acquises à toute carrière, sans rien dépenser. Elles s'affichent
+    /// pleines dès l'ouverture de la fiche : on ne part jamais de zéro.
+    static let freeStars = 2
+
+    /// Ce qu'il reste à acheter par-dessus les offertes.
+    static var buyableStars: Int { maxStars - freeStars }
 
     /// Cost of buying the n-th star (1-indexed) — each one costs a little more than the last.
     static func costOfStar(_ n: Int) -> Int { 15 * n }
@@ -634,10 +645,10 @@ enum FDPotentialShop {
         return (1...stars).reduce(0) { $0 + costOfStar($1) }
     }
 
-    /// The most stars a given point balance can afford, capped at maxStars.
+    /// The most stars a given point balance can afford, on top of the free ones.
     static func maxAffordableStars(points: Int) -> Int {
         var stars = 0
-        while stars < maxStars && cumulativeCost(for: stars + 1) <= points { stars += 1 }
+        while stars < buyableStars && cumulativeCost(for: stars + 1) <= points { stars += 1 }
         return stars
     }
 }

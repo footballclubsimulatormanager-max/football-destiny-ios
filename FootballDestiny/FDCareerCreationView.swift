@@ -466,23 +466,29 @@ struct FDCareerCreationView: View {
                             // première partie plafonnait trop bas pour aller quelque part.
                             HStack(spacing: 6) {
                                 Image(systemName: "star.fill").font(.subheadline)
-                                Text("2 étoiles offertes au départ, quoi qu'il arrive")
+                                Text("\(FDPotentialShop.freeStars) étoiles acquises au départ, quoi qu'il arrive")
                                     .font(FDFont.body(16))
                                 Spacer()
                             }
                             .foregroundStyle(FDTheme.success)
 
+                            // Les deux premières étoiles sont acquises : elles s'affichent
+                            // pleines, en vert, et ne se touchent pas. Les points ne servent
+                            // qu'à remplir les suivantes — on ne part jamais de zéro étoile.
                             HStack(spacing: 6) {
                                 ForEach(0..<FDPotentialShop.maxStars, id: \.self) { i in
-                                    let target = i + 1
-                                    let affordable = target <= maxAffordable
-                                    Image(systemName: i < draft.potentialStars ? "star.fill" : "star")
+                                    let free = i < FDPotentialShop.freeStars
+                                    let target = i - FDPotentialShop.freeStars + 1
+                                    let owned = free || target <= draft.potentialStars
+                                    let affordable = free || target <= maxAffordable
+                                    Image(systemName: owned ? "star.fill" : "star")
                                         .font(.title2)
-                                        .foregroundStyle(i < draft.potentialStars
-                                                         ? FDTheme.amber
-                                                         : Color.white.opacity(affordable ? 0.35 : 0.12))
+                                        .foregroundStyle(free
+                                                         ? FDTheme.success
+                                                         : (owned ? FDTheme.amber
+                                                                  : Color.white.opacity(affordable ? 0.35 : 0.12)))
                                         .onTapGesture {
-                                            guard affordable else { return }
+                                            guard !free, affordable else { return }
                                             FDHaptics.tap()
                                             withAnimation(.fdSnap) {
                                                 draft.potentialStars = draft.potentialStars == target ? 0 : target
@@ -490,6 +496,9 @@ struct FDCareerCreationView: View {
                                         }
                                 }
                                 Spacer()
+                                Text("\(FDPotentialShop.freeStars + draft.potentialStars)/\(FDPotentialShop.maxStars)")
+                                    .font(FDFont.mono(17, bold: true))
+                                    .foregroundStyle(draft.potentialStars > 0 ? FDTheme.amber : FDTheme.success)
                                 if draft.potentialStars > 0 {
                                     Text("+\(draft.potentialStars * 5) %")
                                         .font(FDFont.mono(17, bold: true))
@@ -498,7 +507,7 @@ struct FDCareerCreationView: View {
                             }
 
                             if maxAffordable == 0 {
-                                Text("Il te faut \(FDPotentialShop.costOfStar(1)) points pour la première étoile. Termine une carrière pour en gagner.")
+                                Text("Il te faut \(FDPotentialShop.costOfStar(1)) points pour la troisième étoile. Termine une carrière pour en gagner : les points ne servent qu'à la carrière que tu lances ensuite.")
                                     .font(.subheadline)
                                     .foregroundStyle(.secondary)
                                     .fixedSize(horizontal: false, vertical: true)
@@ -514,7 +523,7 @@ struct FDCareerCreationView: View {
                                         .foregroundStyle(.secondary)
                                 }
                             } else {
-                                Text("Tu peux monter jusqu'à \(maxAffordable) étoile(s) avec tes points. Chaque étoile relève ton plafond de progression.")
+                                Text("Tes points peuvent remplir \(maxAffordable) étoile(s) de plus, pour cette carrière-là seulement. Chaque étoile relève ton plafond et t'ouvre de meilleurs clubs — mais rien n'est acquis : à étoiles égales, deux carrières ne décollent pas au même rythme.")
                                     .font(.subheadline)
                                     .foregroundStyle(.secondary)
                                     .fixedSize(horizontal: false, vertical: true)
@@ -719,8 +728,15 @@ struct FDCareerCreationView: View {
                     VStack(spacing: 0) {
                         creationSectionHeader(icon: "building.columns.fill", title: "Choisis ton premier club")
 
-                        ForEach(engine.availableStartClubs(nationality: draft.nationality, potentialStars: draft.potentialStars), id: \.id) { club in
-                            FDClubChoiceRow(club: club, selected: draft.club?.id == club.id) {
+                        // Les étoiles offertes comptent ici comme les autres : à deux étoiles
+                        // on démarre en deuxième division en moyenne, avec un club au-dessus
+                        // et deux en dessous. Chaque ligne dit ce que ce choix coûtera.
+                        let totalStars = FDPotentialShop.freeStars + draft.potentialStars
+                        let centre = engine.startCentralDivision(nationality: draft.nationality, totalStars: totalStars)
+                        ForEach(engine.availableStartClubs(nationality: draft.nationality, potentialStars: totalStars), id: \.id) { club in
+                            FDClubChoiceRow(club: club,
+                                            note: fdStartClubNote(division: club.division, centre: centre),
+                                            selected: draft.club?.id == club.id) {
                                 selectAndAdvance { draft.club = club }
                             }
                             Rectangle().fill(Color.white.opacity(0.04)).frame(height: 1)
@@ -859,8 +875,18 @@ private func fdTierColor(_ tier: FDClubTier) -> Color {
     }
 }
 
+/// Ce que vaut ce club-là par rapport au niveau moyen du joueur : au-dessus, c'est plus dur
+/// et il faudra se battre pour jouer ; en dessous, on joue tout de suite mais on progresse
+/// dans un cadre plus modeste.
+func fdStartClubNote(division: Int, centre: Int) -> (text: String, color: Color) {
+    if division < centre { return ("Au-dessus de ton niveau · plus dur", FDTheme.destructive) }
+    if division > centre { return ("Sous ton niveau · tu joueras tout de suite", FDTheme.success) }
+    return ("À ton niveau", FDTheme.amber)
+}
+
 private struct FDClubChoiceRow: View {
     let club: FDClub
+    var note: (text: String, color: Color)? = nil
     let selected: Bool
     let action: () -> Void
 
@@ -884,6 +910,12 @@ private struct FDClubChoiceRow: View {
                     Text("\(club.city) · \(club.leagueName)")
                         .font(.subheadline).foregroundStyle(.secondary)
                         .fixedSize(horizontal: false, vertical: true)
+                    if let note = note {
+                        Text(note.text)
+                            .font(.system(size: 13, weight: .bold))
+                            .foregroundStyle(note.color)
+                            .fixedSize(horizontal: false, vertical: true)
+                    }
                 }
                 Spacer()
                 Text(club.tier.rawValue)

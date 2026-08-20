@@ -95,7 +95,7 @@ final class FDGameEngine: ObservableObject {
         activeLegendChallengeID = legendChallengeID
         // A crack always starts modest — the ceiling only rises with "potential stars" bought
         // from points banked by previous careers, plus a small automatic bonus for experience.
-        let starsBought = min(draft.potentialStars, FDPotentialShop.maxStars)
+        let starsBought = min(draft.potentialStars, FDPotentialShop.buyableStars)
         let starCost = FDPotentialShop.cumulativeCost(for: starsBought)
         if starCost > 0 {
             lifetimePoints = max(0, lifetimePoints - starCost)
@@ -131,7 +131,7 @@ final class FDGameEngine: ObservableObject {
         // celles qu'on joue justement sans points en banque — plafonnaient trop bas pour
         // aller nulle part. Les étoiles achetées s'ajoutent par-dessus, elles gardent donc
         // toute leur valeur.
-        let freeStars = 2
+        let freeStars = FDPotentialShop.freeStars
         // Le talent est tiré ici, une fois pour toutes, et n'est jamais annoncé : deux
         // carrières lancées avec les mêmes étoiles ne valent pas la même chose.
         let talent = fdDrawTalentTier(starsBought: starsBought)
@@ -493,28 +493,36 @@ final class FDGameEngine: ObservableObject {
     func unlockChallenge(_ challenge: FDLegendChallenge) { unlockLegendChallenge(challenge.id) }
     func startChallenge(_ challenge: FDLegendChallenge) { startLegendCareer(challenge) }
 
-    /// Curated first-club offers for career creation — five clubs willing to give a prodigy a
-    /// shot. Fewer potential stars bought means fewer doors open: big footballing nations only
-    /// offer lower divisions to an unproven talent, smaller nations still let their top flight in.
-    /// Which divisions a player of this profile can be offered at the very start. France is
-    /// modelled four tiers deep, so an unproven player begins in Ligue 3 or the regional
-    /// level and only a heavily-invested one is offered a top-flight academy straight away.
-    /// Countries with a shallower pyramid fall back to whatever divisions they actually have.
-    private func startDivisions(potentialStars: Int) -> ClosedRange<Int> {
-        switch potentialStars {
-        case 0: return 3...4
-        case 1, 2: return 2...4
-        case 3, 4: return 1...3
-        default: return 1...2
-        }
+    /// La division où l'on atterrit en moyenne, pour un total d'étoiles donné — offertes
+    /// comprises. Deux étoiles, c'est la deuxième division : le niveau où un jeune pro joue
+    /// vraiment. Chaque étoile achetée par-dessus rapproche de l'élite.
+    private func baseCentralDivision(totalStars: Int) -> Int {
+        totalStars >= 4 ? 1 : 2
     }
 
-    func availableStartClubs(nationality: String, potentialStars: Int) -> [FDClub] {
-        let allowed = startDivisions(potentialStars: potentialStars)
+    /// La même chose, ramenée à ce que le pays offre réellement : tous les championnats ne
+    /// sont pas modélisés aussi profond que la France, et il ne faudrait pas annoncer une
+    /// deuxième division à un joueur d'un pays qui n'en a pas.
+    func startCentralDivision(nationality: String, totalStars: Int) -> Int {
+        let deepest = FDAllClubs.filter { $0.country == nationality }.map(\.division).max() ?? 1
+        return min(baseCentralDivision(totalStars: totalStars), deepest)
+    }
+
+    private func startDivisions(centre: Int) -> ClosedRange<Int> {
+        max(1, centre - 1)...min(4, centre + 1)
+    }
+
+    /// Les six portes ouvertes au tout début, `totalStars` étant les étoiles offertes plus
+    /// celles achetées. On ne propose pas un bloc de clubs équivalents : la moitié au niveau
+    /// moyen du joueur, un cran au-dessus pour ceux qui veulent que ce soit dur tout de suite,
+    /// un cran en dessous pour ceux qui préfèrent jouer et progresser tranquillement.
+    func availableStartClubs(nationality: String, potentialStars totalStars: Int) -> [FDClub] {
+        let centre = startCentralDivision(nationality: nationality, totalStars: totalStars)
+        let allowed = startDivisions(centre: centre)
         let home = FDAllClubs.filter { $0.country == nationality }
 
-        // Prefer the intended band; if this country isn't modelled that deep, widen to the
-        // closest divisions it does have rather than returning an empty picker.
+        // Si le pays n'est pas modélisé aussi profond, on élargit plutôt que de rendre une
+        // liste vide : mieux vaut une division voisine qu'un écran sans club.
         var pool = home.filter { allowed.contains($0.division) }
         if pool.count < 5 {
             let deepest = home.map(\.division).max() ?? 1
@@ -523,21 +531,28 @@ final class FDGameEngine: ObservableObject {
         }
         if pool.isEmpty { pool = home }
 
-        // Low potential starts at the humble end of the band, high potential at the best
-        // academies it can reach.
-        let sorted = potentialStars <= 1
-            ? pool.sorted { $0.reputation < $1.reputation }
-            : pool.sorted { $0.academyQuality > $1.academyQuality }
-
-        var picks = Array(sorted.prefix(6))
-        if picks.count < 6 {
-            let pickedIDs = Set(picks.map(\.id))
-            let rest = FDAllClubs
-                .filter { !pickedIDs.contains($0.id) && allowed.contains($0.division) }
-                .sorted { $0.reputation < $1.reputation }
-            picks.append(contentsOf: rest.prefix(6 - picks.count))
+        func band(_ division: Int, _ count: Int, best: Bool) -> [FDClub] {
+            let clubs = pool.filter { $0.division == division }
+            let sorted = best
+                ? clubs.sorted { $0.academyQuality > $1.academyQuality }
+                : clubs.sorted { $0.reputation < $1.reputation }
+            return Array(sorted.prefix(count))
         }
-        return picks
+
+        // Un cran au-dessus (plus dur), le niveau moyen, un cran en dessous (plus de jeu).
+        var picks = band(centre - 1, 1, best: true)
+        picks += band(centre, 3, best: true)
+        picks += band(centre + 1, 2, best: false)
+
+        // Compléter si une division manque dans ce pays, sans jamais doublonner.
+        if picks.count < 6 {
+            let taken = Set(picks.map(\.id))
+            picks += pool
+                .filter { !taken.contains($0.id) }
+                .sorted { $0.academyQuality > $1.academyQuality }
+                .prefix(6 - picks.count)
+        }
+        return picks.sorted { $0.division < $1.division }
     }
 
     /// Convenience overload for the redesigned creation flow, which stores the chosen club
@@ -972,17 +987,33 @@ final class FDGameEngine: ObservableObject {
         return genericEvent(p)
     }
 
-    /// Une saison ordinaire s'arrête sur trois moments, pas plus : deux quand elle est
-    /// calme, quatre quand elle compte vraiment. Les rendez-vous — grand match, étape de
-    /// légende, intersaison — s'ajoutent par-dessus et ne sont pas comptés ici, sinon ils
-    /// prendraient la place du reste.
+    /// Combien de scènes ordinaires une saison mérite, une fois retirés les rendez-vous
+    /// qu'elle a déjà servis. Deux pour une saison normale, trois pour un joueur installé,
+    /// et chaque grand rendez-vous ou étape de légende déjà tombé en retire une : une saison
+    /// pleine de moments forts n'a pas besoin qu'on l'allonge avec des scènes de plus.
+    /// Il en reste toujours au moins une, pour qu'aucune saison ne soit muette.
     private func storyEventsTarget(_ p: FDPlayer) -> Int {
+        let base: Int
         // Une saison où l'on joue peu, ou une fin de carrière, se raconte en moins de scènes.
-        if p.seasonMatches <= 4 && p.calendar.week > p.calendar.seasonWeeks / 2 { return 2 }
-        if p.status == .reserve || p.age >= 34 { return 2 }
-        // Une saison de joueur installé, suivi et attendu, en mérite une de plus.
-        if p.cond.reputation >= 55 || p.leagueTitles > 0 { return 4 }
-        return 3
+        if p.seasonMatches <= 4 && p.calendar.week > p.calendar.seasonWeeks / 2 {
+            base = 2
+        } else if p.status == .reserve || p.age >= 34 {
+            base = 2
+        } else if p.cond.reputation >= 55 || p.leagueTitles > 0 {
+            // Une saison de joueur installé, suivi et attendu, en mérite une de plus.
+            base = 3
+        } else {
+            base = 2
+        }
+        return max(1, base - (p.seasonBeats ?? 0))
+    }
+
+    /// Un rendez-vous vient de tomber : il compte comme un moment de la saison et allège
+    /// d'autant les scènes ordinaires qui restent à venir.
+    private func noteSeasonBeat() {
+        guard var p = player else { return }
+        p.seasonBeats = (p.seasonBeats ?? 0) + 1
+        player = p
     }
 
     /// Le thème du grand rendez-vous en cours, s'il y en a un : le choix résolu déclenchera
@@ -1132,6 +1163,7 @@ final class FDGameEngine: ObservableObject {
             if let (step, legend, key) = pendingLegendStep(p),
                weeksLeft <= 3 || Double.random(in: 0...1) < 0.3 {
                 usedSceneIds.insert(key)
+                noteSeasonBeat()
                 currentScene = .story(legendStepScene(step, legend: legend, player: p))
                 saveGame()
                 return
@@ -1149,6 +1181,7 @@ final class FDGameEngine: ObservableObject {
                 // Un grand rendez-vous se joue : le choix décidera de la soirée, et le
                 // résultat du match sera raconté juste après.
                 bigMatchPending = big.beatTheme ?? "club"
+                noteSeasonBeat()
                 currentScene = .story(big)
                 saveGame()
                 return
@@ -1278,6 +1311,7 @@ final class FDGameEngine: ObservableObject {
 
         p.age += 1
         p.seasonMatches = 0; p.seasonGoals = 0; p.seasonAssists = 0; p.seasonForm = []; p.seasonStoryEvents = 0
+        p.seasonBeats = 0
         p.seasonMoneyDelta = 0
         p.calendar.season += 1; p.calendar.week = 0
 
