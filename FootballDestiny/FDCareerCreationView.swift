@@ -523,7 +523,7 @@ struct FDCareerCreationView: View {
                                         .foregroundStyle(.secondary)
                                 }
                             } else {
-                                Text("Tes points peuvent remplir \(maxAffordable) étoile(s) de plus, pour cette carrière-là seulement. Chaque étoile relève ton plafond et t'ouvre de meilleurs clubs — mais rien n'est acquis : à étoiles égales, deux carrières ne décollent pas au même rythme.")
+                                Text("Tes points peuvent remplir \(maxAffordable) étoile(s) de plus, pour cette carrière-là seulement. À 2 étoiles tu démarres en deuxième division, à 3 dans l'élite, à 4 ou 5 dans un club qui joue le titre — mais rien n'est acquis : à étoiles égales, deux carrières ne décollent pas au même rythme.")
                                     .font(.subheadline)
                                     .foregroundStyle(.secondary)
                                     .fixedSize(horizontal: false, vertical: true)

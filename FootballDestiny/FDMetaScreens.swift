@@ -912,6 +912,7 @@ struct FDReglesView: View {
                 bullet("Identité, ville de naissance et pied fort tirés au sort, cohérents avec la nationalité.")
                 bullet("Quatre postes : gardien, défenseur, milieu, attaquant. Le poste pondère tes stats et les scènes.")
                 bullet("Chaque saison alterne scènes à choix, matchs simulés et bilan.")
+                bullet("Une saison, c'est 38 journées et une trentaine de matchs joués : ils se simulent en silence entre deux scènes, et un attaquant titulaire finit l'année avec une vraie feuille de statistiques.")
                 bullet("Une saison s'arrête sur une à trois scènes ordinaires, selon ce qu'elle vaut. Et chaque rendez-vous — grand match, étape d'un défi — en retire une : une saison pleine de moments forts ne s'allonge pas de scènes en plus.")
                 bullet("Un grand rendez-vous se joue vraiment : après ton choix, le match a lieu et le lendemain arrive sous forme d'article — le score, ce que tu y as fait, et ce que la soirée change pour toi.")
                 bullet("À l'intersaison, tu n'es jamais coincé. Si le club ne compte plus sur toi, trois clubs de ton niveau se présentent ; en fin de parcours, celui où tout a commencé rappelle.")
@@ -945,7 +946,7 @@ struct FDReglesView: View {
             }
             rulesCard(icon: "crown.fill", title: "Le talent", color: FDTheme.amber) {
                 paragraph("Toute carrière démarre avec \(FDPotentialShop.freeStars) étoiles de potentiel acquises, même sans un seul point en banque : elles s'affichent pleines dès l'ouverture de la fiche. Les points ne remplissent que les \(FDPotentialShop.buyableStars) suivantes, et seulement pour la carrière que tu lances ensuite.")
-                paragraph("Le total d'étoiles décide aussi de là où tu démarres : à 2 étoiles, la deuxième division en moyenne, avec un club au-dessus — plus dur — et deux en dessous où tu joueras tout de suite.")
+                paragraph("Le total d'étoiles décide aussi de là où tu démarres : à 2 étoiles la deuxième division, avec un club au-dessus — plus dur — et deux en dessous où tu joueras tout de suite. À 3 étoiles, l'élite. À 4 ou 5, les six clubs proposés jouent le haut du tableau : la carrière démarre déjà lancée.")
                 paragraph("Un palier de talent est tiré au lancement, et jamais annoncé : deux carrières lancées avec les mêmes étoiles ne valent pas la même chose. Il se révèle de lui-même après deux saisons.")
                 ruleRow("Ordinaire", "46 %")
                 ruleRow("Prometteur", "27 %")
