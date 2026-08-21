@@ -159,7 +159,7 @@ final class FDGameEngine: ObservableObject {
         // deux étoiles de départ le tire vers le haut… ou vers le bas.
         let talent = fdDrawTalentTier(
             starsBought: FDPotentialShop.stars(halfStars: halfStars) - Double(FDPotentialShop.freeStars))
-        let potBias = 14 + halfStars * 2 + metaBonus + competencePotential + talent.potentialBias
+        let potBias = 18 + halfStars * 3 + metaBonus + competencePotential + talent.potentialBias
         let talentSeed = Int.random(in: -6...10)
         let weights = draft.position.weights
         let jitterRange: ClosedRange<Int> = draft.personality == .irregulier ? -14...17 : -8...9
@@ -167,7 +167,13 @@ final class FDGameEngine: ObservableObject {
         var attrs: [String: Int] = [:]
         for a in FDAttribute.allCases {
             let catW = weights.value(for: a.category)
-            var v = 22 + Int((catW * 26).rounded()) + Int((Double(talentSeed) * 0.6).rounded()) + Int.random(in: jitterRange)
+            // Les étoiles ne décident pas que du plafond : elles disent aussi d'où l'on part.
+            // Sans ça, un joueur lancé à cinq étoiles dans un grand club arrivait à seize ans
+            // au niveau d'un joueur de district, se faisait démolir pendant six saisons et ne
+            // décollait jamais. Deux étoiles restent le niveau de référence.
+            let starLift = Int((Double(halfStars - FDPotentialShop.freeHalfStars) * 2.2).rounded())
+            var v = 22 + Int((catW * 26).rounded()) + starLift
+                + Int((Double(talentSeed) * 0.6).rounded()) + Int.random(in: jitterRange)
             v += styleBonus(draft.style, category: a.category)
             v += personalityBonus(draft.personality, category: a.category)
             v += backgroundBonus(draft.background, category: a.category)
@@ -685,7 +691,8 @@ final class FDGameEngine: ObservableObject {
     }
 
     private func ageGrowthFactor(_ age: Int) -> Double {
-        if age <= 20 { return 1.4 }
+        if age <= 18 { return 1.8 }
+        if age <= 21 { return 1.5 }
         if age <= 25 { return 1.0 }
         if age <= 29 { return 0.5 }
         if age <= 33 { return 0.05 }
@@ -810,7 +817,10 @@ final class FDGameEngine: ObservableObject {
     func startChance(_ p: FDPlayer) -> Double {
         let ovr = Double(overall(p))
         let trust = Double(p.rel.coach) * 0.7 + Double(p.rel.president) * 0.3
-        var chance = 0.45 + (ovr - Double(p.club.reputation)) / 40 + (trust - 50) / 100
+        // L'écart au standard du club est divisé par cinquante et non par quarante : à
+        // quarante, un jeune prometteur dans un grand club ne jouait littéralement jamais et
+        // sa carrière n'existait pas. Un effectif tourne, même quand on n'est pas encore prêt.
+        var chance = 0.45 + (ovr - Double(p.club.reputation)) / 50 + (trust - 50) / 100
             + (ovr - 70) / 200 + Double(p.club.youthMinutes) / 500
         if p.status == .reserve { chance -= 0.22 }
         if p.age >= 34 { chance -= 0.12 }
@@ -819,7 +829,7 @@ final class FDGameEngine: ObservableObject {
         // des bouts de match au lieu d'y disparaître — sans rendre le choix gratuit : à ce
         // temps de jeu-là, on progresse deux fois moins vite qu'un titulaire ailleurs.
         if p.age <= 20 { chance = max(chance, 0.18 + Double(p.club.youthMinutes) / 400) }
-        return min(max(chance, 0.02), 0.95)
+        return min(max(chance, 0.06), 0.95)
     }
 
     private func willStart(_ p: FDPlayer) -> Bool {
@@ -880,7 +890,11 @@ final class FDGameEngine: ObservableObject {
             return FDMatchResult(started: false, minutes: 0, rating: 0, goals: 0, assists: 0, yellow: false, red: false, injury: false, teamScore: 0, oppScore: 0, opponentLevel: 0)
         }
         let ovr = Double(overall(p))
-        let opp = opponentLevel(p)
+        // Un joueur de moins de vingt-et-un ans n'affronte pas le même football : il entre en
+        // fin de match, joue les tours de coupe et les rencontres déjà pliées. Sans ça, un
+        // gamin lancé dans un grand club prenait 4 de moyenne pendant cinq ans et sa carrière
+        // était finie avant d'avoir commencé.
+        let opp = opponentLevel(p) - (p.age <= 20 ? 8 : 0)
         let started = forceStart || willStart(p)
         let minutes = started
             ? Int.random(in: 60...90)
@@ -917,14 +931,19 @@ final class FDGameEngine: ObservableObject {
             let passer: Double
             switch p.position {
             case .attaquant:
-                scorer = 0.07 + sharpness + (rating - 6) * 0.095 + (Double(p.attr(.tir)) - 55) / 280
-                passer = 0.10 + (Double(p.attr(.passe)) - 60) / 900
+                // La finition se juge face à la défense qu'on affronte, pas dans l'absolu :
+                // un attaquant de troisième division marque contre des défenseurs de
+                // troisième division. Sinon les petites divisions ne marquaient jamais.
+                scorer = 0.07 + sharpness + (rating - 6) * 0.095
+                    + (Double(p.attr(.tir)) - Double(opp) * 0.78) / 280
+                passer = 0.10 + (Double(p.attr(.passe)) - Double(opp) * 0.82) / 900
             case .milieu:
-                scorer = 0.03 + sharpness * 0.6 + (rating - 6) * 0.05 + (Double(p.attr(.tir)) - 55) / 500
-                passer = 0.20 + (rating - 6) * 0.03 + (Double(p.attr(.passe)) - 60) / 600
+                scorer = 0.03 + sharpness * 0.6 + (rating - 6) * 0.05
+                    + (Double(p.attr(.tir)) - Double(opp) * 0.78) / 500
+                passer = 0.20 + (rating - 6) * 0.03 + (Double(p.attr(.passe)) - Double(opp) * 0.82) / 600
             case .defenseur:
                 scorer = 0.02 + (rating - 6) * 0.012
-                passer = 0.07 + (Double(p.attr(.passe)) - 60) / 1100
+                passer = 0.07 + (Double(p.attr(.passe)) - Double(opp) * 0.82) / 1100
             case .gardien:
                 scorer = 0
                 passer = 0.01
@@ -1032,7 +1051,15 @@ final class FDGameEngine: ObservableObject {
         out = out.replacingOccurrences(of: "{pays}", with: p.nationality)
         out = out.replacingOccurrences(of: "{ville}", with: p.birthCity)
         if out.contains("{humeur}") {
-            out = out.replacingOccurrences(of: "{humeur}", with: fdMoodPhrase(p))
+            // L'humeur est écrite en minuscule pour s'enchaîner après une virgule. Quand une
+            // scène la place en début de phrase, il lui faut sa majuscule : on lisait
+            // « ...ce n'est pas un hommage. tu traînes une saison qui t'a usé. »
+            let phrase = fdMoodPhrase(p)
+            let capitalized = phrase.prefix(1).uppercased() + phrase.dropFirst()
+            for opener in [". ", "! ", "? ", "\n"] {
+                out = out.replacingOccurrences(of: opener + "{humeur}", with: opener + capitalized)
+            }
+            out = out.replacingOccurrences(of: "{humeur}", with: phrase)
         }
         return out
     }
@@ -1776,7 +1803,13 @@ final class FDGameEngine: ObservableObject {
         // confiance du coach ensuite — les choix de l'année se retrouvent donc dans les
         // attributs. Et une part de hasard reste, large, pour que deux carrières menées
         // exactement pareil ne donnent jamais le même joueur.
-        let minutesWeight = 0.35 + seasonShare * 0.9
+        // Un joueur de moins de vingt-deux ans progresse même quand il joue peu : il s'entraîne
+        // tous les jours avec le groupe, et c'est l'âge où l'on prend le plus. Sans ce plancher,
+        // un jeune qui ne jouait pas restait bloqué à trente-cinq et sa carrière ne démarrait
+        // jamais — ce qui rendait incohérent tout le reste, buts compris.
+        let minutesWeight = p.age <= 21
+            ? max(0.95, 0.35 + seasonShare * 0.9)
+            : 0.35 + seasonShare * 0.9
         let ratingPush = recRating > 0 ? (recRating - 6.2) / 6.0 : 0
         let trustPush = (Double(p.rel.coach) - 45) / 320
         // L'aléa de progression est lui aussi au tempérament de la carrière : régulière,

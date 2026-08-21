@@ -914,6 +914,8 @@ struct FDReglesView: View {
                 bullet("Chaque saison alterne scènes à choix, matchs simulés et bilan.")
                 bullet("Le championnat tourne toute la saison et les matchs se simulent en silence entre deux scènes. Aucun quota : le nombre de matchs que tu joues dépend de ton niveau face au standard du club, de la confiance du coach, de ton âge et de ton statut.")
                 bullet("Un titulaire en dispute une trentaine, un joueur écarté cinq. Tes buts se prennent sur ceux de ton équipe, but par but — pas de doublé dans une défaite 1-0.")
+                bullet("Ta finition se juge face à la défense que tu affrontes, pas dans l'absolu : un attaquant de troisième division marque contre des défenseurs de troisième division.")
+                bullet("Et les scènes tiennent compte de ton passé : on ne te parle pas de ton ancien club si tu n'as jamais bougé, ni de sélection si tu n'y as jamais été appelé.")
                 bullet("Toutes les saisons n'ont pas leur grand soir : selon ton temps de jeu, ta réputation et ce que joue ton club, une année peut n'avoir aucun grand rendez-vous — et une année de folie en avoir deux. Certaines intersaisons passent aussi sans un mot.")
                 bullet("Une saison s'arrête sur une à trois scènes ordinaires, selon ce qu'elle vaut. Et chaque rendez-vous — grand match, étape d'un défi — en retire une : une saison pleine de moments forts ne s'allonge pas de scènes en plus.")
                 bullet("Un grand rendez-vous se joue vraiment : après ton choix, le match a lieu et le lendemain arrive sous forme d'article — le score, ce que tu y as fait, et ce que la soirée change pour toi.")
@@ -948,6 +950,7 @@ struct FDReglesView: View {
             }
             rulesCard(icon: "crown.fill", title: "Le talent", color: FDTheme.amber) {
                 paragraph("Toute carrière démarre à \(FDPotentialShop.freeStars) étoiles de potentiel, même sans un seul point en banque. Ce n'est pas un plancher : le curseur se déplace dans les deux sens, par demi-étoiles. Les points le montent — pour cette carrière-là seulement — et le descendre ne coûte rien.")
+                paragraph("Les étoiles ne décident pas que du plafond : elles disent aussi d'où tu pars. À 5 étoiles tu débutes à seize ans très au-dessus de la moyenne, à 0 très en dessous. Le reste se joue sur le terrain.")
                 paragraph("Descendre, c'est choisir une carrière qui ne pardonne rien : plafond d'attribut plus bas, bons paliers de talent plus rares, division de départ plus basse. En échange elle rapporte 15 % de points en plus par demi-étoile abandonnée, soit 60 % à zéro étoile.")
                 paragraph("Le total décide de là où tu démarres : 0 ou 0,5 étoile tout en bas de la pyramide, 1 en troisième division, 2 en deuxième — avec un club au-dessus, plus dur, et deux en dessous — 3 dans l'élite, 4 ou 5 dans un club qui joue le titre.")
                 paragraph("Un palier de talent est tiré au lancement, et jamais annoncé : deux carrières lancées avec les mêmes étoiles ne valent pas la même chose. Il se révèle de lui-même après deux saisons.")
@@ -962,6 +965,8 @@ struct FDReglesView: View {
             rulesCard(icon: "chart.line.uptrend.xyaxis", title: "Progresser", color: FDTheme.success) {
                 paragraph("Une saison ne fait jamais progresser d'un cran fixe : elle fait progresser de ce qu'elle a été.")
                 bullet("Le temps de jeu pèse le plus lourd, la note du bilan et la confiance du coach ensuite : les choix de l'année se retrouvent dans les attributs.")
+                bullet("Avant 22 ans, on progresse même en jouant peu : c'est l'âge de la formation, et un jeune qui attend son heure ne stagne pas. C'est entre 16 et 21 ans que tout se joue.")
+                bullet("Un jeune n'affronte pas le même football : fins de match, tours de coupe, rencontres déjà pliées. On ne juge pas un joueur de dix-sept ans comme un titulaire de trente ans.")
                 bullet("Une part de hasard reste, large : deux carrières menées exactement pareil ne donnent jamais le même joueur. Ça peut aller vite, ça peut traîner.")
                 bullet("Rien n'est jamais acquis : perdre sa place, c'est perdre sa progression, et tout se rejoue la saison suivante.")
                 bullet("Devant le but, chaque saison a son humeur, tirée à neuf : la plupart ne disent rien, certaines voient tout rentrer, d'autres rien du tout. Les plus rares sont celles où une superstar dépasse les cinquante buts.")

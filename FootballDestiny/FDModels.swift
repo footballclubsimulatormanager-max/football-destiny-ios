@@ -1015,15 +1015,15 @@ struct FDTalentTier {
 /// Une carrière rate, tient la route, ou explose — et la dernière possibilité reste rare,
 /// sinon il n'y aurait plus rien à découvrir en relançant.
 let FDTalentTiers: [FDTalentTier] = [
-    FDTalentTier(id: "tardif", label: "Tardif", potentialBias: -7, growthStep: 2, growthFactor: 0.85, weight: 18,
+    FDTalentTier(id: "tardif", label: "Tardif", potentialBias: -7, growthStep: 3, growthFactor: 0.85, weight: 18,
                  reveal: "Le staff te trouve en retard sur ta génération. Tout ce que tu prendras, tu iras le chercher."),
-    FDTalentTier(id: "ordinaire", label: "Ordinaire", potentialBias: 0, growthStep: 3, growthFactor: 1.0, weight: 46,
+    FDTalentTier(id: "ordinaire", label: "Ordinaire", potentialBias: 0, growthStep: 4, growthFactor: 1.0, weight: 46,
                  reveal: "Le club te situe dans la moyenne de ta génération : ni révélation, ni cas désespéré."),
-    FDTalentTier(id: "prometteur", label: "Prometteur", potentialBias: 7, growthStep: 3, growthFactor: 1.15, weight: 27,
+    FDTalentTier(id: "prometteur", label: "Prometteur", potentialBias: 7, growthStep: 5, growthFactor: 1.15, weight: 27,
                  reveal: "En interne, on commence à parler de toi comme d'un des bons éléments de ta génération."),
-    FDTalentTier(id: "pepite", label: "Pépite", potentialBias: 16, growthStep: 4, growthFactor: 1.35, weight: 7,
+    FDTalentTier(id: "pepite", label: "Pépite", potentialBias: 16, growthStep: 6, growthFactor: 1.35, weight: 7,
                  reveal: "Les recruteurs se déplacent pour toi. Le mot « pépite » est lâché, et il ne l'est pas souvent."),
-    FDTalentTier(id: "generation", label: "Génération", potentialBias: 26, growthStep: 5, growthFactor: 1.6, weight: 2,
+    FDTalentTier(id: "generation", label: "Génération", potentialBias: 26, growthStep: 7, growthFactor: 1.6, weight: 2,
                  reveal: "On te compare à des joueurs qui n'apparaissent qu'une fois tous les dix ans. Personne n'avait vu ça venir."),
 ]
 
