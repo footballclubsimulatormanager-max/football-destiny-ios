@@ -978,6 +978,10 @@ struct FDReglesView: View {
                 bullet("Le plafond d'un attribut sort de la même promesse et du palier de talent, jamais des étoiles seules : la plupart butent autour de 88, et il faut à la fois une grande promesse et un talent d'exception pour approcher les 99.")
                 bullet("Enfin, le jeu retient les scènes servies par tes dernières carrières, pas seulement par celle en cours : la suivante ira chercher ailleurs. Même chose pour les clubs de départ, tirés parmi les meilleurs candidats plutôt que toujours les six mêmes.")
             }
+            rulesCard(icon: "photo.fill", title: "Les illustrations", color: FDTheme.accentTeal) {
+                paragraph("Chaque scène s'ouvre sur une illustration choisie d'après sa catégorie : terrain, entraînement, vestiaire, tribunes, confrontation, presse, argent, famille, infirmerie, voyage, trophée, solitude, ville de nuit.")
+                bullet("Aucune ne montre le visage d'un joueur. Ce sont des décors, des mains, des objets, des silhouettes de dos — celui qu'on incarne, c'est toi, et aucun dessin ne doit décider de son visage à ta place.")
+            }
             rulesCard(icon: "figure.run", title: "Forme et fatigue", color: FDTheme.success) {
                 paragraph("Deux choses différentes, souvent confondues. La forme, c'est le niveau auquel tu joues en ce moment : elle monte avec les bons matchs, redescend avec les mauvais et revient toujours vers son point d'équilibre. La fatigue, c'est l'usure accumulée : elle monte avec les minutes jouées et ne redescend qu'au repos.")
                 bullet("Au-delà de 55 de fatigue, les jambes ne suivent plus : ta note de match baisse, jusqu'à un point et demi quand tu es à bout.")
