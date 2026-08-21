@@ -553,12 +553,11 @@ struct FDSceneArt: View {
 
     var body: some View {
         let kind = fdSceneArtKind(category)
-        // Une vraie illustration si elle a été fournie pour ce décor, sinon le panneau tracé :
-        // nuit, halo de lumière, trame d'imprimé et silhouettes articulées.
+        // Uniquement de vraies illustrations. Le panneau tracé en code n'atteint pas le
+        // niveau d'une image dessinée : tant qu'il n'y a pas d'illustration pour ce décor,
+        // la scène n'affiche rien et le texte reprend toute la place.
         if UIImage(named: FDSceneArt.assetName(kind)) != nil {
             illustration(kind)
-        } else {
-            drawn(kind)
         }
     }
 

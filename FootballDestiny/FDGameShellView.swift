@@ -471,8 +471,6 @@ struct FDStoryCard: View {
                        tint: fdSceneColor(scene.category),
                        seedText: scene.id)
 
-            Rectangle().fill(Color.white.opacity(0.06)).frame(height: 1)
-
             // Les grands rendez-vous sont écrits longs : sur un petit écran, le texte et
             // trois réponses ne tiennent pas toujours. Le contenu défile alors — et ne
             // défile pas du tout quand tout tient, ce qui est le cas ordinaire.
