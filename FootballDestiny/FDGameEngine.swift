@@ -178,14 +178,20 @@ final class FDGameEngine: ObservableObject {
             // étoiles directement. Sans ça, un joueur lancé dans un grand club arrivait à
             // seize ans au niveau d'un joueur de district et ne décollait jamais.
             let startLift = Int(((promise - 0.5) * 24).rounded())
-            var v = 22 + Int((catW * 26).rounded()) + startLift
+            // La base est relevée en même temps que le plancher : sinon toutes les catégories
+            // tombaient sous quarante, le plancher les alignait toutes, et le curseur
+            // d'étoiles ne se voyait plus nulle part.
+            var v = 28 + Int((catW * 34).rounded()) + startLift
                 + Int((Double(talentSeed) * 0.6).rounded()) + Int.random(in: jitterRange)
             v += styleBonus(draft.style, category: a.category)
             v += personalityBonus(draft.personality, category: a.category)
             v += backgroundBonus(draft.background, category: a.category)
             v += footBonus(draft.foot, category: a.category)
             if Double.random(in: 0...1) < 0.14 { v += Int.random(in: 6...13) }
-            attrs[a.rawValue] = min(max(v, 8), 72)
+            // Aucun attribut ne part de zéro : un professionnel de seize ans sait déjà jouer.
+            // Quarante est le plancher — il bouge ensuite, dans les deux sens, selon la
+            // carrière. Ce sont les catégories qui comptent pour le poste qui s'en détachent.
+            attrs[a.rawValue] = min(max(v, 40), 78)
         }
         // Le plafond d'un attribut sort de la même promesse et du palier de talent. Il n'est
         // jamais fermé d'avance par les étoiles : personne ne part avec un plafond de verre.
@@ -742,10 +748,14 @@ final class FDGameEngine: ObservableObject {
             if let attr = e.attr {
                 let before = p.attr(attr)
                 let cap = p.potential(attr) + 2
-                let newVal = min(max(before + e.delta, 0), cap)
+                // Une scène ne remplace pas une saison de travail : au-delà de trois points,
+                // le gain est amorti de moitié. Une bonne décision fait progresser, elle ne
+                // transforme pas un joueur en une soirée.
+                let delta = e.delta > 3 ? 3 + (e.delta - 3) / 2 : e.delta
+                let newVal = min(max(before + delta, 30), cap)
                 p.attrs[attr.rawValue] = newVal
-                if e.delta != 0 {
-                    pills.append(FDEffectPill(label: attr.label, valueText: "\(e.delta > 0 ? "+" : "")\(e.delta)", positive: e.delta > 0))
+                if delta != 0 {
+                    pills.append(FDEffectPill(label: attr.label, valueText: "\(delta > 0 ? "+" : "")\(delta)", positive: delta > 0))
                 }
             }
             if let condKey = e.cond {
@@ -823,6 +833,7 @@ final class FDGameEngine: ObservableObject {
         // quarante, un jeune prometteur dans un grand club ne jouait littéralement jamais et
         // sa carrière n'existait pas. Un effectif tourne, même quand on n'est pas encore prêt.
         var chance = 0.45 + (ovr - Double(p.club.reputation)) / 50 + (trust - 50) / 100
+            - Double(max(0, p.cond.fatigue - 60)) / 300
             + (ovr - 70) / 200 + Double(p.club.youthMinutes) / 500
         if p.status == .reserve { chance -= 0.22 }
         if p.age >= 34 { chance -= 0.12 }
@@ -902,7 +913,14 @@ final class FDGameEngine: ObservableObject {
             ? Int.random(in: 60...90)
             : (Double.random(in: 0...1) < benchAppearanceChance(p) ? Int.random(in: 5...30) : 0)
 
-        var rating = 5.7 + (ovr - Double(opp)) / 18 + (Double(p.cond.forme) - 50) / 60 + (Double(p.cond.confiance) - 50) / 90 + Double(Int.random(in: -9...9)) / 10
+        // La forme, c'est le niveau auquel on joue en ce moment ; la fatigue, c'est l'usure
+        // accumulée. Elle ne servait qu'au risque de blessure — elle coûte maintenant aussi
+        // des points de note et des places dans le onze : au-delà de cinquante-cinq, les
+        // jambes ne suivent plus.
+        var rating = 5.7 + (ovr - Double(opp)) / 18 + (Double(p.cond.forme) - 50) / 60
+            + (Double(p.cond.confiance) - 50) / 90
+            - Double(max(0, p.cond.fatigue - 55)) / 35
+            + Double(Int.random(in: -9...9)) / 10
         rating += traitRatingModifier(p)
         rating = minutes > 0 ? min(max(rating, 3.0), 10.0) : 0
 
@@ -1462,7 +1480,7 @@ final class FDGameEngine: ObservableObject {
         let weeklyIncome = Int((Double(p.contract.salary) * 0.82).rounded())
         p.money += weeklyIncome
         p.seasonMoneyDelta += weeklyIncome
-        p.cond.fatigue = min(max(p.cond.fatigue - 9, 0), 100)
+        p.cond.fatigue = min(max(p.cond.fatigue - 7, 0), 100)
         p.cond.forme = min(max(p.cond.forme + Int(((58 - Double(p.cond.forme)) * 0.14).rounded()), 0), 100)
         p.cond.confiance = min(max(p.cond.confiance + Int(((55 - Double(p.cond.confiance)) * 0.14).rounded()), 0), 100)
         player = p
@@ -1832,7 +1850,7 @@ final class FDGameEngine: ObservableObject {
             } else {
                 delta = Int((Double(Int.random(in: -2...0)) * abs(gf)).rounded())
             }
-            p.attrs[a.rawValue] = min(max(cur + delta, 0), pot)
+            p.attrs[a.rawValue] = min(max(cur + delta, 30), pot)
         }
 
         // Le palier de talent n'est jamais annoncé au lancement : la carrière le révèle

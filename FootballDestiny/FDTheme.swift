@@ -1,5 +1,8 @@
 import SwiftUI
 import Foundation
+#if canImport(UIKit)
+import UIKit
+#endif
 
 /// Shared visual language for FCS-Destiny: a dark, premium sports SaaS palette built on a
 /// blue-violet / bordeaux tone (not the green/teal of the original EA-FC-style reference),
@@ -527,10 +530,58 @@ struct FDSceneArt: View {
         return total
     }
 
+    /// Le nom de l'illustration attendue dans le catalogue d'images pour ce décor. Si elle
+    /// existe, elle remplace le dessin ; sinon le panneau tracé prend le relais. On peut donc
+    /// ajouter les images une par une, sans jamais casser l'écran.
+    static func assetName(_ kind: FDArtKind) -> String {
+        switch kind {
+        case .terrain: return "ArtTerrain"
+        case .vestiaire: return "ArtVestiaire"
+        case .stade: return "ArtStade"
+        case .dispute: return "ArtDispute"
+        case .presse: return "ArtPresse"
+        case .argent: return "ArtArgent"
+        case .famille: return "ArtFamille"
+        case .infirmerie: return "ArtInfirmerie"
+        case .voyage: return "ArtVoyage"
+        case .trophee: return "ArtTrophee"
+        case .entrainement: return "ArtEntrainement"
+        case .solitude: return "ArtSolitude"
+        case .nuit: return "ArtNuit"
+        }
+    }
+
     var body: some View {
         let kind = fdSceneArtKind(category)
+        if UIImage(named: FDSceneArt.assetName(kind)) != nil {
+            illustration(kind)
+        } else {
+            drawn(kind)
+        }
+    }
+
+    /// L'image fournie, recadrée dans la bande et fondue vers le bas pour que le texte de la
+    /// scène s'y accroche au lieu d'être posé contre une arête franche.
+    private func illustration(_ kind: FDArtKind) -> some View {
+        Image(FDSceneArt.assetName(kind))
+            .resizable()
+            .aspectRatio(contentMode: .fill)
+            .frame(height: 120)
+            .frame(maxWidth: .infinity)
+            .clipped()
+            .overlay(alignment: .bottom) {
+                LinearGradient(colors: [.clear, FDTheme.bg.opacity(0.85)],
+                               startPoint: .top, endPoint: .bottom)
+                    .frame(height: 46)
+            }
+            .overlay(alignment: .bottom) {
+                Rectangle().fill(Color.white.opacity(0.07)).frame(height: 1)
+            }
+    }
+
+    private func drawn(_ kind: FDArtKind) -> some View {
         let seed = self.seed
-        Canvas { ctx, size in
+        return Canvas { ctx, size in
             let w = size.width, h = size.height
             let ink = Color(red: 0.02, green: 0.05, blue: 0.07)
 

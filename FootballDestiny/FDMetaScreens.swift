@@ -967,6 +967,8 @@ struct FDReglesView: View {
             rulesCard(icon: "chart.line.uptrend.xyaxis", title: "Progresser", color: FDTheme.success) {
                 paragraph("Une saison ne fait jamais progresser d'un cran fixe : elle fait progresser de ce qu'elle a été.")
                 bullet("Le temps de jeu pèse le plus lourd, la note du bilan et la confiance du coach ensuite : les choix de l'année se retrouvent dans les attributs.")
+                bullet("Aucun attribut ne part de zéro : 40 est le plancher à seize ans, et tout bouge ensuite dans les deux sens. Les catégories qui comptent pour ton poste partent plus haut.")
+                bullet("Une scène ne remplace pas une saison de travail : au-delà de trois points, le gain d'un récit est amorti de moitié. Une bonne décision fait progresser, elle ne transforme pas un joueur en une soirée.")
                 bullet("Avant 22 ans, on progresse même en jouant peu : c'est l'âge de la formation, et un jeune qui attend son heure ne stagne pas. C'est entre 16 et 21 ans que tout se joue.")
                 bullet("Un jeune n'affronte pas le même football : fins de match, tours de coupe, rencontres déjà pliées. On ne juge pas un joueur de dix-sept ans comme un titulaire de trente ans.")
                 bullet("Une part de hasard reste, large : deux carrières menées exactement pareil ne donnent jamais le même joueur. Ça peut aller vite, ça peut traîner.")
@@ -975,6 +977,13 @@ struct FDReglesView: View {
                 bullet("Et ces probabilités-là ne sont pas les mêmes pour tout le monde : chaque carrière reçoit au lancement son propre tempérament — régulière ou faite de trous d'air et de flambées — et sa propre main devant le but. Deux carrières identiques sur le papier ne racontent jamais la même histoire.")
                 bullet("Le plafond d'un attribut sort de la même promesse et du palier de talent, jamais des étoiles seules : la plupart butent autour de 88, et il faut à la fois une grande promesse et un talent d'exception pour approcher les 99.")
                 bullet("Enfin, le jeu retient les scènes servies par tes dernières carrières, pas seulement par celle en cours : la suivante ira chercher ailleurs. Même chose pour les clubs de départ, tirés parmi les meilleurs candidats plutôt que toujours les six mêmes.")
+            }
+            rulesCard(icon: "figure.run", title: "Forme et fatigue", color: FDTheme.success) {
+                paragraph("Deux choses différentes, souvent confondues. La forme, c'est le niveau auquel tu joues en ce moment : elle monte avec les bons matchs, redescend avec les mauvais et revient toujours vers son point d'équilibre. La fatigue, c'est l'usure accumulée : elle monte avec les minutes jouées et ne redescend qu'au repos.")
+                bullet("Au-delà de 55 de fatigue, les jambes ne suivent plus : ta note de match baisse, jusqu'à un point et demi quand tu es à bout.")
+                bullet("Au-delà de 60, l'entraîneur te ménage : tu perds des places dans le onze.")
+                bullet("Et c'est le premier facteur de blessure avec la forme basse. Un joueur frais et en forme passe moins de deux semaines à l'infirmerie dans la saison ; un joueur cuit en passe dix.")
+                bullet("Une saison chargée fait donc un vrai choix : enchaîner et jouer diminué, ou souffler et laisser sa place.")
             }
             rulesCard(icon: "cross.case.fill", title: "Les blessures", color: FDTheme.destructive) {
                 paragraph("Le risque de se blesser dépend surtout de ta forme, puis de ta fatigue, de ton âge et des blessures que tu as déjà eues. Jouer à vingt de forme, c'est jouer sur une jambe.")
