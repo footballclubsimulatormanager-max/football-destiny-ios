@@ -553,10 +553,11 @@ struct FDSceneArt: View {
 
     var body: some View {
         let kind = fdSceneArtKind(category)
+        // Tant qu'une vraie illustration n'est pas fournie pour ce décor, la scène n'affiche
+        // rien du tout : mieux vaut pas d'image qu'une image qui ressemble à un brouillon.
+        // Le panneau tracé reste dans le fichier, prêt à resservir si on le rappelle un jour.
         if UIImage(named: FDSceneArt.assetName(kind)) != nil {
             illustration(kind)
-        } else {
-            drawn(kind)
         }
     }
 
