@@ -551,7 +551,7 @@ struct FDCareerCreationView: View {
                                     .fixedSize(horizontal: false, vertical: true)
                                     .frame(maxWidth: .infinity, alignment: .leading)
                             } else {
-                                Text("Tes points peuvent remplir \(FDPotentialShop.label(halfStars: maxAffordable)) étoile(s) de plus, pour cette carrière-là seulement. À 2 étoiles tu démarres en deuxième division, à 3 dans l'élite, à 4 ou 5 dans un club qui joue le titre — à 1 en troisième division, à 0 tout en bas. Rien n'est acquis : à étoiles égales, deux carrières ne décollent pas au même rythme.")
+                                Text("Tes points peuvent remplir \(FDPotentialShop.label(halfStars: maxAffordable)) étoile(s) de plus, pour cette carrière-là seulement. Les étoiles ne ferment aucune porte : elles rendent seulement une grande carrière plus ou moins probable, et orientent les clubs qu'on te proposera. À étoiles égales, deux carrières ne décollent jamais au même rythme.")
                                     .font(.subheadline)
                                     .foregroundStyle(.secondary)
                                     .fixedSize(horizontal: false, vertical: true)

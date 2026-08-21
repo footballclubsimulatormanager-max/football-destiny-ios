@@ -1,4 +1,5 @@
 import SwiftUI
+import Foundation
 
 /// Shared visual language for FCS-Destiny: a dark, premium sports SaaS palette built on a
 /// blue-violet / bordeaux tone (not the green/teal of the original EA-FC-style reference),
@@ -479,5 +480,386 @@ private struct FDPulseModifier: ViewModifier {
                     pulsing = true
                 }
             }
+    }
+}
+
+// MARK: - L'illustration d'une scène
+
+/// Ce qu'on dessine derrière une scène. Le narratif portait tout seul depuis le début ;
+/// une image par scène lui donne son décor sans coûter un seul fichier d'illustration —
+/// tout est tracé à la volée, dans le style d'un panneau de manga de football : contrastes
+/// durs, silhouettes noires, trames de points et lignes de vitesse.
+enum FDArtKind {
+    case terrain, vestiaire, stade, dispute, presse, argent, famille
+    case infirmerie, voyage, trophee, entrainement, solitude, nuit
+}
+
+/// À quelle image correspond chaque catégorie de scène.
+func fdSceneArtKind(_ category: String) -> FDArtKind {
+    switch category {
+    case "Entraînement", "Préparation", "Poste", "Identité de jeu": return .entrainement
+    case "Vestiaire", "Staff", "Jeunes": return .vestiaire
+    case "Match important", "Moment décisif", "Coupe", "Europe", "Derby", "Calendrier": return .stade
+    case "Presse", "Réseaux", "Sponsor": return .presse
+    case "Crise", "Rivalité", "Coach", "Arbitrage", "Leadership": return .dispute
+    case "Argent", "Contrat", "Agent", "Transfert": return .argent
+    case "Famille", "Couple", "Amis", "Logement", "Ville": return .famille
+    case "Blessure": return .infirmerie
+    case "Voyage", "Sélection": return .voyage
+    case "Trophée", "Star", "Héritage": return .trophee
+    case "Mental", "Retraite", "Vétéran": return .solitude
+    case "Hygiène de vie", "Superstition": return .nuit
+    case "Supporters", "Club": return .stade
+    default: return .terrain
+    }
+}
+
+/// Le panneau dessiné au-dessus du texte d'une scène. Tout est tracé : aucune image n'est
+/// embarquée, la carte reste légère et chaque catégorie a son décor.
+struct FDSceneArt: View {
+    let category: String
+    let tint: Color
+    let seedText: String
+
+    private var seed: Int {
+        var total = 0
+        for scalar in seedText.unicodeScalars { total = (total &* 31 &+ Int(scalar.value)) % 100_003 }
+        return total
+    }
+
+    var body: some View {
+        let kind = fdSceneArtKind(category)
+        let seed = self.seed
+        Canvas { ctx, size in
+            let w = size.width, h = size.height
+            let ink = Color(red: 0.02, green: 0.05, blue: 0.07)
+
+            // Le fond : d'abord une nuit franche, ensuite seulement la couleur de la
+            // catégorie qui l'effleure. Poser la teinte sans base opaque délavait tout le
+            // panneau et lui donnait un ton kaki.
+            let night = Color(red: 0.03, green: 0.07, blue: 0.09)
+            ctx.fill(Path(CGRect(origin: .zero, size: size)), with: .color(night))
+            ctx.fill(Path(CGRect(origin: .zero, size: size)),
+                     with: .linearGradient(Gradient(colors: [tint.opacity(0.27), .clear]),
+                                           startPoint: CGPoint(x: w * 0.15, y: 0),
+                                           endPoint: CGPoint(x: w * 0.9, y: h)))
+
+            // La trame de points, en bas à gauche, comme une trame de manga.
+            for row in 0..<7 {
+                for col in 0..<26 {
+                    let x = CGFloat(col) * (w / 26) + 3
+                    let y = h - CGFloat(row) * 9 - 5
+                    let fade = 1.0 - Double(row) / 7.0 - Double(col) / 34.0
+                    guard fade > 0.05 else { continue }
+                    let r = 1.0 + fade * 1.6
+                    ctx.fill(Path(ellipseIn: CGRect(x: x - r, y: y - r, width: r * 2, height: r * 2)),
+                             with: .color(.white.opacity(fade * 0.10)))
+                }
+            }
+
+            // Les lignes de vitesse, en éventail depuis le coin haut droit.
+            for i in 0..<16 {
+                let spread = CGFloat(i) * (h / 7) - h
+                var line = Path()
+                line.move(to: CGPoint(x: w + 10, y: spread))
+                line.addLine(to: CGPoint(x: w * 0.34, y: spread + h * 0.9))
+                ctx.stroke(line, with: .color(.white.opacity(i % 3 == 0 ? 0.10 : 0.045)),
+                           lineWidth: i % 4 == 0 ? 2.2 : 1)
+            }
+
+            FDSceneArt.draw(kind, in: &ctx, w: w, h: h, tint: tint, ink: ink, seed: seed)
+
+            // Le trait d'action : une diagonale franche qui traverse le panneau.
+            var slash = Path()
+            slash.move(to: CGPoint(x: -4, y: h * 0.34))
+            slash.addLine(to: CGPoint(x: w * 0.22, y: -6))
+            ctx.stroke(slash, with: .color(tint.opacity(0.7)), lineWidth: 3)
+        }
+        .frame(height: 104)
+        .clipped()
+        .overlay(alignment: .bottom) {
+            Rectangle().fill(Color.white.opacity(0.07)).frame(height: 1)
+        }
+    }
+
+    // MARK: Les décors
+
+    /// Une silhouette humaine, tête et buste, suffisante à cette taille.
+    private static func figure(_ ctx: inout GraphicsContext, x: CGFloat, ground: CGFloat,
+                               height: CGFloat, color: Color, flip: Bool = false) {
+        let headR = height * 0.17
+        let headY = ground - height + headR
+        ctx.fill(Path(ellipseIn: CGRect(x: x - headR, y: headY - headR, width: headR * 2, height: headR * 2)),
+                 with: .color(color))
+        var torso = Path()
+        let shoulder = headY + headR * 1.4
+        let halfTop = height * 0.20, halfBottom = height * 0.13
+        let tilt: CGFloat = flip ? -height * 0.05 : height * 0.05
+        torso.move(to: CGPoint(x: x - halfTop + tilt, y: shoulder))
+        torso.addLine(to: CGPoint(x: x + halfTop + tilt, y: shoulder))
+        torso.addLine(to: CGPoint(x: x + halfBottom, y: ground))
+        torso.addLine(to: CGPoint(x: x - halfBottom, y: ground))
+        torso.closeSubpath()
+        ctx.fill(torso, with: .color(color))
+    }
+
+    private static func draw(_ kind: FDArtKind, in ctx: inout GraphicsContext,
+                             w: CGFloat, h: CGFloat, tint: Color, ink: Color, seed: Int) {
+        let dark = ink.opacity(0.92)
+        let ground = h * 0.86
+
+        switch kind {
+        case .terrain, .entrainement:
+            // La pelouse en fuite, le rond central, et un ballon posé.
+            var grass = Path()
+            grass.move(to: CGPoint(x: 0, y: ground))
+            grass.addLine(to: CGPoint(x: w, y: ground - h * 0.10))
+            grass.addLine(to: CGPoint(x: w, y: h))
+            grass.addLine(to: CGPoint(x: 0, y: h))
+            grass.closeSubpath()
+            ctx.fill(grass, with: .color(tint.opacity(0.16)))
+            for i in 0..<5 {
+                var line = Path()
+                let y = ground + CGFloat(i) * 4
+                line.move(to: CGPoint(x: 0, y: y))
+                line.addLine(to: CGPoint(x: w, y: y - h * 0.10))
+                ctx.stroke(line, with: .color(.white.opacity(0.07)), lineWidth: 1)
+            }
+            ctx.stroke(Path(ellipseIn: CGRect(x: w * 0.30, y: ground - 8, width: w * 0.40, height: 22)),
+                       with: .color(.white.opacity(0.22)), lineWidth: 1.5)
+            let ballR: CGFloat = 6
+            ctx.fill(Path(ellipseIn: CGRect(x: w * 0.72, y: ground - ballR, width: ballR * 2, height: ballR * 2)),
+                     with: .color(.white.opacity(0.85)))
+            if kind == .entrainement {
+                for i in 0..<4 {
+                    let x = w * 0.12 + CGFloat(i) * w * 0.13
+                    var cone = Path()
+                    cone.move(to: CGPoint(x: x, y: ground - 12))
+                    cone.addLine(to: CGPoint(x: x + 6, y: ground))
+                    cone.addLine(to: CGPoint(x: x - 6, y: ground))
+                    cone.closeSubpath()
+                    ctx.fill(cone, with: .color(tint.opacity(0.75)))
+                }
+                figure(&ctx, x: w * 0.80, ground: ground, height: h * 0.62, color: dark)
+            } else {
+                figure(&ctx, x: w * 0.84, ground: ground, height: h * 0.66, color: dark)
+            }
+
+        case .stade:
+            // Les tribunes, deux tours d'éclairage, et la foule en points.
+            var stand = Path()
+            stand.move(to: CGPoint(x: 0, y: h * 0.62))
+            stand.addLine(to: CGPoint(x: w * 0.5, y: h * 0.40))
+            stand.addLine(to: CGPoint(x: w, y: h * 0.62))
+            stand.addLine(to: CGPoint(x: w, y: ground))
+            stand.addLine(to: CGPoint(x: 0, y: ground))
+            stand.closeSubpath()
+            ctx.fill(stand, with: .color(dark))
+            for row in 0..<4 {
+                for col in 0..<30 {
+                    let x = CGFloat(col) * (w / 30) + 4
+                    let y = h * 0.50 + CGFloat(row) * 7 + abs(x - w / 2) * 0.06
+                    ctx.fill(Path(ellipseIn: CGRect(x: x, y: y, width: 2.6, height: 2.6)),
+                             with: .color(tint.opacity(0.55 - Double(row) * 0.1)))
+                }
+            }
+            for side in [CGFloat(0.13), CGFloat(0.87)] {
+                var beam = Path()
+                beam.move(to: CGPoint(x: w * side, y: 4))
+                beam.addLine(to: CGPoint(x: w * side - 26, y: ground))
+                beam.addLine(to: CGPoint(x: w * side + 26, y: ground))
+                beam.closeSubpath()
+                ctx.fill(beam, with: .color(.white.opacity(0.07)))
+                ctx.fill(Path(ellipseIn: CGRect(x: w * side - 5, y: 2, width: 10, height: 8)),
+                         with: .color(.white.opacity(0.75)))
+            }
+            ctx.fill(Path(CGRect(x: 0, y: ground, width: w, height: h - ground)),
+                     with: .color(tint.opacity(0.18)))
+
+        case .vestiaire:
+            // Le mur de casiers et un maillot sur son cintre.
+            for i in 0..<7 {
+                let x = CGFloat(i) * (w / 7)
+                ctx.fill(Path(CGRect(x: x + 3, y: h * 0.16, width: w / 7 - 6, height: h * 0.58)),
+                         with: .color(i % 2 == 0 ? dark : ink.opacity(0.75)))
+                ctx.stroke(Path(CGRect(x: x + 3, y: h * 0.16, width: w / 7 - 6, height: h * 0.58)),
+                           with: .color(tint.opacity(0.35)), lineWidth: 1)
+                ctx.fill(Path(ellipseIn: CGRect(x: x + w / 7 - 12, y: h * 0.44, width: 4, height: 4)),
+                         with: .color(.white.opacity(0.5)))
+            }
+            ctx.fill(Path(CGRect(x: 0, y: h * 0.74, width: w, height: 7)), with: .color(tint.opacity(0.55)))
+            var shirt = Path()
+            let cx = w * 0.5
+            shirt.move(to: CGPoint(x: cx - 16, y: h * 0.24))
+            shirt.addLine(to: CGPoint(x: cx + 16, y: h * 0.24))
+            shirt.addLine(to: CGPoint(x: cx + 12, y: h * 0.62))
+            shirt.addLine(to: CGPoint(x: cx - 12, y: h * 0.62))
+            shirt.closeSubpath()
+            ctx.fill(shirt, with: .color(.white.opacity(0.88)))
+
+        case .dispute:
+            // Deux silhouettes face à face et l'éclair entre elles.
+            figure(&ctx, x: w * 0.26, ground: ground, height: h * 0.74, color: dark)
+            figure(&ctx, x: w * 0.74, ground: ground, height: h * 0.74, color: dark, flip: true)
+            var bolt = Path()
+            bolt.move(to: CGPoint(x: w * 0.50, y: h * 0.16))
+            bolt.addLine(to: CGPoint(x: w * 0.455, y: h * 0.48))
+            bolt.addLine(to: CGPoint(x: w * 0.515, y: h * 0.46))
+            bolt.addLine(to: CGPoint(x: w * 0.47, y: h * 0.80))
+            bolt.addLine(to: CGPoint(x: w * 0.56, y: h * 0.42))
+            bolt.addLine(to: CGPoint(x: w * 0.505, y: h * 0.44))
+            bolt.addLine(to: CGPoint(x: w * 0.545, y: h * 0.16))
+            bolt.closeSubpath()
+            ctx.fill(bolt, with: .color(tint))
+            ctx.fill(Path(CGRect(x: 0, y: ground, width: w, height: h - ground)), with: .color(dark))
+
+        case .presse:
+            // La forêt de micros et les flashs.
+            for i in 0..<6 {
+                let x = w * 0.16 + CGFloat(i) * w * 0.13
+                let top = h * (0.30 + Double(i % 3) * 0.07)
+                var stick = Path()
+                stick.move(to: CGPoint(x: x, y: h))
+                stick.addLine(to: CGPoint(x: x + 4, y: top + 10))
+                ctx.stroke(stick, with: .color(dark), lineWidth: 3)
+                ctx.fill(Path(roundedRect: CGRect(x: x - 5, y: top, width: 12, height: 16), cornerRadius: 5),
+                         with: .color(i % 2 == 0 ? tint : Color.white.opacity(0.8)))
+            }
+            for i in 0..<3 {
+                let x = w * (0.2 + Double(i) * 0.3), y = h * 0.2
+                var star = Path()
+                star.move(to: CGPoint(x: x, y: y - 9))
+                star.addLine(to: CGPoint(x: x + 3, y: y - 3))
+                star.addLine(to: CGPoint(x: x + 9, y: y))
+                star.addLine(to: CGPoint(x: x + 3, y: y + 3))
+                star.addLine(to: CGPoint(x: x, y: y + 9))
+                star.addLine(to: CGPoint(x: x - 3, y: y + 3))
+                star.addLine(to: CGPoint(x: x - 9, y: y))
+                star.addLine(to: CGPoint(x: x - 3, y: y - 3))
+                star.closeSubpath()
+                ctx.fill(star, with: .color(.white.opacity(0.85)))
+            }
+
+        case .argent:
+            // Une pile de jetons et un billet, sous une lumière froide.
+            for i in 0..<5 {
+                let y = ground - CGFloat(i) * 7
+                ctx.fill(Path(ellipseIn: CGRect(x: w * 0.62 - 26, y: y - 9, width: 52, height: 14)),
+                         with: .color(i % 2 == 0 ? tint : tint.opacity(0.65)))
+            }
+            var bill = Path(roundedRect: CGRect(x: w * 0.14, y: h * 0.40, width: w * 0.30, height: h * 0.26),
+                            cornerRadius: 4)
+            ctx.fill(bill, with: .color(.white.opacity(0.85)))
+            bill = Path(ellipseIn: CGRect(x: w * 0.24, y: h * 0.47, width: 14, height: 14))
+            ctx.fill(bill, with: .color(ink))
+            figure(&ctx, x: w * 0.88, ground: ground, height: h * 0.6, color: dark)
+
+        case .famille:
+            // Un toit, une fenêtre allumée, deux silhouettes devant.
+            var roof = Path()
+            roof.move(to: CGPoint(x: w * 0.10, y: h * 0.52))
+            roof.addLine(to: CGPoint(x: w * 0.42, y: h * 0.22))
+            roof.addLine(to: CGPoint(x: w * 0.74, y: h * 0.52))
+            roof.closeSubpath()
+            ctx.fill(roof, with: .color(dark))
+            ctx.fill(Path(CGRect(x: w * 0.16, y: h * 0.52, width: w * 0.52, height: ground - h * 0.52)),
+                     with: .color(dark))
+            ctx.fill(Path(roundedRect: CGRect(x: w * 0.34, y: h * 0.58, width: 26, height: 20), cornerRadius: 3),
+                     with: .color(tint.opacity(0.85)))
+            figure(&ctx, x: w * 0.80, ground: ground, height: h * 0.52, color: dark)
+            figure(&ctx, x: w * 0.90, ground: ground, height: h * 0.36, color: dark)
+            ctx.fill(Path(CGRect(x: 0, y: ground, width: w, height: h - ground)), with: .color(dark))
+
+        case .infirmerie:
+            // La table de soins, la jambe bandée, la croix.
+            ctx.fill(Path(roundedRect: CGRect(x: w * 0.12, y: h * 0.56, width: w * 0.62, height: 12),
+                          cornerRadius: 4), with: .color(.white.opacity(0.8)))
+            for x in [w * 0.18, w * 0.66] {
+                ctx.fill(Path(CGRect(x: x, y: h * 0.68, width: 5, height: ground - h * 0.68)),
+                         with: .color(dark))
+            }
+            var leg = Path()
+            leg.move(to: CGPoint(x: w * 0.20, y: h * 0.52))
+            leg.addLine(to: CGPoint(x: w * 0.52, y: h * 0.44))
+            ctx.stroke(leg, with: .color(dark), lineWidth: 13)
+            ctx.stroke(leg, with: .color(.white.opacity(0.85)), lineWidth: 5)
+            let cx = w * 0.86, cy = h * 0.30
+            ctx.fill(Path(CGRect(x: cx - 4, y: cy - 13, width: 8, height: 26)), with: .color(tint))
+            ctx.fill(Path(CGRect(x: cx - 13, y: cy - 4, width: 26, height: 8)), with: .color(tint))
+
+        case .voyage:
+            // L'avion, l'horizon et la piste.
+            var plane = Path()
+            plane.move(to: CGPoint(x: w * 0.18, y: h * 0.42))
+            plane.addLine(to: CGPoint(x: w * 0.66, y: h * 0.30))
+            plane.addLine(to: CGPoint(x: w * 0.70, y: h * 0.36))
+            plane.addLine(to: CGPoint(x: w * 0.40, y: h * 0.46))
+            plane.closeSubpath()
+            ctx.fill(plane, with: .color(.white.opacity(0.9)))
+            var wing = Path()
+            wing.move(to: CGPoint(x: w * 0.42, y: h * 0.36))
+            wing.addLine(to: CGPoint(x: w * 0.50, y: h * 0.14))
+            wing.addLine(to: CGPoint(x: w * 0.56, y: h * 0.34))
+            wing.closeSubpath()
+            ctx.fill(wing, with: .color(tint))
+            var horizon = Path()
+            horizon.move(to: CGPoint(x: 0, y: ground))
+            horizon.addLine(to: CGPoint(x: w, y: ground - 6))
+            ctx.stroke(horizon, with: .color(.white.opacity(0.35)), lineWidth: 2)
+            ctx.fill(Path(CGRect(x: 0, y: ground, width: w, height: h - ground)), with: .color(dark))
+
+        case .trophee:
+            // La coupe, les rayons, l'estrade.
+            for i in 0..<9 {
+                var ray = Path()
+                ray.move(to: CGPoint(x: w * 0.5, y: h * 0.46))
+                let angle = Double(i) * .pi / 9 + .pi
+                ray.addLine(to: CGPoint(x: w * 0.5 + CGFloat(cos(angle)) * w,
+                                        y: h * 0.46 + CGFloat(sin(angle)) * h))
+                ctx.stroke(ray, with: .color(tint.opacity(i % 2 == 0 ? 0.22 : 0.10)), lineWidth: 6)
+            }
+            var cup = Path()
+            cup.move(to: CGPoint(x: w * 0.44, y: h * 0.22))
+            cup.addLine(to: CGPoint(x: w * 0.56, y: h * 0.22))
+            cup.addLine(to: CGPoint(x: w * 0.53, y: h * 0.56))
+            cup.addLine(to: CGPoint(x: w * 0.47, y: h * 0.56))
+            cup.closeSubpath()
+            ctx.fill(cup, with: .color(tint))
+            ctx.fill(Path(CGRect(x: w * 0.455, y: h * 0.56, width: w * 0.09, height: 8)), with: .color(tint))
+            ctx.fill(Path(roundedRect: CGRect(x: w * 0.40, y: h * 0.64, width: w * 0.20, height: 9),
+                          cornerRadius: 2), with: .color(.white.opacity(0.85)))
+            ctx.fill(Path(CGRect(x: 0, y: ground, width: w, height: h - ground)), with: .color(dark))
+
+        case .solitude:
+            // Une seule silhouette, assise, et beaucoup de vide autour.
+            ctx.fill(Path(CGRect(x: 0, y: ground, width: w, height: h - ground)), with: .color(dark))
+            ctx.fill(Path(CGRect(x: w * 0.58, y: h * 0.62, width: w * 0.34, height: 8)),
+                     with: .color(dark))
+            figure(&ctx, x: w * 0.72, ground: h * 0.62, height: h * 0.42, color: dark)
+            var horizonLine = Path()
+            horizonLine.move(to: CGPoint(x: 0, y: ground))
+            horizonLine.addLine(to: CGPoint(x: w, y: ground))
+            ctx.stroke(horizonLine, with: .color(tint.opacity(0.5)), lineWidth: 2)
+
+        case .nuit:
+            // La ville la nuit : des fenêtres allumées, et une silhouette qui rentre.
+            for i in 0..<6 {
+                let bw = w / 6.5
+                let bh = h * (0.30 + Double((seed / (i + 1)) % 5) * 0.09)
+                let x = CGFloat(i) * (w / 6) + 3
+                ctx.fill(Path(CGRect(x: x, y: ground - bh, width: bw, height: bh)), with: .color(dark))
+                for row in 0..<3 {
+                    for col in 0..<2 {
+                        guard (seed / (row + i + col + 1)) % 3 != 0 else { continue }
+                        ctx.fill(Path(CGRect(x: x + 5 + CGFloat(col) * 11,
+                                             y: ground - bh + 7 + CGFloat(row) * 11,
+                                             width: 6, height: 6)),
+                                 with: .color(tint.opacity(0.8)))
+                    }
+                }
+            }
+            ctx.fill(Path(CGRect(x: 0, y: ground, width: w, height: h - ground)), with: .color(ink))
+            figure(&ctx, x: w * 0.5, ground: h, height: h * 0.5, color: ink.opacity(0.98))
+        }
     }
 }

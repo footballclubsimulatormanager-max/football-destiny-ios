@@ -953,7 +953,7 @@ struct FDReglesView: View {
                 paragraph("Les étoiles ne posent aucun mur. Elles déplacent des chances : au lancement, une seule promesse est tirée entre 0 et 1, jamais annoncée, et c'est elle qui décide d'où tu pars, jusqu'où tu peux aller et quel plafond tu toucheras.")
                 paragraph("À 2 étoiles le tirage est pur. Plus haut, on garde le meilleur de plusieurs tirages ; plus bas, le pire. Une carrière sans étoile a 0,3 % de sortir une promesse d'élite, une carrière à 5 étoiles en a 48 % — et 0,4 % de tomber sur une promesse médiocre. Rien n'est jamais fermé, dans aucun des deux sens.")
                 paragraph("Le premier club suit la même logique : aucune division n'est interdite. Les étoiles rendent l'élite probable ou improbable, jamais impossible.")
-                paragraph("Descendre, c'est choisir une carrière qui ne pardonne rien : plafond d'attribut plus bas, bons paliers de talent plus rares, division de départ plus basse. En échange elle rapporte 15 % de points en plus par demi-étoile abandonnée, soit 60 % à zéro étoile.")
+                paragraph("Descendre, c'est renverser les chances contre soi : promesse tirée par le bas, bons paliers de talent plus rares, clubs d'élite presque introuvables dans la liste de départ. En échange, la carrière rapporte 15 % de points en plus par demi-étoile abandonnée, soit 60 % à zéro étoile.")
                 paragraph("Le total oriente là où tu démarres — le bas de la pyramide à 0, la deuxième division à 2, l'élite à 3 et plus — mais chaque club proposé est tiré au sort : un joueur sans étoile peut voir un club d'élite dans sa liste, et ce sera la carrière la plus dure qu'il puisse choisir.")
                 paragraph("Un palier de talent est tiré au lancement, et jamais annoncé : deux carrières lancées avec les mêmes étoiles ne valent pas la même chose. Il se révèle de lui-même après deux saisons.")
                 ruleRow("Ordinaire", "46 %")
@@ -973,7 +973,7 @@ struct FDReglesView: View {
                 bullet("Rien n'est jamais acquis : perdre sa place, c'est perdre sa progression, et tout se rejoue la saison suivante.")
                 bullet("Devant le but, chaque saison a son humeur, tirée à neuf : la plupart ne disent rien, certaines voient tout rentrer, d'autres rien du tout. Les plus rares sont celles où une superstar dépasse les cinquante buts.")
                 bullet("Et ces probabilités-là ne sont pas les mêmes pour tout le monde : chaque carrière reçoit au lancement son propre tempérament — régulière ou faite de trous d'air et de flambées — et sa propre main devant le but. Deux carrières identiques sur le papier ne racontent jamais la même histoire.")
-                bullet("Le plafond d'un attribut se tire aussi à la carrière : la plupart butent autour de 88, et seul un talent d'exception avec des étoiles approche les 99.")
+                bullet("Le plafond d'un attribut sort de la même promesse et du palier de talent, jamais des étoiles seules : la plupart butent autour de 88, et il faut à la fois une grande promesse et un talent d'exception pour approcher les 99.")
                 bullet("Enfin, le jeu retient les scènes servies par tes dernières carrières, pas seulement par celle en cours : la suivante ira chercher ailleurs. Même chose pour les clubs de départ, tirés parmi les meilleurs candidats plutôt que toujours les six mêmes.")
             }
             rulesCard(icon: "cross.case.fill", title: "Les blessures", color: FDTheme.destructive) {

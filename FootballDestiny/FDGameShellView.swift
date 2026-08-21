@@ -465,6 +465,15 @@ struct FDStoryCard: View {
 
             Rectangle().fill(Color.white.opacity(0.06)).frame(height: 1)
 
+            // Le décor de la scène, tracé à la volée : un vestiaire, un terrain, deux
+            // silhouettes face à face. Rien n'est embarqué comme image — tout est dessiné,
+            // dans le style d'un panneau de manga de football.
+            FDSceneArt(category: scene.category,
+                       tint: fdSceneColor(scene.category),
+                       seedText: scene.id)
+
+            Rectangle().fill(Color.white.opacity(0.06)).frame(height: 1)
+
             // Les grands rendez-vous sont écrits longs : sur un petit écran, le texte et
             // trois réponses ne tiennent pas toujours. Le contenu défile alors — et ne
             // défile pas du tout quand tout tient, ce qui est le cas ordinaire.
