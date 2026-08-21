@@ -950,9 +950,11 @@ struct FDReglesView: View {
             }
             rulesCard(icon: "crown.fill", title: "Le talent", color: FDTheme.amber) {
                 paragraph("Toute carrière démarre à \(FDPotentialShop.freeStars) étoiles de potentiel, même sans un seul point en banque. Ce n'est pas un plancher : le curseur se déplace dans les deux sens, par demi-étoiles. Les points le montent — pour cette carrière-là seulement — et le descendre ne coûte rien.")
-                paragraph("Les étoiles ne décident pas que du plafond : elles disent aussi d'où tu pars. À 5 étoiles tu débutes à seize ans très au-dessus de la moyenne, à 0 très en dessous. Le reste se joue sur le terrain.")
+                paragraph("Les étoiles ne posent aucun mur. Elles déplacent des chances : au lancement, une seule promesse est tirée entre 0 et 1, jamais annoncée, et c'est elle qui décide d'où tu pars, jusqu'où tu peux aller et quel plafond tu toucheras.")
+                paragraph("À 2 étoiles le tirage est pur. Plus haut, on garde le meilleur de plusieurs tirages ; plus bas, le pire. Une carrière sans étoile a 0,3 % de sortir une promesse d'élite, une carrière à 5 étoiles en a 48 % — et 0,4 % de tomber sur une promesse médiocre. Rien n'est jamais fermé, dans aucun des deux sens.")
+                paragraph("Le premier club suit la même logique : aucune division n'est interdite. Les étoiles rendent l'élite probable ou improbable, jamais impossible.")
                 paragraph("Descendre, c'est choisir une carrière qui ne pardonne rien : plafond d'attribut plus bas, bons paliers de talent plus rares, division de départ plus basse. En échange elle rapporte 15 % de points en plus par demi-étoile abandonnée, soit 60 % à zéro étoile.")
-                paragraph("Le total décide de là où tu démarres : 0 ou 0,5 étoile tout en bas de la pyramide, 1 en troisième division, 2 en deuxième — avec un club au-dessus, plus dur, et deux en dessous — 3 dans l'élite, 4 ou 5 dans un club qui joue le titre.")
+                paragraph("Le total oriente là où tu démarres — le bas de la pyramide à 0, la deuxième division à 2, l'élite à 3 et plus — mais chaque club proposé est tiré au sort : un joueur sans étoile peut voir un club d'élite dans sa liste, et ce sera la carrière la plus dure qu'il puisse choisir.")
                 paragraph("Un palier de talent est tiré au lancement, et jamais annoncé : deux carrières lancées avec les mêmes étoiles ne valent pas la même chose. Il se révèle de lui-même après deux saisons.")
                 ruleRow("Ordinaire", "46 %")
                 ruleRow("Prometteur", "27 %")

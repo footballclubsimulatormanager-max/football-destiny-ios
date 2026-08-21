@@ -829,7 +829,8 @@ let FDScenesPack1: [FDSceneDef] = [
                      effects: [FDEffect(attr: .determination, delta: 3), FDEffect(cond: "moral", delta: -3)]),
             FDChoice(label: "Faire passer le message par ton agent", hint: "Tu as fait passer le message par ton agent. Il a fait le tour du club, et le message est bien arrivé — pas dans le bon sens.",
                      effects: [FDEffect(rel: "agent", delta: 4), FDEffect(rel: "coach", delta: -4)]),
-        ]),
+        ],
+        condition: { p in p.age >= 18 && p.cond.reputation >= 20 }),
     FDSceneDef(
         id: "form_mentor_ancien", category: "Vestiaire", minAge: 17, maxAge: 24,
         location: "Vestiaire", character: "Un ancien du club",
@@ -903,7 +904,8 @@ let FDScenesPack1: [FDSceneDef] = [
                      effects: [FDEffect(rel: "president", delta: 5), FDEffect(money: 0, delta: 0), FDEffect(rel: "coach", delta: -3)]),
             FDChoice(label: "Négocier une clause", hint: "Tu as demandé à faire relire la clause. Ils ont soupiré, ils ont cédé sur la moitié, et tu as gagné un pourcentage.",
                      effects: [FDEffect(rel: "agent", delta: 5), FDEffect(rel: "president", delta: -4), FDEffect(money: 12000, delta: 0)]),
-        ]),
+        ],
+        condition: { p in p.age >= 18 && p.cond.reputation >= 20 }),
     FDSceneDef(
         id: "form_reconversion_doute", category: "Mental", minAge: 18, maxAge: 24,
         location: "Chambre", character: "Toi-même",
@@ -966,7 +968,8 @@ let FDScenesPack1: [FDSceneDef] = [
                      effects: [FDEffect(rel: "famille", delta: 6), FDEffect(rel: "president", delta: -5), FDEffect(money: 8000, delta: 0)]),
             FDChoice(label: "Lui demander de sortir", hint: "Tu lui as demandé de sortir, devant tout le monde. La négociation a repris son cours, et le trajet du retour a duré des heures.",
                      effects: [FDEffect(rel: "famille", delta: -8), FDEffect(rel: "president", delta: 5), FDEffect(attr: .leadership, delta: 3)]),
-        ]),
+        ],
+        condition: { p in p.age >= 18 && p.cond.reputation >= 20 }),
     FDSceneDef(
         id: "ami_temoin_mariage", category: "Amis", minAge: 22, maxAge: 34,
         location: "Salle de réception", character: "Ton meilleur ami",
@@ -1050,7 +1053,8 @@ let FDScenesPack1: [FDSceneDef] = [
                      effects: [FDEffect(money: -20000, delta: 0), FDEffect(rel: "agent", delta: 8)]),
             FDChoice(label: "Renégocier sa commission", hint: "Tu as renégocié sa commission au barème prévu. Il a accepté, froidement, et il a décroché son téléphone un peu moins vite ensuite.",
                      effects: [FDEffect(money: -8000, delta: 0), FDEffect(rel: "agent", delta: -5), FDEffect(attr: .sangfroid, delta: 3)]),
-        ]),
+        ],
+        condition: { p in p.age >= 18 && p.cond.reputation >= 20 }),
     FDSceneDef(
         id: "ami_pari", category: "Amis", minAge: 19, maxAge: 32,
         location: "Salon", character: "Un ami",
@@ -1266,7 +1270,8 @@ let FDScenesPack2: [FDSceneDef] = [
                      effects: [FDEffect(rel: "coach", delta: 5), FDEffect(attr: .determination, delta: 3), FDEffect(cond: "fatigue", delta: 6)]),
             FDChoice(label: "Menacer de ne plus t'entraîner", hint: "Tu as menacé de ne plus t'entraîner. Il t'a mis avec la réserve le lendemain matin.",
                      effects: [FDEffect(rel: "coach", delta: -10), FDEffect(cond: "reputation", delta: -4)]),
-        ]),
+        ],
+        condition: { p in p.age >= 18 && p.cond.reputation >= 20 }),
     FDSceneDef(
         id: "coa_tactique_perso", category: "Coach", minAge: 21, maxAge: 35,
         location: "Salle vidéo", character: "Entraîneur adjoint",
@@ -1543,7 +1548,8 @@ let FDScenesPack2: [FDSceneDef] = [
                      effects: [FDEffect(attr: .leadership, delta: 6), FDEffect(cond: "confiance", delta: 5), FDEffect(cond: "fatigue", delta: 4)]),
             FDChoice(label: "Le porter sans rien changer", hint: "Tu l'as porté sans rien changer à ta manière de faire. Tu as très bien joué, et le brassard est revenu à son propriétaire lundi.",
                      effects: [FDEffect(attr: .leadership, delta: 2), FDEffect(attr: .sangfroid, delta: 3), FDEffect(cond: "moral", delta: -3)]),
-        ]),
+        ],
+        condition: { p in p.age >= 22 && p.attr(.leadership) >= 52 }),
     FDSceneDef(
         id: "ves_anniversaire_club", category: "Vestiaire", minAge: 19, maxAge: 35,
         location: "Salle du club", character: "Le staff",
@@ -1617,7 +1623,8 @@ let FDScenesPack2: [FDSceneDef] = [
                      effects: [FDEffect(rel: "coach", delta: 3), FDEffect(attr: .sangfroid, delta: 3), FDEffect(cond: "confiance", delta: -3)]),
             FDChoice(label: "Passer par ton agent", hint: "Tu as fait passer ton agent. Le message est remonté à la direction, et le coach l'a très mal pris.",
                      effects: [FDEffect(rel: "agent", delta: 5), FDEffect(rel: "coach", delta: -4)]),
-        ]),
+        ],
+        condition: { p in p.age >= 18 && p.cond.reputation >= 20 }),
     FDSceneDef(
         id: "lea_capitaine_conflit", category: "Leadership", minAge: 24, maxAge: 36,
         location: "Vestiaire", character: "Le capitaine",
@@ -1627,7 +1634,8 @@ let FDScenesPack2: [FDSceneDef] = [
                      effects: [FDEffect(attr: .leadership, delta: 4), FDEffect(rel: "capitaine", delta: -6), FDEffect(cond: "confiance", delta: 3)]),
             FDChoice(label: "Reconnaître et rectifier", hint: "Tu as reconnu la moitié de ce qu'il disait, et tu as rectifié. Il ne s'y attendait pas, et le vestiaire a respiré.",
                      effects: [FDEffect(rel: "capitaine", delta: 6), FDEffect(rel: "vestiaire", delta: 4), FDEffect(attr: .leadership, delta: 2), FDEffect(cond: "fatigue", delta: 6)]),
-        ]),
+        ],
+        condition: { p in p.age >= 22 && p.attr(.leadership) >= 52 }),
     FDSceneDef(
         id: "ves_photo_officielle", category: "Vestiaire", minAge: 18, maxAge: 36,
         location: "Pelouse du stade", character: "Photographe du club",
@@ -1659,7 +1667,8 @@ let FDScenesPack2: [FDSceneDef] = [
                      effects: [FDEffect(attr: .sangfroid, delta: 3), FDEffect(cond: "fatigue", delta: 5)]),
             FDChoice(label: "Accepter", hint: "Tu as accepté. L'argent est arrivé, et depuis, quelqu'un possède quelque chose sur toi.",
                      effects: [FDEffect(money: 150000, delta: 0), FDEffect(cond: "reputation", delta: -25), FDEffect(rel: "president", delta: -15)]),
-        ]),
+        ],
+        condition: { p in p.age >= 18 && p.cond.reputation >= 20 }),
     FDSceneDef(
         id: "coa_prolongation_staff", category: "Coach", minAge: 22, maxAge: 36,
         location: "Bureau du coach", character: "Entraîneur principal",
@@ -1828,7 +1837,8 @@ let FDScenesPack3: [FDSceneDef] = [
                      effects: [FDEffect(cond: "moral", delta: 6), FDEffect(rel: "fans", delta: 5), FDEffect(cond: "fatigue", delta: 8)]),
             FDChoice(label: "Fermer les yeux et respirer", hint: "Tu as fermé les yeux et respiré jusqu'au coup de sifflet. Tu n'as pas tremblé une seconde ensuite.",
                      effects: [FDEffect(attr: .sangfroid, delta: 4), FDEffect(cond: "confiance", delta: 3), FDEffect(cond: "fatigue", delta: 8)]),
-        ]),
+        ],
+        condition: { p in p.club.division == 1 && p.club.reputation >= 60 }),
     FDSceneDef(
         id: "mat_europe_deplacement", category: "Europe", minAge: 18, maxAge: 36,
         location: "Stade hostile", character: "Supporters adverses",
@@ -1838,7 +1848,8 @@ let FDScenesPack3: [FDSceneDef] = [
                      effects: [FDEffect(attr: .sangfroid, delta: 3), FDEffect(cond: "confiance", delta: 4), FDEffect(cond: "forme", delta: -3)]),
             FDChoice(label: "Rester bas et attendre", hint: "Vous êtes restés bas, à attendre. Le stade s'est éteint tout seul à l'heure de jeu.",
                      effects: [FDEffect(attr: .placement, delta: 3), FDEffect(attr: .endurance, delta: 2), FDEffect(cond: "fatigue", delta: 8)]),
-        ]),
+        ],
+        condition: { p in p.club.division == 1 && p.club.reputation >= 60 }),
     FDSceneDef(
         id: "mat_europe_retour", category: "Europe", minAge: 18, maxAge: 36,
         location: "Vestiaire", character: "Entraîneur principal",
@@ -1848,7 +1859,8 @@ let FDScenesPack3: [FDSceneDef] = [
                      effects: [FDEffect(attr: .leadership, delta: 5), FDEffect(cond: "moral", delta: 6), FDEffect(rel: "vestiaire", delta: 5), FDEffect(cond: "forme", delta: -3)]),
             FDChoice(label: "Rester lucide", hint: "Tu es resté lucide, sans promesse. Le groupe est entré sans illusion, et il a joué libéré.",
                      effects: [FDEffect(attr: .sangfroid, delta: 3), FDEffect(cond: "fatigue", delta: 8)]),
-        ]),
+        ],
+        condition: { p in p.club.division == 1 && p.club.reputation >= 60 }),
     FDSceneDef(
         id: "mat_avant_gros_match", category: "Match important", minAge: 17, maxAge: 36,
         location: "Chambre d'hôtel", character: "Toi-même",
@@ -2344,7 +2356,8 @@ let FDScenesPack4: [FDSceneDef] = [
                      effects: [FDEffect(cond: "reputation", delta: 5), FDEffect(cond: "confiance", delta: 3), FDEffect(rel: "coach", delta: -3), FDEffect(money: 8000, delta: 0)]),
             FDChoice(label: "Rester pour jouer", hint: "Tu es resté là où tu joues tous les week-ends. Ton compte n'a pas bougé, ton temps de jeu non plus.",
                      effects: [FDEffect(rel: "coach", delta: 6), FDEffect(attr: .determination, delta: 3), FDEffect(cond: "reputation", delta: -2)]),
-        ]),
+        ],
+        condition: { p in p.age >= 18 && p.cond.reputation >= 20 }),
     FDSceneDef(
         id: "tra_pret_formateur", category: "Transfert", minAge: 18, maxAge: 24,
         location: "Bureau du club", character: "Directeur sportif",
@@ -2374,7 +2387,8 @@ let FDScenesPack4: [FDSceneDef] = [
                      effects: [FDEffect(cond: "confiance", delta: 4), FDEffect(rel: "famille", delta: -5), FDEffect(money: 60000, delta: 0)]),
             FDChoice(label: "Rester dans ton pays", hint: "Tu es resté au pays, près des tiens. Tu es bien, et tu te demandes parfois ce que ça aurait donné.",
                      effects: [FDEffect(rel: "famille", delta: 6), FDEffect(cond: "moral", delta: 3), FDEffect(rel: "vestiaire", delta: -3)]),
-        ]),
+        ],
+        condition: { p in p.age >= 18 && p.cond.reputation >= 20 }),
     FDSceneDef(
         id: "tra_petrodollars", category: "Transfert", minAge: 26, maxAge: 36,
         location: "Salon privé", character: "Émissaire d'un club richissime",
@@ -2394,7 +2408,8 @@ let FDScenesPack4: [FDSceneDef] = [
                      effects: [FDEffect(rel: "agent", delta: 6), FDEffect(rel: "president", delta: -5), FDEffect(money: 35000, delta: 0)]),
             FDChoice(label: "Refuser, tu veux du poids dans la négociation", hint: "Tu as refusé pour garder du poids dans la négociation. Le club tient ton avenir, et il le sait.",
                      effects: [FDEffect(rel: "president", delta: 5), FDEffect(rel: "agent", delta: -4), FDEffect(attr: .sangfroid, delta: 3)]),
-        ]),
+        ],
+        condition: { p in p.contract.years <= 1 }),
     FDSceneDef(
         id: "tra_derniere_heure", category: "Transfert", minAge: 19, maxAge: 33,
         location: "Salon de l'hôtel", character: "Ton agent",
@@ -2404,7 +2419,8 @@ let FDScenesPack4: [FDSceneDef] = [
                      effects: [FDEffect(money: 80000, delta: 0), FDEffect(rel: "agent", delta: 4), FDEffect(cond: "confiance", delta: -3)]),
             FDChoice(label: "Laisser passer", hint: "Tu as laissé passer. Le mercato a fermé, tu es resté, et l'offre n'est jamais revenue.",
                      effects: [FDEffect(attr: .sangfroid, delta: 4), FDEffect(rel: "agent", delta: -5)]),
-        ]),
+        ],
+        condition: { p in p.age >= 18 && p.cond.reputation >= 20 }),
     FDSceneDef(
         id: "tra_rival_direct", category: "Transfert", minAge: 21, maxAge: 34,
         location: "Bureau du club", character: "Directeur sportif",
@@ -2436,7 +2452,8 @@ let FDScenesPack4: [FDSceneDef] = [
                      effects: [FDEffect(rel: "agent", delta: -4), FDEffect(money: 20000, delta: 0)]),
             FDChoice(label: "Fermer les yeux", hint: "Tu as fermé les yeux. Le transfert s'est fait, il a été payé deux fois, et tu sais désormais ce qu'il vaut.",
                      effects: [FDEffect(rel: "agent", delta: 3), FDEffect(money: -10000, delta: 0)]),
-        ]),
+        ],
+        condition: { p in p.age >= 18 && p.cond.reputation >= 20 }),
     FDSceneDef(
         id: "con_prolongation", category: "Contrat", minAge: 19, maxAge: 33,
         location: "Bureau du club", character: "Directeur sportif",
@@ -2448,7 +2465,8 @@ let FDScenesPack4: [FDSceneDef] = [
                      effects: [FDEffect(rel: "president", delta: -4), FDEffect(money: 50000, delta: 0), FDEffect(rel: "agent", delta: 5)]),
             FDChoice(label: "Refuser et attendre", hint: "Tu as refusé de signer et tu as attendu. Tu as pris le risque, et le club a commencé à chercher ton remplaçant.",
                      effects: [FDEffect(rel: "president", delta: -6), FDEffect(cond: "confiance", delta: 3), FDEffect(money: 20000, delta: 0)]),
-        ]),
+        ],
+        condition: { p in p.contract.years <= 1 }),
     FDSceneDef(
         id: "con_bonus_buts", category: "Contrat", minAge: 19, maxAge: 34,
         location: "Bureau de l'agent", character: "Ton agent",
@@ -2458,7 +2476,8 @@ let FDScenesPack4: [FDSceneDef] = [
                      effects: [FDEffect(money: -20000, delta: 0), FDEffect(attr: .tir, delta: 2), FDEffect(cond: "confiance", delta: 3)]),
             FDChoice(label: "Garder le fixe", hint: "Tu as gardé ton fixe. Tu sais exactement ce que tu gagnes, quoi qu'il arrive.",
                      effects: [FDEffect(money: 20000, delta: 0), FDEffect(attr: .sangfroid, delta: 2), FDEffect(rel: "agent", delta: -3)]),
-        ]),
+        ],
+        condition: { p in p.age >= 18 && p.cond.reputation >= 20 }),
     FDSceneDef(
         id: "con_fin_contrat", category: "Contrat", minAge: 21, maxAge: 35,
         location: "Vestiaire", character: "Ton agent",
@@ -2468,7 +2487,8 @@ let FDScenesPack4: [FDSceneDef] = [
                      effects: [FDEffect(money: 120000, delta: 0), FDEffect(rel: "president", delta: -8)]),
             FDChoice(label: "Prolonger maintenant", hint: "Tu as prolongé tout de suite. Le club a été soulagé, et tu as laissé passer la seule occasion de ta carrière de te vendre toi-même.",
                      effects: [FDEffect(rel: "president", delta: 8), FDEffect(money: 30000, delta: 0), FDEffect(rel: "agent", delta: -3)]),
-        ]),
+        ],
+        condition: { p in p.age >= 18 && p.cond.reputation >= 20 }),
     FDSceneDef(
         id: "con_baisse_salaire", category: "Contrat", minAge: 28, maxAge: 36,
         location: "Bureau du club", character: "Directeur financier",
@@ -2488,7 +2508,8 @@ let FDScenesPack4: [FDSceneDef] = [
                      effects: [FDEffect(money: 40000, delta: 0), FDEffect(rel: "president", delta: -4), FDEffect(rel: "agent", delta: 5)]),
             FDChoice(label: "Accepter pour la visibilité", hint: "Tu as accepté pour la visibilité. Ton visage est partout dans le monde, et tu n'as rien touché dessus.",
                      effects: [FDEffect(cond: "reputation", delta: 5), FDEffect(rel: "media", delta: 4), FDEffect(rel: "agent", delta: -3)]),
-        ]),
+        ],
+        condition: { p in p.age >= 18 && p.cond.reputation >= 20 }),
     FDSceneDef(
         id: "age_changement", category: "Agent", minAge: 19, maxAge: 34,
         location: "Café", character: "Un agent concurrent",
@@ -2498,7 +2519,8 @@ let FDScenesPack4: [FDSceneDef] = [
                      effects: [FDEffect(rel: "agent", delta: -8), FDEffect(cond: "confiance", delta: 3), FDEffect(money: -15000, delta: 0)]),
             FDChoice(label: "Rester fidèle", hint: "Tu es resté fidèle. Il t'en a été reconnaissant, et il n'a pas ouvert les portes que l'autre ouvrait.",
                      effects: [FDEffect(rel: "agent", delta: 8), FDEffect(cond: "moral", delta: 3), FDEffect(money: -9000, delta: 0)]),
-        ]),
+        ],
+        condition: { p in p.age >= 18 && p.cond.reputation >= 20 }),
     FDSceneDef(
         id: "age_commission", category: "Agent", minAge: 19, maxAge: 34,
         location: "Bureau de l'agent", character: "Ton agent",
@@ -2508,7 +2530,8 @@ let FDScenesPack4: [FDSceneDef] = [
                      effects: [FDEffect(money: -45000, delta: 0), FDEffect(rel: "agent", delta: 8)]),
             FDChoice(label: "Négocier à huit", hint: "Tu as négocié à huit. Il a signé en serrant les dents, et il décroche un peu moins vite depuis.",
                      effects: [FDEffect(money: -24000, delta: 0), FDEffect(rel: "agent", delta: -3), FDEffect(attr: .sangfroid, delta: 3)]),
-        ]),
+        ],
+        condition: { p in p.age >= 18 && p.cond.reputation >= 20 }),
     FDSceneDef(
         id: "age_conseil_carriere", category: "Agent", minAge: 20, maxAge: 32,
         location: "Bureau de l'agent", character: "Ton agent",
@@ -2518,7 +2541,8 @@ let FDScenesPack4: [FDSceneDef] = [
                      effects: [FDEffect(money: 100000, delta: 0), FDEffect(rel: "agent", delta: 6), FDEffect(cond: "confiance", delta: -3)]),
             FDChoice(label: "Choisir le projet sportif", hint: "Tu as choisi le projet sportif contre son avis. Il a boudé une semaine, et tu as joué tous les week-ends.",
                      effects: [FDEffect(attr: .determination, delta: 4), FDEffect(rel: "agent", delta: -4)]),
-        ]),
+        ],
+        condition: { p in p.age >= 18 && p.cond.reputation >= 20 }),
     FDSceneDef(
         id: "age_media_training", category: "Agent", minAge: 18, maxAge: 32,
         location: "Bureau de l'agent", character: "Attachée de presse",
@@ -2528,7 +2552,8 @@ let FDScenesPack4: [FDSceneDef] = [
                      effects: [FDEffect(rel: "media", delta: 6), FDEffect(attr: .sangfroid, delta: 2), FDEffect(cond: "fatigue", delta: 4), FDEffect(money: 8000, delta: 0)]),
             FDChoice(label: "Y aller à l'instinct", hint: "Tu y es allé à l'instinct. Une phrase sortie de son contexte a fait la une pendant quatre jours.",
                      effects: [FDEffect(rel: "media", delta: -3), FDEffect(cond: "confiance", delta: 3)]),
-        ]),
+        ],
+        condition: { p in p.age >= 18 && p.cond.reputation >= 20 }),
     FDSceneDef(
         id: "arg_premier_gros_cheque", category: "Argent", minAge: 18, maxAge: 26,
         location: "Banque", character: "Conseiller bancaire",
@@ -2635,7 +2660,8 @@ let FDScenesPack4: [FDSceneDef] = [
                      effects: [FDEffect(money: 200000, delta: 0), FDEffect(cond: "reputation", delta: 3), FDEffect(rel: "coach", delta: -3)]),
             FDChoice(label: "Refuser pour garder ta liberté", hint: "Tu as refusé pour garder ta liberté. Tu as multiplié les petits contrats, et le gros est parti chez un autre.",
                      effects: [FDEffect(attr: .sangfroid, delta: 3), FDEffect(money: 0, delta: 0), FDEffect(rel: "coach", delta: -3)]),
-        ]),
+        ],
+        condition: { p in p.age >= 18 && p.cond.reputation >= 20 }),
     FDSceneDef(
         id: "spo_jeu_video", category: "Sponsor", minAge: 21, maxAge: 34,
         location: "Studio de capture", character: "Producteur",
@@ -2727,7 +2753,8 @@ let FDScenesPack4: [FDSceneDef] = [
                      effects: [FDEffect(money: 45000, delta: 0), FDEffect(rel: "media", delta: 4), FDEffect(cond: "fatigue", delta: 3)]),
             FDChoice(label: "Refuser, tu détestes ça", hint: "Tu as refusé. Tes réseaux sont restés vides, et ton agent t'a rappelé le montant tous les mois.",
                      effects: [FDEffect(attr: .sangfroid, delta: 2), FDEffect(cond: "moral", delta: 2), FDEffect(cond: "fatigue", delta: 6)]),
-        ]),
+        ],
+        condition: { p in p.age >= 18 && p.cond.reputation >= 20 }),
     FDSceneDef(
         id: "tra_capitaine_depart", category: "Transfert", minAge: 22, maxAge: 35,
         location: "Vestiaire", character: "Le capitaine",
@@ -2789,7 +2816,8 @@ let FDScenesPack4: [FDSceneDef] = [
                      effects: [FDEffect(rel: "agent", delta: 8), FDEffect(rel: "president", delta: -7), FDEffect(money: 35000, delta: 0)]),
             FDChoice(label: "Négocier seul", hint: "Tu as négocié seul, sans lui. Le club a été ravi, ton agent s'est senti trahi, et le contrat s'est signé vite.",
                      effects: [FDEffect(attr: .leadership, delta: 4), FDEffect(rel: "agent", delta: -6), FDEffect(attr: .sangfroid, delta: 3)]),
-        ]),
+        ],
+        condition: { p in p.contract.years <= 1 }),
     FDSceneDef(
         id: "arg_retraite_preparee", category: "Argent", minAge: 28, maxAge: 36,
         location: "Cabinet de gestion", character: "Ton conseiller",
@@ -2949,7 +2977,8 @@ let FDScenesPack5: [FDSceneDef] = [
                      effects: [FDEffect(rel: "media", delta: 4), FDEffect(cond: "reputation", delta: -3), FDEffect(cond: "moral", delta: -2)]),
             FDChoice(label: "Fermer tes comptes", hint: "Tu as fermé tes comptes. Silence complet, esprit tranquille, et ton agent qui pleure ses partenariats.",
                      effects: [FDEffect(cond: "moral", delta: 6), FDEffect(rel: "media", delta: -4)]),
-        ]),
+        ],
+        condition: { p in p.age >= 18 && p.cond.reputation >= 20 }),
     FDSceneDef(
         id: "res_video_virale", category: "Réseaux", minAge: 17, maxAge: 32,
         location: "Téléphone", character: "Ton attaché de presse",
@@ -2969,7 +2998,8 @@ let FDScenesPack5: [FDSceneDef] = [
                      effects: [FDEffect(cond: "reputation", delta: 3), FDEffect(rel: "media", delta: 3), FDEffect(cond: "moral", delta: -3)]),
             FDChoice(label: "Supprimer et se taire", hint: "Tu as supprimé et tu t'es tu. Le silence a été interprété comme un aveu pendant deux semaines.",
                      effects: [FDEffect(cond: "reputation", delta: -4)]),
-        ]),
+        ],
+        condition: { p in p.age >= 18 && p.cond.reputation >= 20 }),
     FDSceneDef(
         id: "res_live", category: "Réseaux", minAge: 18, maxAge: 30,
         location: "Chambre", character: "Tes abonnés",
@@ -2979,7 +3009,8 @@ let FDScenesPack5: [FDSceneDef] = [
                      effects: [FDEffect(rel: "media", delta: 5), FDEffect(rel: "vestiaire", delta: -4), FDEffect(cond: "reputation", delta: 4)]),
             FDChoice(label: "Couper au bout de dix minutes", hint: "Tu as coupé au bout de dix minutes, avant de dire une bêtise. Les abonnés ont râlé, ton agent a soufflé.",
                      effects: [FDEffect(attr: .sangfroid, delta: 2), FDEffect(cond: "fatigue", delta: 3)]),
-        ]),
+        ],
+        condition: { p in p.age >= 18 && p.cond.reputation >= 20 }),
     FDSceneDef(
         id: "res_challenge", category: "Réseaux", minAge: 17, maxAge: 30,
         location: "Terrain d'entraînement", character: "Un influenceur",
@@ -3967,7 +3998,8 @@ let FDScenesPack7: [FDSceneDef] = [
                      effects: [FDEffect(rel: "staff", delta: 8), FDEffect(rel: "vestiaire", delta: -3), FDEffect(attr: .leadership, delta: 3)]),
             FDChoice(label: "Rire avec les autres", hint: "Tu as ri avec les autres. Il a continué à préparer ton sac tous les jours, sans rien dire.",
                      effects: [FDEffect(rel: "vestiaire", delta: 3), FDEffect(rel: "staff", delta: -5)]),
-        ]),
+        ],
+        condition: { p in p.cond.reputation >= 58 }),
     FDSceneDef(
         id: "sta_cuisinier", category: "Staff", minAge: 18, maxAge: 36,
         location: "Réfectoire", character: "Cuisinier du club",
@@ -3977,7 +4009,8 @@ let FDScenesPack7: [FDSceneDef] = [
                      effects: [FDEffect(rel: "staff", delta: 8), FDEffect(cond: "moral", delta: 4), FDEffect(cond: "fatigue", delta: 4)]),
             FDChoice(label: "Garder ça entre vous", hint: "Tu as gardé ça entre vous, avec une bouteille et un mot. Ça vous appartient, et c'est peut-être mieux comme ça.",
                      effects: [FDEffect(rel: "staff", delta: 4), FDEffect(cond: "moral", delta: 3), FDEffect(cond: "fatigue", delta: 4)]),
-        ]),
+        ],
+        condition: { p in p.cond.reputation >= 58 }),
     FDSceneDef(
         id: "sta_analyste_jeune", category: "Staff", minAge: 19, maxAge: 36,
         location: "Salle vidéo", character: "Un jeune analyste",
@@ -3987,7 +4020,8 @@ let FDScenesPack7: [FDSceneDef] = [
                      effects: [FDEffect(attr: .vision, delta: 3), FDEffect(attr: .placement, delta: 2), FDEffect(rel: "staff", delta: 5), FDEffect(cond: "fatigue", delta: 4)]),
             FDChoice(label: "Le survoler", hint: "Tu l'as survolé et tu as dit que c'était bien. Il l'a compris tout de suite, et il n'a jamais recommencé.",
                      effects: [FDEffect(attr: .vision, delta: 1), FDEffect(cond: "fatigue", delta: 4)]),
-        ]),
+        ],
+        condition: { p in p.cond.reputation >= 58 }),
     FDSceneDef(
         id: "sta_medecin_conflit", category: "Staff", minAge: 20, maxAge: 36,
         location: "Infirmerie", character: "Médecin du club",
@@ -3999,7 +4033,8 @@ let FDScenesPack7: [FDSceneDef] = [
                      effects: [FDEffect(rel: "staff", delta: -5), FDEffect(cond: "forme", delta: 5)]),
             FDChoice(label: "Les réunir", hint: "Tu les as réunis dans la même pièce, obligés de se parler. Ils ont accouché d'un protocole commun, et il était meilleur que les deux.",
                      effects: [FDEffect(attr: .leadership, delta: 4), FDEffect(cond: "forme", delta: 6), FDEffect(cond: "fatigue", delta: 3)]),
-        ]),
+        ],
+        condition: { p in p.cond.reputation >= 58 }),
     FDSceneDef(
         id: "sta_bus_chauffeur", category: "Staff", minAge: 18, maxAge: 36,
         location: "Parking", character: "Le chauffeur du bus",
@@ -4009,7 +4044,8 @@ let FDScenesPack7: [FDSceneDef] = [
                      effects: [FDEffect(rel: "staff", delta: 8), FDEffect(rel: "vestiaire", delta: 4), FDEffect(money: -1000, delta: 0)]),
             FDChoice(label: "Laisser filer", hint: "Tu as laissé filer. Il a conduit le déplacement, comme les mille deux cents fois précédentes.",
                      effects: [FDEffect(rel: "staff", delta: -2)]),
-        ]),
+        ],
+        condition: { p in p.cond.reputation >= 58 }),
     FDSceneDef(
         id: "cal_reprise", category: "Calendrier", minAge: 17, maxAge: 36,
         location: "Terrain d'entraînement", character: "Préparateur physique",
@@ -4163,7 +4199,8 @@ let FDScenesPack7: [FDSceneDef] = [
                      effects: [FDEffect(money: 30000, delta: 0), FDEffect(cond: "reputation", delta: 5), FDEffect(cond: "fatigue", delta: 4)]),
             FDChoice(label: "Demander une part des ventes", hint: "Tu as demandé une part des ventes. Ils ont refusé, puis cédé sur un pourcentage — et l'ambiance a été fraîche un moment.",
                      effects: [FDEffect(money: 60000, delta: 0), FDEffect(rel: "president", delta: -4), FDEffect(rel: "agent", delta: 5)]),
-        ]),
+        ],
+        condition: { p in p.age >= 18 && p.cond.reputation >= 20 }),
     FDSceneDef(
         id: "club_ecole_supporters", category: "Club", minAge: 20, maxAge: 36,
         location: "Salle municipale", character: "Une école de supporters",
@@ -4233,7 +4270,8 @@ let FDScenesPack7: [FDSceneDef] = [
                      effects: [FDEffect(attr: .determination, delta: 4), FDEffect(cond: "forme", delta: 5), FDEffect(rel: "staff", delta: 5), FDEffect(cond: "fatigue", delta: 4)]),
             FDChoice(label: "Le prendre mal", hint: "Tu l'as très mal pris. Il ne t'a plus jamais parlé que du protocole.",
                      effects: [FDEffect(rel: "staff", delta: -5), FDEffect(cond: "moral", delta: -3)]),
-        ]),
+        ],
+        condition: { p in p.cond.reputation >= 58 }),
     FDSceneDef(
         id: "club_academie_nom", category: "Club", minAge: 28, maxAge: 36,
         location: "Centre de formation", character: "Président du club",
@@ -4307,6 +4345,7 @@ let FDScenesPack7: [FDSceneDef] = [
             FDChoice(label: "Garder ta technique", hint: "Tu as gardé ta technique. Tu as continué à faire ce que tu sais faire, et il s'est occupé du deuxième gardien.",
                      effects: [FDEffect(cond: "confiance", delta: 3), FDEffect(rel: "staff", delta: -4)]),
         ],
+        condition: { p in p.cond.reputation >= 58 },
         positions: [.gardien]),
     FDSceneDef(
         id: "club_dette", category: "Club", minAge: 19, maxAge: 36,
@@ -4327,7 +4366,8 @@ let FDScenesPack7: [FDSceneDef] = [
                      effects: [FDEffect(money: -3000, delta: 0), FDEffect(cond: "reputation", delta: 2)]),
             FDChoice(label: "Demander de l'étouffer", hint: "Tu as demandé à ton agent d'étouffer l'affaire. Elle est ressortie six mois plus tard, en pire.",
                      effects: [FDEffect(cond: "reputation", delta: -6), FDEffect(rel: "media", delta: -4)]),
-        ]),
+        ],
+        condition: { p in p.age >= 18 && p.cond.reputation >= 20 }),
     FDSceneDef(
         id: "cal_veille_derby_repos", category: "Calendrier", minAge: 18, maxAge: 36,
         location: "Chambre", character: "Préparateur physique",
@@ -4370,7 +4410,8 @@ let FDScenesPack8: [FDSceneDef] = [
                      effects: [FDEffect(cond: "confiance", delta: 4), FDEffect(cond: "reputation", delta: 4), FDEffect(rel: "vestiaire", delta: -3)]),
             FDChoice(label: "Ne rien préparer", hint: "Tu n'avais rien préparé, exprès. Tu as parlé trente secondes, mal, et c'était sincère.",
                      effects: [FDEffect(attr: .sangfroid, delta: 3), FDEffect(rel: "vestiaire", delta: -3)]),
-        ]),
+        ],
+        condition: { p in p.cond.reputation >= 58 }),
     FDSceneDef(
         id: "sta_equipe_type", category: "Trophée", minAge: 21, maxAge: 36,
         location: "Gala de fin de saison", character: "Un dirigeant de la ligue",
@@ -4380,7 +4421,8 @@ let FDScenesPack8: [FDSceneDef] = [
                      effects: [FDEffect(rel: "vestiaire", delta: 8), FDEffect(cond: "reputation", delta: 4), FDEffect(cond: "fatigue", delta: 5)]),
             FDChoice(label: "Savourer sans rien dire", hint: "Tu as savouré sans rien dire. C'est ton trophée, tu l'as gagné, et il n'a pas dormi cette nuit-là.",
                      effects: [FDEffect(cond: "confiance", delta: 4), FDEffect(rel: "vestiaire", delta: -3)]),
-        ]),
+        ],
+        condition: { p in p.cond.reputation >= 58 }),
     FDSceneDef(
         id: "sta_meilleur_buteur", category: "Trophée", minAge: 21, maxAge: 36,
         location: "Terrain", character: "Le speaker",
@@ -4390,7 +4432,8 @@ let FDScenesPack8: [FDSceneDef] = [
                      effects: [FDEffect(attr: .tir, delta: 2), FDEffect(rel: "vestiaire", delta: -4), FDEffect(cond: "confiance", delta: 4)]),
             FDChoice(label: "Laisser le jeu se dérouler", hint: "Tu as laissé le jeu se dérouler normalement. Tu as perdu le titre pour un but, et tu as gardé le vestiaire.",
                      effects: [FDEffect(rel: "vestiaire", delta: 6), FDEffect(attr: .sangfroid, delta: 3), FDEffect(cond: "fatigue", delta: 5)]),
-        ]),
+        ],
+        condition: { p in p.cond.reputation >= 58 }),
     FDSceneDef(
         id: "sta_titre_champion", category: "Trophée", minAge: 20, maxAge: 36,
         location: "Pelouse", character: "Le capitaine",
@@ -4400,7 +4443,8 @@ let FDScenesPack8: [FDSceneDef] = [
                      effects: [FDEffect(rel: "vestiaire", delta: 8), FDEffect(cond: "moral", delta: 10), FDEffect(rel: "fans", delta: 6), FDEffect(cond: "fatigue", delta: 5)]),
             FDChoice(label: "Laisser l'honneur aux anciens", hint: "Tu as laissé l'honneur aux deux anciens. Ils ont soulevé le trophée en pleurant, et le vestiaire a retenu ce geste plus que le titre.",
                      effects: [FDEffect(rel: "vestiaire", delta: 6), FDEffect(cond: "reputation", delta: 3), FDEffect(cond: "fatigue", delta: 5)]),
-        ]),
+        ],
+        condition: { p in p.cond.reputation >= 58 }),
     FDSceneDef(
         id: "sta_celebrite", category: "Star", minAge: 21, maxAge: 36,
         location: "Restaurant", character: "Un inconnu",
@@ -4410,7 +4454,8 @@ let FDScenesPack8: [FDSceneDef] = [
                      effects: [FDEffect(rel: "fans", delta: 5), FDEffect(cond: "fatigue", delta: 2), FDEffect(money: 35000, delta: 0)]),
             FDChoice(label: "Demander poliment à être tranquille", hint: "Tu lui as demandé poliment de vous laisser. Il l'a pris correctement, et il l'a raconté autrement sur les réseaux.",
                      effects: [FDEffect(attr: .sangfroid, delta: 3), FDEffect(rel: "fans", delta: -2)]),
-        ]),
+        ],
+        condition: { p in p.cond.reputation >= 58 }),
     FDSceneDef(
         id: "sta_garde_du_corps", category: "Star", minAge: 22, maxAge: 36,
         location: "Domicile", character: "Ton agent",
@@ -4442,7 +4487,8 @@ let FDScenesPack8: [FDSceneDef] = [
                      effects: [FDEffect(cond: "reputation", delta: 8), FDEffect(rel: "fans", delta: 8), FDEffect(rel: "vestiaire", delta: -3), FDEffect(money: 35000, delta: 0)]),
             FDChoice(label: "Demander qu'on attende", hint: "Tu as demandé qu'on attende la fin de ta carrière. Le club a rangé les croquis, et personne n'en a reparlé.",
                      effects: [FDEffect(attr: .sangfroid, delta: 3), FDEffect(cond: "reputation", delta: 3), FDEffect(rel: "vestiaire", delta: -3)]),
-        ]),
+        ],
+        condition: { p in p.cond.reputation >= 58 }),
     FDSceneDef(
         id: "sta_rumeur_depart_star", category: "Star", minAge: 23, maxAge: 36,
         location: "Zone mixte", character: "Un journaliste",
@@ -4452,7 +4498,8 @@ let FDScenesPack8: [FDSceneDef] = [
                      effects: [FDEffect(attr: .determination, delta: 4), FDEffect(rel: "media", delta: -2), FDEffect(money: 12000, delta: 0)]),
             FDChoice(label: "Assumer le statut publiquement", hint: "Tu as assumé le statut publiquement, en prenant la parole. Tu as gagné en stature, et chaque mauvais match est devenu une affaire d'État.",
                      effects: [FDEffect(cond: "reputation", delta: 5), FDEffect(cond: "confiance", delta: 4), FDEffect(rel: "vestiaire", delta: -2)]),
-        ]),
+        ],
+        condition: { p in p.cond.reputation >= 58 }),
     FDSceneDef(
         id: "vet_temps_de_jeu", category: "Vétéran", minAge: 30, maxAge: 36,
         location: "Bureau du coach", character: "Entraîneur principal",
@@ -4564,7 +4611,8 @@ let FDScenesPack8: [FDSceneDef] = [
                      effects: [FDEffect(rel: "media", delta: 8), FDEffect(money: 60000, delta: 0), FDEffect(cond: "moral", delta: -3)]),
             FDChoice(label: "Directeur sportif", hint: "Tu deviens directeur sportif. Costume, réunions, budgets — et tu construis une équipe au lieu d'y jouer.",
                      effects: [FDEffect(attr: .vision, delta: 4), FDEffect(rel: "president", delta: 6), FDEffect(cond: "fatigue", delta: 5)]),
-        ]),
+        ],
+        condition: { p in p.age >= 18 && p.cond.reputation >= 20 }),
     FDSceneDef(
         id: "fin_academie_perso", category: "Retraite", minAge: 32, maxAge: 36,
         location: "Terrain municipal", character: "Un éducateur",
@@ -4726,7 +4774,8 @@ let FDScenesPack8: [FDSceneDef] = [
                      effects: [FDEffect(cond: "reputation", delta: 8), FDEffect(money: 80000, delta: 0), FDEffect(cond: "fatigue", delta: 6)]),
             FDChoice(label: "Refuser pour rester concentré", hint: "Tu as refusé pour rester concentré. Ils ont choisi un autre joueur, et personne n'a rien dit.",
                      effects: [FDEffect(attr: .determination, delta: 3), FDEffect(cond: "fatigue", delta: 6)]),
-        ]),
+        ],
+        condition: { p in p.cond.reputation >= 58 }),
     FDSceneDef(
         id: "sta_syndicat", category: "Star", minAge: 24, maxAge: 36,
         location: "Réunion syndicale", character: "Un représentant des joueurs",
@@ -4736,7 +4785,8 @@ let FDScenesPack8: [FDSceneDef] = [
                      effects: [FDEffect(cond: "reputation", delta: 8), FDEffect(rel: "vestiaire", delta: 8), FDEffect(rel: "president", delta: -5), FDEffect(cond: "fatigue", delta: 6), FDEffect(money: 35000, delta: 0)]),
             FDChoice(label: "Refuser", hint: "Tu as refusé. Le dossier a été porté par un autre, moins écouté, et rien n'a changé.",
                      effects: [FDEffect(attr: .sangfroid, delta: 2), FDEffect(money: -10000, delta: 0)]),
-        ]),
+        ],
+        condition: { p in p.cond.reputation >= 58 }),
     FDSceneDef(
         id: "sta_grand_club_refus", category: "Star", minAge: 23, maxAge: 33,
         location: "Bureau de l'agent", character: "Ton agent",
@@ -4746,7 +4796,8 @@ let FDScenesPack8: [FDSceneDef] = [
                      effects: [FDEffect(cond: "reputation", delta: 8), FDEffect(cond: "confiance", delta: -3), FDEffect(money: 200000, delta: 0)]),
             FDChoice(label: "Refuser pour rester titulaire", hint: "Tu as refusé pour continuer à jouer. Tu es titulaire, tu es heureux, et tu y penseras toute ta vie.",
                      effects: [FDEffect(attr: .determination, delta: 4), FDEffect(cond: "confiance", delta: 4), FDEffect(cond: "fatigue", delta: 6)]),
-        ]),
+        ],
+        condition: { p in p.cond.reputation >= 58 }),
     FDSceneDef(
         id: "fin_blessure_fin", category: "Retraite", minAge: 29, maxAge: 36,
         location: "Cabinet médical", character: "Un spécialiste",
@@ -4776,7 +4827,8 @@ let FDScenesPack8: [FDSceneDef] = [
                      effects: [FDEffect(rel: "vestiaire", delta: 5), FDEffect(rel: "president", delta: -2), FDEffect(money: 35000, delta: 0)]),
             FDChoice(label: "Rester objectif", hint: "Tu es resté objectif et tu as désigné le meilleur des cinq. Ton ami l'a appris, et vous n'en avez jamais reparlé.",
                      effects: [FDEffect(attr: .leadership, delta: 4), FDEffect(rel: "president", delta: 6), FDEffect(rel: "vestiaire", delta: -3)]),
-        ]),
+        ],
+        condition: { p in p.cond.reputation >= 58 }),
     FDSceneDef(
         id: "trophee_coupe_monde", category: "Trophée", minAge: 22, maxAge: 36,
         location: "Vestiaire de la sélection", character: "Sélectionneur",
@@ -4838,7 +4890,8 @@ let FDScenesPack8: [FDSceneDef] = [
                      effects: [FDEffect(money: -50000, delta: 0), FDEffect(rel: "agent", delta: 10), FDEffect(attr: .vision, delta: 3)]),
             FDChoice(label: "Refuser", hint: "Tu as refusé. Tu ne te voyais pas de ce côté-là de la table, et il ne t'a jamais tout à fait pardonné.",
                      effects: [FDEffect(attr: .sangfroid, delta: 2), FDEffect(rel: "agent", delta: -3)]),
-        ]),
+        ],
+        condition: { p in p.cond.reputation >= 58 }),
     FDSceneDef(
         id: "vet_place_banc", category: "Vétéran", minAge: 31, maxAge: 36,
         location: "Banc de touche", character: "Entraîneur principal",
@@ -4848,7 +4901,8 @@ let FDScenesPack8: [FDSceneDef] = [
                      effects: [FDEffect(rel: "vestiaire", delta: 8), FDEffect(attr: .leadership, delta: 4), FDEffect(cond: "moral", delta: -2)]),
             FDChoice(label: "Demander à partir en janvier", hint: "Tu as demandé à partir en janvier. Le club a accepté, et tu as rejoué tous les week-ends ailleurs.",
                      effects: [FDEffect(rel: "coach", delta: -4), FDEffect(cond: "confiance", delta: 3)]),
-        ]),
+        ],
+        condition: { p in p.age >= 18 && p.cond.reputation >= 20 }),
     FDSceneDef(
         id: "trophee_record_selection", category: "Trophée", minAge: 29, maxAge: 36,
         location: "Centre national", character: "Sélectionneur",
@@ -4869,7 +4923,8 @@ let FDScenesPack8: [FDSceneDef] = [
                      effects: [FDEffect(money: -150000, delta: 0), FDEffect(attr: .vision, delta: 3), FDEffect(cond: "reputation", delta: 4)]),
             FDChoice(label: "Refuser", hint: "Tu as refusé. Le club est monté deux fois sans toi, et tu as gardé ton argent et ton nom.",
                      effects: [FDEffect(attr: .sangfroid, delta: 2), FDEffect(money: -10000, delta: 0)]),
-        ]),
+        ],
+        condition: { p in p.cond.reputation >= 58 }),
     FDSceneDef(
         id: "fin_retour_terrain", category: "Retraite", minAge: 33, maxAge: 36,
         location: "Terrain municipal", character: "Un dirigeant amateur",
@@ -4889,7 +4944,8 @@ let FDScenesPack8: [FDSceneDef] = [
                      effects: [FDEffect(attr: .endurance, delta: 2), FDEffect(attr: .placement, delta: 2), FDEffect(cond: "fatigue", delta: 6), FDEffect(money: 20000, delta: 0)]),
             FDChoice(label: "Te fier à tes sensations", hint: "Tu t'es fié à tes sensations et à tes buts. Tu as continué à marquer, et le club a commencé à chercher plus jeune.",
                      effects: [FDEffect(cond: "confiance", delta: 4), FDEffect(attr: .tir, delta: 1), FDEffect(cond: "fatigue", delta: 6)]),
-        ]),
+        ],
+        condition: { p in p.cond.reputation >= 58 }),
     FDSceneDef(
         id: "vet_conflit_jeune_star", category: "Vétéran", minAge: 30, maxAge: 36,
         location: "Vestiaire", character: "Une jeune star du groupe",
@@ -4921,7 +4977,8 @@ let FDScenesPack8: [FDSceneDef] = [
                      effects: [FDEffect(money: 60000, delta: 0), FDEffect(cond: "confiance", delta: -3)]),
             FDChoice(label: "Négocier une version personnalisée", hint: "Tu as négocié une version personnalisée, à ta pointure et à tes couleurs. Ça a pris six semaines, et ils ont cédé.",
                      effects: [FDEffect(money: 20000, delta: 0), FDEffect(rel: "agent", delta: 4), FDEffect(cond: "confiance", delta: 2), FDEffect(cond: "fatigue", delta: 6)]),
-        ]),
+        ],
+        condition: { p in p.cond.reputation >= 58 }),
     FDSceneDef(
         id: "fin_hommage_club", category: "Retraite", minAge: 32, maxAge: 36,
         location: "Pelouse", character: "Président du club",
@@ -4953,7 +5010,8 @@ let FDScenesPack8: [FDSceneDef] = [
                      effects: [FDEffect(attr: .leadership, delta: 4), FDEffect(cond: "reputation", delta: 6), FDEffect(rel: "media", delta: 5), FDEffect(money: -10000, delta: 0)]),
             FDChoice(label: "Laisser le capitaine parler", hint: "Tu as laissé le capitaine parler, comme le protocole le prévoyait. C'était plus simple, et personne n'a rien remarqué.",
                      effects: [FDEffect(rel: "capitaine", delta: 5), FDEffect(attr: .sangfroid, delta: 2), FDEffect(rel: "vestiaire", delta: -3)]),
-        ]),
+        ],
+        condition: { p in p.cond.reputation >= 58 }),
     FDSceneDef(
         id: "fin_derniere_blessure", category: "Retraite", minAge: 30, maxAge: 36,
         location: "Infirmerie", character: "Médecin du club",
@@ -4973,7 +5031,8 @@ let FDScenesPack8: [FDSceneDef] = [
                      effects: [FDEffect(cond: "reputation", delta: 8), FDEffect(cond: "moral", delta: 6), FDEffect(rel: "fans", delta: 5), FDEffect(rel: "vestiaire", delta: -3), FDEffect(money: 12000, delta: 0)]),
             FDChoice(label: "Faire court", hint: "Tu as fait court, une vingtaine de minutes, et beaucoup de photos. Ils étaient contents, et ils n'ont rien retenu.",
                      effects: [FDEffect(cond: "reputation", delta: 2), FDEffect(rel: "vestiaire", delta: -3)]),
-        ]),
+        ],
+        condition: { p in p.cond.reputation >= 58 }),
     FDSceneDef(
         id: "vet_choix_numero", category: "Vétéran", minAge: 30, maxAge: 36,
         location: "Vestiaire", character: "Un jeune du groupe",
@@ -4993,7 +5052,8 @@ let FDScenesPack8: [FDSceneDef] = [
                      effects: [FDEffect(attr: .tir, delta: 3), FDEffect(rel: "vestiaire", delta: -3), FDEffect(cond: "fatigue", delta: 8)]),
             FDChoice(label: "Continuer à jouer collectif", hint: "Tu as continué à jouer collectif. Tu as manqué le Soulier d'Or pour un but, et l'équipe est allée en Europe.",
                      effects: [FDEffect(attr: .vision, delta: 3), FDEffect(rel: "vestiaire", delta: 6), FDEffect(cond: "fatigue", delta: 5)]),
-        ]),
+        ],
+        condition: { p in p.careerGoals >= 40 }),
     FDSceneDef(
         id: "sta_charite_mondiale", category: "Star", minAge: 24, maxAge: 36,
         location: "Terrain d'un camp", character: "Un responsable humanitaire",
@@ -5003,7 +5063,8 @@ let FDScenesPack8: [FDSceneDef] = [
                      effects: [FDEffect(cond: "reputation", delta: 10), FDEffect(cond: "moral", delta: 8), FDEffect(cond: "fatigue", delta: 8), FDEffect(rel: "coach", delta: -3), FDEffect(money: 20000, delta: 0)]),
             FDChoice(label: "Envoyer un don", hint: "Tu as envoyé un don important à la place. L'ONG a remercié, et l'argent a fait plus que ta présence.",
                      effects: [FDEffect(money: -50000, delta: 0), FDEffect(cond: "reputation", delta: 4)]),
-        ]),
+        ],
+        condition: { p in p.cond.reputation >= 58 }),
     FDSceneDef(
         id: "fin_carriere_bilan", category: "Retraite", minAge: 31, maxAge: 36,
         location: "Salon", character: "Toi-même",
@@ -5033,7 +5094,8 @@ let FDScenesPack8: [FDSceneDef] = [
                      effects: [FDEffect(cond: "reputation", delta: 5), FDEffect(cond: "moral", delta: 5), FDEffect(rel: "vestiaire", delta: -3), FDEffect(money: 20000, delta: 0)]),
             FDChoice(label: "Lui répondre que tu n'as pas fini", hint: "Tu lui as répondu que tu n'avais pas encore fini. Il a souri, et tu as joué comme si tu avais vingt-cinq ans.",
                      effects: [FDEffect(attr: .determination, delta: 4), FDEffect(cond: "confiance", delta: 4), FDEffect(money: -10000, delta: 0)]),
-        ]),
+        ],
+        condition: { p in p.cond.reputation >= 58 }),
     FDSceneDef(
         id: "fin_famille_soulagee", category: "Retraite", minAge: 31, maxAge: 36,
         location: "Salon", character: "Ta compagne",
@@ -5097,7 +5159,8 @@ let FDScenesPack8: [FDSceneDef] = [
                      effects: [FDEffect(rel: "media", delta: 6), FDEffect(rel: "president", delta: -6), FDEffect(cond: "reputation", delta: 4), FDEffect(money: 35000, delta: 0)]),
             FDChoice(label: "Passer par le service com du club", hint: "Tu es passé par le service com. Communiqué propre, aucune question, et l'affaire a duré trois semaines de plus.",
                      effects: [FDEffect(rel: "president", delta: 5), FDEffect(rel: "media", delta: 2), FDEffect(rel: "vestiaire", delta: -3)]),
-        ]),
+        ],
+        condition: { p in p.cond.reputation >= 58 }),
     FDSceneDef(
         id: "vet_avant_derniere_saison", category: "Vétéran", minAge: 30, maxAge: 36,
         location: "Bureau du coach", character: "Entraîneur principal",
@@ -5129,7 +5192,8 @@ let FDScenesPack8: [FDSceneDef] = [
                      effects: [FDEffect(money: -15000, delta: 0), FDEffect(rel: "staff", delta: 6)]),
             FDChoice(label: "Refuser le principe", hint: "Tu as refusé le principe, en l'expliquant. Deux joueurs t'ont soutenu, et le personnel l'a su.",
                      effects: [FDEffect(rel: "staff", delta: -8), FDEffect(rel: "vestiaire", delta: -5), FDEffect(money: 35000, delta: 0)]),
-        ]),
+        ],
+        condition: { p in p.cond.reputation >= 58 }),
     FDSceneDef(
         id: "vet_selection_rappel", category: "Vétéran", minAge: 31, maxAge: 36,
         location: "Centre national", character: "Sélectionneur",
@@ -5160,7 +5224,8 @@ let FDScenesPack8: [FDSceneDef] = [
                      effects: [FDEffect(money: 80000, delta: 0), FDEffect(rel: "president", delta: -8)]),
             FDChoice(label: "Le résilier pour le club", hint: "Tu l'as résilié pour le club, en payant les pénalités. La direction ne l'a jamais oublié — dans le bon sens.",
                      effects: [FDEffect(money: -60000, delta: 0), FDEffect(rel: "president", delta: 10)]),
-        ]),
+        ],
+        condition: { p in p.cond.reputation >= 58 }),
     FDSceneDef(
         id: "vet_derniere_prolongation", category: "Vétéran", minAge: 32, maxAge: 36,
         location: "Bureau du club", character: "Président du club",
@@ -5170,7 +5235,8 @@ let FDScenesPack8: [FDSceneDef] = [
                      effects: [FDEffect(attr: .determination, delta: 4), FDEffect(cond: "confiance", delta: 3), FDEffect(cond: "fatigue", delta: 7)]),
             FDChoice(label: "Demander deux ans fermes", hint: "Tu as demandé deux ans fermes. Ils ont hésité trois semaines, et ils ont fini par signer.",
                      effects: [FDEffect(rel: "president", delta: -5), FDEffect(money: 40000, delta: 0)]),
-        ]),
+        ],
+        condition: { p in p.contract.years <= 1 }),
     FDSceneDef(
         id: "sta_polemique_celebration", category: "Star", minAge: 20, maxAge: 36,
         location: "Terrain", character: "L'arbitre",
@@ -5180,7 +5246,8 @@ let FDScenesPack8: [FDSceneDef] = [
                      effects: [FDEffect(cond: "reputation", delta: 3), FDEffect(rel: "fans", delta: -2), FDEffect(money: 12000, delta: 0)]),
             FDChoice(label: "Assumer complètement", hint: "Tu as assumé complètement, en expliquant ce que le geste signifiait. Deux matchs de suspension, et un virage qui reprend le geste à chaque match.",
                      effects: [FDEffect(cond: "reputation", delta: -3), FDEffect(rel: "fans", delta: 8), FDEffect(cond: "confiance", delta: 4)]),
-        ]),
+        ],
+        condition: { p in p.cond.reputation >= 58 }),
     FDSceneDef(
         id: "fin_choix_dernier_club", category: "Retraite", minAge: 32, maxAge: 36,
         location: "Bureau de l'agent", character: "Ton agent",
@@ -5190,7 +5257,8 @@ let FDScenesPack8: [FDSceneDef] = [
                      effects: [FDEffect(rel: "fans", delta: 12), FDEffect(cond: "moral", delta: 10), FDEffect(cond: "reputation", delta: 2), FDEffect(cond: "fatigue", delta: 5)]),
             FDChoice(label: "Le haut de tableau", hint: "Tu as choisi le haut de tableau. Tu as joué l'Europe une dernière fois, et personne à la maison n'a vu tes derniers matchs.",
                      effects: [FDEffect(cond: "reputation", delta: 6), FDEffect(cond: "confiance", delta: 4), FDEffect(money: 60000, delta: 0), FDEffect(cond: "moral", delta: -3)]),
-        ]),
+        ],
+        condition: { p in p.age >= 18 && p.cond.reputation >= 20 }),
     FDSceneDef(
         id: "sta_retour_gagnant", category: "Star", minAge: 22, maxAge: 36,
         location: "Pelouse", character: "Le stade entier",
@@ -5200,7 +5268,8 @@ let FDScenesPack8: [FDSceneDef] = [
                      effects: [FDEffect(attr: .determination, delta: 4), FDEffect(cond: "forme", delta: -4), FDEffect(cond: "confiance", delta: 4), FDEffect(money: 12000, delta: 0)]),
             FDChoice(label: "Accepter d'entrer en jeu", hint: "Tu as accepté d'entrer en jeu. Tu es rentré à la 60e sur un terrain ouvert, et tu as fait basculer le match.",
                      effects: [FDEffect(attr: .sangfroid, delta: 3), FDEffect(cond: "forme", delta: 3), FDEffect(cond: "fatigue", delta: 6)]),
-        ]),
+        ],
+        condition: { p in p.cond.reputation >= 58 }),
     FDSceneDef(
         id: "ves_tournoi_interne", category: "Vestiaire", minAge: 18, maxAge: 36,
         location: "Terrain d'entraînement", character: "Le groupe",
@@ -5470,7 +5539,8 @@ let FDScenesGamble: [FDSceneDef] = [
                      riskText: "Il tenait vraiment le dossier : la porte s'ouvre, et la prime à la signature couvre largement l'avance."),
             FDChoice(label: "Le renvoyer vers ton agent officiel", hint: "Tu l'as renvoyé vers ton agent officiel. Il n'a jamais rappelé, ce qui répond à peu près à la question.",
                      effects: [FDEffect(rel: "agent", delta: 5), FDEffect(cond: "moral", delta: -3)]),
-        ]),
+        ],
+        condition: { p in p.age >= 18 && p.cond.reputation >= 20 }),
     FDSceneDef(
         id: "gmb_nutritionniste", category: "Hygiène de vie", minAge: 17, maxAge: 34,
         location: "Ta cuisine", character: "Une nutritionniste",
@@ -5693,7 +5763,8 @@ let FDScenesGamble: [FDSceneDef] = [
                      riskText: "Deux clubs se positionnent réellement, et la concurrence fait grimper ta prime."),
             FDChoice(label: "Faire confiance à ton agent", hint: "Tu as fait confiance à ton agent. Il a travaillé son réseau, lentement, et rien n'a bougé cette saison-là.",
                      effects: [FDEffect(rel: "agent", delta: 6), FDEffect(cond: "reputation", delta: -3)]),
-        ]),
+        ],
+        condition: { p in p.age >= 18 && p.cond.reputation >= 20 }),
     FDSceneDef(
         id: "gmb_clinique_etranger", category: "Blessure", minAge: 22, maxAge: 38,
         location: "Une clinique à l'étranger", character: "Un chirurgien",

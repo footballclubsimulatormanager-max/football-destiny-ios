@@ -118,7 +118,6 @@ final class FDGameEngine: ObservableObject {
         // ceux qui veulent une carrière qui ne pardonne rien.
         let halfStars = min(max(draft.potentialHalfStars, 0), FDPotentialShop.maxHalfStars)
         let halfBought = max(0, halfStars - FDPotentialShop.freeHalfStars)
-        let halfHandicap = max(0, FDPotentialShop.freeHalfStars - halfStars)
         let starCost = FDPotentialShop.cumulativeCost(halfStars: halfBought)
         if starCost > 0 {
             lifetimePoints = max(0, lifetimePoints - starCost)
@@ -159,7 +158,15 @@ final class FDGameEngine: ObservableObject {
         // deux étoiles de départ le tire vers le haut… ou vers le bas.
         let talent = fdDrawTalentTier(
             starsBought: FDPotentialShop.stars(halfStars: halfStars) - Double(FDPotentialShop.freeStars))
-        let potBias = 18 + halfStars * 3 + metaBonus + competencePotential + talent.potentialBias
+
+        // La promesse de cette carrière-là : un seul tirage entre zéro et un, jamais annoncé,
+        // qui décide d'où l'on part, jusqu'où l'on peut aller et quel plafond on touchera.
+        // Les étoiles ne posent aucun mur — elles déplacent seulement les chances de ce
+        // tirage. Un joueur sans étoile peut sortir une promesse de dix-neuf sur vingt ; un
+        // joueur à cinq étoiles peut en tirer une mauvaise. C'est rare dans les deux sens,
+        // et c'est justement ce qui doit rester possible.
+        let promise = promiseRoll(halfStars: halfStars)
+        let potBias = 8 + Int((promise * 46).rounded()) + metaBonus + competencePotential + talent.potentialBias
         let talentSeed = Int.random(in: -6...10)
         let weights = draft.position.weights
         let jitterRange: ClosedRange<Int> = draft.personality == .irregulier ? -14...17 : -8...9
@@ -167,26 +174,22 @@ final class FDGameEngine: ObservableObject {
         var attrs: [String: Int] = [:]
         for a in FDAttribute.allCases {
             let catW = weights.value(for: a.category)
-            // Les étoiles ne décident pas que du plafond : elles disent aussi d'où l'on part.
-            // Sans ça, un joueur lancé à cinq étoiles dans un grand club arrivait à seize ans
-            // au niveau d'un joueur de district, se faisait démolir pendant six saisons et ne
-            // décollait jamais. Deux étoiles restent le niveau de référence.
-            let starLift = Int((Double(halfStars - FDPotentialShop.freeHalfStars) * 2.2).rounded())
-            var v = 22 + Int((catW * 26).rounded()) + starLift
+            // Le niveau de départ suit la même promesse : elle décide d'où l'on part, pas les
+            // étoiles directement. Sans ça, un joueur lancé dans un grand club arrivait à
+            // seize ans au niveau d'un joueur de district et ne décollait jamais.
+            let startLift = Int(((promise - 0.5) * 24).rounded())
+            var v = 22 + Int((catW * 26).rounded()) + startLift
                 + Int((Double(talentSeed) * 0.6).rounded()) + Int.random(in: jitterRange)
             v += styleBonus(draft.style, category: a.category)
             v += personalityBonus(draft.personality, category: a.category)
             v += backgroundBonus(draft.background, category: a.category)
             v += footBonus(draft.foot, category: a.category)
             if Double.random(in: 0...1) < 0.14 { v += Int.random(in: 6...13) }
-            attrs[a.rawValue] = min(max(v, 10), 62)
+            attrs[a.rawValue] = min(max(v, 8), 72)
         }
-        // Le plafond d'un attribut n'est plus le même pour tout le monde : 90 pour tout le
-        // monde interdisait les joueurs d'exception, et cent carrières finissaient par se
-        // ressembler par le haut. Il dépend du palier de talent, des étoiles achetées et
-        // d'un tirage — seul un talent de génération avec des étoiles approche les 99.
-        let attributeCeiling = min(99, 86 + Int.random(in: 0...4) + talent.potentialBias / 2
-                                   + halfBought / 2 - halfHandicap)
+        // Le plafond d'un attribut sort de la même promesse et du palier de talent. Il n'est
+        // jamais fermé d'avance par les étoiles : personne ne part avec un plafond de verre.
+        let attributeCeiling = min(99, 84 + Int((promise * 13).rounded()) + talent.potentialBias / 3)
         var potential: [String: Int] = [:]
         for a in FDAttribute.allCases {
             let base = attrs[a.rawValue] ?? 22
@@ -561,9 +564,6 @@ final class FDGameEngine: ObservableObject {
         return min(baseCentralDivision(totalStars: totalStars), deepest)
     }
 
-    private func startDivisions(centre: Int) -> ClosedRange<Int> {
-        max(1, centre - 1)...min(4, centre + 1)
-    }
 
     /// Les six portes ouvertes au tout début, `totalStars` étant les étoiles offertes plus
     /// celles achetées. On ne propose pas un bloc de clubs équivalents : la moitié au niveau
@@ -587,59 +587,45 @@ final class FDGameEngine: ObservableObject {
 
     private func buildStartClubs(nationality: String, totalStars: Double) -> [FDClub] {
         let centre = startCentralDivision(nationality: nationality, totalStars: totalStars)
-        let allowed = startDivisions(centre: centre)
         let home = FDAllClubs.filter { $0.country == nationality }
+        guard !home.isEmpty else { return [] }
 
-        // Si le pays n'est pas modélisé aussi profond, on élargit plutôt que de rendre une
-        // liste vide : mieux vaut une division voisine qu'un écran sans club.
-        var pool = home.filter { allowed.contains($0.division) }
-        if pool.count < 5 {
-            let deepest = home.map(\.division).max() ?? 1
-            let fallback = min(allowed.lowerBound, deepest)
-            pool = home.filter { $0.division >= fallback }
-        }
-        if pool.isEmpty { pool = home }
-
-        // On tire au sort dans les meilleurs candidats plutôt que de prendre les mêmes en
-        // tête de liste : quelqu'un qui lance cent carrières se voyait proposer six fois le
-        // même club de départ. Le vivier reste cohérent — les bonnes formations pour qui a
-        // des étoiles, les clubs modestes pour qui veut jouer tout de suite — mais qui en
-        // sort change à chaque fois.
-        func band(_ division: Int, _ count: Int, best: Bool) -> [FDClub] {
-            let clubs = pool.filter { $0.division == division }
-            guard !clubs.isEmpty else { return [] }
-            let sorted = best
-                ? clubs.sorted { $0.academyQuality > $1.academyQuality }
-                : clubs.sorted { $0.reputation < $1.reputation }
-            // Deux fois plus de candidats que de places, plus une marge : le tirage a de quoi
-            // varier sans jamais descendre dans le fond du panier.
-            let vivier = Array(sorted.prefix(max(count * 3, count + 4)))
-            return Array(vivier.shuffled().prefix(count))
+        // Aucune division n'est interdite. Les étoiles déplacent les chances, elles ne ferment
+        // aucune porte : un joueur sans étoile peut voir un club d'élite dans sa liste — ça
+        // arrivera rarement, et ce sera la carrière la plus dure qu'il puisse choisir. À
+        // l'inverse, cinq étoiles ne garantissent pas six clubs du haut du tableau.
+        func weight(_ division: Int) -> Double {
+            1.0 / pow(6.0, Double(abs(division - centre)))
         }
 
-        // À quatre étoiles et plus, on n'entre plus par la petite porte : les six clubs
-        // proposés jouent le haut du tableau et la carrière démarre déjà lancée.
-        if totalStars >= 4 {
-            let elite = pool.filter { $0.division == centre }.sorted { $0.reputation > $1.reputation }
-            if elite.count >= 4 { return Array(elite.prefix(10).shuffled().prefix(6)) }
+        var picks: [FDClub] = []
+        var taken = Set<String>()
+        var attempts = 0
+        while picks.count < 6 && attempts < 200 {
+            attempts += 1
+            let divisions = Set(home.map(\.division)).sorted()
+            let total = divisions.reduce(0.0) { $0 + weight($1) }
+            var roll = Double.random(in: 0..<total)
+            var chosen = divisions[0]
+            for division in divisions {
+                if roll < weight(division) { chosen = division; break }
+                roll -= weight(division)
+            }
+            // Dans la division tirée, un club parmi les mieux dotés — mais lequel change à
+            // chaque création, sinon cent carrières proposaient six fois les mêmes.
+            let clubs = home
+                .filter { $0.division == chosen && !taken.contains($0.id) }
+                .sorted { $0.academyQuality > $1.academyQuality }
+            guard let club = Array(clubs.prefix(10)).randomElement() else { continue }
+            taken.insert(club.id)
+            picks.append(club)
         }
 
-        // Un cran au-dessus (plus dur), le niveau moyen, un cran en dessous (plus de jeu).
-        // Quand le niveau moyen est déjà l'élite, il n'y a rien au-dessus : la place revient
-        // au niveau moyen lui-même.
-        let aboveCount = centre > 1 ? 1 : 0
-        var picks = band(centre - 1, aboveCount, best: true)
-        picks += band(centre, 3 + (1 - aboveCount), best: true)
-        picks += band(centre + 1, 2, best: false)
-
-        // Compléter si une division manque dans ce pays, sans jamais doublonner.
+        // Filet de sécurité pour les pays peu modélisés : compléter avec ce qui reste.
         if picks.count < 6 {
-            let taken = Set(picks.map(\.id))
-            picks += pool
+            picks += home
                 .filter { !taken.contains($0.id) }
                 .sorted { $0.academyQuality > $1.academyQuality }
-                .prefix(10)
-                .shuffled()
                 .prefix(6 - picks.count)
         }
         return picks.sorted { $0.division < $1.division }
@@ -688,6 +674,22 @@ final class FDGameEngine: ObservableObject {
         let repFactor = 1 + Double(p.cond.reputation) / 150
         let raw = (base * repFactor / 1000).rounded() * 1000
         return min(95_000_000, Int(raw))
+    }
+
+    /// Un tirage entre zéro et un dont l'espérance monte avec les étoiles, sans jamais fermer
+    /// les extrêmes. À deux étoiles — le départ de toute carrière — c'est un tirage pur. Plus
+    /// haut, on garde le meilleur de plusieurs tirages ; plus bas, le pire. Les étoiles sont
+    /// donc un pourcentage de réussite, pas un mur : à zéro étoile on peut encore sortir une
+    /// carrière d'exception, et cinq étoiles n'en garantissent aucune.
+    private func promiseRoll(halfStars: Int) -> Double {
+        let extra = abs(halfStars - FDPotentialShop.freeHalfStars) / 2
+        var value = Double.random(in: 0...1)
+        let upward = halfStars >= FDPotentialShop.freeHalfStars
+        for _ in 0..<extra {
+            let other = Double.random(in: 0...1)
+            value = upward ? max(value, other) : min(value, other)
+        }
+        return value
     }
 
     private func ageGrowthFactor(_ age: Int) -> Double {
